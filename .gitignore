@@ -1,0 +1,14 @@
+# Rust
+/target/
+**/*.rs.bk
+
+# IDEs
+.idea/
+.vscode/
+
+# OS generated files
+.DS_Store
+thumbs.db
+
+# diffx symbolic link
+diffx/
