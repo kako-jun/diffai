@@ -1,0 +1,8 @@
+[package]
+name = "diffai-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+diffai-core = { path = "../diffai-core" }
+clap = { version = "4.0", features = ["derive"] }
