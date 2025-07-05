@@ -10,13 +10,13 @@ version = "0.2.0"
 edition = "2021"
 authors = ["kako-jun <kako.jun.42@gmail.com>"]
 license = "MIT"
-description = "Command-line tool for AI/ML data diffing with international support"
+description = "🤖 AI/ML specialized diff tool for deep learning models - PyTorch, Safetensors, tensor analysis, model comparison, experiment tracking"
 homepage = "https://github.com/kako-jun/diffai"
 repository = "https://github.com/kako-jun/diffai"
-documentation = "https://docs.rs/diffai-core"
+documentation = "https://github.com/kako-jun/diffai/tree/main/docs"
 readme = "README.md"
-keywords = ["diff", "cli", "ai", "ml", "data"]
-categories = ["command-line-utilities", "data-structures", "parsing"]
+keywords = ["diff", "ai", "ml", "pytorch", "safetensors", "deep-learning", "model-comparison", "tensor-analysis", "mlops", "experiment-tracking"]
+categories = ["command-line-utilities", "machine-learning", "development-tools", "algorithms", "science"]
 exclude = [
     ".github/",
     "target/"
