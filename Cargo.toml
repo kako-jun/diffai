@@ -42,6 +42,11 @@ tempfile = "3.0"
 assert_cmd = "2.0"
 predicates = "3.1"
 criterion = { version = "0.5", features = ["html_reports"] }
+# AI/ML dependencies
+candle-core = "0.8"
+candle-nn = "0.8"
+safetensors = "0.4"
+bytemuck = "1.14"
 
 [profile.release]
 lto = true

@@ -1,7 +1,7 @@
 use anyhow::{Context, Result, bail};
 use clap::{Parser, ValueEnum};
 use colored::*;
-use diffai_core::{diff, value_type_name, DiffResult, parse_ini, parse_xml, parse_csv};
+use diffai_core::{diff, value_type_name, DiffResult, parse_ini, parse_xml, parse_csv, diff_ml_models};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
@@ -100,6 +100,8 @@ enum Format {
     Ini,
     Xml,
     Csv,
+    Safetensors,
+    Pytorch,
 }
 
 fn infer_format_from_path(path: &Path) -> Option<Format> {
@@ -117,6 +119,8 @@ fn infer_format_from_path(path: &Path) -> Option<Format> {
                     "ini" => Some(Format::Ini),
                     "xml" => Some(Format::Xml),
                     "csv" => Some(Format::Csv),
+                    "safetensors" => Some(Format::Safetensors),
+                    "pt" | "pth" => Some(Format::Pytorch),
                     _ => None,
                 }
             })
@@ -141,10 +145,13 @@ fn parse_content(content: &str, format: Format) -> Result<Value> {
         Format::Ini => parse_ini(content).context("Failed to parse INI"),
         Format::Xml => parse_xml(content).context("Failed to parse XML"),
         Format::Csv => parse_csv(content).context("Failed to parse CSV"),
+        Format::Safetensors | Format::Pytorch => {
+            bail!("ML model formats (safetensors, pytorch) cannot be parsed as text. Use the model comparison feature instead.")
+        }
     }
 }
 
-fn print_cli_output(mut differences: Vec<DiffResult>, _v1: &Value, _v2: &Value) {
+fn print_cli_output(mut differences: Vec<DiffResult>) {
     if differences.is_empty() {
         println!("No differences found.");
         return;
@@ -156,6 +163,9 @@ fn print_cli_output(mut differences: Vec<DiffResult>, _v1: &Value, _v2: &Value) 
             DiffResult::Removed(k, _) => k.clone(),
             DiffResult::Modified(k, _, _) => k.clone(),
             DiffResult::TypeChanged(k, _, _) => k.clone(),
+            DiffResult::TensorShapeChanged(k, _, _) => k.clone(),
+            DiffResult::TensorStatsChanged(k, _, _) => k.clone(),
+            DiffResult::ModelArchitectureChanged(k, _, _) => k.clone(),
         }
     };
 
@@ -174,6 +184,18 @@ fn print_cli_output(mut differences: Vec<DiffResult>, _v1: &Value, _v2: &Value) 
             DiffResult::TypeChanged(k, v1, v2) => {
                 format!("! {}: {} ({}) -> {} ({})", k, v1, value_type_name(v1), v2, value_type_name(v2))
                     .magenta()
+            }
+            DiffResult::TensorShapeChanged(k, shape1, shape2) => {
+                format!("⬚ {}: {:?} -> {:?}", k, shape1, shape2).purple()
+            }
+            DiffResult::TensorStatsChanged(k, stats1, stats2) => {
+                format!("📊 {}: mean={:.4}→{:.4}, std={:.4}→{:.4}", 
+                    k, stats1.mean, stats2.mean, stats1.std, stats2.std).bright_purple()
+            }
+            DiffResult::ModelArchitectureChanged(k, info1, info2) => {
+                format!("🏗️ {}: params={}→{}, layers={}→{}", 
+                    k, info1.total_parameters, info2.total_parameters, 
+                    info1.layer_count, info2.layer_count).bright_magenta()
             }
         };
 
@@ -201,6 +223,15 @@ fn print_yaml_output(differences: Vec<DiffResult>) -> Result<()> {
             }),
             DiffResult::TypeChanged(key, old_value, new_value) => serde_json::json!({
                 "TypeChanged": [key, old_value, new_value]
+            }),
+            DiffResult::TensorShapeChanged(key, shape1, shape2) => serde_json::json!({
+                "TensorShapeChanged": [key, shape1, shape2]
+            }),
+            DiffResult::TensorStatsChanged(key, stats1, stats2) => serde_json::json!({
+                "TensorStatsChanged": [key, stats1, stats2]
+            }),
+            DiffResult::ModelArchitectureChanged(key, info1, info2) => serde_json::json!({
+                "ModelArchitectureChanged": [key, info1, info2]
             }),
         }
     }).collect();
@@ -252,9 +283,6 @@ fn main() -> Result<()> {
     }
 
     // Handle single file/stdin comparison
-    let content1 = read_input(&args.input1)?;
-    let content2 = read_input(&args.input2)?;
-
     let input_format = if let Some(fmt) = args.format {
         fmt
     } else if let Some(fmt) = input_format_from_config {
@@ -265,10 +293,20 @@ fn main() -> Result<()> {
             .context("Could not infer format from file extensions. Please specify --format or configure in diffx.toml.")?
     };
 
-    let v1: Value = parse_content(&content1, input_format)?;
-    let v2: Value = parse_content(&content2, input_format)?;
-
-    let mut differences = diff(&v1, &v2, ignore_keys_regex.as_ref(), epsilon, array_id_key);
+    let mut differences = match input_format {
+        Format::Safetensors | Format::Pytorch => {
+            // Handle ML model files
+            diff_ml_models(&args.input1, &args.input2, epsilon)?
+        }
+        _ => {
+            // Handle regular structured data files
+            let content1 = read_input(&args.input1)?;
+            let content2 = read_input(&args.input2)?;
+            let v1: Value = parse_content(&content1, input_format)?;
+            let v2: Value = parse_content(&content2, input_format)?;
+            diff(&v1, &v2, ignore_keys_regex.as_ref(), epsilon, array_id_key)
+        }
+    };
 
     if let Some(filter_path) = args.path {
         differences.retain(|d| {
@@ -277,16 +315,32 @@ fn main() -> Result<()> {
                 DiffResult::Removed(k, _) => k,
                 DiffResult::Modified(k, _, _) => k,
                 DiffResult::TypeChanged(k, _, _) => k,
+                DiffResult::TensorShapeChanged(k, _, _) => k,
+                DiffResult::TensorStatsChanged(k, _, _) => k,
+                DiffResult::ModelArchitectureChanged(k, _, _) => k,
             };
             key.starts_with(&filter_path)
         });
     }
 
     match output_format {
-        OutputFormat::Cli => print_cli_output(differences, &v1, &v2),
+        OutputFormat::Cli => print_cli_output(differences),
         OutputFormat::Json => print_json_output(differences)?,
         OutputFormat::Yaml => print_yaml_output(differences)?,
-        OutputFormat::Unified => print_unified_output(&v1, &v2)?,
+        OutputFormat::Unified => {
+            match input_format {
+                Format::Safetensors | Format::Pytorch => {
+                    bail!("Unified output format is not supported for ML model files")
+                }
+                _ => {
+                    let content1 = read_input(&args.input1)?;
+                    let content2 = read_input(&args.input2)?;
+                    let v1: Value = parse_content(&content1, input_format)?;
+                    let v2: Value = parse_content(&content2, input_format)?;
+                    print_unified_output(&v1, &v2)?
+                }
+            }
+        }
     }
 
     Ok(())
@@ -356,13 +410,16 @@ fn compare_directories(
                             DiffResult::Removed(k, _) => k,
                             DiffResult::Modified(k, _, _) => k,
                             DiffResult::TypeChanged(k, _, _) => k,
+                            DiffResult::TensorShapeChanged(k, _, _) => k,
+                            DiffResult::TensorStatsChanged(k, _, _) => k,
+                            DiffResult::ModelArchitectureChanged(k, _, _) => k,
                         };
                         key.starts_with(filter_path_str)
                     });
                 }
 
                 match output {
-                    OutputFormat::Cli => print_cli_output(differences, &v1, &v2),
+                    OutputFormat::Cli => print_cli_output(differences),
                     OutputFormat::Json => print_json_output(differences)?,
                     OutputFormat::Yaml => print_yaml_output(differences)?,
                     OutputFormat::Unified => print_unified_output(&v1, &v2)?,

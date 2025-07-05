@@ -24,6 +24,11 @@ serde_json = { workspace = true }
 serde_yml = { workspace = true }
 toml = { workspace = true }
 regex = { workspace = true }
+# AI/ML dependencies
+candle-core = { workspace = true }
+candle-nn = { workspace = true }
+safetensors = { workspace = true }
+bytemuck = { workspace = true }
 
 [dev-dependencies]
 criterion = { workspace = true }
