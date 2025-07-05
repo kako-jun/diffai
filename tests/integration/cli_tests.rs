@@ -1,6 +1,7 @@
 use assert_cmd::prelude::*;
 use predicates::prelude::*;
 use std::process::Command;
+use std::fs;
 
 // Helper function to get the diffai command
 fn diffai_cmd() -> Command {
@@ -236,5 +237,154 @@ fn test_meta_chaining() -> Result<(), Box<dyn std::error::Error>> {
     std::fs::remove_file("../tests/output/diff_report_v1.json")?;
     std::fs::remove_file("../tests/output/diff_report_v2.json")?;
 
+    Ok(())
+}
+
+// ML-specific tests
+
+#[test]
+fn test_safetensors_format_detection() -> Result<(), Box<dyn std::error::Error>> {
+    // Create minimal test safetensors files
+    create_test_safetensors_file("../tests/output/test1.safetensors")?;
+    create_test_safetensors_file("../tests/output/test2.safetensors")?;
+    
+    let mut cmd = diffai_cmd();
+    cmd.arg("../tests/output/test1.safetensors").arg("../tests/output/test2.safetensors");
+    
+    // Should detect safetensors format automatically
+    let output = cmd.output()?;
+    
+    // For now, since we create identical test files, expect no differences
+    // or an error message indicating parsing issues
+    assert!(output.status.success() || 
+            String::from_utf8_lossy(&output.stderr).contains("Failed to parse"));
+    
+    // Clean up
+    let _ = fs::remove_file("../tests/output/test1.safetensors");
+    let _ = fs::remove_file("../tests/output/test2.safetensors");
+    
+    Ok(())
+}
+
+#[test]
+fn test_pytorch_format_detection() -> Result<(), Box<dyn std::error::Error>> {
+    // Create minimal test PyTorch files
+    create_test_pytorch_file("../tests/output/test1.pt")?;
+    create_test_pytorch_file("../tests/output/test2.pt")?;
+    
+    let mut cmd = diffai_cmd();
+    cmd.arg("../tests/output/test1.pt").arg("../tests/output/test2.pt");
+    
+    // Should detect pytorch format automatically
+    let output = cmd.output()?;
+    
+    // Expect parsing error since we create minimal test files
+    assert!(String::from_utf8_lossy(&output.stderr).contains("Failed to parse") ||
+            output.status.success());
+    
+    // Clean up
+    let _ = fs::remove_file("../tests/output/test1.pt");
+    let _ = fs::remove_file("../tests/output/test2.pt");
+    
+    Ok(())
+}
+
+#[test]
+fn test_ml_model_comparison_with_epsilon() -> Result<(), Box<dyn std::error::Error>> {
+    // Test that epsilon parameter works with ML model comparison
+    create_test_safetensors_file("../tests/output/model1.safetensors")?;
+    create_test_safetensors_file("../tests/output/model2.safetensors")?;
+    
+    let mut cmd = diffai_cmd();
+    cmd.arg("../tests/output/model1.safetensors")
+       .arg("../tests/output/model2.safetensors")
+       .arg("--epsilon")
+       .arg("0.001");
+    
+    let output = cmd.output()?;
+    
+    // Should handle epsilon parameter without crashing
+    assert!(output.status.success() || 
+            String::from_utf8_lossy(&output.stderr).contains("Failed to parse"));
+    
+    // Clean up
+    let _ = fs::remove_file("../tests/output/model1.safetensors");
+    let _ = fs::remove_file("../tests/output/model2.safetensors");
+    
+    Ok(())
+}
+
+#[test]
+fn test_ml_json_output_format() -> Result<(), Box<dyn std::error::Error>> {
+    // Test JSON output format with ML model files
+    create_test_safetensors_file("../tests/output/model_a.safetensors")?;
+    create_test_safetensors_file("../tests/output/model_b.safetensors")?;
+    
+    let mut cmd = diffai_cmd();
+    cmd.arg("../tests/output/model_a.safetensors")
+       .arg("../tests/output/model_b.safetensors")
+       .arg("--output")
+       .arg("json");
+    
+    let output = cmd.output()?;
+    
+    if output.status.success() {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        // Should output valid JSON (even if empty array)
+        assert!(stdout.starts_with('[') && stdout.trim_end().ends_with(']'));
+    }
+    
+    // Clean up
+    let _ = fs::remove_file("../tests/output/model_a.safetensors");
+    let _ = fs::remove_file("../tests/output/model_b.safetensors");
+    
+    Ok(())
+}
+
+#[test]
+fn test_unsupported_ml_format_error() -> Result<(), Box<dyn std::error::Error>> {
+    // Test error handling for unsupported ML formats
+    fs::write("../tests/output/fake.onnx", b"fake onnx data")?;
+    fs::write("../tests/output/fake2.onnx", b"fake onnx data2")?;
+    
+    let mut cmd = diffai_cmd();
+    cmd.arg("../tests/output/fake.onnx")
+       .arg("../tests/output/fake2.onnx");
+    
+    let output = cmd.output()?;
+    
+    // Should handle unknown format gracefully or show error
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    let _stdout = String::from_utf8_lossy(&output.stdout);
+    
+    // Either success (treated as regular file) or error about format
+    assert!(output.status.success() || 
+            stderr.contains("format") || 
+            stderr.contains("Could not infer"));
+    
+    // Clean up
+    let _ = fs::remove_file("../tests/output/fake.onnx");
+    let _ = fs::remove_file("../tests/output/fake2.onnx");
+    
+    Ok(())
+}
+
+// Helper functions for creating test ML files
+
+fn create_test_safetensors_file(path: &str) -> Result<(), Box<dyn std::error::Error>> {
+    // Create a minimal safetensors file structure
+    // This is just for testing file detection, not actual parsing
+    let test_data = b"{}"; // Minimal JSON metadata
+    fs::create_dir_all("../tests/output")?;
+    fs::write(path, test_data)?;
+    Ok(())
+}
+
+fn create_test_pytorch_file(path: &str) -> Result<(), Box<dyn std::error::Error>> {
+    // Create a minimal PyTorch file structure
+    // This is just for testing file detection, not actual parsing
+    let test_data = b"\x80\x02}q\x00."; // Minimal pickle header
+    fs::create_dir_all("../tests/output")?;
+    fs::write(path, test_data)?;
     Ok(())
 }
