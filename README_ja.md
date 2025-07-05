@@ -2,11 +2,11 @@
 
 > **🤖 AI/ML specialized diff tool - Focus on model changes, not formatting noise**
 
-[English README](README.md) | [日本語版 README](README_ja.md)
+[日本語版 README](README_ja.md) | [English README](README.md)
 
 [![CI](https://github.com/kako-jun/diffai/actions/workflows/ci.yml/badge.svg)](https://github.com/kako-jun/diffai/actions/workflows/ci.yml)
 [![Crates.io](https://img.shields.io/crates/v/diffai.svg)](https://crates.io/crates/diffai)
-[![Documentation](https://img.shields.io/badge/docs-GitHub-blue)](https://github.com/kako-jun/diffai/tree/main/docs/index.md)
+[![Documentation](https://img.shields.io/badge/docs-GitHub-blue)](https://github.com/kako-jun/diffai/tree/main/docs/index_ja.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 A next-generation diff tool specialized for **AI/ML workflows** that understands model structures, tensor statistics, and experiment data - not just text changes. Perfect for PyTorch, Safetensors, JSON configs, and structured data.
@@ -297,15 +297,6 @@ fi
 - 📋 **Gradient analysis** for training debugging
 - 📋 **Attention pattern comparison** for transformer models
 - 📋 **Embedding space analysis** for representation learning
-
-## 📚 Documentation
-
-For comprehensive documentation, see our [docs directory](docs/index.md):
-
-- **[Installation Guide](docs/user-guide/installation.md)** - Setup for various environments
-- **[Basic Usage](docs/user-guide/basic-usage.md)** - Command reference and examples
-- **[ML Workflows](docs/user-guide/ml-workflows.md)** - Integration with ML development
-- **[Architecture](docs/architecture/design-principles.md)** - Design principles and architecture
 
 ## 🤝 Contributing
 

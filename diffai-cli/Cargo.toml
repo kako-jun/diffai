@@ -4,13 +4,13 @@ version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
-description = "Command-line tool for AI/ML data diffing (JSON, YAML, TOML, XML, INI, CSV)"
+description = "AI/ML specialized diff CLI - PyTorch, Safetensors model comparison, tensor analysis"
 homepage.workspace = true
 repository.workspace = true
 documentation.workspace = true
 readme = "../README.md"
 keywords.workspace = true
-categories = ["command-line-utilities"]
+categories.workspace = true
 exclude.workspace = true
 rust-version.workspace = true
 
