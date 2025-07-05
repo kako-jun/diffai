@@ -1,8 +1,41 @@
 [package]
-name = "diffai-cli"
-version = "0.1.0"
-edition = "2021"
+name = "diffai"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Command-line tool for AI/ML data diffing (JSON, YAML, TOML, XML, INI, CSV)"
+homepage.workspace = true
+repository.workspace = true
+documentation.workspace = true
+readme = "../README.md"
+keywords.workspace = true
+categories = ["command-line-utilities"]
+exclude.workspace = true
+rust-version.workspace = true
 
 [dependencies]
 diffai-core = { path = "../diffai-core" }
-clap = { version = "4.0", features = ["derive"] }
+anyhow = { workspace = true }
+clap = { workspace = true }
+colored = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_yml = { workspace = true }
+similar = { workspace = true }
+toml = { workspace = true }
+walkdir = { workspace = true }
+dirs = { workspace = true }
+regex = { workspace = true }
+
+[dev-dependencies]
+assert_cmd = { workspace = true }
+predicates = { workspace = true }
+
+[[test]]
+name = "integration"
+path = "../tests/integration/mod.rs"
+
+[[test]]
+name = "unit"
+path = "../tests/unit/mod.rs"
