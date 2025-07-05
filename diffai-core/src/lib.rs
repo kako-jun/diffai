@@ -591,3 +591,116 @@ fn calculate_f64_stats(data: &[f64]) -> (f64, f64, f64, f64) {
     
     (mean, std, min, max)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_tensor_stats_creation() {
+        let stats = TensorStats {
+            mean: 0.5,
+            std: 1.0,
+            min: -2.0,
+            max: 3.0,
+            shape: vec![10, 20],
+            dtype: "f32".to_string(),
+            total_params: 200,
+        };
+        
+        assert_eq!(stats.mean, 0.5);
+        assert_eq!(stats.total_params, 200);
+        assert_eq!(stats.shape, vec![10, 20]);
+    }
+
+    #[test]
+    fn test_diff_result_variants() {
+        // Test TensorStatsChanged variant
+        let stats1 = TensorStats {
+            mean: 0.0,
+            std: 1.0,
+            min: -2.0,
+            max: 2.0,
+            shape: vec![128, 64],
+            dtype: "f32".to_string(),
+            total_params: 8192,
+        };
+        
+        let stats2 = TensorStats {
+            mean: 0.1,
+            std: 1.1,
+            min: -1.9,
+            max: 2.1,
+            shape: vec![128, 64],
+            dtype: "f32".to_string(),
+            total_params: 8192,
+        };
+        
+        let diff = DiffResult::TensorStatsChanged(
+            "linear1.weight".to_string(),
+            stats1.clone(),
+            stats2.clone()
+        );
+        
+        match diff {
+            DiffResult::TensorStatsChanged(name, s1, s2) => {
+                assert_eq!(name, "linear1.weight");
+                assert_eq!(s1.mean, 0.0);
+                assert_eq!(s2.mean, 0.1);
+            },
+            _ => panic!("Expected TensorStatsChanged variant"),
+        }
+    }
+
+    #[test]
+    fn test_tensor_shape_changed() {
+        let diff = DiffResult::TensorShapeChanged(
+            "linear2.weight".to_string(),
+            vec![256, 128],
+            vec![512, 128]
+        );
+        
+        match diff {
+            DiffResult::TensorShapeChanged(name, shape1, shape2) => {
+                assert_eq!(name, "linear2.weight");
+                assert_eq!(shape1, vec![256, 128]);
+                assert_eq!(shape2, vec![512, 128]);
+            },
+            _ => panic!("Expected TensorShapeChanged variant"),
+        }
+    }
+
+    #[test]
+    fn test_calculate_f32_stats() {
+        let data = vec![1.0, 2.0, 3.0, 4.0, 5.0];
+        let (mean, std, min, max) = calculate_f32_stats(&data);
+        
+        assert_eq!(mean, 3.0);
+        assert_eq!(min, 1.0);
+        assert_eq!(max, 5.0);
+        // std should be sqrt(2) for [1,2,3,4,5]
+        assert!((std - (2.0_f64).sqrt()).abs() < 1e-10);
+    }
+
+    #[test]
+    fn test_calculate_f64_stats() {
+        let data = vec![0.0, 1.0, 2.0];
+        let (mean, std, min, max) = calculate_f64_stats(&data);
+        
+        assert_eq!(mean, 1.0);
+        assert_eq!(min, 0.0);
+        assert_eq!(max, 2.0);
+        assert!((std - (2.0_f64 / 3.0).sqrt()).abs() < 1e-10);
+    }
+
+    #[test]
+    fn test_error_handling_nonexistent_files() {
+        // Test that ML diff function handles non-existent files gracefully
+        let result = diff_ml_models(
+            Path::new("nonexistent1.safetensors"),
+            Path::new("nonexistent2.safetensors"),
+            None
+        );
+        assert!(result.is_err());
+    }
+}
