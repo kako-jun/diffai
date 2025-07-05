@@ -2,10 +2,14 @@ use serde::Serialize;
 use serde_json::Value;
 use regex::Regex;
 use std::collections::HashMap;
+use std::path::Path;
 // use ini::Ini;
 use anyhow::{Result, anyhow};
 use quick_xml::de::from_str;
 use csv::ReaderBuilder;
+// AI/ML dependencies
+use candle_core::Device;
+use safetensors::SafeTensors;
 
 #[derive(Debug, PartialEq, Serialize)]
 pub enum DiffResult {
@@ -13,6 +17,29 @@ pub enum DiffResult {
     Removed(String, Value),
     Modified(String, Value, Value),
     TypeChanged(String, Value, Value),
+    // AI/ML specific diff results
+    TensorShapeChanged(String, Vec<usize>, Vec<usize>),
+    TensorStatsChanged(String, TensorStats, TensorStats),
+    ModelArchitectureChanged(String, ModelInfo, ModelInfo),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct TensorStats {
+    pub mean: f64,
+    pub std: f64,
+    pub min: f64,
+    pub max: f64,
+    pub shape: Vec<usize>,
+    pub dtype: String,
+    pub total_params: usize,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct ModelInfo {
+    pub total_parameters: usize,
+    pub layer_count: usize,
+    pub layer_types: HashMap<String, usize>,
+    pub model_size_bytes: usize,
 }
 
 pub fn diff(
@@ -354,4 +381,213 @@ pub fn parse_csv(content: &str) -> Result<Value> {
         }
     }
     Ok(Value::Array(records))
+}
+
+// ============================================================================
+// AI/ML File Format Support
+// ============================================================================
+
+/// Parse a PyTorch model file (.pth, .pt) and extract tensor information
+pub fn parse_pytorch_model(file_path: &Path) -> Result<HashMap<String, TensorStats>> {
+    let _device = Device::Cpu;
+    let mut model_tensors = HashMap::new();
+    
+    // Try to load as safetensors first (more efficient)
+    if let Ok(data) = std::fs::read(file_path) {
+        if let Ok(safetensors) = SafeTensors::deserialize(&data) {
+            for (name, tensor_view) in safetensors.tensors() {
+                let shape: Vec<usize> = tensor_view.shape().to_vec();
+                let dtype = match tensor_view.dtype() {
+                    safetensors::Dtype::F32 => "f32".to_string(),
+                    safetensors::Dtype::F64 => "f64".to_string(),
+                    safetensors::Dtype::I32 => "i32".to_string(),
+                    safetensors::Dtype::I64 => "i64".to_string(),
+                    _ => "unknown".to_string(),
+                };
+                
+                // Calculate basic statistics
+                let total_params = shape.iter().product();
+                let stats = TensorStats {
+                    mean: 0.0, // TODO: Calculate actual mean from tensor data
+                    std: 0.0,  // TODO: Calculate actual std from tensor data  
+                    min: 0.0,  // TODO: Calculate actual min from tensor data
+                    max: 0.0,  // TODO: Calculate actual max from tensor data
+                    shape,
+                    dtype,
+                    total_params,
+                };
+                
+                model_tensors.insert(name.to_string(), stats);
+            }
+            return Ok(model_tensors);
+        }
+    }
+    
+    // If safetensors parsing fails, try PyTorch pickle format
+    // Note: This is a simplified implementation
+    // In practice, you'd need to use candle's PyTorch loading capabilities
+    Err(anyhow!("Failed to parse PyTorch model file: {}", file_path.display()))
+}
+
+/// Parse a Safetensors file (.safetensors) and extract tensor information  
+pub fn parse_safetensors_model(file_path: &Path) -> Result<HashMap<String, TensorStats>> {
+    let data = std::fs::read(file_path)?;
+    let safetensors = SafeTensors::deserialize(&data)?;
+    let mut model_tensors = HashMap::new();
+    
+    for (name, tensor_view) in safetensors.tensors() {
+        let shape: Vec<usize> = tensor_view.shape().to_vec();
+        let dtype = match tensor_view.dtype() {
+            safetensors::Dtype::F32 => "f32".to_string(),
+            safetensors::Dtype::F64 => "f64".to_string(),
+            safetensors::Dtype::I32 => "i32".to_string(),
+            safetensors::Dtype::I64 => "i64".to_string(),
+            _ => "unknown".to_string(),
+        };
+        
+        let total_params = shape.iter().product();
+        
+        // Extract raw data and calculate statistics
+        let data_slice = tensor_view.data();
+        let (mean, std, min, max) = match tensor_view.dtype() {
+            safetensors::Dtype::F32 => {
+                let float_data: &[f32] = bytemuck::cast_slice(data_slice);
+                calculate_f32_stats(float_data)
+            },
+            safetensors::Dtype::F64 => {
+                let float_data: &[f64] = bytemuck::cast_slice(data_slice);
+                calculate_f64_stats(float_data)
+            },
+            _ => (0.0, 0.0, 0.0, 0.0), // Skip non-float types for now
+        };
+        
+        let stats = TensorStats {
+            mean,
+            std,
+            min,
+            max,
+            shape,
+            dtype,
+            total_params,
+        };
+        
+        model_tensors.insert(name.to_string(), stats);
+    }
+    
+    Ok(model_tensors)
+}
+
+/// Compare two PyTorch/Safetensors models and return differences
+pub fn diff_ml_models(
+    model1_path: &Path,
+    model2_path: &Path,
+    epsilon: Option<f64>,
+) -> Result<Vec<DiffResult>> {
+    let model1_tensors = if model1_path.extension().and_then(|s| s.to_str()) == Some("safetensors") {
+        parse_safetensors_model(model1_path)?
+    } else {
+        parse_pytorch_model(model1_path)?
+    };
+    
+    let model2_tensors = if model2_path.extension().and_then(|s| s.to_str()) == Some("safetensors") {
+        parse_safetensors_model(model2_path)?
+    } else {
+        parse_pytorch_model(model2_path)?
+    };
+    
+    let mut results = Vec::new();
+    let eps = epsilon.unwrap_or(1e-6);
+    
+    // Check for added tensors
+    for (name, stats) in &model2_tensors {
+        if !model1_tensors.contains_key(name) {
+            results.push(DiffResult::Added(
+                format!("tensor.{}", name),
+                serde_json::to_value(stats)?,
+            ));
+        }
+    }
+    
+    // Check for removed tensors
+    for (name, stats) in &model1_tensors {
+        if !model2_tensors.contains_key(name) {
+            results.push(DiffResult::Removed(
+                format!("tensor.{}", name),
+                serde_json::to_value(stats)?,
+            ));
+        }
+    }
+    
+    // Check for modified tensors
+    for (name, stats1) in &model1_tensors {
+        if let Some(stats2) = model2_tensors.get(name) {
+            // Check shape changes
+            if stats1.shape != stats2.shape {
+                results.push(DiffResult::TensorShapeChanged(
+                    format!("tensor.{}", name),
+                    stats1.shape.clone(),
+                    stats2.shape.clone(),
+                ));
+            }
+            
+            // Check statistical changes (with epsilon tolerance)
+            if (stats1.mean - stats2.mean).abs() > eps ||
+               (stats1.std - stats2.std).abs() > eps ||
+               (stats1.min - stats2.min).abs() > eps ||
+               (stats1.max - stats2.max).abs() > eps {
+                results.push(DiffResult::TensorStatsChanged(
+                    format!("tensor.{}", name),
+                    stats1.clone(),
+                    stats2.clone(),
+                ));
+            }
+        }
+    }
+    
+    Ok(results)
+}
+
+// Helper functions for statistical calculations
+fn calculate_f32_stats(data: &[f32]) -> (f64, f64, f64, f64) {
+    if data.is_empty() {
+        return (0.0, 0.0, 0.0, 0.0);
+    }
+    
+    let sum: f64 = data.iter().map(|&x| x as f64).sum();
+    let mean = sum / data.len() as f64;
+    
+    let variance: f64 = data.iter()
+        .map(|&x| {
+            let diff = x as f64 - mean;
+            diff * diff
+        })
+        .sum::<f64>() / data.len() as f64;
+    
+    let std = variance.sqrt();
+    let min = data.iter().copied().min_by(|a, b| a.partial_cmp(b).unwrap()).unwrap() as f64;
+    let max = data.iter().copied().max_by(|a, b| a.partial_cmp(b).unwrap()).unwrap() as f64;
+    
+    (mean, std, min, max)
+}
+
+fn calculate_f64_stats(data: &[f64]) -> (f64, f64, f64, f64) {
+    if data.is_empty() {
+        return (0.0, 0.0, 0.0, 0.0);
+    }
+    
+    let sum: f64 = data.iter().sum();
+    let mean = sum / data.len() as f64;
+    
+    let variance: f64 = data.iter()
+        .map(|&x| {
+            let diff = x - mean;
+            diff * diff
+        })
+        .sum::<f64>() / data.len() as f64;
+    
+    let std = variance.sqrt();
+    let min = data.iter().copied().min_by(|a, b| a.partial_cmp(b).unwrap()).unwrap();
+    let max = data.iter().copied().max_by(|a, b| a.partial_cmp(b).unwrap()).unwrap();
+    
+    (mean, std, min, max)
 }
