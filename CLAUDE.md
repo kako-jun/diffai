@@ -297,14 +297,14 @@ examples/
 - [x] ML機能のテストケース追加
 
 ### Week 2: ドキュメント整備
-- [ ] docs ディレクトリ作成
+- [x] docs ディレクトリ作成
 - [x] CONTRIBUTING.md 作成
 - [x] examples ディレクトリ作成
 
 ### Week 3: リリース準備完了
-- [ ] crates.io メタデータ最適化
-- [ ] CHANGELOG.md 作成
-- [ ] CI/CD ワークフロー改善
+- [x] crates.io メタデータ最適化
+- [x] CHANGELOG.md 作成
+- [x] CI/CD ワークフロー改善
 
 ## 💡 diffaiの独自価値（実装完了後の強み）
 
