@@ -495,7 +495,7 @@ fn diff_objects(
             let current_path = if path.is_empty() {
                 key.clone()
             } else {
-                format!("{}.{}", path, key)
+                format!("{path}.{key}")
             };
             results.push(DiffResult::Added(current_path, value2.clone()));
         }
