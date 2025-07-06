@@ -1,3 +1,5 @@
+#![allow(clippy::uninlined_format_args)]
+
 use criterion::{criterion_group, criterion_main, Criterion};
 use diffai_core::diff;
 use serde_json::{json, Value};
