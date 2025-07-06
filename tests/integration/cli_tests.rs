@@ -482,94 +482,69 @@ fn create_test_pytorch_file(path: &str) -> Result<(), Box<dyn std::error::Error>
 
 #[test]
 fn test_learning_progress_analysis() -> Result<(), Box<dyn std::error::Error>> {
-    // Use JSON files for testing CLI flag acceptance
-    fs::create_dir_all("../tests/output")?;
-    fs::write(
-        "../tests/output/checkpoint_v1.json",
-        r#"{"model": "v1", "epoch": 10}"#,
-    )?;
-    fs::write(
-        "../tests/output/checkpoint_v2.json",
-        r#"{"model": "v2", "epoch": 20}"#,
-    )?;
-
+    // Use real ML model files for testing learning progress analysis
     let mut cmd = diffai_cmd();
-    cmd.arg("../tests/output/checkpoint_v1.json")
-        .arg("../tests/output/checkpoint_v2.json")
+    cmd.arg("../tests/fixtures/ml_models/checkpoint_epoch_0.safetensors")
+        .arg("../tests/fixtures/ml_models/checkpoint_epoch_10.safetensors")
         .arg("--learning-progress");
 
     let output = cmd.output()?;
 
-    // Should accept the flag and process the files (success is expected for JSON)
+    // Should process successfully with real ML files
     assert!(output.status.success());
 
-    // Check that the flag was processed (should be in stdout or stderr)
-    let _stdout = String::from_utf8_lossy(&output.stdout);
-    let _stderr = String::from_utf8_lossy(&output.stderr);
-
-    // The test passes if it processes successfully
-    assert!(output.status.success());
-
-    // Clean up
-    let _ = fs::remove_file("../tests/output/checkpoint_v1.json");
-    let _ = fs::remove_file("../tests/output/checkpoint_v2.json");
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    
+    // Check that learning progress analysis was performed
+    assert!(stdout.contains("learning_progress"));
+    assert!(stdout.contains("trend="));
+    assert!(stdout.contains("magnitude="));
 
     Ok(())
 }
 
 #[test]
 fn test_convergence_analysis() -> Result<(), Box<dyn std::error::Error>> {
-    fs::create_dir_all("../tests/output")?;
-    fs::write(
-        "../tests/output/model_before.json",
-        r#"{"loss": 0.5, "accuracy": 0.8}"#,
-    )?;
-    fs::write(
-        "../tests/output/model_after.json",
-        r#"{"loss": 0.3, "accuracy": 0.9}"#,
-    )?;
-
+    // Use real ML model files for testing convergence analysis
     let mut cmd = diffai_cmd();
-    cmd.arg("../tests/output/model_before.json")
-        .arg("../tests/output/model_after.json")
+    cmd.arg("../tests/fixtures/ml_models/checkpoint_epoch_10.safetensors")
+        .arg("../tests/fixtures/ml_models/checkpoint_epoch_50.safetensors")
         .arg("--convergence-analysis");
 
     let output = cmd.output()?;
 
-    // Should accept the flag and process successfully
+    // Should process successfully with real ML files
     assert!(output.status.success());
 
-    // Clean up
-    let _ = fs::remove_file("../tests/output/model_before.json");
-    let _ = fs::remove_file("../tests/output/model_after.json");
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    
+    // Check that convergence analysis was performed
+    assert!(stdout.contains("convergence_analysis"));
+    assert!(stdout.contains("status="));
+    assert!(stdout.contains("stability="));
 
     Ok(())
 }
 
 #[test]
 fn test_anomaly_detection() -> Result<(), Box<dyn std::error::Error>> {
-    create_test_pytorch_file("../tests/output/model_normal.pt")?;
-    create_test_pytorch_file("../tests/output/model_anomaly.pt")?;
-
+    // Use real ML model files for testing anomaly detection
     let mut cmd = diffai_cmd();
-    cmd.arg("../tests/output/model_normal.pt")
-        .arg("../tests/output/model_anomaly.pt")
+    cmd.arg("../tests/fixtures/ml_models/normal_model.safetensors")
+        .arg("../tests/fixtures/ml_models/anomalous_model.safetensors")
         .arg("--anomaly-detection");
 
     let output = cmd.output()?;
 
-    // Should accept the flag and either succeed or show a parse error for invalid safetensors
-    let stderr = String::from_utf8_lossy(&output.stderr);
-    assert!(
-        output.status.success()
-            || stderr.contains("Failed to parse")
-            || stderr.contains("HeaderTooSmall")
-            || stderr.contains("Error:")
-    );
+    // Should process successfully with real ML files
+    assert!(output.status.success());
 
-    // Clean up
-    let _ = fs::remove_file("../tests/output/model_normal.pt");
-    let _ = fs::remove_file("../tests/output/model_anomaly.pt");
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    
+    // Check that anomaly detection was performed
+    assert!(stdout.contains("anomaly_detection"));
+    assert!(stdout.contains("type="));
+    assert!(stdout.contains("severity="));
 
     Ok(())
 }
@@ -604,29 +579,23 @@ fn test_gradient_analysis() -> Result<(), Box<dyn std::error::Error>> {
 
 #[test]
 fn test_memory_analysis() -> Result<(), Box<dyn std::error::Error>> {
-    fs::create_dir_all("../tests/output")?;
-    fs::write(
-        "../tests/output/lightweight.json",
-        r#"{"size": "small", "memory": 100}"#,
-    )?;
-    fs::write(
-        "../tests/output/heavy.json",
-        r#"{"size": "large", "memory": 1000}"#,
-    )?;
-
+    // Use real ML model files for testing memory analysis
     let mut cmd = diffai_cmd();
-    cmd.arg("../tests/output/lightweight.json")
-        .arg("../tests/output/heavy.json")
+    cmd.arg("../tests/fixtures/ml_models/small_model.safetensors")
+        .arg("../tests/fixtures/ml_models/large_model.safetensors")
         .arg("--memory-analysis");
 
     let output = cmd.output()?;
 
-    // Should accept the flag and process successfully
+    // Should process successfully with real ML files
     assert!(output.status.success());
 
-    // Clean up
-    let _ = fs::remove_file("../tests/output/lightweight.json");
-    let _ = fs::remove_file("../tests/output/heavy.json");
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    
+    // Check that memory analysis was performed
+    assert!(stdout.contains("memory_analysis"));
+    assert!(stdout.contains("delta="));
+    assert!(stdout.contains("efficiency="));
 
     Ok(())
 }
@@ -718,29 +687,23 @@ fn test_alert_on_degradation() -> Result<(), Box<dyn std::error::Error>> {
 
 #[test]
 fn test_architecture_comparison() -> Result<(), Box<dyn std::error::Error>> {
-    fs::create_dir_all("../tests/output")?;
-    fs::write(
-        "../tests/output/resnet.json",
-        r#"{"architecture": "resnet", "layers": 18}"#,
-    )?;
-    fs::write(
-        "../tests/output/efficientnet.json",
-        r#"{"architecture": "efficientnet", "layers": 24}"#,
-    )?;
-
+    // Use real ML model files for testing architecture comparison
     let mut cmd = diffai_cmd();
-    cmd.arg("../tests/output/resnet.json")
-        .arg("../tests/output/efficientnet.json")
+    cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
+        .arg("../tests/fixtures/ml_models/transformer.safetensors")
         .arg("--architecture-comparison");
 
     let output = cmd.output()?;
 
-    // Should accept the flag and process successfully
+    // Should process successfully with real ML files
     assert!(output.status.success());
 
-    // Clean up
-    let _ = fs::remove_file("../tests/output/resnet.json");
-    let _ = fs::remove_file("../tests/output/efficientnet.json");
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    
+    // Check that architecture comparison was performed
+    assert!(stdout.contains("architecture_comparison"));
+    assert!(stdout.contains("type1="));
+    assert!(stdout.contains("differences="));
 
     Ok(())
 }
@@ -861,20 +824,10 @@ fn test_deployment_readiness() -> Result<(), Box<dyn std::error::Error>> {
 
 #[test]
 fn test_combined_advanced_features() -> Result<(), Box<dyn std::error::Error>> {
-    // Test multiple advanced flags together using JSON files
-    fs::create_dir_all("../tests/output")?;
-    fs::write(
-        "../tests/output/base.json",
-        r#"{"model": "base", "params": 1000000}"#,
-    )?;
-    fs::write(
-        "../tests/output/improved.json",
-        r#"{"model": "improved", "params": 1200000}"#,
-    )?;
-
+    // Test multiple advanced flags together using real ML files
     let mut cmd = diffai_cmd();
-    cmd.arg("../tests/output/base.json")
-        .arg("../tests/output/improved.json")
+    cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
+        .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
         .arg("--learning-progress")
         .arg("--convergence-analysis")
         .arg("--memory-analysis")
@@ -886,37 +839,37 @@ fn test_combined_advanced_features() -> Result<(), Box<dyn std::error::Error>> {
     // Should accept multiple flags and process successfully
     assert!(output.status.success());
 
-    // Clean up
-    let _ = fs::remove_file("../tests/output/base.json");
-    let _ = fs::remove_file("../tests/output/improved.json");
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    
+    // Check that all analyses were performed
+    assert!(stdout.contains("learning_progress"));
+    assert!(stdout.contains("convergence_analysis"));
+    assert!(stdout.contains("memory_analysis"));
+    assert!(stdout.contains("tensor."));
 
     Ok(())
 }
 
 #[test]
 fn test_json_output_with_advanced_features() -> Result<(), Box<dyn std::error::Error>> {
-    // Test JSON output format with advanced features
-    create_test_safetensors_file("../tests/output/json_test1.safetensors")?;
-    create_test_safetensors_file("../tests/output/json_test2.safetensors")?;
-
+    // Test JSON output format with advanced features using real ML files
     let mut cmd = diffai_cmd();
-    cmd.arg("../tests/output/json_test1.safetensors")
-        .arg("../tests/output/json_test2.safetensors")
+    cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
+        .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
         .arg("--learning-progress")
         .arg("--output")
         .arg("json");
 
     let output = cmd.output()?;
+    
+    // Should process successfully
+    assert!(output.status.success());
 
-    if output.status.success() {
-        let stdout = String::from_utf8_lossy(&output.stdout);
-        // Should output valid JSON
-        assert!(stdout.starts_with('[') && stdout.trim_end().ends_with(']'));
-    }
-
-    // Clean up
-    let _ = fs::remove_file("../tests/output/json_test1.safetensors");
-    let _ = fs::remove_file("../tests/output/json_test2.safetensors");
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    // Should output valid JSON
+    assert!(stdout.starts_with('[') && stdout.trim_end().ends_with(']'));
+    // Should contain ML analysis results
+    assert!(stdout.contains("LearningProgress"));
 
     Ok(())
 }

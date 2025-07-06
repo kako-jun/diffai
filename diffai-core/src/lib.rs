@@ -802,13 +802,15 @@ pub fn parse_pytorch_model(file_path: &Path) -> Result<HashMap<String, TensorSta
                     _ => "unknown".to_string(),
                 };
 
-                // Calculate basic statistics
+                // Calculate actual statistics from tensor data
                 let total_params = shape.iter().product();
+                let (mean, std, min, max) = calculate_safetensors_stats(&tensor_view);
+                
                 let stats = TensorStats {
-                    mean: 0.0, // TODO: Calculate actual mean from tensor data
-                    std: 0.0,  // TODO: Calculate actual std from tensor data
-                    min: 0.0,  // TODO: Calculate actual min from tensor data
-                    max: 0.0,  // TODO: Calculate actual max from tensor data
+                    mean,
+                    std,
+                    min,
+                    max,
                     shape,
                     dtype,
                     total_params,
@@ -820,11 +822,13 @@ pub fn parse_pytorch_model(file_path: &Path) -> Result<HashMap<String, TensorSta
         }
     }
 
-    // If safetensors parsing fails, try PyTorch pickle format
-    // Note: This is a simplified implementation
-    // In practice, you'd need to use candle's PyTorch loading capabilities
+    // If safetensors parsing fails, the file is likely in PyTorch pickle format
+    // For now, provide a more informative error message suggesting conversion
     Err(anyhow!(
-        "Failed to parse PyTorch model file: {}",
+        "Failed to parse file {}: Only Safetensors format is fully supported. \
+        PyTorch (.pt/.pth) files are not yet fully implemented. \
+        Please convert your PyTorch model to Safetensors format using: \
+        `torch.save(model.state_dict(), 'model.safetensors')`",
         file_path.display()
     ))
 }
@@ -2394,6 +2398,81 @@ fn calculate_f64_stats(data: &[f64]) -> (f64, f64, f64, f64) {
         .unwrap();
 
     (mean, std, min, max)
+}
+
+/// Calculate tensor statistics from a Candle tensor
+fn calculate_tensor_stats(tensor: &candle_core::Tensor) -> (f64, f64, f64, f64) {
+    match tensor.dtype() {
+        candle_core::DType::F32 => {
+            match tensor.flatten_all() {
+                Ok(flattened) => {
+                    match flattened.to_vec1::<f32>() {
+                        Ok(data) => calculate_f32_stats(&data),
+                        Err(_) => (0.0, 0.0, 0.0, 0.0),
+                    }
+                }
+                Err(_) => (0.0, 0.0, 0.0, 0.0),
+            }
+        }
+        candle_core::DType::F64 => {
+            match tensor.flatten_all() {
+                Ok(flattened) => {
+                    match flattened.to_vec1::<f64>() {
+                        Ok(data) => calculate_f64_stats(&data),
+                        Err(_) => (0.0, 0.0, 0.0, 0.0),
+                    }
+                }
+                Err(_) => (0.0, 0.0, 0.0, 0.0),
+            }
+        }
+        _ => {
+            // For other data types, return zero stats
+            (0.0, 0.0, 0.0, 0.0)
+        }
+    }
+}
+
+/// Calculate tensor statistics from Safetensors tensor view
+fn calculate_safetensors_stats(tensor_view: &safetensors::tensor::TensorView) -> (f64, f64, f64, f64) {
+    match tensor_view.dtype() {
+        safetensors::Dtype::F32 => {
+            match tensor_view.data().chunks_exact(4) {
+                chunks => {
+                    let data: Vec<f32> = chunks
+                        .map(|chunk| f32::from_le_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]))
+                        .collect();
+                    if !data.is_empty() {
+                        calculate_f32_stats(&data)
+                    } else {
+                        (0.0, 0.0, 0.0, 0.0)
+                    }
+                }
+            }
+        }
+        safetensors::Dtype::F64 => {
+            match tensor_view.data().chunks_exact(8) {
+                chunks => {
+                    let data: Vec<f64> = chunks
+                        .map(|chunk| {
+                            f64::from_le_bytes([
+                                chunk[0], chunk[1], chunk[2], chunk[3],
+                                chunk[4], chunk[5], chunk[6], chunk[7],
+                            ])
+                        })
+                        .collect();
+                    if !data.is_empty() {
+                        calculate_f64_stats(&data)
+                    } else {
+                        (0.0, 0.0, 0.0, 0.0)
+                    }
+                }
+            }
+        }
+        _ => {
+            // For other data types, return zero stats
+            (0.0, 0.0, 0.0, 0.0)
+        }
+    }
 }
 
 /// Compare model architectures and identify structural differences
