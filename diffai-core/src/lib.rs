@@ -1,3 +1,5 @@
+#![allow(clippy::uninlined_format_args)]
+
 use regex::Regex;
 use serde::Serialize;
 use serde_json::Value;
