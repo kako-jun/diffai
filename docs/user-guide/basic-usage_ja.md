@@ -229,6 +229,6 @@ diffai checkpoints/epoch_10.pth checkpoints/epoch_20.pth --show-structure
 
 ## 📚 次のステップ
 
-- [ML/AI ワークフロー](ml-workflows.md) - ML開発での活用法
-- [設定](configuration.md) - 詳細な設定方法
-- [API リファレンス](../api/cli.md) - 全コマンドの詳細
+- [ML/AI ワークフロー](ml-workflows_ja.md) - ML開発での活用法
+- [設定](configuration_ja.md) - 詳細な設定方法
+- [API リファレンス](../api/cli_ja.md) - 全コマンドの詳細

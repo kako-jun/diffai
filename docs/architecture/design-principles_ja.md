@@ -309,8 +309,8 @@ pub struct PluginManager {
 
 詳細な設計ドキュメントは以下を参照してください：
 
-- [コア機能](core-features.md) - 主要機能の詳細
-- [拡張性](extensibility.md) - プラグインシステムとカスタマイズ
+- [コア機能](core-features_ja.md) - 主要機能の詳細
+- [拡張性](extensibility_ja.md) - プラグインシステムとカスタマイズ
 - [API リファレンス](../api/) - 開発者向けAPI
 
 これらの設計原則は、diffai を AI/ML開発における必須ツールとして位置づけ、長期的な成功を確保するためのものです。
