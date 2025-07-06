@@ -547,6 +547,190 @@ pub fn diff_ml_models(
     Ok(results)
 }
 
+/// Enhanced ML model comparison with additional analysis features
+pub fn diff_ml_models_enhanced(
+    model1_path: &Path,
+    model2_path: &Path,
+    epsilon: Option<f64>,
+    show_layer_impact: bool,
+    quantization_analysis: bool,
+    detailed_stats: bool,
+) -> Result<Vec<DiffResult>> {
+    let model1_tensors = if model1_path.extension().and_then(|s| s.to_str()) == Some("safetensors") {
+        parse_safetensors_model(model1_path)?
+    } else {
+        parse_pytorch_model(model1_path)?
+    };
+    
+    let model2_tensors = if model2_path.extension().and_then(|s| s.to_str()) == Some("safetensors") {
+        parse_safetensors_model(model2_path)?
+    } else {
+        parse_pytorch_model(model2_path)?
+    };
+    
+    let mut results = Vec::new();
+    let eps = epsilon.unwrap_or(1e-6);
+    
+    // Enhanced model-level analysis
+    if detailed_stats {
+        let model1_info = calculate_model_info(&model1_tensors);
+        let model2_info = calculate_model_info(&model2_tensors);
+        
+        if model1_info.total_parameters != model2_info.total_parameters ||
+           model1_info.layer_count != model2_info.layer_count {
+            results.push(DiffResult::ModelArchitectureChanged(
+                "model".to_string(),
+                model1_info,
+                model2_info,
+            ));
+        }
+    }
+    
+    // Check for added tensors
+    for (name, stats) in &model2_tensors {
+        if !model1_tensors.contains_key(name) {
+            results.push(DiffResult::Added(
+                format!("tensor.{}", name),
+                serde_json::to_value(stats)?,
+            ));
+        }
+    }
+    
+    // Check for removed tensors
+    for (name, stats) in &model1_tensors {
+        if !model2_tensors.contains_key(name) {
+            results.push(DiffResult::Removed(
+                format!("tensor.{}", name),
+                serde_json::to_value(stats)?,
+            ));
+        }
+    }
+    
+    // Check for modified tensors with enhanced analysis
+    for (name, stats1) in &model1_tensors {
+        if let Some(stats2) = model2_tensors.get(name) {
+            // Check shape changes
+            if stats1.shape != stats2.shape {
+                results.push(DiffResult::TensorShapeChanged(
+                    format!("tensor.{}", name),
+                    stats1.shape.clone(),
+                    stats2.shape.clone(),
+                ));
+            }
+            
+            // Enhanced statistical changes analysis
+            let mean_change = (stats1.mean - stats2.mean).abs();
+            let std_change = (stats1.std - stats2.std).abs();
+            let min_change = (stats1.min - stats2.min).abs();
+            let max_change = (stats1.max - stats2.max).abs();
+            
+            let stats_changed = mean_change > eps || std_change > eps || 
+                               min_change > eps || max_change > eps;
+            
+            if stats_changed {
+                if show_layer_impact {
+                    // Add layer impact information to the key
+                    let impact_score = calculate_layer_impact(stats1, stats2);
+                    let enhanced_key = format!("tensor.{} [impact: {:.4}]", name, impact_score);
+                    results.push(DiffResult::TensorStatsChanged(
+                        enhanced_key,
+                        stats1.clone(),
+                        stats2.clone(),
+                    ));
+                } else {
+                    results.push(DiffResult::TensorStatsChanged(
+                        format!("tensor.{}", name),
+                        stats1.clone(),
+                        stats2.clone(),
+                    ));
+                }
+            }
+            
+            // Quantization analysis
+            if quantization_analysis {
+                let quantization_info = analyze_quantization_impact(stats1, stats2);
+                if !quantization_info.is_empty() {
+                    results.push(DiffResult::Modified(
+                        format!("quantization.{}", name),
+                        serde_json::to_value(&quantization_info)?,
+                        serde_json::Value::Null,
+                    ));
+                }
+            }
+        }
+    }
+    
+    Ok(results)
+}
+
+/// Calculate layer impact score based on parameter changes
+fn calculate_layer_impact(stats1: &TensorStats, stats2: &TensorStats) -> f64 {
+    let mean_change = (stats1.mean - stats2.mean).abs();
+    let std_change = (stats1.std - stats2.std).abs();
+    let param_ratio = stats1.total_params as f64;
+    
+    // Weighted impact score considering parameter count and statistical changes
+    (mean_change + std_change) * param_ratio.log10().max(1.0)
+}
+
+/// Analyze quantization impact between two tensor versions
+fn analyze_quantization_impact(stats1: &TensorStats, stats2: &TensorStats) -> HashMap<String, f64> {
+    let mut analysis = HashMap::new();
+    
+    // Check if precision loss indicates quantization
+    let precision_loss = (stats1.max - stats1.min) / (stats2.max - stats2.min);
+    if precision_loss > 1.5 {
+        analysis.insert("precision_loss_ratio".to_string(), precision_loss);
+    }
+    
+    // Check for typical quantization patterns
+    let range_compression = ((stats1.max - stats1.min) - (stats2.max - stats2.min)).abs();
+    if range_compression > 0.1 {
+        analysis.insert("range_compression".to_string(), range_compression);
+    }
+    
+    analysis
+}
+
+/// Calculate overall model information from tensors
+fn calculate_model_info(tensors: &HashMap<String, TensorStats>) -> ModelInfo {
+    let total_parameters: usize = tensors.values().map(|stats| stats.total_params).sum();
+    let layer_count = tensors.len();
+    
+    let mut layer_types = HashMap::new();
+    for name in tensors.keys() {
+        let layer_type = extract_layer_type(name);
+        *layer_types.entry(layer_type).or_insert(0) += 1;
+    }
+    
+    // Estimate model size in bytes (assuming f32 = 4 bytes per parameter)
+    let model_size_bytes = total_parameters * 4;
+    
+    ModelInfo {
+        total_parameters,
+        layer_count,
+        layer_types,
+        model_size_bytes,
+    }
+}
+
+/// Extract layer type from tensor name for analysis
+fn extract_layer_type(tensor_name: &str) -> String {
+    if tensor_name.contains("conv") || tensor_name.contains("Conv") {
+        "conv".to_string()
+    } else if tensor_name.contains("linear") || tensor_name.contains("Linear") || tensor_name.contains("fc") {
+        "linear".to_string()
+    } else if tensor_name.contains("norm") || tensor_name.contains("Norm") || tensor_name.contains("bn") {
+        "norm".to_string()
+    } else if tensor_name.contains("attention") || tensor_name.contains("attn") {
+        "attention".to_string()
+    } else if tensor_name.contains("embedding") || tensor_name.contains("embed") {
+        "embedding".to_string()
+    } else {
+        "other".to_string()
+    }
+}
+
 // Helper functions for statistical calculations
 fn calculate_f32_stats(data: &[f32]) -> (f64, f64, f64, f64) {
     if data.is_empty() {

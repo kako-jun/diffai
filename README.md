@@ -27,6 +27,8 @@ $ diffai model_v1.safetensors model_v2.safetensors
 
 - **🧠 AI/ML Specialized**: Native support for PyTorch (.pt/.pth) and Safetensors (.safetensors) models
 - **📊 Tensor Analysis**: Automatic calculation of tensor statistics (mean, std, min, max, shape)
+- **🔥 Advanced Analytics**: Layer impact analysis, quantization analysis, change magnitude sorting
+- **📈 ML Statistics**: Detailed model statistics with `--stats` flag
 - **🔧 Multiple Formats**: JSON, YAML, TOML, XML, INI, CSV support (inherited from diffx)
 - **🤖 MLOps Friendly**: Clean CLI output perfect for automation and CI/CD pipelines
 - **⚡ Fast**: Built in Rust for maximum performance with large model files
@@ -83,6 +85,25 @@ diffai model_lr_001.safetensors model_lr_0001.safetensors
 
 # Data drift detection in model weights
 diffai model_dataset_v1.safetensors model_dataset_v2.safetensors
+```
+
+### 🔥 Advanced Analytics Features
+
+```bash
+# Layer-by-layer impact analysis
+diffai model_v1.safetensors model_v2.safetensors --show-layer-impact
+
+# Quantization analysis for model optimization
+diffai model_fp32.safetensors model_int8.safetensors --quantization-analysis
+
+# Sort changes by magnitude (biggest changes first)
+diffai model_before.safetensors model_after.safetensors --sort-by-change-magnitude
+
+# Detailed statistics and model analysis
+diffai model_v1.safetensors model_v2.safetensors --stats
+
+# Combined advanced analysis
+diffai model_v1.safetensors model_v2.safetensors --stats --show-layer-impact --sort-by-change-magnitude
 ```
 
 ## 🏗️ Architecture

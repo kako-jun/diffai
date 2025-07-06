@@ -49,26 +49,56 @@ diffxの技術基盤をそのまま継承し、以下の追加機能を予定：
 
 # TODO: AI/ML特化機能の実装計画
 
-## 🎯 フェーズ1: モデルファイル比較 (優先度: 高)
+## 🎯 フェーズ1: モデルファイル比較 (優先度: 高) ✅ **完了**
 
 ### 対象ファイル形式
-- **PyTorch**: `.pth`, `.pt` ファイル
-- **TensorFlow**: `.pb`, `.h5`, `.keras` ファイル  
-- **ONNX**: `.onnx` ファイル
-- **Safetensors**: `.safetensors` ファイル
-- **Pickle**: `.pkl` ファイル（scikit-learn等）
+- **PyTorch**: `.pth`, `.pt` ファイル ✅
+- **Safetensors**: `.safetensors` ファイル ✅
+- **TensorFlow**: `.pb`, `.h5`, `.keras` ファイル (将来実装)
+- **ONNX**: `.onnx` ファイル (将来実装)
+- **Pickle**: `.pkl` ファイル（scikit-learn等）(将来実装)
 
-### 実装すべき機能
-1. **テンソル形状比較**: モデル層の構造変更検出
-2. **重み統計比較**: 平均値、標準偏差、分布の差分
-3. **アーキテクチャ差分**: レイヤー追加・削除・変更の検出
-4. **メモリ使用量比較**: モデルサイズの変化追跡
+### 実装完了機能 ✅
+1. **テンソル形状比較**: モデル層の構造変更検出 ✅
+2. **重み統計比較**: 平均値、標準偏差、分布の差分 ✅
+3. **アーキテクチャ差分**: レイヤー追加・削除・変更の検出 ✅
+4. **メモリ使用量比較**: モデルサイズの変化追跡 ✅
+
+### 高度なML特化機能 🆕 ✅
+- **`--show-layer-impact`**: レイヤーごとの変更量をヒートマップ風に表示
+- **`--quantization-analysis`**: 量子化による精度劣化の詳細分析
+- **`--sort-by-change-magnitude`**: 変更量の大きい順にソート
+- **`--stats`**: 詳細な統計情報とモデルアーキテクチャ分析
+
+### Unix哲学準拠の設計 🚀 ✅
+- **標準出力のみ**: 出力ファイルオプションなし、リダイレクト/パイプ活用
+- **コンポーザブル**: 他のUnixツールと組み合わせ可能
+- **単一目的**: AI/MLデータの差分抽出に特化
+- **色付き出力**: CLIでの視認性向上
+
+### 実装例
+```bash
+# 基本的なモデル比較
+diffai model_v1.safetensors model_v2.safetensors
+
+# 高度な分析（レイヤー影響度付き）
+diffai model_v1.safetensors model_v2.safetensors --show-layer-impact --stats
+
+# 量子化分析
+diffai model_fp32.safetensors model_int8.safetensors --quantization-analysis
+
+# 変更量順ソート
+diffai model_v1.safetensors model_v2.safetensors --sort-by-change-magnitude
+
+# JSON出力でMLOpsツールと連携
+diffai model_v1.safetensors model_v2.safetensors --output json > changes.json
+```
 
 ### ニーズ・使用場面
-- **モデル最適化**: 量子化・プルーニング前後の比較
-- **ファインチューニング**: 事前学習モデルからの変化量測定
-- **A/Bテスト**: 異なるアーキテクチャの性能比較
-- **デバッグ**: 意図しない重み変更の検出
+- **モデル最適化**: 量子化・プルーニング前後の比較 ✅
+- **ファインチューニング**: 事前学習モデルからの変化量測定 ✅
+- **A/Bテスト**: 異なるアーキテクチャの性能比較 ✅
+- **デバッグ**: 意図しない重み変更の検出 ✅
 
 ## 🎯 フェーズ2: 実験結果比較 (優先度: 高)
 

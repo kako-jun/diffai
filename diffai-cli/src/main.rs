@@ -1,7 +1,7 @@
 use anyhow::{Context, Result, bail};
 use clap::{Parser, ValueEnum};
 use colored::*;
-use diffai_core::{diff, value_type_name, DiffResult, parse_ini, parse_xml, parse_csv, diff_ml_models};
+use diffai_core::{diff, value_type_name, DiffResult, parse_ini, parse_xml, parse_csv, diff_ml_models, diff_ml_models_enhanced};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
@@ -82,6 +82,22 @@ struct Args {
     /// Key to use for identifying array elements (e.g., "id")
     #[arg(long)]
     array_id_key: Option<String>,
+
+    /// Show layer-by-layer impact analysis for ML models
+    #[arg(long)]
+    show_layer_impact: bool,
+
+    /// Enable quantization analysis for ML models
+    #[arg(long)]
+    quantization_analysis: bool,
+
+    /// Sort differences by change magnitude (ML models only)
+    #[arg(long)]
+    sort_by_change_magnitude: bool,
+
+    /// Show detailed statistics for ML models
+    #[arg(long)]
+    stats: bool,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug, Serialize, Deserialize)]
@@ -151,7 +167,7 @@ fn parse_content(content: &str, format: Format) -> Result<Value> {
     }
 }
 
-fn print_cli_output(mut differences: Vec<DiffResult>) {
+fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
     if differences.is_empty() {
         println!("No differences found.");
         return;
@@ -169,7 +185,33 @@ fn print_cli_output(mut differences: Vec<DiffResult>) {
         }
     };
 
-    differences.sort_by(|a, b| get_key(a).cmp(&get_key(b)));
+    let get_change_magnitude = |d: &DiffResult| -> f64 {
+        match d {
+            DiffResult::TensorStatsChanged(_, stats1, stats2) => {
+                // Calculate magnitude of change in tensor statistics
+                let mean_change = (stats1.mean - stats2.mean).abs();
+                let std_change = (stats1.std - stats2.std).abs();
+                mean_change + std_change
+            }
+            DiffResult::TensorShapeChanged(_, shape1, shape2) => {
+                // Calculate magnitude of shape change
+                let size1: usize = shape1.iter().product();
+                let size2: usize = shape2.iter().product();
+                (size1 as f64 - size2 as f64).abs()
+            }
+            DiffResult::ModelArchitectureChanged(_, info1, info2) => {
+                // Calculate magnitude of parameter count change
+                (info1.total_parameters as f64 - info2.total_parameters as f64).abs()
+            }
+            _ => 0.0, // Non-ML changes have no magnitude
+        }
+    };
+
+    if sort_by_magnitude {
+        differences.sort_by(|a, b| get_change_magnitude(b).partial_cmp(&get_change_magnitude(a)).unwrap_or(std::cmp::Ordering::Equal));
+    } else {
+        differences.sort_by(|a, b| get_key(a).cmp(&get_key(b)));
+    }
 
     for diff in &differences {
         let key = get_key(diff);
@@ -295,8 +337,16 @@ fn main() -> Result<()> {
 
     let mut differences = match input_format {
         Format::Safetensors | Format::Pytorch => {
-            // Handle ML model files
-            diff_ml_models(&args.input1, &args.input2, epsilon)?
+            // Check if any ML-specific options are enabled
+            if args.show_layer_impact || args.quantization_analysis || args.stats {
+                // Use enhanced ML analysis
+                diff_ml_models_enhanced(&args.input1, &args.input2, epsilon, 
+                                       args.show_layer_impact, args.quantization_analysis, 
+                                       args.stats)?
+            } else {
+                // Use basic ML comparison for backward compatibility
+                diff_ml_models(&args.input1, &args.input2, epsilon)?
+            }
         }
         _ => {
             // Handle regular structured data files
@@ -324,7 +374,7 @@ fn main() -> Result<()> {
     }
 
     match output_format {
-        OutputFormat::Cli => print_cli_output(differences),
+        OutputFormat::Cli => print_cli_output(differences, args.sort_by_change_magnitude),
         OutputFormat::Json => print_json_output(differences)?,
         OutputFormat::Yaml => print_yaml_output(differences)?,
         OutputFormat::Unified => {
@@ -419,7 +469,7 @@ fn compare_directories(
                 }
 
                 match output {
-                    OutputFormat::Cli => print_cli_output(differences),
+                    OutputFormat::Cli => print_cli_output(differences, false), // No magnitude sort for directory comparison
                     OutputFormat::Json => print_json_output(differences)?,
                     OutputFormat::Yaml => print_yaml_output(differences)?,
                     OutputFormat::Unified => print_unified_output(&v1, &v2)?,
