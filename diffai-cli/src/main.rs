@@ -1,3 +1,5 @@
+#![allow(clippy::uninlined_format_args)]
+
 use anyhow::{bail, Context, Result};
 use clap::{Parser, ValueEnum};
 use colored::*;
