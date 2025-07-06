@@ -282,8 +282,8 @@ If you encounter installation issues:
 
 1. Check the [GitHub Issues](https://github.com/kako-jun/diffai/issues)
 2. Join the [GitHub Discussions](https://github.com/kako-jun/diffai/discussions)
-3. Review the [Contributing Guide](../../CONTRIBUTING.md) for development setup
+3. Review the [Contributing Guide](../../CONTRIBUTING_ja.md) for development setup
 
 ---
 
-**Next**: [Getting Started](getting-started.md) - Learn the basics of using diffai
+**Next**: [Getting Started](getting-started_ja.md) - Learn the basics of using diffai
