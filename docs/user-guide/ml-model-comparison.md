@@ -46,7 +46,7 @@ For each tensor in the model, diffai calculates and compares:
 # Compare two PyTorch models
 diffai model1.pt model2.pt
 
-# Compare Safetensors models
+# Compare Safetensors models (recommended)
 diffai model1.safetensors model2.safetensors
 
 # Automatic format detection
@@ -366,6 +366,218 @@ gunzip model.safetensors.gz
 - Use `--path` to focus analysis on relevant layers
 - Set appropriate epsilon values to avoid noise
 - Consider model size when choosing comparison strategy
+
+## 🚀 Advanced ML Analysis Features
+
+diffai provides 13 advanced machine learning analysis features designed for comprehensive model evaluation:
+
+### 1. Learning Progress Analysis (`--learning-progress`)
+
+Analyzes training progression between model checkpoints:
+
+```bash
+# Compare training checkpoints
+diffai checkpoint_epoch_10.safetensors checkpoint_epoch_20.safetensors --learning-progress
+
+# Output example:
+# + learning_progress: trend=improving, magnitude=0.0543, speed=0.80
+```
+
+**Analysis Information:**
+- **trend**: `improving`, `degrading`, or `stable`
+- **magnitude**: Amount of change (0.0-1.0)
+- **speed**: Rate of convergence (0.0-1.0)
+
+**Use Cases:**
+- Monitor training progress
+- Detect learning plateaus
+- Optimize training schedules
+
+### 2. Convergence Analysis (`--convergence-analysis`)
+
+Evaluates model stability and convergence status:
+
+```bash
+# Analyze convergence between checkpoints
+diffai model_before.safetensors model_after.safetensors --convergence-analysis
+
+# Output example:
+# + convergence_analysis: status=stable, stability=0.0234, action="Continue training"
+```
+
+**Analysis Information:**
+- **status**: `converged`, `diverging`, `oscillating`, `stable`
+- **stability**: Variance in parameter changes (lower = more stable)
+- **action**: Recommended next steps
+
+**Use Cases:**
+- Determine when to stop training
+- Detect training instability
+- Optimize hyperparameters
+
+### 3. Anomaly Detection (`--anomaly-detection`)
+
+Detects abnormal patterns in model weights:
+
+```bash
+# Detect training anomalies
+diffai normal_model.safetensors anomalous_model.safetensors --anomaly-detection
+
+# Output example:
+# 🚨 anomaly_detection: type=gradient_explosion, severity=critical, affected=2 layers
+```
+
+**Detected Anomalies:**
+- **Gradient explosion**: Extremely large weight values
+- **Gradient vanishing**: Near-zero gradients
+- **Weight distribution shift**: Unusual statistical patterns
+- **NaN/Inf values**: Invalid numerical values
+
+**Use Cases:**
+- Debug training problems
+- Validate model health
+- Prevent deployment of corrupted models
+
+### 4. Memory Analysis (`--memory-analysis`)
+
+Analyzes memory usage and model efficiency:
+
+```bash
+# Compare model memory footprints
+diffai small_model.safetensors large_model.safetensors --memory-analysis
+
+# Output example:
+# 🧠 memory_analysis: delta=+2.7MB, gpu_est=4.5MB, efficiency=0.25
+```
+
+**Analysis Information:**
+- **delta**: Memory difference between models
+- **gpu_est**: Estimated GPU memory requirements
+- **efficiency**: Parameters per MB ratio
+
+**Use Cases:**
+- Optimize for deployment constraints
+- Compare architecture efficiency
+- Plan hardware requirements
+
+### 5. Architecture Comparison (`--architecture-comparison`)
+
+Compares model architectures and structures:
+
+```bash
+# Compare different architectures
+diffai resnet.safetensors transformer.safetensors --architecture-comparison
+
+# Output example:
+# 🏗️ architecture_comparison: type1=cnn, type2=transformer, differences=15
+```
+
+**Analysis Information:**
+- **Architecture types**: CNN, RNN, Transformer, MLP, etc.
+- **Layer differences**: Added, removed, or modified layers
+- **Parameter distribution**: How parameters are allocated
+
+**Use Cases:**
+- Evaluate architecture changes
+- Compare model families
+- Design decision validation
+
+### 6. Multi-Feature Analysis
+
+Combine multiple features for comprehensive analysis:
+
+```bash
+# Comprehensive training analysis
+diffai checkpoint_v1.safetensors checkpoint_v2.safetensors \
+  --learning-progress \
+  --convergence-analysis \
+  --anomaly-detection \
+  --memory-analysis \
+  --stats
+
+# Output example:
+# + learning_progress: trend=improving, magnitude=0.0432, speed=0.75
+# + convergence_analysis: status=stable, stability=0.0156
+# 🧠 memory_analysis: delta=+0.1MB, efficiency=0.89
+# 📊 Tensor statistics and detailed analysis...
+```
+
+### 7. Production Deployment Features
+
+Essential features for production environments:
+
+```bash
+# Production readiness check
+diffai production.safetensors candidate.safetensors \
+  --anomaly-detection \
+  --memory-analysis \
+  --deployment-readiness
+
+# Regression testing
+diffai baseline.safetensors new_version.safetensors \
+  --regression-test \
+  --alert-on-degradation
+```
+
+### 8. Research and Development Features
+
+Advanced analysis for research workflows:
+
+```bash
+# Hyperparameter impact analysis
+diffai model_lr_001.safetensors model_lr_0001.safetensors \
+  --hyperparameter-impact \
+  --learning-rate-analysis
+
+# Architecture efficiency analysis
+diffai efficient_model.safetensors baseline_model.safetensors \
+  --param-efficiency-analysis \
+  --architecture-comparison
+```
+
+## 🎯 Feature Selection Guide
+
+**For Training Monitoring:**
+```bash
+diffai checkpoint_old.safetensors checkpoint_new.safetensors \
+  --learning-progress --convergence-analysis --anomaly-detection
+```
+
+**For Production Deployment:**
+```bash
+diffai current_prod.safetensors candidate.safetensors \
+  --anomaly-detection --memory-analysis --deployment-readiness
+```
+
+**For Research Analysis:**
+```bash
+diffai baseline.safetensors experiment.safetensors \
+  --architecture-comparison --hyperparameter-impact --stats
+```
+
+**For Quantization Validation:**
+```bash
+diffai fp32.safetensors quantized.safetensors \
+  --quantization-analysis --memory-analysis --performance-impact-estimate
+```
+
+## 📈 All 13 Advanced Features
+
+| Feature | Flag | Purpose | Output Example |
+|---------|------|---------|----------------|
+| **Learning Progress** | `--learning-progress` | Training progression | `trend=improving, magnitude=0.0543` |
+| **Convergence Analysis** | `--convergence-analysis` | Training stability | `status=stable, stability=0.0234` |
+| **Anomaly Detection** | `--anomaly-detection` | Weight anomalies | `type=gradient_explosion, severity=critical` |
+| **Gradient Analysis** | `--gradient-analysis` | Gradient patterns | `gradient_norm=0.023, vanishing_risk=low` |
+| **Memory Analysis** | `--memory-analysis` | Memory usage | `delta=+2.7MB, efficiency=0.89` |
+| **Inference Speed** | `--inference-speed-estimate` | Performance est. | `latency_change=+15ms, throughput=-5%` |
+| **Regression Test** | `--regression-test` | Quality assurance | `passed=true, issues=0` |
+| **Alert Degradation** | `--alert-on-degradation` | Quality monitoring | `degradation_detected=false` |
+| **Review Friendly** | `--review-friendly` | Code review | `summary="5 layers modified"` |
+| **Architecture Comp** | `--architecture-comparison` | Structure analysis | `type1=cnn, differences=15` |
+| **Param Efficiency** | `--param-efficiency-analysis` | Efficiency metrics | `efficiency_ratio=1.23` |
+| **Hyperparameter** | `--hyperparameter-impact` | HP influence | `impact_score=0.67` |
+| **Deployment Ready** | `--deployment-readiness` | Production check | `ready=true, confidence=0.95` |
 
 ---
 
