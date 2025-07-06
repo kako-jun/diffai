@@ -4,7 +4,7 @@ use std::path::Path;
 #[test]
 fn test_tensor_stats_calculation() {
     // Test basic tensor statistics calculation
-    let _values = vec![1.0, 2.0, 3.0, 4.0, 5.0];
+    let _values = [1.0, 2.0, 3.0, 4.0, 5.0];
     let expected_mean = 3.0;
     let expected_std = (2.0_f64).sqrt(); // std of [1,2,3,4,5] is sqrt(2)
 
@@ -166,7 +166,7 @@ fn test_epsilon_tolerance_in_ml_diff() {
     // Test that epsilon tolerance works correctly in ML model comparison
     // This is a conceptual test - in real implementation we'd need actual model files
 
-    let epsilon = Some(0.01);
+    let epsilon = 0.01;
 
     // Two tensors with small differences that should be ignored with epsilon
     let stats1 = TensorStats {
@@ -190,6 +190,6 @@ fn test_epsilon_tolerance_in_ml_diff() {
     };
 
     // Check differences are within tolerance
-    assert!((stats1.mean - stats2.mean).abs() < epsilon.unwrap());
-    assert!((stats1.std - stats2.std).abs() < epsilon.unwrap());
+    assert!((stats1.mean - stats2.mean).abs() < epsilon);
+    assert!((stats1.std - stats2.std).abs() < epsilon);
 }
