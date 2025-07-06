@@ -16,7 +16,7 @@ repository = "https://github.com/kako-jun/diffai"
 documentation = "https://github.com/kako-jun/diffai/tree/main/docs"
 readme = "README.md"
 keywords = ["diff", "ai", "ml", "pytorch", "safetensors"]
-categories = ["command-line-utilities", "machine-learning", "development-tools", "algorithms", "science"]
+categories = ["command-line-utilities", "development-tools", "algorithms", "science"]
 exclude = [
     ".github/",
     "target/"
