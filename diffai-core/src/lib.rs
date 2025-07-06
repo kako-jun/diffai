@@ -435,7 +435,7 @@ fn diff_objects(
         let current_path = if path.is_empty() {
             key.clone()
         } else {
-            format!("{}.{}", path, key)
+            format!("{path}.{key}")
         };
         if let Some(regex) = ignore_keys_regex {
             if regex.is_match(key) {
