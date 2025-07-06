@@ -494,7 +494,7 @@ fn test_learning_progress_analysis() -> Result<(), Box<dyn std::error::Error>> {
     assert!(output.status.success());
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    
+
     // Check that learning progress analysis was performed
     assert!(stdout.contains("learning_progress"));
     assert!(stdout.contains("trend="));
@@ -517,7 +517,7 @@ fn test_convergence_analysis() -> Result<(), Box<dyn std::error::Error>> {
     assert!(output.status.success());
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    
+
     // Check that convergence analysis was performed
     assert!(stdout.contains("convergence_analysis"));
     assert!(stdout.contains("status="));
@@ -540,7 +540,7 @@ fn test_anomaly_detection() -> Result<(), Box<dyn std::error::Error>> {
     assert!(output.status.success());
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    
+
     // Check that anomaly detection was performed
     assert!(stdout.contains("anomaly_detection"));
     assert!(stdout.contains("type="));
@@ -591,7 +591,7 @@ fn test_memory_analysis() -> Result<(), Box<dyn std::error::Error>> {
     assert!(output.status.success());
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    
+
     // Check that memory analysis was performed
     assert!(stdout.contains("memory_analysis"));
     assert!(stdout.contains("delta="));
@@ -699,7 +699,7 @@ fn test_architecture_comparison() -> Result<(), Box<dyn std::error::Error>> {
     assert!(output.status.success());
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    
+
     // Check that architecture comparison was performed
     assert!(stdout.contains("architecture_comparison"));
     assert!(stdout.contains("type1="));
@@ -840,7 +840,7 @@ fn test_combined_advanced_features() -> Result<(), Box<dyn std::error::Error>> {
     assert!(output.status.success());
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    
+
     // Check that all analyses were performed
     assert!(stdout.contains("learning_progress"));
     assert!(stdout.contains("convergence_analysis"));
@@ -861,7 +861,7 @@ fn test_json_output_with_advanced_features() -> Result<(), Box<dyn std::error::E
         .arg("json");
 
     let output = cmd.output()?;
-    
+
     // Should process successfully
     assert!(output.status.success());
 
