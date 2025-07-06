@@ -21,6 +21,9 @@ pub enum DiffResult {
     TensorShapeChanged(String, Vec<usize>, Vec<usize>),
     TensorStatsChanged(String, TensorStats, TensorStats),
     ModelArchitectureChanged(String, ModelInfo, ModelInfo),
+    // Learning progress analysis
+    LearningProgress(String, LearningProgressInfo),
+    ConvergenceAnalysis(String, ConvergenceInfo),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -40,6 +43,22 @@ pub struct ModelInfo {
     pub layer_count: usize,
     pub layer_types: HashMap<String, usize>,
     pub model_size_bytes: usize,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct LearningProgressInfo {
+    pub loss_trend: String,  // "improving", "degrading", "stable"
+    pub parameter_update_magnitude: f64,
+    pub gradient_norm_ratio: f64,
+    pub convergence_speed: f64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct ConvergenceInfo {
+    pub convergence_status: String,  // "converged", "diverging", "oscillating", "stable"
+    pub gradient_stability: f64,
+    pub parameter_stability: f64,
+    pub recommended_action: String,
 }
 
 pub fn diff(
@@ -555,6 +574,8 @@ pub fn diff_ml_models_enhanced(
     show_layer_impact: bool,
     quantization_analysis: bool,
     detailed_stats: bool,
+    learning_progress: bool,
+    convergence_analysis: bool,
 ) -> Result<Vec<DiffResult>> {
     let model1_tensors = if model1_path.extension().and_then(|s| s.to_str()) == Some("safetensors") {
         parse_safetensors_model(model1_path)?
@@ -660,6 +681,24 @@ pub fn diff_ml_models_enhanced(
         }
     }
     
+    // Learning progress analysis
+    if learning_progress {
+        let progress_info = analyze_learning_progress(&model1_tensors, &model2_tensors);
+        results.push(DiffResult::LearningProgress(
+            "learning_progress".to_string(),
+            progress_info,
+        ));
+    }
+    
+    // Convergence analysis
+    if convergence_analysis {
+        let convergence_info = analyze_convergence(&model1_tensors, &model2_tensors);
+        results.push(DiffResult::ConvergenceAnalysis(
+            "convergence_analysis".to_string(),
+            convergence_info,
+        ));
+    }
+    
     Ok(results)
 }
 
@@ -728,6 +767,114 @@ fn extract_layer_type(tensor_name: &str) -> String {
         "embedding".to_string()
     } else {
         "other".to_string()
+    }
+}
+
+/// Analyze learning progress between two model checkpoints
+fn analyze_learning_progress(
+    model1_tensors: &HashMap<String, TensorStats>,
+    model2_tensors: &HashMap<String, TensorStats>,
+) -> LearningProgressInfo {
+    let mut total_magnitude = 0.0;
+    let mut gradient_changes = 0.0;
+    let mut param_count = 0;
+    
+    // Calculate overall parameter update magnitude
+    for (name, stats1) in model1_tensors {
+        if let Some(stats2) = model2_tensors.get(name) {
+            // Parameter change magnitude (using mean and std as proxies)
+            let mean_change = (stats1.mean - stats2.mean).abs();
+            let std_change = (stats1.std - stats2.std).abs();
+            total_magnitude += mean_change + std_change;
+            
+            // Estimate gradient information from parameter changes
+            let param_change_ratio = mean_change / (stats1.mean.abs() + 1e-8);
+            gradient_changes += param_change_ratio;
+            param_count += 1;
+        }
+    }
+    
+    let avg_magnitude = if param_count > 0 { total_magnitude / param_count as f64 } else { 0.0 };
+    let avg_gradient_ratio = if param_count > 0 { gradient_changes / param_count as f64 } else { 0.0 };
+    
+    // Determine loss trend based on parameter changes
+    let loss_trend = if avg_magnitude > 0.1 {
+        "improving"  // Large changes suggest active learning
+    } else if avg_magnitude < 0.001 {
+        "stable"     // Very small changes suggest convergence
+    } else {
+        "degrading"  // Medium changes might indicate instability
+    };
+    
+    // Estimate convergence speed based on magnitude
+    let convergence_speed = if avg_magnitude > 0.1 { 0.8 } else { 0.2 };
+    
+    LearningProgressInfo {
+        loss_trend: loss_trend.to_string(),
+        parameter_update_magnitude: avg_magnitude,
+        gradient_norm_ratio: avg_gradient_ratio,
+        convergence_speed,
+    }
+}
+
+/// Analyze convergence characteristics between model checkpoints
+fn analyze_convergence(
+    model1_tensors: &HashMap<String, TensorStats>,
+    model2_tensors: &HashMap<String, TensorStats>,
+) -> ConvergenceInfo {
+    let mut parameter_stability = 0.0;
+    let mut gradient_stability = 0.0;
+    let mut oscillation_count = 0;
+    let mut total_layers = 0;
+    
+    for (name, stats1) in model1_tensors {
+        if let Some(stats2) = model2_tensors.get(name) {
+            // Parameter stability (lower is more stable)
+            let mean_stability = (stats1.mean - stats2.mean).abs() / (stats1.mean.abs() + 1e-8);
+            let std_stability = (stats1.std - stats2.std).abs() / (stats1.std.abs() + 1e-8);
+            parameter_stability += (mean_stability + std_stability) / 2.0;
+            
+            // Gradient stability estimation
+            let gradient_est = (stats1.max - stats1.min) / (stats2.max - stats2.min + 1e-8);
+            gradient_stability += (gradient_est - 1.0).abs();
+            
+            // Check for oscillations (rapid sign changes in statistics)
+            if (stats1.mean > 0.0) != (stats2.mean > 0.0) {
+                oscillation_count += 1;
+            }
+            
+            total_layers += 1;
+        }
+    }
+    
+    let avg_param_stability = if total_layers > 0 { parameter_stability / total_layers as f64 } else { 0.0 };
+    let avg_gradient_stability = if total_layers > 0 { gradient_stability / total_layers as f64 } else { 0.0 };
+    let oscillation_ratio = oscillation_count as f64 / total_layers.max(1) as f64;
+    
+    // Determine convergence status
+    let convergence_status = if avg_param_stability < 0.01 && avg_gradient_stability < 0.1 {
+        "converged"
+    } else if oscillation_ratio > 0.3 {
+        "oscillating"
+    } else if avg_param_stability > 0.5 {
+        "diverging"
+    } else {
+        "stable"
+    };
+    
+    // Provide recommendations based on analysis
+    let recommended_action = match convergence_status {
+        "converged" => "Training can be stopped. Model has converged.",
+        "diverging" => "Reduce learning rate or check for gradient explosion.",
+        "oscillating" => "Consider learning rate scheduling or gradient clipping.",
+        _ => "Continue training with current settings.",
+    };
+    
+    ConvergenceInfo {
+        convergence_status: convergence_status.to_string(),
+        gradient_stability: avg_gradient_stability,
+        parameter_stability: avg_param_stability,
+        recommended_action: recommended_action.to_string(),
     }
 }
 

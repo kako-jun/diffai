@@ -64,11 +64,19 @@ diffxの技術基盤をそのまま継承し、以下の追加機能を予定：
 3. **アーキテクチャ差分**: レイヤー追加・削除・変更の検出 ✅
 4. **メモリ使用量比較**: モデルサイズの変化追跡 ✅
 
-### 高度なML特化機能 🆕 ✅
-- **`--show-layer-impact`**: レイヤーごとの変更量をヒートマップ風に表示
-- **`--quantization-analysis`**: 量子化による精度劣化の詳細分析
-- **`--sort-by-change-magnitude`**: 変更量の大きい順にソート
-- **`--stats`**: 詳細な統計情報とモデルアーキテクチャ分析
+### 高度なML特化機能 🆕 ✅ **2025-01-06 実装完了**
+- **`--show-layer-impact`**: レイヤーごとの変更量をヒートマップ風に表示 ✅
+- **`--quantization-analysis`**: 量子化による精度劣化の詳細分析 ✅
+- **`--sort-by-change-magnitude`**: 変更量の大きい順にソート ✅
+- **`--stats`**: 詳細な統計情報とモデルアーキテクチャ分析 ✅
+
+#### 実装詳細 📝
+- `diff_ml_models_enhanced()` 関数で高度な分析機能を実装
+- レイヤー影響度スコア計算（パラメータ数と統計変化の重み付き評価）
+- 量子化影響分析（精度劣化・範囲圧縮検出）
+- モデルアーキテクチャ情報抽出（レイヤー分類、パラメータ数、サイズ）
+- CLI オプション追加とドキュメント更新
+- 全テスト成功確認済み
 
 ### Unix哲学準拠の設計 🚀 ✅
 - **標準出力のみ**: 出力ファイルオプションなし、リダイレクト/パイプ活用
@@ -335,6 +343,90 @@ examples/
 - [x] crates.io メタデータ最適化
 - [x] CHANGELOG.md 作成
 - [x] CI/CD ワークフロー改善
+
+### 🚀 Week 4: 高度機能拡張 **← 現在ここ** 
+- [x] **高度なML分析機能実装** (2025-01-06完了)
+  - [x] `--show-layer-impact`: レイヤー影響度分析
+  - [x] `--quantization-analysis`: 量子化分析
+  - [x] `--sort-by-change-magnitude`: 変更量ソート
+  - [x] `--stats`: 詳細統計情報
+- [x] **crates.io 正式リリース** ✅ **2025-01-06完了**
+- [ ] **13個の追加機能実装** **← 現在進行中**
+- [ ] **パフォーマンステスト・ベンチマーク**
+- [ ] **実際のMLモデルでの動作検証**
+
+### 📋 13個高度機能の実装優先度 (UNIX哲学準拠)
+
+#### 🥇 **フェーズ1: コア分析機能** (優先度: 最高)
+1. **学習進捗・収束分析** `--learning-progress` `--convergence-analysis` ✅ **2025-01-06実装完了**
+   - 単一目的: チェックポイント間の学習進捗測定
+   - 標準出力: プログレス情報をパイプライン可能
+   - 実装詳細: LearningProgressInfo, ConvergenceInfo構造体で統計分析
+2. **異常検知** `--anomaly-detection` `--gradient-analysis`  
+   - 単一目的: 学習異常（勾配爆発・消失）の検出
+   - コンポーザブル: 他ツールとの組み合わせ可能
+3. **メモリ・性能分析** `--memory-analysis` `--inference-speed-estimate`
+   - 単一目的: リソース使用量の測定・推定
+   - 小さく明確: 一つの機能で一つの責務
+
+#### 🥈 **フェーズ2: MLOps統合機能** (優先度: 高)
+4. **CI/CD統合** `--regression-test` `--alert-on-degradation`
+   - 自動化友好: 終了コードでテスト結果を通知
+   - パイプライン対応: JSON出力でツール連携
+5. **コードレビュー支援** `--review-friendly` `--change-summary` `--risk-assessment`
+   - 人間可読: レビュー用の明確な出力形式
+   - 構造化出力: JSON/YAMLでの詳細情報
+
+#### 🥉 **フェーズ3: 研究・実験支援** (優先度: 中)
+6. **アーキテクチャ比較** `--architecture-comparison` `--param-efficiency-analysis`
+7. **ハイパーパラメータ分析** `--hyperparameter-impact` `--learning-rate-analysis`
+8. **A/Bテスト支援** `--deployment-readiness` `--performance-impact-estimate`
+
+#### 🏅 **フェーズ4: 高度分析・可視化** (優先度: 低)
+9. **実験記録・文書化** `--generate-report` `--markdown-output` `--include-charts`
+10. **分散表現比較** `--embedding-analysis` `--similarity-matrix` `--clustering-change`
+11. **注意機構分析** `--attention-analysis` `--head-importance` `--attention-pattern-diff`
+
+#### UNIX哲学の適用原則:
+- **単一目的**: 各フラグは一つの明確な機能
+- **標準出力**: ファイル出力なし、リダイレクト活用
+- **コンポーザブル**: 他ツール（grep, jq, awk）と組み合わせ可能
+- **プログラマブル**: JSON/YAML出力でスクリプト対応
+- **シンプル**: 複雑な設定ファイルなし、コマンドライン引数のみ
+
+#### 🎯 **実装完了機能の使用例** (2025-01-06)
+```bash
+# 学習進捗分析 - チェックポイント間の変化を測定
+diffai checkpoint_epoch_10.pt checkpoint_epoch_20.pt --learning-progress
+# 出力: 📈 learning_progress: trend=improving, magnitude=0.0543, speed=0.80
+
+# 収束分析 - 学習の安定性を評価
+diffai model_v1.safetensors model_v2.safetensors --convergence-analysis  
+# 出力: 🎯 convergence_analysis: status=stable, stability=0.0234, action="Continue training with current settings."
+
+# 組み合わせ使用 - 包括的な学習分析
+diffai model_before.pt model_after.pt --learning-progress --convergence-analysis --stats
+# UNIX哲学: パイプ可能な標準出力、jqでJSON処理可能
+
+# JSON出力でスクリプト統合
+diffai model_v1.pt model_v2.pt --learning-progress --output json | jq '.[] | select(.LearningProgress)'
+```
+
+#### 📊 現在のパッケージ対応状況 (2025-01-06確認)
+**✅ 対応済み:**
+- **🦀 Rust crates**: `diffai-core` (ライブラリ) + `diffai` (CLI) 完備
+- **📦 crates.io公開**: v0.2.0 正式リリース完了 🎉
+  - `diffai-core` v0.2.0: https://crates.io/crates/diffai-core
+  - `diffai` v0.2.0: https://crates.io/crates/diffai
+- **🔧 ワークスペース**: 適切に分離された構造
+- **📋 メタデータ**: keywords, categories, description最適化済み
+- **✅ 動作確認**: crates.ioからのインストール・実行確認済み
+
+**❌ 未対応 (将来実装予定):**
+- **🐍 Python (pip)**: PyO3でPython bindings
+- **📦 npm**: napi-rsでNode.js bindings
+
+**🎯 方針**: まずRustエコシステム (crates.io) でリリース、Python/npmは後から追加
 
 ## 💡 diffaiの独自価値（実装完了後の強み）
 

@@ -98,6 +98,14 @@ struct Args {
     /// Show detailed statistics for ML models
     #[arg(long)]
     stats: bool,
+
+    /// Analyze learning progress between training checkpoints
+    #[arg(long)]
+    learning_progress: bool,
+
+    /// Perform convergence analysis for training stability
+    #[arg(long)]
+    convergence_analysis: bool,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug, Serialize, Deserialize)]
@@ -182,6 +190,8 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
             DiffResult::TensorShapeChanged(k, _, _) => k.clone(),
             DiffResult::TensorStatsChanged(k, _, _) => k.clone(),
             DiffResult::ModelArchitectureChanged(k, _, _) => k.clone(),
+            DiffResult::LearningProgress(k, _) => k.clone(),
+            DiffResult::ConvergenceAnalysis(k, _) => k.clone(),
         }
     };
 
@@ -202,6 +212,14 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
             DiffResult::ModelArchitectureChanged(_, info1, info2) => {
                 // Calculate magnitude of parameter count change
                 (info1.total_parameters as f64 - info2.total_parameters as f64).abs()
+            }
+            DiffResult::LearningProgress(_, progress) => {
+                // Use parameter update magnitude as sort key
+                progress.parameter_update_magnitude
+            }
+            DiffResult::ConvergenceAnalysis(_, convergence) => {
+                // Use parameter stability as sort key (inverted - less stable = higher magnitude)
+                1.0 - convergence.parameter_stability
             }
             _ => 0.0, // Non-ML changes have no magnitude
         }
@@ -239,6 +257,16 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
                     k, info1.total_parameters, info2.total_parameters, 
                     info1.layer_count, info2.layer_count).bright_magenta()
             }
+            DiffResult::LearningProgress(k, progress) => {
+                format!("📈 {}: trend={}, magnitude={:.4}, speed={:.2}", 
+                    k, progress.loss_trend, progress.parameter_update_magnitude, 
+                    progress.convergence_speed).bright_green()
+            }
+            DiffResult::ConvergenceAnalysis(k, convergence) => {
+                format!("🎯 {}: status={}, stability={:.4}, action=\"{}\"", 
+                    k, convergence.convergence_status, convergence.parameter_stability,
+                    convergence.recommended_action).bright_yellow()
+            }
         };
 
         println!("{}{}", indent, diff_str);
@@ -274,6 +302,12 @@ fn print_yaml_output(differences: Vec<DiffResult>) -> Result<()> {
             }),
             DiffResult::ModelArchitectureChanged(key, info1, info2) => serde_json::json!({
                 "ModelArchitectureChanged": [key, info1, info2]
+            }),
+            DiffResult::LearningProgress(key, progress) => serde_json::json!({
+                "LearningProgress": [key, progress]
+            }),
+            DiffResult::ConvergenceAnalysis(key, convergence) => serde_json::json!({
+                "ConvergenceAnalysis": [key, convergence]
             }),
         }
     }).collect();
@@ -338,11 +372,12 @@ fn main() -> Result<()> {
     let mut differences = match input_format {
         Format::Safetensors | Format::Pytorch => {
             // Check if any ML-specific options are enabled
-            if args.show_layer_impact || args.quantization_analysis || args.stats {
+            if args.show_layer_impact || args.quantization_analysis || args.stats || 
+               args.learning_progress || args.convergence_analysis {
                 // Use enhanced ML analysis
                 diff_ml_models_enhanced(&args.input1, &args.input2, epsilon, 
                                        args.show_layer_impact, args.quantization_analysis, 
-                                       args.stats)?
+                                       args.stats, args.learning_progress, args.convergence_analysis)?
             } else {
                 // Use basic ML comparison for backward compatibility
                 diff_ml_models(&args.input1, &args.input2, epsilon)?
@@ -368,6 +403,8 @@ fn main() -> Result<()> {
                 DiffResult::TensorShapeChanged(k, _, _) => k,
                 DiffResult::TensorStatsChanged(k, _, _) => k,
                 DiffResult::ModelArchitectureChanged(k, _, _) => k,
+                DiffResult::LearningProgress(k, _) => k,
+                DiffResult::ConvergenceAnalysis(k, _) => k,
             };
             key.starts_with(&filter_path)
         });
@@ -463,6 +500,8 @@ fn compare_directories(
                             DiffResult::TensorShapeChanged(k, _, _) => k,
                             DiffResult::TensorStatsChanged(k, _, _) => k,
                             DiffResult::ModelArchitectureChanged(k, _, _) => k,
+                            DiffResult::LearningProgress(k, _) => k,
+                            DiffResult::ConvergenceAnalysis(k, _) => k,
                         };
                         key.starts_with(filter_path_str)
                     });
