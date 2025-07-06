@@ -408,10 +408,7 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
             }
             DiffResult::ArchitectureComparison(_, arch) => {
                 // Use layer depth difference as magnitude
-                let depth_diff = (arch.layer_depth_comparison.0 as f64
-                    - arch.layer_depth_comparison.1 as f64)
-                    .abs();
-                depth_diff
+                (arch.layer_depth_comparison.0 as f64 - arch.layer_depth_comparison.1 as f64).abs()
             }
             DiffResult::ParamEfficiencyAnalysis(_, efficiency) => {
                 // Use efficiency ratio distance from 1.0 as magnitude
@@ -495,7 +492,7 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
                 .unwrap_or(std::cmp::Ordering::Equal)
         });
     } else {
-        differences.sort_by(|a, b| get_key(a).cmp(&get_key(b)));
+        differences.sort_by_key(&get_key);
     }
 
     for diff in &differences {
@@ -1084,6 +1081,7 @@ fn main() -> Result<()> {
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 fn compare_directories(
     dir1: &Path,
     dir2: &Path,

@@ -1,6 +1,6 @@
 # diffai
 
-> **🤖 AI/ML specialized diff tool - Focus on model changes, not formatting noise**
+> **🤖 AI/ML特化の差分ツール - フォーマットノイズではなく、モデル変更に焦点を当てる**
 
 [日本語版 README](README_ja.md) | [English README](README.md)
 
@@ -9,42 +9,42 @@
 [![Documentation](https://img.shields.io/badge/docs-GitHub-blue)](https://github.com/kako-jun/diffai/tree/main/docs/index_ja.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A next-generation diff tool specialized for **AI/ML workflows** that understands model structures, tensor statistics, and experiment data - not just text changes. Perfect for PyTorch, Safetensors, JSON configs, and structured data.
+モデル構造、テンソル統計、実験データを理解する**AI/MLワークフロー**に特化した次世代差分ツール。単なるテキスト変更ではなく、PyTorch、Safetensors、JSON設定、構造化データに最適化されています。
 
 ```bash
-# Traditional diff can't understand model structure
+# 従来のdiffはモデル構造を理解できない
 $ diff model_v1.safetensors model_v2.safetensors
 Binary files model_v1.safetensors and model_v2.safetensors differ
 
-# diffai shows semantic model changes
+# diffaiは意味のあるモデル変更を表示
 $ diffai model_v1.safetensors model_v2.safetensors
 ⬚ tensor.linear1.weight: [256, 128] -> [512, 128]
 📊 tensor.linear2.weight: mean=0.0012→0.0098, std=0.9987→1.0234
 + tensor.new_layer.weight: shape=[64, 64], dtype=f32, params=4096
 ```
 
-## ✨ Key Features
+## ✨ 主な機能
 
-- **🧠 AI/ML Specialized**: Native support for PyTorch (.pt/.pth) and Safetensors (.safetensors) models
-- **📊 Tensor Analysis**: Automatic calculation of tensor statistics (mean, std, min, max, shape)
-- **🔥 Advanced Analytics**: Layer impact analysis, quantization analysis, change magnitude sorting
-- **📈 ML Statistics**: Detailed model statistics with `--stats` flag
-- **🔧 Multiple Formats**: JSON, YAML, TOML, XML, INI, CSV support (inherited from diffx)
-- **🤖 MLOps Friendly**: Clean CLI output perfect for automation and CI/CD pipelines
-- **⚡ Fast**: Built in Rust for maximum performance with large model files
-- **🎯 Semantic Awareness**: Focuses on meaningful changes, ignores formatting noise
+- **🧠 AI/ML特化**: PyTorch (.pt/.pth) と Safetensors (.safetensors) モデルのネイティブサポート
+- **📊 テンソル分析**: テンソル統計の自動計算（平均、標準偏差、最小値、最大値、形状）
+- **🔥 高度な分析**: レイヤー影響分析、量子化分析、変更量ソート
+- **📈 ML統計**: `--stats` フラグによる詳細なモデル統計
+- **🔧 多様な形式**: JSON、YAML、TOML、XML、INI、CSV サポート（diffxから継承）
+- **🤖 MLOps対応**: 自動化とCI/CDパイプラインに最適なクリーンなCLI出力
+- **⚡ 高速**: 大容量モデルファイルでの最高性能を実現するRust製
+- **🎯 意味認識**: 意味のある変更に焦点、フォーマットノイズを無視
 
-## 🚀 Why diffai over generic diff tools?
+## 🚀 汎用的なdiffツールではなくdiffaiを選ぶ理由
 
-Traditional diff tools fail with AI/ML workflows:
+従来のdiffツールはAI/MLワークフローでは失敗します：
 
-| Challenge | Traditional Tools | diffai |
+| 課題 | 従来ツール | diffai |
 |-----------|------------------|---------|
-| **Binary model files** | "Binary files differ" 🚫 | Tensor-level analysis ✅ |
-| **Large files (GB+)** | Memory issues 🚫 | Efficient streaming ✅ |
-| **Statistical changes** | No insight 🚫 | Mean/std/shape comparison ✅ |
-| **ML-specific formats** | No support 🚫 | Native PyTorch/Safetensors ✅ |
-| **Experiment tracking** | Manual work 🚫 | Automated analysis ✅ |
+| **バイナリモデルファイル** | "バイナリファイルが異なる" 🚫 | テンソルレベル分析 ✅ |
+| **大容量ファイル (GB+)** | メモリ問題 🚫 | 効率的ストリーミング ✅ |
+| **統計的変更** | 洞察なし 🚫 | 平均/標準偏差/形状比較 ✅ |
+| **ML特化形式** | サポートなし 🚫 | ネイティブ PyTorch/Safetensors ✅ |
+| **実験追跡** | 手作業 🚫 | 自動化された分析 ✅ |
 
 ## 📊 Real-World Use Cases
 
@@ -87,9 +87,9 @@ diffai model_lr_001.safetensors model_lr_0001.safetensors
 diffai model_dataset_v1.safetensors model_dataset_v2.safetensors
 ```
 
-## 🏗️ Architecture
+## 🏗️ アーキテクチャ
 
-### System Overview
+### システム概要
 
 ```mermaid
 graph TB
@@ -124,7 +124,7 @@ graph TB
     E --> Output
 ```
 
-### Project Structure
+### プロジェクト構造
 
 ```
 diffai/
@@ -140,70 +140,70 @@ diffai/
 └── scripts/         # Model generation utilities
 ```
 
-### Technology Stack
+### 技術スタック
 
-- **Rust** (Fast, safe, memory-efficient for large models)
-- **AI/ML**: `candle-core`, `safetensors`, `bytemuck` for tensor processing
-- **Parsers**: `serde_json`, `serde_yml`, `toml`, `quick-xml`, `csv`
-- **CLI**: `clap` (argument parsing), `colored` (AI-friendly output)
+- **Rust** （大容量モデルに対して高速、安全、メモリ効率的）
+- **AI/ML**: `candle-core`, `safetensors`, `bytemuck` テンソル処理用
+- **パーサー**: `serde_json`, `serde_yml`, `toml`, `quick-xml`, `csv`
+- **CLI**: `clap` （引数解析）, `colored` （AIフレンドリー出力）
 
-## 🚀 Quick Start
+## 🚀 クイックスタート
 
-### Installation
+### インストール
 
 ```bash
-# Install from crates.io
+# crates.ioからインストール
 cargo install diffai
 
-# Or build from source
+# またはソースからビルド
 git clone https://github.com/kako-jun/diffai.git
 cd diffai
 cargo install --path diffai-cli
 ```
 
-### Basic Usage
+### 基本的な使用方法
 
 ```bash
-# Compare ML model files
+# MLモデルファイルの比較
 diffai model1.safetensors model2.safetensors
 
-# Compare with different output formats
+# 異なる出力形式での比較
 diffai config.yaml config_new.yaml --output json
 diffai experiment.json experiment_v2.json --output yaml
 
-# Advanced ML-specific options
+# 高度なML特化オプション
 diffai large_model.pt large_model_v2.pt --epsilon 1e-6
 diffai config.json config_new.json --ignore-keys-regex "^(timestamp|run_id)$"
 
-# Directory comparison for experiment tracking
+# 実験追跡用のディレクトリ比較
 diffai experiment_v1/ experiment_v2/ --recursive
 ```
 
-### ML Model Analysis Examples
+### MLモデル分析の例
 
 ```bash
-# Fine-tuning analysis
+# ファインチューニング分析
 diffai models/base.safetensors models/finetuned.safetensors
-# Output:
+# 出力:
 # 📊 tensor.transformer.h.0.attn.weight: mean=0.0023→0.0156, std=0.0891→0.1234
 # ⬚ tensor.classifier.weight: [768, 1000] -> [768, 10]
 
-# Quantization impact assessment
+# 量子化影響評価
 diffai models/fp32.safetensors models/int8.safetensors --epsilon 0.1
-# Output:
+# 出力:
 # 📊 tensor.conv1.weight: mean=0.0045→0.0043, std=0.2341→0.2298
-# No differences found (within epsilon tolerance)
+# 差異は見つからない（エプシロン許容値内）
 
-# Training checkpoint progression
+# 学習チェックポイントの進捗
 diffai checkpoints/epoch_10.pt checkpoints/epoch_50.pt
-# Output:
+# 出力:
 # 📊 tensor.layers.0.weight: mean=-0.0012→0.0034, std=1.2341→0.8907
 # 📊 tensor.layers.1.bias: mean=0.1234→0.0567, std=0.4567→0.3210
 ```
 
-## 🔗 Integration Examples
+## 🔗 統合例
 
-### CI/CD Pipeline
+### CI/CDパイプライン
 
 ```yaml
 name: Model Validation
@@ -219,10 +219,10 @@ jobs:
         run: |
           diffai models/baseline.safetensors models/candidate.safetensors \
             --output json > model_diff.json
-          # Process model_diff.json for deployment decisions
+          # デプロイメント決定のためにmodel_diff.jsonを処理
 ```
 
-### MLflow Integration
+### MLflow統合
 
 ```python
 import subprocess
@@ -236,22 +236,22 @@ def compare_models(model1_path, model2_path):
     
     diff_data = json.loads(result.stdout)
     
-    # Log model comparison to MLflow
+    # モデル比較をMLflowにログ
     with mlflow.start_run():
         mlflow.log_dict(diff_data, "model_comparison.json")
         mlflow.log_metric("tensor_changes", len(diff_data))
 ```
 
-### Pre-commit Hook
+### Pre-commitフック
 
 ```bash
 #!/bin/bash
 # .git/hooks/pre-commit
 if diffai models/current.safetensors models/staging.safetensors \
    --output json | jq -e '.[] | select(.TensorStatsChanged)' > /dev/null; then
-  echo "⚠️  Significant model changes detected. Please review:"
+  echo "⚠️  重要なモデル変更が検出されました。確認してください:"
   diffai models/current.safetensors models/staging.safetensors
-  read -p "Continue with commit? (y/N) " -n 1 -r
+  read -p "コミットを継続しますか? (y/N) " -n 1 -r
   echo
   if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     exit 1
@@ -259,68 +259,68 @@ if diffai models/current.safetensors models/staging.safetensors \
 fi
 ```
 
-## 🎯 Relationship to diffx
+## 🎯 diffxとの関係
 
-`diffai` is a specialized fork of the [`diffx`](https://github.com/kako-jun/diffx) project, inheriting its robust structured data comparison capabilities while adding AI/ML-specific features:
+`diffai` は[`diffx`](https://github.com/kako-jun/diffx)プロジェクトの特化フォークであり、強固な構造化データ比較機能を継承しつつ、AI/ML特化機能を追加しています：
 
-### Inherited from diffx
-- ✅ **Semantic diff** for JSON, YAML, TOML, XML, INI, CSV
-- ✅ **Format auto-detection** from file extensions
-- ✅ **Multiple output formats** (CLI, JSON, YAML, Unified)
-- ✅ **Advanced filtering** (regex, path-based, epsilon tolerance)
-- ✅ **Directory comparison** with recursive traversal
+### diffxから継承
+- ✅ **意味的差分** JSON、YAML、TOML、XML、INI、CSV用
+- ✅ **形式自動検出** ファイル拡張子から
+- ✅ **複数出力形式** （CLI、JSON、YAML、Unified）
+- ✅ **高度なフィルタリング** （正規表現、パスベース、エプシロン許容値）
+- ✅ **ディレクトリ比較** 再帰トラバーサル付き
 
-### Added for AI/ML
-- 🆕 **PyTorch model support** (.pt, .pth files)
-- 🆕 **Safetensors support** (.safetensors files) 
-- 🆕 **Tensor statistics** (mean, std, min, max, shape, dtype)
-- 🆕 **ML-friendly CLI output** with specialized symbols
-- 🆕 **Model architecture analysis** (layer counts, parameter counts)
-- 🆕 **Future**: Integration with MLOps tools, experiment tracking
+### AI/ML用に追加
+- 🆕 **PyTorchモデルサポート** (.pt, .pth ファイル)
+- 🆕 **Safetensorsサポート** (.safetensors ファイル) 
+- 🆕 **テンソル統計** （平均、標準偏差、最小値、最大値、形状、データ型）
+- 🆕 **MLフレンドリーCLI出力** 特化シンボル付き
+- 🆕 **モデルアーキテクチャ分析** （レイヤー数、パラメータ数）
+- 🆕 **将来**: MLOpsツール統合、実験追跡
 
-## 🔮 Roadmap
+## 🔮 ロードマップ
 
-### Phase 1: Core ML Features ✅ **COMPLETED**
-- ✅ PyTorch/Safetensors file parsing
-- ✅ Tensor shape and statistics comparison
-- ✅ AI-friendly CLI output with symbols
+### フェーズ1: コアML機能 ✅ **完成**
+- ✅ PyTorch/Safetensorsファイル解析
+- ✅ テンソル形状と統計比較
+- ✅ シンボル付きAIフレンドリーCLI出力
 
-### Phase 2: Experiment Analysis (Next)
-- 🔄 **Hyperparameter comparison** from JSON/YAML configs
-- 🔄 **Learning curve analysis** from training logs
-- 🔄 **Statistical significance testing** for metric changes
+### フェーズ2: 実験分析（次期）
+- 🔄 **ハイパーパラメータ比較** JSON/YAML設定から
+- 🔄 **学習曲線分析** 学習ログから
+- 🔄 **統計的有意差テスト** メトリクス変更用
 
-### Phase 3: MLOps Integration
-- 📋 **MLflow integration** for automatic experiment comparison
-- 📋 **Weights & Biases** export functionality
-- 📋 **DVC compatibility** for data/model versioning
+### フェーズ3: MLOps統合
+- 📋 **MLflow統合** 自動実験比較用
+- 📋 **Weights & Biases** エクスポート機能
+- 📋 **DVC互換性** データ/モデルバージョニング用
 
-### Phase 4: Advanced Analytics
-- 📋 **Gradient analysis** for training debugging
-- 📋 **Attention pattern comparison** for transformer models
-- 📋 **Embedding space analysis** for representation learning
+### フェーズ4: 高度な分析
+- 📋 **勾配分析** 学習デバッグ用
+- 📋 **アテンションパターン比較** トランスフォーマーモデル用
+- 📋 **埋め込み空間分析** 表現学習用
 
-## 🤝 Contributing
+## 🤝 コントリビューション
 
-We welcome contributions from the AI/ML community! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+AI/MLコミュニティからのコントリビューションを歓迎します！ガイドラインは[CONTRIBUTING.md](CONTRIBUTING.md)をご覧ください。
 
-**Areas where we need help:**
-- 🧠 Additional ML framework support (TensorFlow, ONNX, JAX)
-- 📊 Advanced statistical analysis features
-- 🔧 MLOps tool integrations
-- 📚 Documentation and examples
-- 🧪 Testing with real-world models
+**サポートが必要な分野:**
+- 🧠 追加のMLフレームワークサポート (TensorFlow, ONNX, JAX)
+- 📊 高度な統計分析機能
+- 🔧 MLOpsツール統合
+- 📚 ドキュメントと例
+- 🧪 実世界のモデルでのテスト
 
-## 🏆 Community
+## 🏆 コミュニティ
 
-- **GitHub Discussions**: Share use cases and get help
-- **Issues**: Report bugs or request features
-- **Pull Requests**: Contribute code or documentation
+- **GitHub Discussions**: 使用例を共有し、サポートを得る
+- **Issues**: バグ報告や機能リクエスト
+- **Pull Requests**: コードやドキュメントのコントリビューション
 
-## 📄 License
+## 📄 ライセンス
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT License - 詳細は[LICENSE](LICENSE)をご覧ください。
 
 ---
 
-<sub>Built with ❤️ for the AI/ML community. Inspired by the need for better model comparison tools in modern ML workflows.</sub>
+<sub>AI/MLコミュニティへの❤️を込めて作成。現代のMLワークフローでのより良いモデル比較ツールの必要性にインスパイアされて。</sub>

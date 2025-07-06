@@ -338,15 +338,15 @@ pub fn diff(
 
     // Handle root level type or value change first
     if !values_are_equal(v1, v2, epsilon) {
-        let type_match = match (v1, v2) {
-            (Value::Null, Value::Null) => true,
-            (Value::Bool(_), Value::Bool(_)) => true,
-            (Value::Number(_), Value::Number(_)) => true,
-            (Value::String(_), Value::String(_)) => true,
-            (Value::Array(_), Value::Array(_)) => true,
-            (Value::Object(_), Value::Object(_)) => true,
-            _ => false,
-        };
+        let type_match = matches!(
+            (v1, v2),
+            (Value::Null, Value::Null)
+                | (Value::Bool(_), Value::Bool(_))
+                | (Value::Number(_), Value::Number(_))
+                | (Value::String(_), Value::String(_))
+                | (Value::Array(_), Value::Array(_))
+                | (Value::Object(_), Value::Object(_))
+        );
 
         if !type_match {
             results.push(DiffResult::TypeChanged(
@@ -458,15 +458,15 @@ fn diff_objects(
                         array_id_key,
                     );
                 } else if !values_are_equal(value1, value2, epsilon) {
-                    let type_match = match (value1, value2) {
-                        (Value::Null, Value::Null) => true,
-                        (Value::Bool(_), Value::Bool(_)) => true,
-                        (Value::Number(_), Value::Number(_)) => true,
-                        (Value::String(_), Value::String(_)) => true,
-                        (Value::Array(_), Value::Array(_)) => true,
-                        (Value::Object(_), Value::Object(_)) => true,
-                        _ => false,
-                    };
+                    let type_match = matches!(
+                        (value1, value2),
+                        (Value::Null, Value::Null)
+                            | (Value::Bool(_), Value::Bool(_))
+                            | (Value::Number(_), Value::Number(_))
+                            | (Value::String(_), Value::String(_))
+                            | (Value::Array(_), Value::Array(_))
+                            | (Value::Object(_), Value::Object(_))
+                    );
 
                     if !type_match {
                         results.push(DiffResult::TypeChanged(
@@ -504,8 +504,8 @@ fn diff_objects(
 
 fn diff_arrays(
     path: &str,
-    arr1: &Vec<Value>,
-    arr2: &Vec<Value>,
+    arr1: &[Value],
+    arr2: &[Value],
     results: &mut Vec<DiffResult>,
     ignore_keys_regex: Option<&Regex>,
     epsilon: Option<f64>,
@@ -535,7 +535,7 @@ fn diff_arrays(
         // Check for modified or removed elements
         for (id_val, val1) in &map1 {
             let current_path = format!("{}[{}={}]", path, id_key, id_val);
-            match map2.get(&id_val) {
+            match map2.get(id_val) {
                 Some(val2) => {
                     // Recurse for nested objects/arrays
                     if val1.is_object() && val2.is_object() || val1.is_array() && val2.is_array() {
@@ -549,15 +549,15 @@ fn diff_arrays(
                             array_id_key,
                         );
                     } else if !values_are_equal(val1, val2, epsilon) {
-                        let type_match = match (val1, val2) {
-                            (Value::Null, Value::Null) => true,
-                            (Value::Bool(_), Value::Bool(_)) => true,
-                            (Value::Number(_), Value::Number(_)) => true,
-                            (Value::String(_), Value::String(_)) => true,
-                            (Value::Array(_), Value::Array(_)) => true,
-                            (Value::Object(_), Value::Object(_)) => true,
-                            _ => false,
-                        };
+                        let type_match = matches!(
+                            (val1, val2),
+                            (Value::Null, Value::Null)
+                                | (Value::Bool(_), Value::Bool(_))
+                                | (Value::Number(_), Value::Number(_))
+                                | (Value::String(_), Value::String(_))
+                                | (Value::Array(_), Value::Array(_))
+                                | (Value::Object(_), Value::Object(_))
+                        );
 
                         if !type_match {
                             results.push(DiffResult::TypeChanged(
@@ -605,15 +605,15 @@ fn diff_arrays(
                             array_id_key,
                         );
                     } else if !values_are_equal(val1, val2, epsilon) {
-                        let type_match = match (val1, val2) {
-                            (Value::Null, Value::Null) => true,
-                            (Value::Bool(_), Value::Bool(_)) => true,
-                            (Value::Number(_), Value::Number(_)) => true,
-                            (Value::String(_), Value::String(_)) => true,
-                            (Value::Array(_), Value::Array(_)) => true,
-                            (Value::Object(_), Value::Object(_)) => true,
-                            _ => false,
-                        };
+                        let type_match = matches!(
+                            (val1, val2),
+                            (Value::Null, Value::Null)
+                                | (Value::Bool(_), Value::Bool(_))
+                                | (Value::Number(_), Value::Number(_))
+                                | (Value::String(_), Value::String(_))
+                                | (Value::Array(_), Value::Array(_))
+                                | (Value::Object(_), Value::Object(_))
+                        );
 
                         if !type_match {
                             results.push(DiffResult::TypeChanged(
@@ -660,15 +660,15 @@ fn diff_arrays(
                             array_id_key,
                         );
                     } else if !values_are_equal(val1, val2, epsilon) {
-                        let type_match = match (val1, val2) {
-                            (Value::Null, Value::Null) => true,
-                            (Value::Bool(_), Value::Bool(_)) => true,
-                            (Value::Number(_), Value::Number(_)) => true,
-                            (Value::String(_), Value::String(_)) => true,
-                            (Value::Array(_), Value::Array(_)) => true,
-                            (Value::Object(_), Value::Object(_)) => true,
-                            _ => false,
-                        };
+                        let type_match = matches!(
+                            (val1, val2),
+                            (Value::Null, Value::Null)
+                                | (Value::Bool(_), Value::Bool(_))
+                                | (Value::Number(_), Value::Number(_))
+                                | (Value::String(_), Value::String(_))
+                                | (Value::Array(_), Value::Array(_))
+                                | (Value::Object(_), Value::Object(_))
+                        );
 
                         if !type_match {
                             results.push(DiffResult::TypeChanged(
@@ -949,6 +949,7 @@ pub fn diff_ml_models(
 }
 
 /// Enhanced ML model comparison with additional analysis features
+#[allow(clippy::too_many_arguments)]
 pub fn diff_ml_models_enhanced(
     model1_path: &Path,
     model2_path: &Path,
@@ -2046,7 +2047,6 @@ fn generate_review_friendly_summary(
 
     let mut key_changes = Vec::new();
     let mut reviewer_notes = Vec::new();
-    let mut impact_score = 0.0;
     let mut has_critical_issues = false;
 
     // Analyze parameter changes
@@ -2094,7 +2094,7 @@ fn generate_review_friendly_summary(
     }
 
     // Calculate impact assessment
-    impact_score = param_change.max(20.0).min(100.0) / 100.0; // Normalize to 0-1
+    let impact_score = param_change.clamp(20.0, 100.0) / 100.0; // Normalize to 0-1
     let impact_assessment = if has_critical_issues {
         "critical"
     } else if impact_score > 0.3 || param_change > 25.0 {
@@ -2568,7 +2568,7 @@ fn analyze_hyperparameter_impact(
 
     let stability_assessment = if high_impact_params.len() > 2 {
         "unstable"
-    } else if high_impact_params.len() > 0 {
+    } else if !high_impact_params.is_empty() {
         "needs_attention"
     } else {
         "stable"
