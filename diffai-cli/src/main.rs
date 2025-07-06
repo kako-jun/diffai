@@ -106,6 +106,102 @@ struct Args {
     /// Perform convergence analysis for training stability
     #[arg(long)]
     convergence_analysis: bool,
+
+    /// Detect training anomalies (gradient explosion, vanishing gradients)
+    #[arg(long)]
+    anomaly_detection: bool,
+
+    /// Analyze gradient characteristics and stability
+    #[arg(long)]
+    gradient_analysis: bool,
+
+    /// Analyze memory usage and efficiency between models
+    #[arg(long)]
+    memory_analysis: bool,
+
+    /// Estimate inference speed and performance characteristics
+    #[arg(long)]
+    inference_speed_estimate: bool,
+
+    /// Perform automated regression testing
+    #[arg(long)]
+    regression_test: bool,
+
+    /// Alert on performance degradation beyond thresholds
+    #[arg(long)]
+    alert_on_degradation: bool,
+
+    /// Generate review-friendly output for human reviewers
+    #[arg(long)]
+    review_friendly: bool,
+
+    /// Generate detailed change summary
+    #[arg(long)]
+    change_summary: bool,
+
+    /// Assess deployment risk and readiness
+    #[arg(long)]
+    risk_assessment: bool,
+
+    /// Compare model architectures and structural differences
+    #[arg(long)]
+    architecture_comparison: bool,
+
+    /// Analyze parameter efficiency between models
+    #[arg(long)]
+    param_efficiency_analysis: bool,
+
+    /// Analyze hyperparameter impact on model changes
+    #[arg(long)]
+    hyperparameter_impact: bool,
+
+    /// Analyze learning rate effects and patterns
+    #[arg(long)]
+    learning_rate_analysis: bool,
+
+    /// Assess deployment readiness and safety
+    #[arg(long)]
+    deployment_readiness: bool,
+
+    /// Estimate performance impact of model changes
+    #[arg(long)]
+    performance_impact_estimate: bool,
+
+    /// Generate comprehensive analysis report
+    #[arg(long)]
+    generate_report: bool,
+
+    /// Output results in markdown format
+    #[arg(long)]
+    markdown_output: bool,
+
+    /// Include charts and visualizations in output
+    #[arg(long)]
+    include_charts: bool,
+
+    /// Analyze embedding layer changes and semantic drift
+    #[arg(long)]
+    embedding_analysis: bool,
+
+    /// Generate similarity matrix for model comparison
+    #[arg(long)]
+    similarity_matrix: bool,
+
+    /// Analyze clustering changes in model representations
+    #[arg(long)]
+    clustering_change: bool,
+
+    /// Analyze attention mechanism patterns (Transformer models)
+    #[arg(long)]
+    attention_analysis: bool,
+
+    /// Analyze attention head importance and specialization
+    #[arg(long)]
+    head_importance: bool,
+
+    /// Compare attention patterns between models
+    #[arg(long)]
+    attention_pattern_diff: bool,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug, Serialize, Deserialize)]
@@ -192,6 +288,30 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
             DiffResult::ModelArchitectureChanged(k, _, _) => k.clone(),
             DiffResult::LearningProgress(k, _) => k.clone(),
             DiffResult::ConvergenceAnalysis(k, _) => k.clone(),
+            DiffResult::AnomalyDetection(k, _) => k.clone(),
+            DiffResult::GradientAnalysis(k, _) => k.clone(),
+            DiffResult::MemoryAnalysis(k, _) => k.clone(),
+            DiffResult::InferenceSpeedAnalysis(k, _) => k.clone(),
+            DiffResult::RegressionTest(k, _) => k.clone(),
+            DiffResult::AlertOnDegradation(k, _) => k.clone(),
+            DiffResult::ReviewFriendly(k, _) => k.clone(),
+            DiffResult::ChangeSummary(k, _) => k.clone(),
+            DiffResult::RiskAssessment(k, _) => k.clone(),
+            DiffResult::ArchitectureComparison(k, _) => k.clone(),
+            DiffResult::ParamEfficiencyAnalysis(k, _) => k.clone(),
+            DiffResult::HyperparameterImpact(k, _) => k.clone(),
+            DiffResult::LearningRateAnalysis(k, _) => k.clone(),
+            DiffResult::DeploymentReadiness(k, _) => k.clone(),
+            DiffResult::PerformanceImpactEstimate(k, _) => k.clone(),
+            DiffResult::GenerateReport(k, _) => k.clone(),
+            DiffResult::MarkdownOutput(k, _) => k.clone(),
+            DiffResult::IncludeCharts(k, _) => k.clone(),
+            DiffResult::EmbeddingAnalysis(k, _) => k.clone(),
+            DiffResult::SimilarityMatrix(k, _) => k.clone(),
+            DiffResult::ClusteringChange(k, _) => k.clone(),
+            DiffResult::AttentionAnalysis(k, _) => k.clone(),
+            DiffResult::HeadImportance(k, _) => k.clone(),
+            DiffResult::AttentionPatternDiff(k, _) => k.clone(),
         }
     };
 
@@ -220,6 +340,131 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
             DiffResult::ConvergenceAnalysis(_, convergence) => {
                 // Use parameter stability as sort key (inverted - less stable = higher magnitude)
                 1.0 - convergence.parameter_stability
+            }
+            DiffResult::AnomalyDetection(_, anomaly) => {
+                // Use severity as magnitude (critical=2.0, warning=1.0, none=0.0)
+                match anomaly.severity.as_str() {
+                    "critical" => 2.0,
+                    "warning" => 1.0,
+                    _ => 0.0,
+                }
+            }
+            DiffResult::GradientAnalysis(_, gradient) => {
+                // Use gradient norm estimate as magnitude
+                gradient.gradient_norm_estimate
+            }
+            DiffResult::MemoryAnalysis(_, memory) => {
+                // Use absolute memory delta as magnitude (in MB)
+                (memory.memory_delta_bytes.abs() as f64) / (1024.0 * 1024.0)
+            }
+            DiffResult::InferenceSpeedAnalysis(_, speed) => {
+                // Use speed change ratio distance from 1.0 as magnitude
+                (speed.speed_change_ratio - 1.0).abs()
+            }
+            DiffResult::RegressionTest(_, regression) => {
+                // Use performance degradation percentage as magnitude
+                regression.performance_degradation
+            }
+            DiffResult::AlertOnDegradation(_, alert) => {
+                // Use threshold exceeded factor as magnitude
+                if alert.alert_triggered {
+                    alert.threshold_exceeded
+                } else {
+                    0.0
+                }
+            }
+            DiffResult::ReviewFriendly(_, review) => {
+                // Use impact assessment as magnitude
+                match review.impact_assessment.as_str() {
+                    "critical" => 4.0,
+                    "high" => 3.0,
+                    "medium" => 2.0,
+                    "low" => 1.0,
+                    _ => 0.0,
+                }
+            }
+            DiffResult::ChangeSummary(_, summary) => {
+                // Use overall change magnitude
+                summary.overall_change_magnitude
+            }
+            DiffResult::RiskAssessment(_, risk) => {
+                // Use risk level as magnitude
+                match risk.overall_risk_level.as_str() {
+                    "critical" => 4.0,
+                    "high" => 3.0,
+                    "medium" => 2.0,
+                    "low" => 1.0,
+                    _ => 0.0,
+                }
+            }
+            DiffResult::ArchitectureComparison(_, arch) => {
+                // Use layer depth difference as magnitude
+                let depth_diff = (arch.layer_depth_comparison.0 as f64 - arch.layer_depth_comparison.1 as f64).abs();
+                depth_diff
+            }
+            DiffResult::ParamEfficiencyAnalysis(_, efficiency) => {
+                // Use efficiency ratio distance from 1.0 as magnitude
+                (efficiency.efficiency_ratio - 1.0).abs()
+            }
+            DiffResult::HyperparameterImpact(_, hyper) => {
+                // Use maximum impact score as magnitude
+                hyper.impact_scores.values().copied().fold(0.0_f64, f64::max)
+            }
+            DiffResult::LearningRateAnalysis(_, lr) => {
+                // Use learning rate effectiveness as magnitude
+                lr.lr_effectiveness
+            }
+            DiffResult::DeploymentReadiness(_, deploy) => {
+                // Use readiness score (inverted - lower readiness = higher magnitude)
+                1.0 - deploy.readiness_score
+            }
+            DiffResult::PerformanceImpactEstimate(_, perf) => {
+                // Use overall performance score
+                perf.overall_performance_score
+            }
+            DiffResult::GenerateReport(_, _) => 1.0, // Static magnitude for reports
+            DiffResult::MarkdownOutput(_, _) => 1.0, // Static magnitude for markdown
+            DiffResult::IncludeCharts(_, chart) => {
+                // Use data variance as magnitude
+                if chart.chart_data.is_empty() {
+                    0.0
+                } else {
+                    let values: Vec<f64> = chart.chart_data.iter().map(|(_, v)| *v).collect();
+                    let mean = values.iter().sum::<f64>() / values.len() as f64;
+                    let variance = values.iter().map(|&x| (x - mean).powi(2)).sum::<f64>() / values.len() as f64;
+                    variance.sqrt()
+                }
+            }
+            DiffResult::EmbeddingAnalysis(_, embed) => {
+                // Use semantic drift as magnitude
+                embed.semantic_drift
+            }
+            DiffResult::SimilarityMatrix(_, sim) => {
+                // Use average similarity as magnitude
+                sim.average_similarity
+            }
+            DiffResult::ClusteringChange(_, cluster) => {
+                // Use cluster stability (inverted) as magnitude
+                1.0 - cluster.cluster_stability
+            }
+            DiffResult::AttentionAnalysis(_, attention) => {
+                // Use average attention entropy as magnitude
+                if attention.attention_entropy.is_empty() {
+                    0.0
+                } else {
+                    attention.attention_entropy.values().sum::<f64>() / attention.attention_entropy.len() as f64
+                }
+            }
+            DiffResult::HeadImportance(_, head) => {
+                // Use maximum head importance as magnitude
+                head.head_importance_scores.values()
+                    .flat_map(|scores| scores.iter())
+                    .copied()
+                    .fold(0.0_f64, f64::max)
+            }
+            DiffResult::AttentionPatternDiff(_, pattern) => {
+                // Use pattern similarity (inverted) as magnitude
+                1.0 - pattern.pattern_similarity
             }
             _ => 0.0, // Non-ML changes have no magnitude
         }
@@ -267,6 +512,228 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
                     k, convergence.convergence_status, convergence.parameter_stability,
                     convergence.recommended_action).bright_yellow()
             }
+            DiffResult::AnomalyDetection(k, anomaly) => {
+                let color = match anomaly.severity.as_str() {
+                    "critical" => format!("🚨 {}: type={}, severity={}, affected={} layers, action=\"{}\"", 
+                        k, anomaly.anomaly_type, anomaly.severity, anomaly.affected_layers.len(),
+                        anomaly.recommended_action).bright_red(),
+                    "warning" => format!("⚠️ {}: type={}, severity={}, affected={} layers, action=\"{}\"", 
+                        k, anomaly.anomaly_type, anomaly.severity, anomaly.affected_layers.len(),
+                        anomaly.recommended_action).yellow(),
+                    _ => format!("✅ {}: type={}, severity={}, action=\"{}\"", 
+                        k, anomaly.anomaly_type, anomaly.severity,
+                        anomaly.recommended_action).green(),
+                };
+                color
+            }
+            DiffResult::GradientAnalysis(k, gradient) => {
+                let color = match gradient.gradient_flow_health.as_str() {
+                    "exploding" => format!("💥 {}: flow_health={}, norm={:.6}, problematic={} layers", 
+                        k, gradient.gradient_flow_health, gradient.gradient_norm_estimate,
+                        gradient.problematic_layers.len()).bright_red(),
+                    "dead" | "diminishing" => format!("☠️ {}: flow_health={}, norm={:.6}, problematic={} layers", 
+                        k, gradient.gradient_flow_health, gradient.gradient_norm_estimate,
+                        gradient.problematic_layers.len()).bright_red(),
+                    _ => format!("🌊 {}: flow_health={}, norm={:.6}, ratio={:.4}", 
+                        k, gradient.gradient_flow_health, gradient.gradient_norm_estimate,
+                        gradient.gradient_ratio).bright_cyan(),
+                };
+                color
+            }
+            DiffResult::MemoryAnalysis(k, memory) => {
+                let delta_mb = memory.memory_delta_bytes as f64 / (1024.0 * 1024.0);
+                let color = if memory.memory_delta_bytes > 100_000_000 {  // > 100MB increase
+                    format!("🧠 {}: delta={:+.1}MB, gpu_est={:.1}MB, efficiency={:.6}, \"{}\"", 
+                        k, delta_mb, memory.estimated_gpu_memory_mb, memory.memory_efficiency_ratio,
+                        memory.memory_recommendation).yellow()
+                } else if memory.memory_delta_bytes < -50_000_000 {  // > 50MB decrease
+                    format!("🧠 {}: delta={:+.1}MB, gpu_est={:.1}MB, efficiency={:.6}, \"{}\"", 
+                        k, delta_mb, memory.estimated_gpu_memory_mb, memory.memory_efficiency_ratio,
+                        memory.memory_recommendation).green()
+                } else {
+                    format!("🧠 {}: delta={:+.1}MB, gpu_est={:.1}MB, efficiency={:.6}, \"{}\"", 
+                        k, delta_mb, memory.estimated_gpu_memory_mb, memory.memory_efficiency_ratio,
+                        memory.memory_recommendation).bright_blue()
+                };
+                color
+            }
+            DiffResult::InferenceSpeedAnalysis(k, speed) => {
+                let flops_ratio = if speed.model1_flops_estimate > 0 {
+                    speed.model2_flops_estimate as f64 / speed.model1_flops_estimate as f64
+                } else {
+                    1.0
+                };
+                let color = if speed.speed_change_ratio > 1.5 {
+                    format!("⚡ {}: speed_ratio={:.2}x, flops_ratio={:.2}x, bottlenecks={}, \"{}\"", 
+                        k, speed.speed_change_ratio, flops_ratio, speed.bottleneck_layers.len(),
+                        speed.inference_recommendation).red()
+                } else if speed.speed_change_ratio < 0.7 {
+                    format!("⚡ {}: speed_ratio={:.2}x, flops_ratio={:.2}x, bottlenecks={}, \"{}\"", 
+                        k, speed.speed_change_ratio, flops_ratio, speed.bottleneck_layers.len(),
+                        speed.inference_recommendation).bright_green()
+                } else {
+                    format!("⚡ {}: speed_ratio={:.2}x, flops_ratio={:.2}x, bottlenecks={}, \"{}\"", 
+                        k, speed.speed_change_ratio, flops_ratio, speed.bottleneck_layers.len(),
+                        speed.inference_recommendation).bright_cyan()
+                };
+                color
+            }
+            DiffResult::RegressionTest(k, regression) => {
+                let color = if regression.test_passed {
+                    format!("✅ {}: passed={}, degradation={:.1}%, severity={}, \"{}\"", 
+                        k, regression.test_passed, regression.performance_degradation,
+                        regression.severity_level, regression.recommended_action).green()
+                } else {
+                    match regression.severity_level.as_str() {
+                        "critical" => format!("🚨 {}: passed={}, degradation={:.1}%, severity={}, failed={} checks, \"{}\"", 
+                            k, regression.test_passed, regression.performance_degradation,
+                            regression.severity_level, regression.failed_checks.len(),
+                            regression.recommended_action).bright_red(),
+                        "high" => format!("⚠️ {}: passed={}, degradation={:.1}%, severity={}, failed={} checks, \"{}\"", 
+                            k, regression.test_passed, regression.performance_degradation,
+                            regression.severity_level, regression.failed_checks.len(),
+                            regression.recommended_action).red(),
+                        _ => format!("⚠️ {}: passed={}, degradation={:.1}%, severity={}, failed={} checks, \"{}\"", 
+                            k, regression.test_passed, regression.performance_degradation,
+                            regression.severity_level, regression.failed_checks.len(),
+                            regression.recommended_action).yellow(),
+                    }
+                };
+                color
+            }
+            DiffResult::AlertOnDegradation(k, alert) => {
+                let color = if alert.alert_triggered {
+                    match alert.alert_type.as_str() {
+                        "memory" | "performance" => format!("🚨 {}: triggered={}, type={}, threshold_exceeded={:.2}x, \"{}\"", 
+                            k, alert.alert_triggered, alert.alert_type, alert.threshold_exceeded,
+                            alert.alert_message).bright_red(),
+                        "stability" => format!("⚠️ {}: triggered={}, type={}, threshold_exceeded={:.2}x, \"{}\"", 
+                            k, alert.alert_triggered, alert.alert_type, alert.threshold_exceeded,
+                            alert.alert_message).yellow(),
+                        _ => format!("ℹ️ {}: triggered={}, type={}, \"{}\"", 
+                            k, alert.alert_triggered, alert.alert_type, alert.alert_message).blue(),
+                    }
+                } else {
+                    format!("✅ {}: triggered={}, \"{}\"", 
+                        k, alert.alert_triggered, alert.alert_message).green()
+                };
+                color
+            }
+            DiffResult::ReviewFriendly(k, review) => {
+                format!("👥 {}: impact={}, approval={}, key_changes={}, \"{}\"", 
+                    k, review.impact_assessment, review.approval_recommendation,
+                    review.key_changes.len(), review.summary).bright_cyan()
+            }
+            DiffResult::ChangeSummary(k, summary) => {
+                format!("📝 {}: layers_changed={}, magnitude={:.4}, patterns={}, most_changed={}", 
+                    k, summary.total_layers_changed, summary.overall_change_magnitude,
+                    summary.change_patterns.len(), summary.most_changed_layers.len()).bright_blue()
+            }
+            DiffResult::RiskAssessment(k, risk) => {
+                let color = match risk.overall_risk_level.as_str() {
+                    "critical" => format!("🚨 {}: risk={}, readiness={}, factors={}, rollback={}", 
+                        k, risk.overall_risk_level, risk.deployment_readiness, 
+                        risk.risk_factors.len(), risk.rollback_difficulty).bright_red(),
+                    "high" => format!("⚠️ {}: risk={}, readiness={}, factors={}, rollback={}", 
+                        k, risk.overall_risk_level, risk.deployment_readiness, 
+                        risk.risk_factors.len(), risk.rollback_difficulty).yellow(),
+                    _ => format!("✅ {}: risk={}, readiness={}, factors={}, rollback={}", 
+                        k, risk.overall_risk_level, risk.deployment_readiness, 
+                        risk.risk_factors.len(), risk.rollback_difficulty).green(),
+                };
+                color
+            }
+            DiffResult::ArchitectureComparison(k, arch) => {
+                format!("🏗️ {}: type1={}, type2={}, depth={}→{}, differences={}, \"{}\"", 
+                    k, arch.architecture_type_1, arch.architecture_type_2,
+                    arch.layer_depth_comparison.0, arch.layer_depth_comparison.1,
+                    arch.structural_differences.len(), arch.comparison_summary).bright_magenta()
+            }
+            DiffResult::ParamEfficiencyAnalysis(k, efficiency) => {
+                format!("⚡ {}: efficiency_ratio={:.4}, params_per_layer={}→{}, sparse={}, dense={}, \"{}\"", 
+                    k, efficiency.efficiency_ratio, efficiency.params_per_layer_1, 
+                    efficiency.params_per_layer_2, efficiency.sparse_layers.len(),
+                    efficiency.dense_layers.len(), efficiency.efficiency_recommendation).bright_yellow()
+            }
+            DiffResult::HyperparameterImpact(k, hyper) => {
+                format!("🎛️ {}: changes={}, high_impact={}, stability={}, max_impact={:.4}", 
+                    k, hyper.detected_changes.len(), hyper.high_impact_params.len(),
+                    hyper.stability_assessment, 
+                    hyper.impact_scores.values().copied().fold(0.0_f64, f64::max)).bright_cyan()
+            }
+            DiffResult::LearningRateAnalysis(k, lr) => {
+                format!("📈 {}: lr={}→{}, pattern={}, effectiveness={:.4}, \"{}\"", 
+                    k, lr.estimated_lr_1, lr.estimated_lr_2, lr.lr_schedule_pattern,
+                    lr.lr_effectiveness, lr.lr_recommendation).bright_green()
+            }
+            DiffResult::DeploymentReadiness(k, deploy) => {
+                let color = match deploy.deployment_strategy.as_str() {
+                    "hold" => format!("🛑 {}: readiness={:.2}, strategy={}, risk={}, blockers={}, \"{}\"", 
+                        k, deploy.readiness_score, deploy.deployment_strategy, 
+                        deploy.estimated_risk_level, deploy.blocking_issues.len(),
+                        deploy.go_live_recommendation).red(),
+                    "gradual" => format!("⚠️ {}: readiness={:.2}, strategy={}, risk={}, warnings={}, \"{}\"", 
+                        k, deploy.readiness_score, deploy.deployment_strategy, 
+                        deploy.estimated_risk_level, deploy.warnings.len(),
+                        deploy.go_live_recommendation).yellow(),
+                    _ => format!("✅ {}: readiness={:.2}, strategy={}, risk={}, \"{}\"", 
+                        k, deploy.readiness_score, deploy.deployment_strategy, 
+                        deploy.estimated_risk_level, deploy.go_live_recommendation).green(),
+                };
+                color
+            }
+            DiffResult::PerformanceImpactEstimate(k, perf) => {
+                format!("🚀 {}: latency={:.2}x, throughput={:.2}x, memory={:.2}x, score={:.4}, \"{}\"", 
+                    k, perf.latency_impact_estimate, perf.throughput_impact_estimate,
+                    perf.memory_impact_estimate, perf.overall_performance_score,
+                    perf.performance_recommendation).bright_purple()
+            }
+            DiffResult::GenerateReport(k, report) => {
+                format!("📄 {}: title=\"{}\", findings={}, conclusions={}, next_steps={}", 
+                    k, report.experiment_title, report.key_findings.len(),
+                    report.conclusions.len(), report.next_steps.len()).bright_blue()
+            }
+            DiffResult::MarkdownOutput(k, markdown) => {
+                format!("📋 {}: sections={}, tables={}, charts={}, length={} chars", 
+                    k, markdown.sections.len(), markdown.tables_generated,
+                    markdown.charts_referenced, markdown.markdown_content.len()).blue()
+            }
+            DiffResult::IncludeCharts(k, chart) => {
+                format!("📊 {}: type={}, data_points={}, title=\"{}\", \"{}\"", 
+                    k, chart.chart_type, chart.chart_data.len(), 
+                    chart.chart_title, chart.chart_description).cyan()
+            }
+            DiffResult::EmbeddingAnalysis(k, embed) => {
+                format!("🧬 {}: layers={}, semantic_drift={:.4}, affected_vocab={}, \"{}\"", 
+                    k, embed.embedding_layers.len(), embed.semantic_drift,
+                    embed.affected_vocabularies.len(), embed.embedding_recommendation).purple()
+            }
+            DiffResult::SimilarityMatrix(k, sim) => {
+                format!("🔗 {}: matrix_size={}x{}, avg_similarity={:.4}, clusters_est={}, outliers={}", 
+                    k, sim.matrix_size.0, sim.matrix_size.1, sim.average_similarity,
+                    sim.cluster_count_estimate, sim.outlier_pairs.len()).bright_purple()
+            }
+            DiffResult::ClusteringChange(k, cluster) => {
+                format!("🎯 {}: clusters={}→{}, stability={:.4}, migrated={}, new={}, dissolved={}, \"{}\"", 
+                    k, cluster.clusters_before, cluster.clusters_after, cluster.cluster_stability,
+                    cluster.migrated_entities.len(), cluster.new_clusters.len(),
+                    cluster.dissolved_clusters.len(), cluster.clustering_recommendation).magenta()
+            }
+            DiffResult::AttentionAnalysis(k, attention) => {
+                format!("👁️ {}: layers={}, pattern_changes={}, focus_shift={}, \"{}\"", 
+                    k, attention.attention_layers.len(), attention.attention_pattern_changes.len(),
+                    attention.attention_focus_shift, attention.attention_recommendation).bright_red()
+            }
+            DiffResult::HeadImportance(k, head) => {
+                format!("🎭 {}: important_heads={}, prunable_heads={}, specializations={}", 
+                    k, head.most_important_heads.len(), head.prunable_heads.len(),
+                    head.head_specialization.len()).red()
+            }
+            DiffResult::AttentionPatternDiff(k, pattern) => {
+                format!("🔍 {}: pattern={}→{}, similarity={:.4}, span_change={:.4}, \"{}\"", 
+                    k, pattern.pattern_type_1, pattern.pattern_type_2, pattern.pattern_similarity,
+                    pattern.attention_span_change, pattern.pattern_change_summary).bright_cyan()
+            }
         };
 
         println!("{}{}", indent, diff_str);
@@ -308,6 +775,78 @@ fn print_yaml_output(differences: Vec<DiffResult>) -> Result<()> {
             }),
             DiffResult::ConvergenceAnalysis(key, convergence) => serde_json::json!({
                 "ConvergenceAnalysis": [key, convergence]
+            }),
+            DiffResult::AnomalyDetection(key, anomaly) => serde_json::json!({
+                "AnomalyDetection": [key, anomaly]
+            }),
+            DiffResult::GradientAnalysis(key, gradient) => serde_json::json!({
+                "GradientAnalysis": [key, gradient]
+            }),
+            DiffResult::MemoryAnalysis(key, memory) => serde_json::json!({
+                "MemoryAnalysis": [key, memory]
+            }),
+            DiffResult::InferenceSpeedAnalysis(key, speed) => serde_json::json!({
+                "InferenceSpeedAnalysis": [key, speed]
+            }),
+            DiffResult::RegressionTest(key, regression) => serde_json::json!({
+                "RegressionTest": [key, regression]
+            }),
+            DiffResult::AlertOnDegradation(key, alert) => serde_json::json!({
+                "AlertOnDegradation": [key, alert]
+            }),
+            DiffResult::ReviewFriendly(key, review) => serde_json::json!({
+                "ReviewFriendly": [key, review]
+            }),
+            DiffResult::ChangeSummary(key, summary) => serde_json::json!({
+                "ChangeSummary": [key, summary]
+            }),
+            DiffResult::RiskAssessment(key, risk) => serde_json::json!({
+                "RiskAssessment": [key, risk]
+            }),
+            DiffResult::ArchitectureComparison(key, arch) => serde_json::json!({
+                "ArchitectureComparison": [key, arch]
+            }),
+            DiffResult::ParamEfficiencyAnalysis(key, efficiency) => serde_json::json!({
+                "ParamEfficiencyAnalysis": [key, efficiency]
+            }),
+            DiffResult::HyperparameterImpact(key, hyper) => serde_json::json!({
+                "HyperparameterImpact": [key, hyper]
+            }),
+            DiffResult::LearningRateAnalysis(key, lr) => serde_json::json!({
+                "LearningRateAnalysis": [key, lr]
+            }),
+            DiffResult::DeploymentReadiness(key, deploy) => serde_json::json!({
+                "DeploymentReadiness": [key, deploy]
+            }),
+            DiffResult::PerformanceImpactEstimate(key, perf) => serde_json::json!({
+                "PerformanceImpactEstimate": [key, perf]
+            }),
+            DiffResult::GenerateReport(key, report) => serde_json::json!({
+                "GenerateReport": [key, report]
+            }),
+            DiffResult::MarkdownOutput(key, markdown) => serde_json::json!({
+                "MarkdownOutput": [key, markdown]
+            }),
+            DiffResult::IncludeCharts(key, chart) => serde_json::json!({
+                "IncludeCharts": [key, chart]
+            }),
+            DiffResult::EmbeddingAnalysis(key, embed) => serde_json::json!({
+                "EmbeddingAnalysis": [key, embed]
+            }),
+            DiffResult::SimilarityMatrix(key, sim) => serde_json::json!({
+                "SimilarityMatrix": [key, sim]
+            }),
+            DiffResult::ClusteringChange(key, cluster) => serde_json::json!({
+                "ClusteringChange": [key, cluster]
+            }),
+            DiffResult::AttentionAnalysis(key, attention) => serde_json::json!({
+                "AttentionAnalysis": [key, attention]
+            }),
+            DiffResult::HeadImportance(key, head) => serde_json::json!({
+                "HeadImportance": [key, head]
+            }),
+            DiffResult::AttentionPatternDiff(key, pattern) => serde_json::json!({
+                "AttentionPatternDiff": [key, pattern]
             }),
         }
     }).collect();
@@ -373,11 +912,31 @@ fn main() -> Result<()> {
         Format::Safetensors | Format::Pytorch => {
             // Check if any ML-specific options are enabled
             if args.show_layer_impact || args.quantization_analysis || args.stats || 
-               args.learning_progress || args.convergence_analysis {
+               args.learning_progress || args.convergence_analysis || 
+               args.anomaly_detection || args.gradient_analysis ||
+               args.memory_analysis || args.inference_speed_estimate ||
+               args.regression_test || args.alert_on_degradation ||
+               args.review_friendly || args.change_summary || args.risk_assessment ||
+               args.architecture_comparison || args.param_efficiency_analysis ||
+               args.hyperparameter_impact || args.learning_rate_analysis ||
+               args.deployment_readiness || args.performance_impact_estimate ||
+               args.generate_report || args.markdown_output || args.include_charts ||
+               args.embedding_analysis || args.similarity_matrix || args.clustering_change ||
+               args.attention_analysis || args.head_importance || args.attention_pattern_diff {
                 // Use enhanced ML analysis
                 diff_ml_models_enhanced(&args.input1, &args.input2, epsilon, 
                                        args.show_layer_impact, args.quantization_analysis, 
-                                       args.stats, args.learning_progress, args.convergence_analysis)?
+                                       args.stats, args.learning_progress, args.convergence_analysis,
+                                       args.anomaly_detection, args.gradient_analysis,
+                                       args.memory_analysis, args.inference_speed_estimate,
+                                       args.regression_test, args.alert_on_degradation,
+                                       args.review_friendly, args.change_summary, args.risk_assessment,
+                                       args.architecture_comparison, args.param_efficiency_analysis,
+                                       args.hyperparameter_impact, args.learning_rate_analysis,
+                                       args.deployment_readiness, args.performance_impact_estimate,
+                                       args.generate_report, args.markdown_output, args.include_charts,
+                                       args.embedding_analysis, args.similarity_matrix, args.clustering_change,
+                                       args.attention_analysis, args.head_importance, args.attention_pattern_diff)?
             } else {
                 // Use basic ML comparison for backward compatibility
                 diff_ml_models(&args.input1, &args.input2, epsilon)?
@@ -405,6 +964,30 @@ fn main() -> Result<()> {
                 DiffResult::ModelArchitectureChanged(k, _, _) => k,
                 DiffResult::LearningProgress(k, _) => k,
                 DiffResult::ConvergenceAnalysis(k, _) => k,
+                DiffResult::AnomalyDetection(k, _) => k,
+                DiffResult::GradientAnalysis(k, _) => k,
+                DiffResult::MemoryAnalysis(k, _) => k,
+                DiffResult::InferenceSpeedAnalysis(k, _) => k,
+                DiffResult::RegressionTest(k, _) => k,
+                DiffResult::AlertOnDegradation(k, _) => k,
+                DiffResult::ReviewFriendly(k, _) => k,
+                DiffResult::ChangeSummary(k, _) => k,
+                DiffResult::RiskAssessment(k, _) => k,
+                DiffResult::ArchitectureComparison(k, _) => k,
+                DiffResult::ParamEfficiencyAnalysis(k, _) => k,
+                DiffResult::HyperparameterImpact(k, _) => k,
+                DiffResult::LearningRateAnalysis(k, _) => k,
+                DiffResult::DeploymentReadiness(k, _) => k,
+                DiffResult::PerformanceImpactEstimate(k, _) => k,
+                DiffResult::GenerateReport(k, _) => k,
+                DiffResult::MarkdownOutput(k, _) => k,
+                DiffResult::IncludeCharts(k, _) => k,
+                DiffResult::EmbeddingAnalysis(k, _) => k,
+                DiffResult::SimilarityMatrix(k, _) => k,
+                DiffResult::ClusteringChange(k, _) => k,
+                DiffResult::AttentionAnalysis(k, _) => k,
+                DiffResult::HeadImportance(k, _) => k,
+                DiffResult::AttentionPatternDiff(k, _) => k,
             };
             key.starts_with(&filter_path)
         });
@@ -502,6 +1085,30 @@ fn compare_directories(
                             DiffResult::ModelArchitectureChanged(k, _, _) => k,
                             DiffResult::LearningProgress(k, _) => k,
                             DiffResult::ConvergenceAnalysis(k, _) => k,
+                            DiffResult::AnomalyDetection(k, _) => k,
+                            DiffResult::GradientAnalysis(k, _) => k,
+                            DiffResult::MemoryAnalysis(k, _) => k,
+                            DiffResult::InferenceSpeedAnalysis(k, _) => k,
+                            DiffResult::RegressionTest(k, _) => k,
+                            DiffResult::AlertOnDegradation(k, _) => k,
+                            DiffResult::ReviewFriendly(k, _) => k,
+                            DiffResult::ChangeSummary(k, _) => k,
+                            DiffResult::RiskAssessment(k, _) => k,
+                            DiffResult::ArchitectureComparison(k, _) => k,
+                            DiffResult::ParamEfficiencyAnalysis(k, _) => k,
+                            DiffResult::HyperparameterImpact(k, _) => k,
+                            DiffResult::LearningRateAnalysis(k, _) => k,
+                            DiffResult::DeploymentReadiness(k, _) => k,
+                            DiffResult::PerformanceImpactEstimate(k, _) => k,
+                            DiffResult::GenerateReport(k, _) => k,
+                            DiffResult::MarkdownOutput(k, _) => k,
+                            DiffResult::IncludeCharts(k, _) => k,
+                            DiffResult::EmbeddingAnalysis(k, _) => k,
+                            DiffResult::SimilarityMatrix(k, _) => k,
+                            DiffResult::ClusteringChange(k, _) => k,
+                            DiffResult::AttentionAnalysis(k, _) => k,
+                            DiffResult::HeadImportance(k, _) => k,
+                            DiffResult::AttentionPatternDiff(k, _) => k,
                         };
                         key.starts_with(filter_path_str)
                     });
