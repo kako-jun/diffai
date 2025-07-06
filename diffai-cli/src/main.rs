@@ -491,26 +491,25 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
                     .magenta()
             }
             DiffResult::TensorShapeChanged(k, shape1, shape2) => {
-                format!("⬚ {}: {:?} -> {:?}", k, shape1, shape2).purple()
+                format!("! {}: {:?} -> {:?} (shape)", k, shape1, shape2).magenta()
             }
             DiffResult::TensorStatsChanged(k, stats1, stats2) => {
-                format!("📊 {}: mean={:.4}→{:.4}, std={:.4}→{:.4}", 
-                    k, stats1.mean, stats2.mean, stats1.std, stats2.std).bright_purple()
+                format!("~ {}: mean={:.4}->{:.4}, std={:.4}->{:.4}", 
+                    k, stats1.mean, stats2.mean, stats1.std, stats2.std).cyan()
             }
             DiffResult::ModelArchitectureChanged(k, info1, info2) => {
-                format!("🏗️ {}: params={}→{}, layers={}→{}", 
+                format!("! {}: params={}->{}, layers={}->{} (architecture)", 
                     k, info1.total_parameters, info2.total_parameters, 
-                    info1.layer_count, info2.layer_count).bright_magenta()
+                    info1.layer_count, info2.layer_count).magenta()
             }
             DiffResult::LearningProgress(k, progress) => {
-                format!("📈 {}: trend={}, magnitude={:.4}, speed={:.2}", 
+                format!("+ {}: trend={}, magnitude={:.4}, speed={:.2} (learning_progress)", 
                     k, progress.loss_trend, progress.parameter_update_magnitude, 
-                    progress.convergence_speed).bright_green()
+                    progress.convergence_speed).blue()
             }
             DiffResult::ConvergenceAnalysis(k, convergence) => {
-                format!("🎯 {}: status={}, stability={:.4}, action=\"{}\"", 
-                    k, convergence.convergence_status, convergence.parameter_stability,
-                    convergence.recommended_action).bright_yellow()
+                format!("+ {}: status={}, stability={:.4} (convergence)", 
+                    k, convergence.convergence_status, convergence.parameter_stability).blue()
             }
             DiffResult::AnomalyDetection(k, anomaly) => {
                 let color = match anomaly.severity.as_str() {

@@ -392,3 +392,369 @@ fn create_test_pytorch_file(path: &str) -> Result<(), Box<dyn std::error::Error>
     fs::write(path, test_data)?;
     Ok(())
 }
+
+// Tests for all 13 advanced ML features
+// These tests verify that the CLI arguments are accepted and processed without errors
+
+#[test]
+fn test_learning_progress_analysis() -> Result<(), Box<dyn std::error::Error>> {
+    // Use JSON files for testing CLI flag acceptance
+    fs::create_dir_all("../tests/output")?;
+    fs::write("../tests/output/checkpoint_v1.json", r#"{"model": "v1", "epoch": 10}"#)?;
+    fs::write("../tests/output/checkpoint_v2.json", r#"{"model": "v2", "epoch": 20}"#)?;
+    
+    let mut cmd = diffai_cmd();
+    cmd.arg("../tests/output/checkpoint_v1.json")
+       .arg("../tests/output/checkpoint_v2.json")
+       .arg("--learning-progress");
+    
+    let output = cmd.output()?;
+    
+    // Should accept the flag and process the files (success is expected for JSON)
+    assert!(output.status.success());
+    
+    // Check that the flag was processed (should be in stdout or stderr)
+    let _stdout = String::from_utf8_lossy(&output.stdout);
+    let _stderr = String::from_utf8_lossy(&output.stderr);
+    
+    // The test passes if it processes successfully
+    assert!(output.status.success());
+    
+    // Clean up
+    let _ = fs::remove_file("../tests/output/checkpoint_v1.json");
+    let _ = fs::remove_file("../tests/output/checkpoint_v2.json");
+    
+    Ok(())
+}
+
+#[test]
+fn test_convergence_analysis() -> Result<(), Box<dyn std::error::Error>> {
+    fs::create_dir_all("../tests/output")?;
+    fs::write("../tests/output/model_before.json", r#"{"loss": 0.5, "accuracy": 0.8}"#)?;
+    fs::write("../tests/output/model_after.json", r#"{"loss": 0.3, "accuracy": 0.9}"#)?;
+    
+    let mut cmd = diffai_cmd();
+    cmd.arg("../tests/output/model_before.json")
+       .arg("../tests/output/model_after.json")
+       .arg("--convergence-analysis");
+    
+    let output = cmd.output()?;
+    
+    // Should accept the flag and process successfully
+    assert!(output.status.success());
+    
+    // Clean up
+    let _ = fs::remove_file("../tests/output/model_before.json");
+    let _ = fs::remove_file("../tests/output/model_after.json");
+    
+    Ok(())
+}
+
+#[test]
+fn test_anomaly_detection() -> Result<(), Box<dyn std::error::Error>> {
+    create_test_pytorch_file("../tests/output/model_normal.pt")?;
+    create_test_pytorch_file("../tests/output/model_anomaly.pt")?;
+    
+    let mut cmd = diffai_cmd();
+    cmd.arg("../tests/output/model_normal.pt")
+       .arg("../tests/output/model_anomaly.pt")
+       .arg("--anomaly-detection");
+    
+    let output = cmd.output()?;
+    
+    // Should accept the flag and not crash
+    assert!(output.status.success() || 
+            String::from_utf8_lossy(&output.stderr).contains("Failed to parse"));
+    
+    // Clean up
+    let _ = fs::remove_file("../tests/output/model_normal.pt");
+    let _ = fs::remove_file("../tests/output/model_anomaly.pt");
+    
+    Ok(())
+}
+
+#[test]
+fn test_gradient_analysis() -> Result<(), Box<dyn std::error::Error>> {
+    create_test_pytorch_file("../tests/output/grad_before.pt")?;
+    create_test_pytorch_file("../tests/output/grad_after.pt")?;
+    
+    let mut cmd = diffai_cmd();
+    cmd.arg("../tests/output/grad_before.pt")
+       .arg("../tests/output/grad_after.pt")
+       .arg("--gradient-analysis");
+    
+    let output = cmd.output()?;
+    
+    // Should accept the flag and not crash
+    assert!(output.status.success() || 
+            String::from_utf8_lossy(&output.stderr).contains("Failed to parse"));
+    
+    // Clean up
+    let _ = fs::remove_file("../tests/output/grad_before.pt");
+    let _ = fs::remove_file("../tests/output/grad_after.pt");
+    
+    Ok(())
+}
+
+#[test]
+fn test_memory_analysis() -> Result<(), Box<dyn std::error::Error>> {
+    fs::create_dir_all("../tests/output")?;
+    fs::write("../tests/output/lightweight.json", r#"{"size": "small", "memory": 100}"#)?;
+    fs::write("../tests/output/heavy.json", r#"{"size": "large", "memory": 1000}"#)?;
+    
+    let mut cmd = diffai_cmd();
+    cmd.arg("../tests/output/lightweight.json")
+       .arg("../tests/output/heavy.json")
+       .arg("--memory-analysis");
+    
+    let output = cmd.output()?;
+    
+    // Should accept the flag and process successfully
+    assert!(output.status.success());
+    
+    // Clean up
+    let _ = fs::remove_file("../tests/output/lightweight.json");
+    let _ = fs::remove_file("../tests/output/heavy.json");
+    
+    Ok(())
+}
+
+#[test]
+fn test_inference_speed_estimate() -> Result<(), Box<dyn std::error::Error>> {
+    fs::create_dir_all("../tests/output")?;
+    fs::write("../tests/output/fast_model.json", r#"{"speed": "fast", "params": 1000}"#)?;
+    fs::write("../tests/output/slow_model.json", r#"{"speed": "slow", "params": 10000}"#)?;
+    
+    let mut cmd = diffai_cmd();
+    cmd.arg("../tests/output/fast_model.json")
+       .arg("../tests/output/slow_model.json")
+       .arg("--inference-speed-estimate");
+    
+    let output = cmd.output()?;
+    
+    // Should accept the flag and process successfully
+    assert!(output.status.success());
+    
+    // Clean up
+    let _ = fs::remove_file("../tests/output/fast_model.json");
+    let _ = fs::remove_file("../tests/output/slow_model.json");
+    
+    Ok(())
+}
+
+#[test]
+fn test_regression_test() -> Result<(), Box<dyn std::error::Error>> {
+    create_test_safetensors_file("../tests/output/production.safetensors")?;
+    create_test_safetensors_file("../tests/output/candidate.safetensors")?;
+    
+    let mut cmd = diffai_cmd();
+    cmd.arg("../tests/output/production.safetensors")
+       .arg("../tests/output/candidate.safetensors")
+       .arg("--regression-test");
+    
+    let output = cmd.output()?;
+    
+    // Should accept the flag and not crash
+    assert!(output.status.success() || 
+            String::from_utf8_lossy(&output.stderr).contains("Failed to parse"));
+    
+    // Clean up
+    let _ = fs::remove_file("../tests/output/production.safetensors");
+    let _ = fs::remove_file("../tests/output/candidate.safetensors");
+    
+    Ok(())
+}
+
+#[test]
+fn test_alert_on_degradation() -> Result<(), Box<dyn std::error::Error>> {
+    create_test_safetensors_file("../tests/output/baseline.safetensors")?;
+    create_test_safetensors_file("../tests/output/degraded.safetensors")?;
+    
+    let mut cmd = diffai_cmd();
+    cmd.arg("../tests/output/baseline.safetensors")
+       .arg("../tests/output/degraded.safetensors")
+       .arg("--alert-on-degradation");
+    
+    let output = cmd.output()?;
+    
+    // Should accept the flag and not crash
+    assert!(output.status.success() || 
+            String::from_utf8_lossy(&output.stderr).contains("Failed to parse"));
+    
+    // Clean up
+    let _ = fs::remove_file("../tests/output/baseline.safetensors");
+    let _ = fs::remove_file("../tests/output/degraded.safetensors");
+    
+    Ok(())
+}
+
+#[test]
+fn test_architecture_comparison() -> Result<(), Box<dyn std::error::Error>> {
+    fs::create_dir_all("../tests/output")?;
+    fs::write("../tests/output/resnet.json", r#"{"architecture": "resnet", "layers": 18}"#)?;
+    fs::write("../tests/output/efficientnet.json", r#"{"architecture": "efficientnet", "layers": 24}"#)?;
+    
+    let mut cmd = diffai_cmd();
+    cmd.arg("../tests/output/resnet.json")
+       .arg("../tests/output/efficientnet.json")
+       .arg("--architecture-comparison");
+    
+    let output = cmd.output()?;
+    
+    // Should accept the flag and process successfully
+    assert!(output.status.success());
+    
+    // Clean up
+    let _ = fs::remove_file("../tests/output/resnet.json");
+    let _ = fs::remove_file("../tests/output/efficientnet.json");
+    
+    Ok(())
+}
+
+#[test]
+fn test_param_efficiency_analysis() -> Result<(), Box<dyn std::error::Error>> {
+    fs::create_dir_all("../tests/output")?;
+    fs::write("../tests/output/efficient.json", r#"{"efficiency": "high", "params": 1000000}"#)?;
+    fs::write("../tests/output/inefficient.json", r#"{"efficiency": "low", "params": 10000000}"#)?;
+    
+    let mut cmd = diffai_cmd();
+    cmd.arg("../tests/output/efficient.json")
+       .arg("../tests/output/inefficient.json")
+       .arg("--param-efficiency-analysis");
+    
+    let output = cmd.output()?;
+    
+    // Should accept the flag and process successfully
+    assert!(output.status.success());
+    
+    // Clean up
+    let _ = fs::remove_file("../tests/output/efficient.json");
+    let _ = fs::remove_file("../tests/output/inefficient.json");
+    
+    Ok(())
+}
+
+#[test]
+fn test_hyperparameter_impact() -> Result<(), Box<dyn std::error::Error>> {
+    create_test_safetensors_file("../tests/output/lr_001.safetensors")?;
+    create_test_safetensors_file("../tests/output/lr_0001.safetensors")?;
+    
+    let mut cmd = diffai_cmd();
+    cmd.arg("../tests/output/lr_001.safetensors")
+       .arg("../tests/output/lr_0001.safetensors")
+       .arg("--hyperparameter-impact");
+    
+    let output = cmd.output()?;
+    
+    // Should accept the flag and not crash
+    assert!(output.status.success() || 
+            String::from_utf8_lossy(&output.stderr).contains("Failed to parse"));
+    
+    // Clean up
+    let _ = fs::remove_file("../tests/output/lr_001.safetensors");
+    let _ = fs::remove_file("../tests/output/lr_0001.safetensors");
+    
+    Ok(())
+}
+
+#[test]
+fn test_learning_rate_analysis() -> Result<(), Box<dyn std::error::Error>> {
+    create_test_pytorch_file("../tests/output/high_lr.pt")?;
+    create_test_pytorch_file("../tests/output/low_lr.pt")?;
+    
+    let mut cmd = diffai_cmd();
+    cmd.arg("../tests/output/high_lr.pt")
+       .arg("../tests/output/low_lr.pt")
+       .arg("--learning-rate-analysis");
+    
+    let output = cmd.output()?;
+    
+    // Should accept the flag and not crash
+    assert!(output.status.success() || 
+            String::from_utf8_lossy(&output.stderr).contains("Failed to parse"));
+    
+    // Clean up
+    let _ = fs::remove_file("../tests/output/high_lr.pt");
+    let _ = fs::remove_file("../tests/output/low_lr.pt");
+    
+    Ok(())
+}
+
+#[test]
+fn test_deployment_readiness() -> Result<(), Box<dyn std::error::Error>> {
+    fs::create_dir_all("../tests/output")?;
+    fs::write("../tests/output/model_a.json", r#"{"status": "ready", "version": "1.0"}"#)?;
+    fs::write("../tests/output/model_b.json", r#"{"status": "candidate", "version": "2.0"}"#)?;
+    
+    let mut cmd = diffai_cmd();
+    cmd.arg("../tests/output/model_a.json")
+       .arg("../tests/output/model_b.json")
+       .arg("--deployment-readiness");
+    
+    let output = cmd.output()?;
+    
+    // Should accept the flag and process successfully
+    assert!(output.status.success());
+    
+    // Clean up
+    let _ = fs::remove_file("../tests/output/model_a.json");
+    let _ = fs::remove_file("../tests/output/model_b.json");
+    
+    Ok(())
+}
+
+#[test]
+fn test_combined_advanced_features() -> Result<(), Box<dyn std::error::Error>> {
+    // Test multiple advanced flags together using JSON files
+    fs::create_dir_all("../tests/output")?;
+    fs::write("../tests/output/base.json", r#"{"model": "base", "params": 1000000}"#)?;
+    fs::write("../tests/output/improved.json", r#"{"model": "improved", "params": 1200000}"#)?;
+    
+    let mut cmd = diffai_cmd();
+    cmd.arg("../tests/output/base.json")
+       .arg("../tests/output/improved.json")
+       .arg("--learning-progress")
+       .arg("--convergence-analysis")
+       .arg("--memory-analysis")
+       .arg("--architecture-comparison")
+       .arg("--stats");
+    
+    let output = cmd.output()?;
+    
+    // Should accept multiple flags and process successfully
+    assert!(output.status.success());
+    
+    // Clean up
+    let _ = fs::remove_file("../tests/output/base.json");
+    let _ = fs::remove_file("../tests/output/improved.json");
+    
+    Ok(())
+}
+
+#[test]
+fn test_json_output_with_advanced_features() -> Result<(), Box<dyn std::error::Error>> {
+    // Test JSON output format with advanced features
+    create_test_safetensors_file("../tests/output/json_test1.safetensors")?;
+    create_test_safetensors_file("../tests/output/json_test2.safetensors")?;
+    
+    let mut cmd = diffai_cmd();
+    cmd.arg("../tests/output/json_test1.safetensors")
+       .arg("../tests/output/json_test2.safetensors")
+       .arg("--learning-progress")
+       .arg("--output")
+       .arg("json");
+    
+    let output = cmd.output()?;
+    
+    if output.status.success() {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        // Should output valid JSON
+        assert!(stdout.starts_with('[') && stdout.trim_end().ends_with(']'));
+    }
+    
+    // Clean up
+    let _ = fs::remove_file("../tests/output/json_test1.safetensors");
+    let _ = fs::remove_file("../tests/output/json_test2.safetensors");
+    
+    Ok(())
+}

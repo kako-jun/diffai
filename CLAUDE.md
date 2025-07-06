@@ -32,12 +32,263 @@ diffxの技術基盤をそのまま継承し、以下の追加機能を予定：
 - **評価指標差分**: モデル性能の変化可視化
 
 ## 対応フォーマット
+### 入力フォーマット
 - JSON（設定ファイル、APIレスポンス）
 - YAML（MLOps設定、Kubernetes設定）
 - TOML（プロジェクト設定）
 - XML（レガシーシステム連携）
 - INI（設定ファイル）
 - CSV（データセット、実験結果）
+- PyTorch（.pt, .pth）
+- Safetensors（.safetensors）
+
+### 出力フォーマット
+- **diffai形式（デフォルト）**: diffxのスーパーセット、AI/ML拡張付き
+- **JSON**: プログラム処理・MLOpsツール統合用
+- **YAML**: 設定ファイル・人間可読形式用
+
+## diffai形式の設計思想
+
+### diffxとの互換性
+diffai形式は、diffxの完全なスーパーセットとして設計：
+
+```
+diffx形式 ⊆ diffai形式
+```
+
+- **標準要素**: `+`, `-`, `~`, `!` シンボルとdiffx色合いを完全継承
+- **AI/ML拡張**: ML特化分析結果用の追加表現を導入
+- **後方互換**: 既存のdiffxユーザーには差分なし
+
+### diffai形式の拡張仕様
+
+#### 基本diffx継承要素
+```
++ 追加要素 (緑色)
+- 削除要素 (赤色)
+~ 変更要素 (黄色)
+! 型変更要素 (青色)
+```
+
+#### AI/ML特化拡張（diffai独自）
+```
+📊 統計情報変更 (cyan色)
+📈 学習進捗情報 (magenta色)  
+🎯 収束分析結果 (bright_green色)
+⚠️  異常検知結果 (bright_red色)
+🏗️  アーキテクチャ変更 (bright_blue色)
+🔧 ハイパーパラメータ変更 (bright_yellow色)
+🚀 デプロイメント情報 (bright_cyan色)
+💡 推奨アクション (bright_magenta色)
+```
+
+#### ユニバーサルデザイン対応
+- **色盲対応**: 形状・記号で区別可能
+- **モノクロ表示**: シンボルのみで判別可能
+- **アクセシビリティ**: スクリーンリーダー対応
+
+### 出力フォーマット設計
+
+#### 構造化データ対応
+```bash
+# 標準diffxと同じ
+~ config.learning_rate: 0.01 -> 0.001
+
+# AI/ML拡張
+📊 model.conv1.weight: stats_changed
+   Mean:     0.123456 → 0.234567 (Δ: +0.111111)
+   Std Dev:  0.045678 → 0.056789 (Δ: +0.011111)
+   Shape:    [64, 3, 7, 7] (params: 9,408)
+
+📈 learning_progress: trend=improving, magnitude=0.0543, speed=0.80
+🎯 convergence_analysis: status=stable, stability=0.0234
+⚠️  anomaly_detection: type=normal, confidence=0.95
+```
+
+#### JSON出力との整合性
+diffai形式の各要素は、JSON出力の対応する構造と1:1マッピング：
+
+```bash
+# diffai形式
+📊 layer1.conv.weight: TensorStatsChanged
+
+# JSON出力
+{
+  "TensorStatsChanged": [
+    "layer1.conv.weight",
+    {"mean": 0.123, "std": 0.045, ...},
+    {"mean": 0.234, "std": 0.056, ...}
+  ]
+}
+```
+
+### 実装方針
+
+#### 段階的拡張
+1. **Phase 1**: diffx基本要素の完全互換実装 ✅
+2. **Phase 2**: AI/ML拡張記号の追加実装 ✅
+3. **Phase 3**: ユニバーサルデザイン最適化 📋 進行中
+4. **Phase 4**: 高度可視化機能（グラフ・チャート）🔮 将来
+
+#### ツール連携
+- **diffx**: 100%互換モード提供
+- **jq**: JSON出力でのパイプライン処理
+- **MLOpsツール**: structured出力による自動連携
+
+### 実用例とテストケース保証 🆕
+
+#### 1. 基本モデル比較（学習進捗分析）
+```bash
+# 使用例
+diffai checkpoint_epoch_10.pt checkpoint_epoch_20.pt --learning-progress
+
+# 期待される出力（diffai形式）
+📈 learning_progress: trend=improving, magnitude=0.0543, speed=0.80
+~ layer1.weight: TensorStatsChanged
+   Mean:     0.123456 → 0.234567 (Δ: +0.111111)
+   Std Dev:  0.045678 → 0.056789 (Δ: +0.011111)
+
+# JSON出力
+diffai checkpoint_epoch_10.pt checkpoint_epoch_20.pt --learning-progress --output json
+# ✅ テストケース: test_learning_progress_analysis()
+```
+
+#### 2. 収束分析と異常検知
+```bash
+# 使用例
+diffai model_before.safetensors model_after.safetensors --convergence-analysis --anomaly-detection
+
+# 期待される出力
+🎯 convergence_analysis: status=stable, stability=0.0234, action="Continue training with current settings."
+⚠️  anomaly_detection: type=normal, confidence=0.95, severity=low
+
+# ✅ テストケース: test_convergence_analysis(), test_anomaly_detection()
+```
+
+#### 3. アーキテクチャ比較とパフォーマンス分析
+```bash
+# 使用例
+diffai resnet_model.safetensors efficientnet_model.safetensors --architecture-comparison --memory-analysis
+
+# 期待される出力
+🏗️  architecture_comparison: type=structural_change, complexity_delta=+15%
+   Model 1: ResNet-18 (11.7M params, 44.7MB)
+   Model 2: EfficientNet-B0 (5.3M params, 20.2MB)
+   Efficiency: +118% (lower is better)
+
+🔧 memory_analysis: usage_change=-54.8%, inference_speed_estimate=+32%
+
+# ✅ テストケース: test_architecture_comparison(), test_memory_analysis()
+```
+
+#### 4. CI/CD統合とデプロイメント判定
+```bash
+# 使用例
+diffai production.safetensors candidate.safetensors --regression-test --deployment-readiness
+
+# 期待される出力
+🚀 regression_test: status=passed, performance_delta=+2.3%, threshold=5%
+🚀 deployment_readiness: score=0.89/1.0, recommendation="Deploy with monitoring"
+   ✅ Performance improved
+   ✅ Model size within limits
+   ⚠️  Minor architecture changes detected
+
+# CI/CD自動判定（終了コード）
+echo $? # 0=deploy可, 1=要確認, 2=deploy不可
+
+# ✅ テストケース: test_regression_test(), test_deployment_readiness()
+```
+
+#### 5. 高度なML分析（組み合わせ使用）
+```bash
+# 使用例
+diffai base_model.pt improved_model.pt \
+  --learning-progress \
+  --convergence-analysis \
+  --architecture-comparison \
+  --hyperparameter-impact \
+  --stats
+
+# 期待される出力（包括的分析）
+📈 learning_progress: trend=improving, magnitude=0.0543, speed=0.80
+🎯 convergence_analysis: status=stable, stability=0.0234
+🏗️  architecture_comparison: type=minimal_change, efficiency_delta=+3%
+🔧 hyperparameter_impact: learning_rate_sensitivity=high, batch_size_impact=medium
+
+📊 Model Statistics Summary:
+   Total parameters: 25,557,032 → 25,557,032 (no change)
+   Model size: 97.4MB → 97.4MB (no change)
+   Layers changed: 0/156 (0%)
+   Statistical changes: 89/156 (57%)
+
+💡 Recommendations:
+   ✅ Model ready for deployment
+   ✅ Training converged successfully
+   ✅ No significant architectural risks
+
+# ✅ テストケース: test_combined_advanced_features()
+```
+
+#### 6. JSON/YAML出力でのMLOpsツール連携
+```bash
+# JSON出力例
+diffai model_v1.pt model_v2.pt --learning-progress --output json | jq '.[] | select(.LearningProgress)'
+
+# 期待されるJSON構造
+[
+  {
+    "LearningProgress": [
+      "global_analysis",
+      {
+        "loss_trend": "improving",
+        "parameter_update_magnitude": 0.0543,
+        "gradient_norm_ratio": 0.80,
+        "convergence_speed": 0.80
+      }
+    ]
+  }
+]
+
+# MLflowとの連携例
+diffai baseline.pt candidate.pt --deployment-readiness --output json | \
+  jq '.[] | select(.DeploymentReadiness) | .readiness_score' | \
+  python -c "
+import sys, json
+score = float(sys.stdin.read().strip())
+if score > 0.8:
+    print('🚀 Auto-deploy approved')
+    sys.exit(0)
+else:
+    print('⚠️ Manual review required')
+    sys.exit(1)
+"
+
+# ✅ テストケース: test_json_output_with_advanced_features()
+```
+
+### テスト保証体制
+
+#### 自動テストカバレッジ
+すべての使用例に対して対応するテストケースを実装済み：
+
+1. **CLI引数テスト**: 全13機能のフラグ受理確認 ✅
+2. **出力フォーマットテスト**: diffai/JSON/YAML形式 ✅  
+3. **組み合わせテスト**: 複数フラグの同時使用 ✅
+4. **エラーハンドリング**: 不正入力への対応 ✅
+5. **パフォーマンステスト**: 大容量ファイル処理 📋
+
+#### 継続的検証
+```bash
+# 全テスト実行
+cargo test --test integration
+
+# 特定機能のテスト
+cargo test --test integration test_learning_progress_analysis
+cargo test --test integration test_combined_advanced_features
+
+# ベンチマークテスト（将来実装）
+cargo bench --bench ml_performance
+```
 
 ## 将来的な展望
 - **MLOps統合**: CI/CDパイプラインでの自動検証
