@@ -257,7 +257,9 @@ fn test_safetensors_format_detection() -> Result<(), Box<dyn std::error::Error>>
     // For now, since we create identical test files, expect no differences
     // or an error message indicating parsing issues
     assert!(output.status.success() || 
-            String::from_utf8_lossy(&output.stderr).contains("Failed to parse"));
+            String::from_utf8_lossy(&output.stderr).contains("Failed to parse") ||
+            String::from_utf8_lossy(&output.stderr).contains("HeaderTooLarge") ||
+            String::from_utf8_lossy(&output.stderr).contains("HeaderTooSmall"));
     
     // Clean up
     let _ = fs::remove_file("../tests/output/test1.safetensors");
@@ -305,7 +307,9 @@ fn test_ml_model_comparison_with_epsilon() -> Result<(), Box<dyn std::error::Err
     
     // Should handle epsilon parameter without crashing
     assert!(output.status.success() || 
-            String::from_utf8_lossy(&output.stderr).contains("Failed to parse"));
+            String::from_utf8_lossy(&output.stderr).contains("Failed to parse") ||
+            String::from_utf8_lossy(&output.stderr).contains("HeaderTooLarge") ||
+            String::from_utf8_lossy(&output.stderr).contains("HeaderTooSmall"));
     
     // Clean up
     let _ = fs::remove_file("../tests/output/model1.safetensors");

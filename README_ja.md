@@ -27,6 +27,8 @@ $ diffai model_v1.safetensors model_v2.safetensors
 
 - **🧠 AI/ML Specialized**: Native support for PyTorch (.pt/.pth) and Safetensors (.safetensors) models
 - **📊 Tensor Analysis**: Automatic calculation of tensor statistics (mean, std, min, max, shape)
+- **🔥 Advanced Analytics**: Layer impact analysis, quantization analysis, change magnitude sorting
+- **📈 ML Statistics**: Detailed model statistics with `--stats` flag
 - **🔧 Multiple Formats**: JSON, YAML, TOML, XML, INI, CSV support (inherited from diffx)
 - **🤖 MLOps Friendly**: Clean CLI output perfect for automation and CI/CD pipelines
 - **⚡ Fast**: Built in Rust for maximum performance with large model files
