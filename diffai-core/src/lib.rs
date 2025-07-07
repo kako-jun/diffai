@@ -851,19 +851,8 @@ pub fn parse_safetensors_model(file_path: &Path) -> Result<HashMap<String, Tenso
 
         let total_params = shape.iter().product();
 
-        // Extract raw data and calculate statistics
-        let data_slice = tensor_view.data();
-        let (mean, std, min, max) = match tensor_view.dtype() {
-            safetensors::Dtype::F32 => {
-                let float_data: &[f32] = bytemuck::cast_slice(data_slice);
-                calculate_f32_stats(float_data)
-            }
-            safetensors::Dtype::F64 => {
-                let float_data: &[f64] = bytemuck::cast_slice(data_slice);
-                calculate_f64_stats(float_data)
-            }
-            _ => (0.0, 0.0, 0.0, 0.0), // Skip non-float types for now
-        };
+        // Extract raw data and calculate statistics using safe byte conversion
+        let (mean, std, min, max) = calculate_safetensors_stats(&tensor_view);
 
         let stats = TensorStats {
             mean,
