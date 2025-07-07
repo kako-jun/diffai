@@ -807,6 +807,48 @@ diffai baseline_model.safetensors experiment_model.safetensors \
 
 ---
 
+# 🚀 CI/CD・プッシュ前チェック
+
+## 必須: プッシュ前のローカルCI実行
+
+プッシュ前には必ずローカルCIスクリプトを実行してください：
+
+```bash
+# プッシュ前に必須実行
+./ci-local.sh
+```
+
+このスクリプトは GitHub Actions CI を完全再現し、以下をチェックします：
+1. **フォーマット**: `cargo fmt --all -- --check`
+2. **Clippy**: `cargo clippy --all-targets --all-features -- -D warnings`
+3. **ビルド**: `cargo build --verbose`
+4. **テスト**: `cargo test --verbose`
+5. **ドキュメントテスト**: `cargo test --doc`
+6. **リリースビルド**: `cargo build --release --verbose`
+7. **リリーステスト**: `cargo test --release --verbose`
+8. **CLI機能テスト**: 実際のファイル比較動作確認
+
+### 重要な特徴
+- **Fail-fast**: 1つでもエラーがあれば即座に停止 (`set -e`)
+- **完全再現**: GitHub Actions CI と同じ環境・手順
+- **自動テスト**: サンプルデータでの動作検証
+- **プッシュ安全**: 成功時のみプッシュ推奨
+
+### 使用例
+```bash
+# 開発後の確認
+./ci-local.sh
+
+# 成功時の出力例
+✅ All CI steps completed successfully!
+🚀 Ready to push to remote repository
+
+# 失敗時は問題箇所で停止
+# 修正後に再実行
+```
+
+---
+
 # 具体的な使用場面と便利機能の提案
 
 ## 🔍 モデル開発フェーズでの活用
