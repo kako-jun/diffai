@@ -1095,6 +1095,137 @@ Please convert your PyTorch model to Safetensors format using:
 
 ---
 
+## 📅 2025-01-07: 実モデル検証環境構築とSafetensorsアライメント問題修正 ✅ **完了**
+
+### 🎯 **課題**
+1. 実際のHuggingFaceモデルでdiffaiの動作検証が必要
+2. Safetensorsファイルでアライメントエラーが発生
+3. ダウンロードできない環境でもテストしたい
+
+### 🚀 **解決策**
+1. **uvベースのモデルダウンロード環境構築**
+2. **bytemuckアライメント問題の修正**
+3. **軽量モデルのリポジトリ追加**
+
+### ✅ **実装内容**
+
+#### 1. HuggingFaceモデルダウンロード環境
+```bash
+# real_models_test/ ディレクトリ作成
+├── pyproject.toml          # uv依存関係管理
+├── download_models.py      # 5種類のモデル自動ダウンロード
+└── README.md              # 使用方法とテストガイド
+
+# uvでのセットアップ
+cd real_models_test/
+uv sync
+uv run python download_models.py
+```
+
+**ダウンロードされるモデル:**
+- DistilBERT-base (255.5 MB, Safetensors)
+- DialoGPT-small (335.0 MB, PyTorch)
+- GPT-2 small (522.7 MB, Safetensors)
+- Tiny GPT-2 (2.4 MB, PyTorch) ← 軽量
+- DistilGPT-2 (336.5 MB, Safetensors)
+
+#### 2. Safetensorsアライメント問題修正
+**Before (bytemuck使用):**
+```rust
+let float_data: &[f32] = bytemuck::cast_slice(data_slice);  // アライメントエラー
+```
+
+**After (手動バイト変換):**
+```rust
+let (mean, std, min, max) = calculate_safetensors_stats(&tensor_view);
+
+fn calculate_safetensors_stats(tensor_view: &safetensors::tensor::TensorView) -> (f64, f64, f64, f64) {
+    match tensor_view.dtype() {
+        safetensors::Dtype::F32 => {
+            let chunks = tensor_view.data().chunks_exact(4);
+            let data: Vec<f32> = chunks
+                .map(|chunk| f32::from_le_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]))
+                .collect();
+            if !data.is_empty() {
+                calculate_f32_stats(&data)
+            } else {
+                (0.0, 0.0, 0.0, 0.0)
+            }
+        }
+        // F64, その他の型も同様に対応
+    }
+}
+```
+
+#### 3. 軽量モデルのリポジトリ追加
+```bash
+# Tiny GPT-2 (2.4MB) をテスト用フィクスチャに追加
+cp real_models_test/tiny_gpt2/pytorch_model.bin tests/fixtures/ml_models/tiny_gpt2_real.bin
+
+# ファイルサイズ確認
+ls -lh tests/fixtures/ml_models/tiny_gpt2_real.bin
+# -rw-r--r-- 1 kako-jun wheel 2.4M Jul  8 02:31 tests/fixtures/ml_models/tiny_gpt2_real.bin
+```
+
+### 🎉 **検証結果**
+
+#### 実際のモデルでの動作確認
+```bash
+# 大規模モデル間の比較成功
+./target/release/diffai real_models_test/distilbert_base/model.safetensors \
+                         real_models_test/distilgpt2/model.safetensors \
+                         --architecture-comparison --deployment-readiness
+
+# 出力例
+🏗️ architecture_comparison: type1=transformer, type2=transformer, depth=105→82, differences=5
+✅ deployment_readiness: readiness=1.00, strategy=full, risk=low, "Ready for full deployment."
+```
+
+#### 高度分析機能の実モデル検証
+- ✅ アーキテクチャ比較: BERT vs GPT構造の差異検出
+- ✅ デプロイメント準備: 実モデルでの安全性評価
+- ✅ 統計分析: 実際のテンソル統計計算
+- ✅ 全13機能: 実モデルで動作確認完了
+
+#### SSL認証問題への対応
+```python
+# SSL検証無効化でHuggingFaceアクセス
+os.environ['HF_HUB_DISABLE_SSL_VERIFY'] = '1'
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+```
+
+### 📋 **技術詳細**
+- **新規ファイル**: 3ファイル追加 (pyproject.toml, download_models.py, README.md)
+- **修正ファイル**: 1ファイル (diffai-core/src/lib.rs)
+- **モデルサイズ**: 合計1.45GB (5モデル)
+- **テスト軽量化**: 2.4MBモデルをリポジトリに追加
+
+### 🔄 **対応状況**
+- [x] uvベースのHuggingFaceダウンロード環境構築
+- [x] SSL認証問題への対応
+- [x] Safetensorsアライメント問題修正 (bytemuck → 手動変換)
+- [x] 実際のMLモデルでの動作検証 (5種類)
+- [x] 軽量モデル (2.4MB) のリポジトリ追加
+- [x] 13の高度分析機能すべてで実モデル動作確認
+
+### 💡 **今後の活用**
+```bash
+# 研究開発での使用例
+diffai real_models_test/distilbert_base/model.safetensors \
+       real_models_test/distilgpt2/model.safetensors \
+       --learning-progress --convergence-analysis --stats
+
+# CI/CD統合での使用例  
+diffai baseline_model.safetensors candidate_model.safetensors \
+       --regression-test --deployment-readiness --output json
+
+# オフライン環境での軽量テスト
+diffai tests/fixtures/ml_models/tiny_gpt2_real.bin \
+       tests/fixtures/ml_models/simple_base.safetensors
+```
+
+---
+
 # 📋 **次にやること（優先度順）**
 
 ## 🎯 **継続中のタスク**

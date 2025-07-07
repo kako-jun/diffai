@@ -12,3 +12,12 @@ thumbs.db
 
 # diffx symbolic link
 diffx/
+
+# Downloaded ML models (large files)
+real_models_test/distilbert_base/
+real_models_test/dialogpt_small/
+real_models_test/gpt2_small/
+real_models_test/distilgpt2/
+real_models_test/tiny_gpt2/
+real_models_test/.venv/
+real_models_test/uv.lock
