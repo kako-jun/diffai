@@ -1150,3 +1150,37 @@ diffai large_model_10gb.safetensors large_model_modified_10gb.safetensors --memo
 - TensorFlow/ONNX対応
 - Python/Node.js bindings
 - 可視化機能拡張
+
+---
+
+## 📁 **テストデータ管理ポリシー** (2025-01-07制定)
+
+### 基本方針
+テストデータは適切なサイズと管理方法で効率的に扱う
+
+### ✅ **リポジトリにコミットするデータ**
+- **小さなテストファイル** (<100KB): `tests/fixtures/ml_models/` 配下
+- **CI/CDで必要** な基本的なテストデータ
+- **単体テストで使用** する最小限のサンプル
+
+### ❌ **リポジトリにコミットしないデータ**
+- **大きな実モデル** (>10MB): `.gitignore`に追加
+- **HuggingFaceからダウンロード** したモデル
+- **一時的な検証用** ファイル
+- **real_models_test/** ディレクトリ全体
+
+### 📋 **実装ガイドライン**
+1. **大きなモデルが必要な場合**: ダウンロードスクリプトを提供
+   - `real_models_test/download_models.py` でモデルをダウンロード
+   - SSL認証問題に対応（`HF_HUB_DISABLE_SSL_VERIFY=1`）
+   
+2. **ディレクトリ構造**:
+   ```
+   tests/fixtures/ml_models/   # コミット対象（小さなファイルのみ）
+   real_models_test/          # .gitignore対象（大きなファイル）
+   ```
+
+3. **サイズ閾値**:
+   - 100KB未満: コミット可
+   - 100KB-1MB: ケースバイケース（必要性を検討）
+   - 1MB以上: 原則コミット不可（ダウンロードスクリプト化）
