@@ -14,7 +14,7 @@ diffaiは、AI・機械学習分野でのデータ差分抽出に特化したツ
 
 ### 入力フォーマット
 - **Safetensors** (.safetensors) ✅ 完全対応
-- **PyTorch** (.pt, .pth) 🔄 部分対応（エラーメッセージ改善済み）
+- **PyTorch** (.pt, .pth) ✅ 完全対応（Candle統合）
 - **JSON/YAML/TOML/XML/INI/CSV** ✅ diffx互換
 
 ### 出力フォーマット
@@ -96,9 +96,11 @@ diffai real_models_test/distilbert_base/model.safetensors \
 - [x] **Safetensorsアライメント修正**: bytemuck → 手動変換
 - [x] **uvベースダウンロード環境**: SSL対応・依存関係管理
 
+### ✅ 完了済み（v0.2.1）
+- [x] **PyTorch完全サポート**: Candleライブラリ統合完了
+
 ### 🔄 進行中
 - [ ] **パフォーマンステスト**: 大容量モデルでのベンチマーク
-- [ ] **PyTorch完全サポート**: Candleライブラリ統合
 
 ### 🔮 将来計画
 - **TensorFlow/ONNX対応**: 他フレームワークサポート
@@ -136,6 +138,34 @@ diffai real_models_test/distilbert_base/model.safetensors \
 
 # 📅 最新の改善履歴
 
+## 2025-01-08: PyTorch完全サポート実装 ✅
+
+### 🎯 課題解決
+1. **PyTorchファイル(.pt/.pth)の完全読み込み対応**
+2. **Candleライブラリ統合によるPickle形式サポート**  
+3. **PyTorch vs Safetensors相互比較機能**
+
+### ✅ 実装内容
+- **candle_core::pickle統合**: PyTorchモデルファイル直接読み込み
+- **統計計算実装**: F32/F64/F16/BF16全データ型対応
+- **新DiffResultバリアント**: TensorAdded/TensorRemoved追加
+- **包括的テスト**: PyTorchパーシング・比較・差分テスト
+- **フォールバック処理**: Safetensors優先、PyTorch補完
+
+### 🎉 検証結果
+```bash
+# PyTorchモデル解析成功例
+./target/debug/diffai model1.pt model2.pt --stats
+# 出力: 
++ linear1.weight: shape=[128, 64], dtype=f32, params=8192 (tensor_added)
+~ linear2.bias: mean=0.001→0.002, std=0.1→0.11, params=64 (tensor_stats)
+```
+
+- ✅ **全データ型対応**: F32, F64, F16, BF16, I64, U32, U8
+- ✅ **統計計算**: 平均・標準偏差・最小・最大値算出  
+- ✅ **CLI出力**: 色付きフォーマットでPyTorchテンソル表示
+- ✅ **テスト網羅**: 単体・比較・差分テスト完備
+
 ## 2025-01-07: 実モデル検証環境構築とSafetensors修正 ✅
 
 ### 🎯 課題解決
@@ -171,13 +201,13 @@ diffai real_models_test/distilbert_base/model.safetensors \
 
 ## 🔥 高優先度
 1. **パフォーマンステスト**: 大容量モデルでのメモリ効率・速度測定
-2. **PyTorch完全サポート**: Candleライブラリでの.pt/.pth読み込み
-3. **ドキュメント拡充**: 実用例・ベストプラクティス追加
+2. **ドキュメント拡充**: 実用例・ベストプラクティス追加
+3. **バイナリサイズ最適化**: 不要依存関係削除
 
 ## 🔧 中優先度  
-4. **バイナリサイズ最適化**: 不要依存関係削除
-5. **CI/CD改善**: リリース自動化・マルチプラットフォーム対応
-6. **Python bindings**: PyO3でのPython統合
+4. **CI/CD改善**: リリース自動化・マルチプラットフォーム対応
+5. **Python bindings**: PyO3でのPython統合
+6. **TensorFlow/ONNX対応**: 他フレームワークサポート
 
 ---
 
