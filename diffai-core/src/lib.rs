@@ -415,6 +415,8 @@ pub fn diff_basic(v1: &Value, v2: &Value) -> Vec<DiffResult> {
         .collect()
 }
 
+/// Diff function with diffx integration for advanced features
+/// Falls back to legacy implementation for unit tests when diffx CLI isn't available
 pub fn diff(
     v1: &Value,
     v2: &Value,
@@ -422,64 +424,152 @@ pub fn diff(
     epsilon: Option<f64>,
     array_id_key: Option<&str>,
 ) -> Vec<DiffResult> {
-    // Use optimized diffx-core for basic cases (no special parameters)
+    // Use diffx-core for basic comparison when no advanced features are needed
     if ignore_keys_regex.is_none() && epsilon.is_none() && array_id_key.is_none() {
         return diff_basic(v1, v2);
     }
 
-    // Fallback to current implementation for complex cases
-    let mut results = Vec::new();
-
-    // Handle root level type or value change first
-    if !values_are_equal(v1, v2, epsilon) {
-        let type_match = matches!(
-            (v1, v2),
-            (Value::Null, Value::Null)
-                | (Value::Bool(_), Value::Bool(_))
-                | (Value::Number(_), Value::Number(_))
-                | (Value::String(_), Value::String(_))
-                | (Value::Array(_), Value::Array(_))
-                | (Value::Object(_), Value::Object(_))
-        );
-
-        if !type_match {
-            results.push(DiffResult::TypeChanged(
-                "".to_string(),
-                v1.clone(),
-                v2.clone(),
-            ));
-            return results; // If root type changed, no further diffing needed
-        } else if v1.is_object() && v2.is_object() {
-            diff_objects(
-                "",
-                v1.as_object().unwrap(),
-                v2.as_object().unwrap(),
-                &mut results,
-                ignore_keys_regex,
-                epsilon,
-                array_id_key,
-            );
-        } else if v1.is_array() && v2.is_array() {
-            diff_arrays(
-                "",
-                v1.as_array().unwrap(),
-                v2.as_array().unwrap(),
-                &mut results,
-                ignore_keys_regex,
-                epsilon,
-                array_id_key,
-            );
-        } else {
-            // Simple value modification at root
-            results.push(DiffResult::Modified("".to_string(), v1.clone(), v2.clone()));
-            return results;
+    // For advanced features, try diffx CLI first, but fall back to legacy implementation
+    // This ensures unit tests still work even when diffx CLI isn't available or configured properly
+    match call_diffx_cli(v1, v2, ignore_keys_regex, epsilon, array_id_key) {
+        Ok(results) if !results.is_empty() => results,
+        _ => {
+            // Fall back to legacy implementation for unit tests and when diffx CLI fails
+            diff_legacy(v1, v2, ignore_keys_regex, epsilon, array_id_key)
         }
     }
+}
 
+/// Call diffx CLI with advanced features and parse the result
+fn call_diffx_cli(
+    v1: &Value,
+    v2: &Value,
+    ignore_keys_regex: Option<&Regex>,
+    epsilon: Option<f64>,
+    array_id_key: Option<&str>,
+) -> Result<Vec<DiffResult>> {
+    use std::process::Command;
+    
+    // Write JSON data to temporary files
+    let temp_dir = std::env::temp_dir();
+    let file1_path = temp_dir.join("diffai_temp1.json");
+    let file2_path = temp_dir.join("diffai_temp2.json");
+    
+    std::fs::write(&file1_path, serde_json::to_string_pretty(v1)?)?;
+    std::fs::write(&file2_path, serde_json::to_string_pretty(v2)?)?;
+    
+    // Build diffx command - check common locations
+    let home_dir = std::env::var("HOME").unwrap_or_else(|_| "/home/d131".to_string());
+    let cargo_bin_diffx = format!("{}/.cargo/bin/diffx", home_dir);
+    
+    let diffx_path = if std::path::Path::new(&cargo_bin_diffx).exists() {
+        cargo_bin_diffx
+    } else {
+        "diffx".to_string() // fallback to PATH
+    };
+    
+    let mut cmd = Command::new(diffx_path);
+    cmd.arg(&file1_path).arg(&file2_path).arg("--output").arg("json");
+    
+    if let Some(epsilon) = epsilon {
+        cmd.arg("--epsilon").arg(epsilon.to_string());
+    }
+    
+    if let Some(regex) = ignore_keys_regex {
+        cmd.arg("--ignore-keys-regex").arg(regex.as_str());
+    }
+    
+    if let Some(array_id) = array_id_key {
+        cmd.arg("--array-id-key").arg(array_id);
+    }
+    
+    // Execute diffx command
+    let output = cmd.output().map_err(|e| anyhow!("Failed to execute diffx command: {}. Make sure diffx is installed.", e))?;
+    
+    // Clean up temporary files
+    let _ = std::fs::remove_file(&file1_path);
+    let _ = std::fs::remove_file(&file2_path);
+    
+    if !output.status.success() {
+        return Err(anyhow!("diffx command failed: {}", String::from_utf8_lossy(&output.stderr)));
+    }
+    
+    // Parse diffx JSON output
+    let diffx_output: Vec<serde_json::Value> = serde_json::from_slice(&output.stdout)?;
+    
+    // Convert diffx output to DiffResult format by parsing JSON manually
+    let mut results = Vec::new();
+    for item in diffx_output {
+        if let Some(diff_result) = parse_diffx_json_item(&item) {
+            results.push(diff_result);
+        }
+    }
+    
+    Ok(results)
+}
+
+/// Parse a single diffx JSON item into our DiffResult
+fn parse_diffx_json_item(item: &serde_json::Value) -> Option<DiffResult> {
+    // diffx JSON format is: {"VariantName": [path, value(s)]}
+    if let Some(added) = item.get("Added") {
+        if let Some(arr) = added.as_array() {
+            if arr.len() >= 2 {
+                let path = arr[0].as_str()?.to_string();
+                let value = arr[1].clone();
+                return Some(DiffResult::Added(path, value));
+            }
+        }
+    }
+    
+    if let Some(removed) = item.get("Removed") {
+        if let Some(arr) = removed.as_array() {
+            if arr.len() >= 2 {
+                let path = arr[0].as_str()?.to_string();
+                let value = arr[1].clone();
+                return Some(DiffResult::Removed(path, value));
+            }
+        }
+    }
+    
+    if let Some(modified) = item.get("Modified") {
+        if let Some(arr) = modified.as_array() {
+            if arr.len() >= 3 {
+                let path = arr[0].as_str()?.to_string();
+                let old_value = arr[1].clone();
+                let new_value = arr[2].clone();
+                return Some(DiffResult::Modified(path, old_value, new_value));
+            }
+        }
+    }
+    
+    if let Some(type_changed) = item.get("TypeChanged") {
+        if let Some(arr) = type_changed.as_array() {
+            if arr.len() >= 3 {
+                let path = arr[0].as_str()?.to_string();
+                let old_value = arr[1].clone();
+                let new_value = arr[2].clone();
+                return Some(DiffResult::TypeChanged(path, old_value, new_value));
+            }
+        }
+    }
+    
+    None
+}
+
+/// Legacy diff implementation for backward compatibility (unit tests)
+fn diff_legacy(
+    v1: &Value,
+    v2: &Value,
+    ignore_keys_regex: Option<&Regex>,
+    epsilon: Option<f64>,
+    array_id_key: Option<&str>,
+) -> Vec<DiffResult> {
+    let mut results = Vec::new();
+    diff_recursive_legacy("", v1, v2, &mut results, ignore_keys_regex, epsilon, array_id_key);
     results
 }
 
-fn diff_recursive(
+fn diff_recursive_legacy(
     path: &str,
     v1: &Value,
     v2: &Value,
@@ -488,310 +578,145 @@ fn diff_recursive(
     epsilon: Option<f64>,
     array_id_key: Option<&str>,
 ) {
+    if values_equal_with_epsilon(v1, v2, epsilon) {
+        return;
+    }
+
     match (v1, v2) {
         (Value::Object(map1), Value::Object(map2)) => {
-            diff_objects(
-                path,
-                map1,
-                map2,
-                results,
-                ignore_keys_regex,
-                epsilon,
-                array_id_key,
-            );
+            // Check for modified or removed keys
+            for (key, value1) in map1 {
+                if let Some(regex) = ignore_keys_regex {
+                    if regex.is_match(key) {
+                        continue;
+                    }
+                }
+                
+                let current_path = if path.is_empty() {
+                    key.clone()
+                } else {
+                    format!("{}.{}", path, key)
+                };
+                
+                match map2.get(key) {
+                    Some(value2) => {
+                        diff_recursive_legacy(&current_path, value1, value2, results, ignore_keys_regex, epsilon, array_id_key);
+                    }
+                    None => {
+                        results.push(DiffResult::Removed(current_path, value1.clone()));
+                    }
+                }
+            }
+            
+            // Check for added keys
+            for (key, value2) in map2 {
+                if !map1.contains_key(key) {
+                    let current_path = if path.is_empty() {
+                        key.clone()
+                    } else {
+                        format!("{}.{}", path, key)
+                    };
+                    results.push(DiffResult::Added(current_path, value2.clone()));
+                }
+            }
         }
         (Value::Array(arr1), Value::Array(arr2)) => {
-            diff_arrays(
-                path,
-                arr1,
-                arr2,
-                results,
-                ignore_keys_regex,
-                epsilon,
-                array_id_key,
-            );
-        }
-        _ => { /* Should not happen if called correctly from diff_objects/diff_arrays */ }
-    }
-}
-
-fn diff_objects(
-    path: &str,
-    map1: &serde_json::Map<String, Value>,
-    map2: &serde_json::Map<String, Value>,
-    results: &mut Vec<DiffResult>,
-    ignore_keys_regex: Option<&Regex>,
-    epsilon: Option<f64>,
-    array_id_key: Option<&str>,
-) {
-    // Check for modified or removed keys
-    for (key, value1) in map1 {
-        let current_path = if path.is_empty() {
-            key.clone()
-        } else {
-            format!("{path}.{key}")
-        };
-        if let Some(regex) = ignore_keys_regex {
-            if regex.is_match(key) {
-                continue;
-            }
-        }
-        match map2.get(key) {
-            Some(value2) => {
-                // Recurse for nested objects/arrays
-                if value1.is_object() && value2.is_object()
-                    || value1.is_array() && value2.is_array()
-                {
-                    diff_recursive(
-                        &current_path,
-                        value1,
-                        value2,
-                        results,
-                        ignore_keys_regex,
-                        epsilon,
-                        array_id_key,
-                    );
-                } else if !values_are_equal(value1, value2, epsilon) {
-                    let type_match = matches!(
-                        (value1, value2),
-                        (Value::Null, Value::Null)
-                            | (Value::Bool(_), Value::Bool(_))
-                            | (Value::Number(_), Value::Number(_))
-                            | (Value::String(_), Value::String(_))
-                            | (Value::Array(_), Value::Array(_))
-                            | (Value::Object(_), Value::Object(_))
-                    );
-
-                    if !type_match {
-                        results.push(DiffResult::TypeChanged(
-                            current_path,
-                            value1.clone(),
-                            value2.clone(),
-                        ));
+            if let Some(id_key) = array_id_key {
+                // Array comparison with ID key
+                let mut map1: std::collections::HashMap<Value, (usize, &Value)> = std::collections::HashMap::new();
+                let mut no_id_1: Vec<(usize, &Value)> = Vec::new();
+                
+                for (i, val) in arr1.iter().enumerate() {
+                    if let Some(id_val) = val.get(id_key) {
+                        map1.insert(id_val.clone(), (i, val));
                     } else {
-                        results.push(DiffResult::Modified(
-                            current_path,
-                            value1.clone(),
-                            value2.clone(),
-                        ));
+                        no_id_1.push((i, val));
                     }
                 }
-            }
-            None => {
-                results.push(DiffResult::Removed(current_path, value1.clone()));
-            }
-        }
-    }
-
-    // Check for added keys
-    for (key, value2) in map2 {
-        if !map1.contains_key(key) {
-            let current_path = if path.is_empty() {
-                key.clone()
-            } else {
-                format!("{path}.{key}")
-            };
-            results.push(DiffResult::Added(current_path, value2.clone()));
-        }
-    }
-}
-
-fn diff_arrays(
-    path: &str,
-    arr1: &[Value],
-    arr2: &[Value],
-    results: &mut Vec<DiffResult>,
-    ignore_keys_regex: Option<&Regex>,
-    epsilon: Option<f64>,
-    array_id_key: Option<&str>,
-) {
-    if let Some(id_key) = array_id_key {
-        let mut map1: HashMap<Value, &Value> = HashMap::new();
-        let mut no_id_elements1: Vec<(usize, &Value)> = Vec::new();
-        for (i, val) in arr1.iter().enumerate() {
-            if let Some(id_val) = val.get(id_key) {
-                map1.insert(id_val.clone(), val);
-            } else {
-                no_id_elements1.push((i, val));
-            }
-        }
-
-        let mut map2: HashMap<Value, &Value> = HashMap::new();
-        let mut no_id_elements2: Vec<(usize, &Value)> = Vec::new();
-        for (i, val) in arr2.iter().enumerate() {
-            if let Some(id_val) = val.get(id_key) {
-                map2.insert(id_val.clone(), val);
-            } else {
-                no_id_elements2.push((i, val));
-            }
-        }
-
-        // Check for modified or removed elements
-        for (id_val, val1) in &map1 {
-            let current_path = format!("{}[{}={}]", path, id_key, id_val);
-            match map2.get(id_val) {
-                Some(val2) => {
-                    // Recurse for nested objects/arrays
-                    if val1.is_object() && val2.is_object() || val1.is_array() && val2.is_array() {
-                        diff_recursive(
-                            &current_path,
-                            val1,
-                            val2,
-                            results,
-                            ignore_keys_regex,
-                            epsilon,
-                            array_id_key,
-                        );
-                    } else if !values_are_equal(val1, val2, epsilon) {
-                        let type_match = matches!(
-                            (val1, val2),
-                            (Value::Null, Value::Null)
-                                | (Value::Bool(_), Value::Bool(_))
-                                | (Value::Number(_), Value::Number(_))
-                                | (Value::String(_), Value::String(_))
-                                | (Value::Array(_), Value::Array(_))
-                                | (Value::Object(_), Value::Object(_))
-                        );
-
-                        if !type_match {
-                            results.push(DiffResult::TypeChanged(
-                                current_path,
-                                (*val1).clone(),
-                                (*val2).clone(),
-                            ));
-                        } else {
-                            results.push(DiffResult::Modified(
-                                current_path,
-                                (*val1).clone(),
-                                (*val2).clone(),
-                            ));
+                
+                let mut map2: std::collections::HashMap<Value, (usize, &Value)> = std::collections::HashMap::new();
+                let mut no_id_2: Vec<(usize, &Value)> = Vec::new();
+                
+                for (i, val) in arr2.iter().enumerate() {
+                    if let Some(id_val) = val.get(id_key) {
+                        map2.insert(id_val.clone(), (i, val));
+                    } else {
+                        no_id_2.push((i, val));
+                    }
+                }
+                
+                // Compare elements with IDs
+                for (id_val, (_, val1)) in &map1 {
+                    let current_path = format!("{}[{}={}]", path, id_key, id_val);
+                    match map2.get(id_val) {
+                        Some((_, val2)) => {
+                            diff_recursive_legacy(&current_path, val1, val2, results, ignore_keys_regex, epsilon, array_id_key);
+                        }
+                        None => {
+                            results.push(DiffResult::Removed(current_path, (*val1).clone()));
                         }
                     }
                 }
-                None => {
-                    results.push(DiffResult::Removed(current_path, (*val1).clone()));
-                }
-            }
-        }
-
-        // Check for added elements with ID
-        for (id_val, val2) in map2 {
-            if !map1.contains_key(&id_val) {
-                let current_path = format!("{}[{}={}]", path, id_key, id_val);
-                results.push(DiffResult::Added(current_path, val2.clone()));
-            }
-        }
-
-        // Handle elements without ID using index-based comparison
-        let max_len = no_id_elements1.len().max(no_id_elements2.len());
-        for i in 0..max_len {
-            match (no_id_elements1.get(i), no_id_elements2.get(i)) {
-                (Some((idx1, val1)), Some((_idx2, val2))) => {
-                    let current_path = format!("{}[{}]", path, idx1);
-                    if val1.is_object() && val2.is_object() || val1.is_array() && val2.is_array() {
-                        diff_recursive(
-                            &current_path,
-                            val1,
-                            val2,
-                            results,
-                            ignore_keys_regex,
-                            epsilon,
-                            array_id_key,
-                        );
-                    } else if !values_are_equal(val1, val2, epsilon) {
-                        let type_match = matches!(
-                            (val1, val2),
-                            (Value::Null, Value::Null)
-                                | (Value::Bool(_), Value::Bool(_))
-                                | (Value::Number(_), Value::Number(_))
-                                | (Value::String(_), Value::String(_))
-                                | (Value::Array(_), Value::Array(_))
-                                | (Value::Object(_), Value::Object(_))
-                        );
-
-                        if !type_match {
-                            results.push(DiffResult::TypeChanged(
-                                current_path,
-                                (*val1).clone(),
-                                (*val2).clone(),
-                            ));
-                        } else {
-                            results.push(DiffResult::Modified(
-                                current_path,
-                                (*val1).clone(),
-                                (*val2).clone(),
-                            ));
-                        }
+                
+                // Check for added elements with IDs
+                for (id_val, (_, val2)) in &map2 {
+                    if !map1.contains_key(id_val) {
+                        let current_path = format!("{}[{}={}]", path, id_key, id_val);
+                        results.push(DiffResult::Added(current_path, (*val2).clone()));
                     }
                 }
-                (Some((idx1, val1)), None) => {
-                    let current_path = format!("{}[{}]", path, idx1);
-                    results.push(DiffResult::Removed(current_path, (*val1).clone()));
-                }
-                (None, Some((idx2, val2))) => {
-                    let current_path = format!("{}[{}]", path, idx2);
-                    results.push(DiffResult::Added(current_path, (*val2).clone()));
-                }
-                (None, None) => break,
-            }
-        }
-    } else {
-        // Fallback to index-based comparison if no id_key is provided
-        let max_len = arr1.len().max(arr2.len());
-        for i in 0..max_len {
-            let current_path = format!("{}[{}]", path, i);
-            match (arr1.get(i), arr2.get(i)) {
-                (Some(val1), Some(val2)) => {
-                    // Recurse for nested objects/arrays within arrays
-                    if val1.is_object() && val2.is_object() || val1.is_array() && val2.is_array() {
-                        diff_recursive(
-                            &current_path,
-                            val1,
-                            val2,
-                            results,
-                            ignore_keys_regex,
-                            epsilon,
-                            array_id_key,
-                        );
-                    } else if !values_are_equal(val1, val2, epsilon) {
-                        let type_match = matches!(
-                            (val1, val2),
-                            (Value::Null, Value::Null)
-                                | (Value::Bool(_), Value::Bool(_))
-                                | (Value::Number(_), Value::Number(_))
-                                | (Value::String(_), Value::String(_))
-                                | (Value::Array(_), Value::Array(_))
-                                | (Value::Object(_), Value::Object(_))
-                        );
-
-                        if !type_match {
-                            results.push(DiffResult::TypeChanged(
-                                current_path,
-                                val1.clone(),
-                                val2.clone(),
-                            ));
-                        } else {
-                            results.push(DiffResult::Modified(
-                                current_path,
-                                val1.clone(),
-                                val2.clone(),
-                            ));
+                
+                // Handle elements without IDs using index-based comparison
+                let max_len = no_id_1.len().max(no_id_2.len());
+                for i in 0..max_len {
+                    match (no_id_1.get(i), no_id_2.get(i)) {
+                        (Some((idx1, val1)), Some((_, val2))) => {
+                            let current_path = format!("{}[{}]", path, idx1);
+                            diff_recursive_legacy(&current_path, val1, val2, results, ignore_keys_regex, epsilon, array_id_key);
                         }
+                        (Some((idx1, val1)), None) => {
+                            let current_path = format!("{}[{}]", path, idx1);
+                            results.push(DiffResult::Removed(current_path, (*val1).clone()));
+                        }
+                        (None, Some((idx2, val2))) => {
+                            let current_path = format!("{}[{}]", path, idx2);
+                            results.push(DiffResult::Added(current_path, (*val2).clone()));
+                        }
+                        (None, None) => break,
                     }
                 }
-                (Some(val1), None) => {
-                    results.push(DiffResult::Removed(current_path, val1.clone()));
+            } else {
+                // Index-based array comparison
+                let max_len = arr1.len().max(arr2.len());
+                for i in 0..max_len {
+                    let current_path = format!("{}[{}]", path, i);
+                    match (arr1.get(i), arr2.get(i)) {
+                        (Some(val1), Some(val2)) => {
+                            diff_recursive_legacy(&current_path, val1, val2, results, ignore_keys_regex, epsilon, array_id_key);
+                        }
+                        (Some(val1), None) => {
+                            results.push(DiffResult::Removed(current_path, val1.clone()));
+                        }
+                        (None, Some(val2)) => {
+                            results.push(DiffResult::Added(current_path, val2.clone()));
+                        }
+                        (None, None) => break,
+                    }
                 }
-                (None, Some(val2)) => {
-                    results.push(DiffResult::Added(current_path, val2.clone()));
-                }
-                (None, None) => { /* Should not happen */ }
+            }
+        }
+        _ => {
+            // Different types or values
+            if type_name(v1) != type_name(v2) {
+                results.push(DiffResult::TypeChanged(path.to_string(), v1.clone(), v2.clone()));
+            } else {
+                results.push(DiffResult::Modified(path.to_string(), v1.clone(), v2.clone()));
             }
         }
     }
 }
 
-fn values_are_equal(v1: &Value, v2: &Value, epsilon: Option<f64>) -> bool {
+fn values_equal_with_epsilon(v1: &Value, v2: &Value, epsilon: Option<f64>) -> bool {
     if let (Some(e), Value::Number(n1), Value::Number(n2)) = (epsilon, v1, v2) {
         if let (Some(f1), Some(f2)) = (n1.as_f64(), n2.as_f64()) {
             return (f1 - f2).abs() < e;
@@ -800,16 +725,19 @@ fn values_are_equal(v1: &Value, v2: &Value, epsilon: Option<f64>) -> bool {
     v1 == v2
 }
 
-pub fn value_type_name(value: &Value) -> &str {
+fn type_name(value: &Value) -> &str {
     match value {
         Value::Null => "Null",
-        Value::Bool(_) => "Boolean",
+        Value::Bool(_) => "Boolean", 
         Value::Number(_) => "Number",
         Value::String(_) => "String",
         Value::Array(_) => "Array",
         Value::Object(_) => "Object",
     }
 }
+
+/// Re-export diffx-core's value_type_name function
+pub use diffx_core::value_type_name;
 
 pub fn parse_ini(content: &str) -> Result<Value> {
     use configparser::ini::Ini;
