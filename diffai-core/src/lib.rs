@@ -397,6 +397,24 @@ pub struct AttentionPatternInfo {
     pub pattern_change_summary: String, // Human-readable summary of changes
 }
 
+/// Convert diffx-core DiffResult to diffai DiffResult
+fn convert_diffx_result(diffx_result: diffx_core::DiffResult) -> DiffResult {
+    match diffx_result {
+        diffx_core::DiffResult::Added(path, value) => DiffResult::Added(path, value),
+        diffx_core::DiffResult::Removed(path, value) => DiffResult::Removed(path, value),
+        diffx_core::DiffResult::Modified(path, old_value, new_value) => DiffResult::Modified(path, old_value, new_value),
+        diffx_core::DiffResult::TypeChanged(path, old_value, new_value) => DiffResult::TypeChanged(path, old_value, new_value),
+    }
+}
+
+/// Basic diff using diffx-core (for simple cases without epsilon, ignore_keys, array_id)
+pub fn diff_basic(v1: &Value, v2: &Value) -> Vec<DiffResult> {
+    diffx_core::diff(v1, v2)
+        .into_iter()
+        .map(convert_diffx_result)
+        .collect()
+}
+
 pub fn diff(
     v1: &Value,
     v2: &Value,
@@ -404,6 +422,12 @@ pub fn diff(
     epsilon: Option<f64>,
     array_id_key: Option<&str>,
 ) -> Vec<DiffResult> {
+    // Use optimized diffx-core for basic cases (no special parameters)
+    if ignore_keys_regex.is_none() && epsilon.is_none() && array_id_key.is_none() {
+        return diff_basic(v1, v2);
+    }
+
+    // Fallback to current implementation for complex cases
     let mut results = Vec::new();
 
     // Handle root level type or value change first
