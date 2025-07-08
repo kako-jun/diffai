@@ -104,6 +104,11 @@ diffai model_v1.safetensors model_v2.safetensors --stats
 
 # Combined advanced analysis
 diffai model_v1.safetensors model_v2.safetensors --stats --show-layer-impact --sort-by-change-magnitude
+
+# Phase 2: Experiment Analysis
+diffai checkpoint_epoch_10.safetensors checkpoint_epoch_50.safetensors --learning-curve-analysis
+diffai model_baseline.safetensors model_modified.safetensors --hyperparameter-comparison
+diffai model_v1.safetensors model_v2.safetensors --statistical-significance
 ```
 
 ## 🏗️ Architecture
@@ -304,10 +309,10 @@ fi
 - ✅ Tensor shape and statistics comparison
 - ✅ AI-friendly CLI output with symbols
 
-### Phase 2: Experiment Analysis (Next)
-- 🔄 **Hyperparameter comparison** from JSON/YAML configs
-- 🔄 **Learning curve analysis** from training logs
-- 🔄 **Statistical significance testing** for metric changes
+### Phase 2: Experiment Analysis ✅ **COMPLETED**
+- ✅ **Hyperparameter comparison** from model file patterns
+- ✅ **Learning curve analysis** from training checkpoints
+- ✅ **Statistical significance testing** for metric changes
 
 ### Phase 3: MLOps Integration
 - 📋 **MLflow integration** for automatic experiment comparison
