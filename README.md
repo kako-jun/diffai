@@ -297,27 +297,80 @@ fi
 - 🆕 **Model architecture analysis** (layer counts, parameter counts)
 - 🆕 **Future**: Integration with MLOps tools, experiment tracking
 
-## 🔮 Roadmap
+## 🎯 Comparison Strategy & Supported Formats
 
-### Phase 1: Core ML Features ✅ **COMPLETED**
-- ✅ PyTorch/Safetensors file parsing
-- ✅ Tensor shape and statistics comparison
-- ✅ AI-friendly CLI output with symbols
+### 📊 Format Categories & Processing Strategies
 
-### Phase 2: Experiment Analysis (Next)
-- 🔄 **Hyperparameter comparison** from JSON/YAML configs
-- 🔄 **Learning curve analysis** from training logs
-- 🔄 **Statistical significance testing** for metric changes
+#### **MLモデル比較** (Statistical Meta-Analysis)
+**Purpose**: Answer "Is this fine-tuning effective?" with human-understandable insights
+**Strategy**: Extract statistical summaries from model weights (GB→KB compression)
 
-### Phase 3: MLOps Integration
-- 📋 **MLflow integration** for automatic experiment comparison
-- 📋 **Weights & Biases** export functionality
-- 📋 **DVC compatibility** for data/model versioning
+**Currently Supported**:
+- `.safetensors` - HuggingFace standard, fully supported
+- `.pt`, `.pth` - PyTorch, fully supported
 
-### Phase 4: Advanced Analytics
-- 📋 **Gradient analysis** for training debugging
-- 📋 **Attention pattern comparison** for transformer models
-- 📋 **Embedding space analysis** for representation learning
+**Planned Support**:
+- `.pb` - TensorFlow Protocol Buffer
+- `.h5` - TensorFlow/Keras HDF5 
+- `.onnx` - ONNX standard
+- `saved_model/` - TensorFlow SavedModel format
+
+#### **Scientific Data Comparison** (Numerical Array Analysis)
+**Purpose**: Detect statistical changes in numerical arrays
+**Strategy**: NumPy/scientific computing libraries for chunk-based parallel processing
+
+**Planned Support**:
+- `.npy`, `.npz` - NumPy arrays (statistical analysis)
+- `.mat` - MATLAB format (numerical data)
+- `.hdf5`, `.h5` - Scientific data standard
+- `.zarr` - Cloud-native array storage
+
+#### **Structured Data Comparison** (Detailed Diff)
+**Purpose**: Accurate tracking of configuration and data changes
+**Strategy**: diffx-core based detailed diff with streaming optimization
+
+**Currently Supported**:
+- `.json` - JSON config/log files
+- `.yaml`, `.yml` - YAML configuration
+- `.toml` - TOML configuration  
+- `.xml` - XML structured data
+- `.ini` - INI configuration
+- `.csv` - CSV tabular data
+
+**Planned Support**:
+- `.jsonl` - JSON Lines (log files)
+- `.parquet` - Columnar data format
+- `.avro` - Schema-based data
+
+### 🚀 Large File Handling Strategy
+
+- **ML Models**: Statistical summary extraction (multi-GB → few KB summary)
+- **Scientific Data**: Representative sampling, parallel chunk processing
+- **Structured Data**: Streaming comparison, memory-efficient processing
+
+## 🔮 Development Roadmap
+
+### Phase 1: Current Implementation ✅ **COMPLETED**
+- ✅ PyTorch/Safetensors support (28 ML analysis features)
+- ✅ diffx-core integration for structured data
+- ✅ Statistical meta-analysis for model comparison
+- ✅ Analysis results comparison (experiment vs experiment)
+
+### Phase 2: Scientific Data Support
+- 📋 **NumPy array support** (.npy/.npz statistical analysis)
+- 📋 **HDF5 scientific data** format support  
+- 📋 **MATLAB .mat files** numerical comparison
+- 📋 **Large array optimization** (chunked processing)
+
+### Phase 3: ML Framework Expansion
+- 📋 **TensorFlow support** (.pb, .h5, SavedModel)
+- 📋 **ONNX format support** (.onnx interoperability)
+- 📋 **Framework-agnostic analysis** (unified statistics)
+
+### Phase 4: MLOps Integration  
+- 📋 **HuggingFace Hub integration** (model comparison API)
+- 📋 **MLflow compatibility** (experiment tracking)
+- 📋 **Weights & Biases export** (analysis reporting)
 
 ## 📚 Documentation
 
