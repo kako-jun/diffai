@@ -413,6 +413,7 @@ dependencies = [
  "clap",
  "colored",
  "diffai-core",
+ "diffx-core",
  "dirs",
  "predicates",
  "regex",

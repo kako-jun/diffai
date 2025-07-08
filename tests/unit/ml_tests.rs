@@ -1,4 +1,7 @@
-use diffai_core::{diff_ml_models, parse_pytorch_model, TensorStats, QuantizationAnalysisInfo, TransferLearningInfo, ExperimentReproducibilityInfo, EnsembleAnalysisInfo};
+use diffai_core::{
+    diff_ml_models, parse_pytorch_model, EnsembleAnalysisInfo, ExperimentReproducibilityInfo,
+    QuantizationAnalysisInfo, TensorStats, TransferLearningInfo,
+};
 use std::path::Path;
 
 #[test]
@@ -198,14 +201,14 @@ fn test_epsilon_tolerance_in_ml_diff() {
 fn test_pytorch_model_parsing() {
     // Test parsing of PyTorch model files
     let model_path = Path::new("tests/fixtures/ml_models/simple_base.pt");
-    
+
     // If file exists, test parsing
     if model_path.exists() {
         let result = parse_pytorch_model(model_path);
         match result {
             Ok(tensors) => {
                 assert!(!tensors.is_empty(), "Should parse at least one tensor");
-                
+
                 // Check tensor stats structure
                 for (name, stats) in tensors {
                     assert!(!name.is_empty(), "Tensor name should not be empty");
@@ -227,22 +230,28 @@ fn test_pytorch_vs_safetensors_comparison() {
     // Test comparison between PyTorch and Safetensors versions of same model
     let pytorch_path = Path::new("tests/fixtures/ml_models/simple_base.pt");
     let safetensors_path = Path::new("tests/fixtures/ml_models/simple_base.safetensors");
-    
+
     if pytorch_path.exists() && safetensors_path.exists() {
         // Try to parse both files
         let pytorch_result = parse_pytorch_model(pytorch_path);
         let safetensors_result = diffai_core::parse_safetensors_model(safetensors_path);
-        
+
         match (pytorch_result, safetensors_result) {
             (Ok(pytorch_tensors), Ok(safetensors_tensors)) => {
                 // Both parsed successfully - they should have similar structure
-                assert_eq!(pytorch_tensors.len(), safetensors_tensors.len(), 
-                          "Should have same number of tensors");
-                
+                assert_eq!(
+                    pytorch_tensors.len(),
+                    safetensors_tensors.len(),
+                    "Should have same number of tensors"
+                );
+
                 // Check that tensor names match
                 for (name, _) in &pytorch_tensors {
-                    assert!(safetensors_tensors.contains_key(name), 
-                           "Safetensors should contain tensor: {}", name);
+                    assert!(
+                        safetensors_tensors.contains_key(name),
+                        "Safetensors should contain tensor: {}",
+                        name
+                    );
                 }
             }
             _ => {
@@ -258,24 +267,26 @@ fn test_pytorch_model_diff() {
     // Test diffing between two PyTorch models
     let model1_path = Path::new("tests/fixtures/ml_models/simple_base.pt");
     let model2_path = Path::new("tests/fixtures/ml_models/simple_modified.pt");
-    
+
     if model1_path.exists() && model2_path.exists() {
         let result = diff_ml_models(model1_path, model2_path, None);
-        
+
         match result {
             Ok(diff_results) => {
                 // If parsing succeeds, check that we get meaningful results
                 assert!(!diff_results.is_empty(), "Should have some diff results");
-                
+
                 // Check that we have tensor-related diffs
                 let has_tensor_diffs = diff_results.iter().any(|diff| {
-                    matches!(diff, 
-                             diffai_core::DiffResult::TensorStatsChanged(_, _, _) | 
-                             diffai_core::DiffResult::TensorShapeChanged(_, _, _) |
-                             diffai_core::DiffResult::TensorAdded(_, _) |
-                             diffai_core::DiffResult::TensorRemoved(_, _))
+                    matches!(
+                        diff,
+                        diffai_core::DiffResult::TensorStatsChanged(_, _, _)
+                            | diffai_core::DiffResult::TensorShapeChanged(_, _, _)
+                            | diffai_core::DiffResult::TensorAdded(_, _)
+                            | diffai_core::DiffResult::TensorRemoved(_, _)
+                    )
                 });
-                
+
                 assert!(has_tensor_diffs, "Should have tensor-related differences");
             }
             Err(_) => {
@@ -311,13 +322,13 @@ fn test_quantization_analysis_info() {
 
     // Test that compression ratio is percentage (0-1)
     assert!(quant_info.compression_ratio >= 0.0 && quant_info.compression_ratio <= 1.0);
-    
+
     // Test that speedup is positive
     assert!(quant_info.estimated_speedup > 0.0);
-    
+
     // Test that precision loss is reasonable percentage (0-1)
     assert!(quant_info.precision_loss_estimate >= 0.0 && quant_info.precision_loss_estimate <= 1.0);
-    
+
     // Test layer lists
     assert!(!quant_info.recommended_layers.is_empty());
     assert!(!quant_info.sensitive_layers.is_empty());
@@ -345,20 +356,31 @@ fn test_transfer_learning_info() {
     assert_eq!(transfer_info.total_layers, 10);
     assert_eq!(transfer_info.parameter_update_ratio, 0.3);
     assert_eq!(transfer_info.domain_adaptation_strength, "moderate");
-    assert_eq!(transfer_info.feature_extraction_vs_finetuning, "fine-tuning");
+    assert_eq!(
+        transfer_info.feature_extraction_vs_finetuning,
+        "fine-tuning"
+    );
 
     // Test that layer counts are non-negative
     assert!(transfer_info.frozen_layers >= 0);
     assert!(transfer_info.updated_layers >= 0);
-    
+
     // Test that parameter update ratio is reasonable (0-1)
-    assert!(transfer_info.parameter_update_ratio >= 0.0 && transfer_info.parameter_update_ratio <= 1.0);
-    
+    assert!(
+        transfer_info.parameter_update_ratio >= 0.0 && transfer_info.parameter_update_ratio <= 1.0
+    );
+
     // Test total layers calculation
-    assert_eq!(transfer_info.frozen_layers + transfer_info.updated_layers, transfer_info.total_layers);
-    
+    assert_eq!(
+        transfer_info.frozen_layers + transfer_info.updated_layers,
+        transfer_info.total_layers
+    );
+
     // Test layer intensity vector
-    assert_eq!(transfer_info.layer_learning_intensity.len(), transfer_info.total_layers);
+    assert_eq!(
+        transfer_info.layer_learning_intensity.len(),
+        transfer_info.total_layers
+    );
 }
 
 #[test]
@@ -388,11 +410,11 @@ fn test_experiment_reproducibility_info() {
 
     // Test that scores are in valid range (0-1)
     assert!(repro_info.reproducibility_score >= 0.0 && repro_info.reproducibility_score <= 1.0);
-    
+
     // Test that change vectors are initialized
     assert!(!repro_info.hyperparameter_changes.is_empty());
     assert!(!repro_info.critical_changes.is_empty());
-    
+
     // Test that critical changes <= hyperparameter changes
     assert!(repro_info.critical_changes.len() <= repro_info.hyperparameter_changes.len());
 }
@@ -411,7 +433,11 @@ fn test_ensemble_analysis_info() {
         complementarity_analysis: "high".to_string(),
         ensemble_efficiency: 0.88,
         redundancy_detection: vec![],
-        optimal_subset: vec!["model1".to_string(), "model2".to_string(), "model3".to_string()],
+        optimal_subset: vec![
+            "model1".to_string(),
+            "model2".to_string(),
+            "model3".to_string(),
+        ],
         weighting_strategy: "performance".to_string(),
         ensemble_recommendation: "use all models".to_string(),
     };
@@ -428,19 +454,19 @@ fn test_ensemble_analysis_info() {
     for row in &ensemble_info.correlation_matrix {
         assert_eq!(row.len(), 3);
     }
-    
+
     // Test that diagonal elements are 1.0 (self-correlation)
     for i in 0..3 {
         assert_eq!(ensemble_info.correlation_matrix[i][i], 1.0);
     }
-    
+
     // Test that scores are in valid range (0-1)
     assert!(ensemble_info.diversity_score >= 0.0 && ensemble_info.diversity_score <= 1.0);
     assert!(ensemble_info.ensemble_efficiency >= 0.0 && ensemble_info.ensemble_efficiency <= 1.0);
-    
+
     // Test that model count is positive
     assert!(ensemble_info.model_count > 0);
-    
+
     // Test recommendations
     assert!(!ensemble_info.ensemble_recommendation.is_empty());
 }
@@ -448,7 +474,7 @@ fn test_ensemble_analysis_info() {
 #[test]
 fn test_quantization_analysis_edge_cases() {
     // Test edge cases for quantization analysis
-    
+
     // Test maximum compression (very high compression ratio)
     let max_compression = QuantizationAnalysisInfo {
         compression_ratio: 0.95,
@@ -461,12 +487,12 @@ fn test_quantization_analysis_edge_cases() {
         sensitive_layers: vec!["all".to_string()],
         deployment_suitability: "risky".to_string(),
     };
-    
+
     assert!(max_compression.compression_ratio > 0.9);
     assert!(max_compression.estimated_speedup > 5.0);
     assert!(max_compression.precision_loss_estimate > 0.1);
     assert_eq!(max_compression.deployment_suitability, "risky");
-    
+
     // Test minimal compression (low compression ratio)
     let min_compression = QuantizationAnalysisInfo {
         compression_ratio: 0.1,
@@ -479,7 +505,7 @@ fn test_quantization_analysis_edge_cases() {
         sensitive_layers: vec![],
         deployment_suitability: "excellent".to_string(),
     };
-    
+
     assert!(min_compression.compression_ratio < 0.2);
     assert!(min_compression.estimated_speedup < 2.0);
     assert!(min_compression.precision_loss_estimate < 0.01);
@@ -489,7 +515,7 @@ fn test_quantization_analysis_edge_cases() {
 #[test]
 fn test_transfer_learning_edge_cases() {
     // Test edge cases for transfer learning analysis
-    
+
     // Test full fine-tuning (all layers updated)
     let full_finetune = TransferLearningInfo {
         frozen_layers: 0,
@@ -503,13 +529,13 @@ fn test_transfer_learning_edge_cases() {
         transfer_efficiency_score: 0.95,
         overfitting_risk: "high".to_string(),
     };
-    
+
     assert_eq!(full_finetune.frozen_layers, 0);
     assert!(full_finetune.updated_layers > 0);
     assert_eq!(full_finetune.parameter_update_ratio, 1.0);
     assert_eq!(full_finetune.domain_adaptation_strength, "strong");
     assert_eq!(full_finetune.overfitting_risk, "high");
-    
+
     // Test minimal adaptation (most layers frozen)
     let minimal_adapt = TransferLearningInfo {
         frozen_layers: 11,
@@ -527,7 +553,7 @@ fn test_transfer_learning_edge_cases() {
         transfer_efficiency_score: 0.65,
         overfitting_risk: "low".to_string(),
     };
-    
+
     assert!(minimal_adapt.frozen_layers > minimal_adapt.updated_layers);
     assert!(minimal_adapt.parameter_update_ratio < 0.1);
     assert_eq!(minimal_adapt.domain_adaptation_strength, "weak");
