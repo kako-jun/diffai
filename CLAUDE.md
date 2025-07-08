@@ -142,7 +142,9 @@ diffai real_models_test/distilbert_base/model.safetensors \
 
 ### 🔄 進行中
 - [ ] **パフォーマンステスト**: 大容量モデルでのベンチマーク
-- [ ] **diffx-core活用拡張**: 既存コードでの更なる活用検討
+
+### 📋 検討資料
+- [ ] **diffx-core活用拡張検討**: `diffx-core-expansion-analysis.md` を参照
 
 ### 🔮 将来計画
 - **TensorFlow/ONNX対応**: 他フレームワークサポート

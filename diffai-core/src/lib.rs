@@ -15,6 +15,9 @@ use candle_core::Device;
 use safetensors::{tensor::TensorView, SafeTensors};
 // Cross-project integration
 
+// New module for ML analysis results comparison
+pub mod analysis_results_diff;
+
 #[derive(Debug, PartialEq, Serialize)]
 pub enum DiffResult {
     Added(String, Value),
@@ -1358,35 +1361,38 @@ fn calculate_safetensors_stats(tensor_view: &TensorView) -> (f64, f64, f64, f64)
 
 /// Calculate statistics for PyTorch tensors
 fn calculate_pytorch_tensor_stats(tensor: &candle_core::Tensor) -> Result<(f64, f64, f64, f64)> {
-    match tensor.dtype() {
+    // Flatten tensor to handle multi-dimensional tensors
+    let flat_tensor = tensor.flatten_all()?;
+    
+    match flat_tensor.dtype() {
         candle_core::DType::F32 => {
-            let data = tensor.to_vec1::<f32>()?;
+            let data = flat_tensor.to_vec1::<f32>()?;
             Ok(calculate_f32_stats(&data))
         }
         candle_core::DType::F64 => {
-            let data = tensor.to_vec1::<f64>()?;
+            let data = flat_tensor.to_vec1::<f64>()?;
             Ok(calculate_f64_stats(&data))
         }
         candle_core::DType::I64 => {
-            let data = tensor.to_vec1::<i64>()?;
+            let data = flat_tensor.to_vec1::<i64>()?;
             Ok(calculate_i64_stats(&data))
         }
         candle_core::DType::U32 => {
-            let data = tensor.to_vec1::<u32>()?;
+            let data = flat_tensor.to_vec1::<u32>()?;
             Ok(calculate_u32_stats(&data))
         }
         candle_core::DType::U8 => {
-            let data = tensor.to_vec1::<u8>()?;
+            let data = flat_tensor.to_vec1::<u8>()?;
             Ok(calculate_u8_stats(&data))
         }
         candle_core::DType::F16 => {
             // Convert F16 to F32 for calculations
-            let data = tensor.to_dtype(candle_core::DType::F32)?.to_vec1::<f32>()?;
+            let data = flat_tensor.to_dtype(candle_core::DType::F32)?.to_vec1::<f32>()?;
             Ok(calculate_f32_stats(&data))
         }
         candle_core::DType::BF16 => {
             // Convert BF16 to F32 for calculations
-            let data = tensor.to_dtype(candle_core::DType::F32)?.to_vec1::<f32>()?;
+            let data = flat_tensor.to_dtype(candle_core::DType::F32)?.to_vec1::<f32>()?;
             Ok(calculate_f32_stats(&data))
         }
     }
