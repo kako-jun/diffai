@@ -16,6 +16,7 @@ rust-version.workspace = true
 
 [dependencies]
 diffai-core = { path = "../diffai-core", version = "0.2.0" }
+diffx-core = { workspace = true }
 anyhow = { workspace = true }
 clap = { workspace = true }
 colored = { workspace = true }

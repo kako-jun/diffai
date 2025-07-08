@@ -10,11 +10,10 @@ use anyhow::{anyhow, Result};
 use csv::ReaderBuilder;
 use quick_xml::de::from_str;
 // AI/ML dependencies
-use candle_core::Device;
 use candle_core::pickle::read_all;
-use safetensors::{SafeTensors, tensor::TensorView};
+use candle_core::Device;
+use safetensors::{tensor::TensorView, SafeTensors};
 // Cross-project integration
-use diffx_core;
 
 #[derive(Debug, PartialEq, Serialize)]
 pub enum DiffResult {
@@ -255,7 +254,7 @@ pub struct ArchitectureComparisonInfo {
     pub architectural_differences: Vec<String>,
     pub complexity_comparison: String, // "model1_simpler", "model2_simpler", "similar"
     pub compatibility_assessment: String, // "compatible", "minor_differences", "major_differences"
-    pub migration_difficulty: String,   // "easy", "moderate", "difficult"
+    pub migration_difficulty: String,  // "easy", "moderate", "difficult"
     pub performance_trade_offs: String,
     pub recommendation: String,
 }
@@ -304,9 +303,9 @@ pub struct LearningRateInfo {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct DeploymentReadinessInfo {
-    pub readiness_score: f64, // 0.0 to 1.0
+    pub readiness_score: f64,        // 0.0 to 1.0
     pub deployment_strategy: String, // "blue_green", "canary", "rolling", "full"
-    pub risk_level: String,         // "low", "medium", "high"
+    pub risk_level: String,          // "low", "medium", "high"
     pub prerequisites: Vec<String>,
     pub deployment_blockers: Vec<String>,
     pub performance_benchmarks: HashMap<String, f64>,
@@ -325,7 +324,7 @@ pub struct PerformanceImpactInfo {
     pub gpu_utilization_change: f64,
     pub energy_consumption_change: f64,
     pub cost_impact_estimate: f64,
-    pub scalability_impact: String,  // "improved", "neutral", "degraded"
+    pub scalability_impact: String, // "improved", "neutral", "degraded"
     pub performance_category: String, // "optimization", "neutral", "regression"
     pub impact_confidence: f64,
 }
@@ -458,14 +457,14 @@ pub struct AttentionPatternInfo {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct QuantizationAnalysisInfo {
-    pub compression_ratio: f64,     // 0.0 to 1.0, where 0.75 means 75% size reduction
-    pub bit_reduction: String,      // e.g., "32bit→8bit", "16bit→4bit"
-    pub estimated_speedup: f64,     // e.g., 2.5x faster
-    pub memory_savings: f64,        // 0.0 to 1.0, memory reduction ratio
+    pub compression_ratio: f64, // 0.0 to 1.0, where 0.75 means 75% size reduction
+    pub bit_reduction: String,  // e.g., "32bit→8bit", "16bit→4bit"
+    pub estimated_speedup: f64, // e.g., 2.5x faster
+    pub memory_savings: f64,    // 0.0 to 1.0, memory reduction ratio
     pub precision_loss_estimate: f64, // 0.0 to 1.0, accuracy degradation
     pub quantization_method: String, // "uniform", "non-uniform", "dynamic", "static"
     pub recommended_layers: Vec<String>, // layers that benefit from quantization
-    pub sensitive_layers: Vec<String>,   // layers that should avoid quantization
+    pub sensitive_layers: Vec<String>, // layers that should avoid quantization
     pub deployment_suitability: String, // "excellent", "good", "acceptable", "risky"
 }
 
@@ -476,36 +475,36 @@ pub struct TransferLearningInfo {
     pub parameter_update_ratio: f64, // 0.0 to 1.0, ratio of updated parameters
     pub layer_adaptation_strength: Vec<f64>, // per-layer adaptation intensity
     pub domain_adaptation_strength: String, // "weak", "moderate", "strong"
-    pub transfer_efficiency_score: f64,      // 0.0 to 1.0, how well transfer worked
-    pub learning_strategy: String, // "feature_extraction", "fine-tuning", "multi-stage"
+    pub transfer_efficiency_score: f64, // 0.0 to 1.0, how well transfer worked
+    pub learning_strategy: String,   // "feature_extraction", "fine-tuning", "multi-stage"
     pub convergence_acceleration: f64, // speedup vs training from scratch
-    pub knowledge_preservation: f64,   // how much pre-trained knowledge is retained
+    pub knowledge_preservation: f64, // how much pre-trained knowledge is retained
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ExperimentReproducibilityInfo {
-    pub config_changes: Vec<String>,         // changed configuration parameters
-    pub critical_changes: Vec<String>,       // changes that affect reproducibility
-    pub hyperparameter_drift: f64,          // magnitude of hyperparameter changes
-    pub environment_consistency: f64,       // 0.0 to 1.0, consistency score
-    pub seed_management: String,            // "deterministic", "controlled", "uncontrolled"
-    pub reproducibility_score: f64,         // 0.0 to 1.0, overall reproducibility
-    pub risk_factors: Vec<String>,          // factors that might affect reproducibility
-    pub reproduction_difficulty: String,    // "easy", "moderate", "difficult"
-    pub documentation_quality: f64,         // 0.0 to 1.0, how well documented
+    pub config_changes: Vec<String>,   // changed configuration parameters
+    pub critical_changes: Vec<String>, // changes that affect reproducibility
+    pub hyperparameter_drift: f64,     // magnitude of hyperparameter changes
+    pub environment_consistency: f64,  // 0.0 to 1.0, consistency score
+    pub seed_management: String,       // "deterministic", "controlled", "uncontrolled"
+    pub reproducibility_score: f64,    // 0.0 to 1.0, overall reproducibility
+    pub risk_factors: Vec<String>,     // factors that might affect reproducibility
+    pub reproduction_difficulty: String, // "easy", "moderate", "difficult"
+    pub documentation_quality: f64,    // 0.0 to 1.0, how well documented
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct EnsembleAnalysisInfo {
     pub model_count: usize,
-    pub diversity_score: f64,                // 0.0 to 1.0, how diverse the models are
-    pub correlation_matrix: Vec<Vec<f64>>,   // model-to-model correlation
-    pub ensemble_efficiency: f64,           // performance gain vs computational cost
-    pub redundancy_analysis: String,        // which models might be redundant
-    pub optimal_subset: Vec<String>,        // recommended subset of models
-    pub weighting_strategy: String,         // "equal", "performance", "diversity"
-    pub ensemble_stability: f64,            // 0.0 to 1.0, prediction consistency
-    pub computational_overhead: f64,        // computational cost multiplier
+    pub diversity_score: f64, // 0.0 to 1.0, how diverse the models are
+    pub correlation_matrix: Vec<Vec<f64>>, // model-to-model correlation
+    pub ensemble_efficiency: f64, // performance gain vs computational cost
+    pub redundancy_analysis: String, // which models might be redundant
+    pub optimal_subset: Vec<String>, // recommended subset of models
+    pub weighting_strategy: String, // "equal", "performance", "diversity"
+    pub ensemble_stability: f64, // 0.0 to 1.0, prediction consistency
+    pub computational_overhead: f64, // computational cost multiplier
 }
 
 /// Convert diffx-core DiffResult to diffai DiffResult
@@ -513,8 +512,12 @@ fn convert_diffx_result(diffx_result: diffx_core::DiffResult) -> DiffResult {
     match diffx_result {
         diffx_core::DiffResult::Added(path, value) => DiffResult::Added(path, value),
         diffx_core::DiffResult::Removed(path, value) => DiffResult::Removed(path, value),
-        diffx_core::DiffResult::Modified(path, old_value, new_value) => DiffResult::Modified(path, old_value, new_value),
-        diffx_core::DiffResult::TypeChanged(path, old_value, new_value) => DiffResult::TypeChanged(path, old_value, new_value),
+        diffx_core::DiffResult::Modified(path, old_value, new_value) => {
+            DiffResult::Modified(path, old_value, new_value)
+        }
+        diffx_core::DiffResult::TypeChanged(path, old_value, new_value) => {
+            DiffResult::TypeChanged(path, old_value, new_value)
+        }
     }
 }
 
@@ -541,7 +544,15 @@ pub fn diff(
 
     // For advanced features, implement them directly using our enhanced logic
     let mut results = Vec::new();
-    diff_enhanced("", v1, v2, &mut results, ignore_keys_regex, epsilon, array_id_key);
+    diff_enhanced(
+        "",
+        v1,
+        v2,
+        &mut results,
+        ignore_keys_regex,
+        epsilon,
+        array_id_key,
+    );
     results
 }
 
@@ -568,23 +579,31 @@ fn diff_enhanced(
                         continue;
                     }
                 }
-                
+
                 let current_path = if path.is_empty() {
                     key.clone()
                 } else {
                     format!("{}.{}", path, key)
                 };
-                
+
                 match map2.get(key) {
                     Some(value2) => {
-                        diff_enhanced(&current_path, value1, value2, results, ignore_keys_regex, epsilon, array_id_key);
+                        diff_enhanced(
+                            &current_path,
+                            value1,
+                            value2,
+                            results,
+                            ignore_keys_regex,
+                            epsilon,
+                            array_id_key,
+                        );
                     }
                     None => {
                         results.push(DiffResult::Removed(current_path, value1.clone()));
                     }
                 }
             }
-            
+
             // Check for added keys
             for (key, value2) in map2 {
                 if !map1.contains_key(key) {
@@ -599,23 +618,49 @@ fn diff_enhanced(
         }
         (Value::Array(arr1), Value::Array(arr2)) => {
             if let Some(id_key) = array_id_key {
-                diff_arrays_with_id(path, arr1, arr2, id_key, results, ignore_keys_regex, epsilon, array_id_key);
+                diff_arrays_with_id(
+                    path,
+                    arr1,
+                    arr2,
+                    id_key,
+                    results,
+                    ignore_keys_regex,
+                    epsilon,
+                    array_id_key,
+                );
             } else {
-                diff_arrays_by_index(path, arr1, arr2, results, ignore_keys_regex, epsilon, array_id_key);
+                diff_arrays_by_index(
+                    path,
+                    arr1,
+                    arr2,
+                    results,
+                    ignore_keys_regex,
+                    epsilon,
+                    array_id_key,
+                );
             }
         }
         _ => {
             // Different types or values
             if std::mem::discriminant(v1) != std::mem::discriminant(v2) {
-                results.push(DiffResult::TypeChanged(path.to_string(), v1.clone(), v2.clone()));
+                results.push(DiffResult::TypeChanged(
+                    path.to_string(),
+                    v1.clone(),
+                    v2.clone(),
+                ));
             } else {
-                results.push(DiffResult::Modified(path.to_string(), v1.clone(), v2.clone()));
+                results.push(DiffResult::Modified(
+                    path.to_string(),
+                    v1.clone(),
+                    v2.clone(),
+                ));
             }
         }
     }
 }
 
 /// Array comparison with ID key
+#[allow(clippy::too_many_arguments)]
 fn diff_arrays_with_id(
     path: &str,
     arr1: &[Value],
@@ -628,7 +673,7 @@ fn diff_arrays_with_id(
 ) {
     let mut map1: std::collections::HashMap<Value, &Value> = std::collections::HashMap::new();
     let mut no_id_1: Vec<(usize, &Value)> = Vec::new();
-    
+
     for (i, val) in arr1.iter().enumerate() {
         if let Some(id_val) = val.get(id_key) {
             map1.insert(id_val.clone(), val);
@@ -636,10 +681,10 @@ fn diff_arrays_with_id(
             no_id_1.push((i, val));
         }
     }
-    
+
     let mut map2: std::collections::HashMap<Value, &Value> = std::collections::HashMap::new();
     let mut no_id_2: Vec<(usize, &Value)> = Vec::new();
-    
+
     for (i, val) in arr2.iter().enumerate() {
         if let Some(id_val) = val.get(id_key) {
             map2.insert(id_val.clone(), val);
@@ -647,20 +692,28 @@ fn diff_arrays_with_id(
             no_id_2.push((i, val));
         }
     }
-    
+
     // Compare elements with IDs
     for (id_val, val1) in &map1 {
         let current_path = format!("{}[{}={}]", path, id_key, id_val);
         match map2.get(id_val) {
             Some(val2) => {
-                diff_enhanced(&current_path, val1, val2, results, ignore_keys_regex, epsilon, array_id_key);
+                diff_enhanced(
+                    &current_path,
+                    val1,
+                    val2,
+                    results,
+                    ignore_keys_regex,
+                    epsilon,
+                    array_id_key,
+                );
             }
             None => {
                 results.push(DiffResult::Removed(current_path, (*val1).clone()));
             }
         }
     }
-    
+
     // Check for added elements with IDs
     for (id_val, val2) in &map2 {
         if !map1.contains_key(id_val) {
@@ -668,14 +721,22 @@ fn diff_arrays_with_id(
             results.push(DiffResult::Added(current_path, (*val2).clone()));
         }
     }
-    
+
     // Handle elements without IDs using index-based comparison
     let max_len = no_id_1.len().max(no_id_2.len());
     for i in 0..max_len {
         match (no_id_1.get(i), no_id_2.get(i)) {
             (Some((idx1, val1)), Some((_, val2))) => {
                 let current_path = format!("{}[{}]", path, idx1);
-                diff_enhanced(&current_path, val1, val2, results, ignore_keys_regex, epsilon, array_id_key);
+                diff_enhanced(
+                    &current_path,
+                    val1,
+                    val2,
+                    results,
+                    ignore_keys_regex,
+                    epsilon,
+                    array_id_key,
+                );
             }
             (Some((idx1, val1)), None) => {
                 let current_path = format!("{}[{}]", path, idx1);
@@ -705,7 +766,15 @@ fn diff_arrays_by_index(
         let current_path = format!("{}[{}]", path, i);
         match (arr1.get(i), arr2.get(i)) {
             (Some(val1), Some(val2)) => {
-                diff_enhanced(&current_path, val1, val2, results, ignore_keys_regex, epsilon, array_id_key);
+                diff_enhanced(
+                    &current_path,
+                    val1,
+                    val2,
+                    results,
+                    ignore_keys_regex,
+                    epsilon,
+                    array_id_key,
+                );
             }
             (Some(val1), None) => {
                 results.push(DiffResult::Removed(current_path, val1.clone()));
@@ -727,7 +796,6 @@ fn values_equal_with_epsilon(v1: &Value, v2: &Value, epsilon: Option<f64>) -> bo
     }
     v1 == v2
 }
-
 
 pub fn parse_ini(content: &str) -> Result<Value> {
     use configparser::ini::Ini;
@@ -870,7 +938,7 @@ pub fn parse_pytorch_model(file_path: &Path) -> Result<HashMap<String, TensorSta
             Error: {}. Please ensure the file is a valid model file.",
             file_path.display(),
             e
-        ))
+        )),
     }
 }
 
@@ -912,14 +980,11 @@ pub fn parse_safetensors_model(file_path: &Path) -> Result<HashMap<String, Tenso
 }
 
 /// Compare two PyTorch/Safetensors models and return differences
-pub fn diff_ml_models(
-    model1_path: &Path,
-    model2_path: &Path,
-) -> Result<Vec<DiffResult>> {
-    let model1_tensors = parse_safetensors_model(model1_path)
-        .or_else(|_| parse_pytorch_model(model1_path))?;
-    let model2_tensors = parse_safetensors_model(model2_path)
-        .or_else(|_| parse_pytorch_model(model2_path))?;
+pub fn diff_ml_models(model1_path: &Path, model2_path: &Path) -> Result<Vec<DiffResult>> {
+    let model1_tensors =
+        parse_safetensors_model(model1_path).or_else(|_| parse_pytorch_model(model1_path))?;
+    let model2_tensors =
+        parse_safetensors_model(model2_path).or_else(|_| parse_pytorch_model(model2_path))?;
 
     let mut differences = Vec::new();
 
@@ -963,6 +1028,7 @@ pub fn diff_ml_models(
 }
 
 /// Enhanced ML model comparison with advanced analysis
+#[allow(clippy::too_many_arguments)]
 pub fn diff_ml_models_enhanced(
     model1_path: &Path,
     model2_path: &Path,
@@ -1000,10 +1066,10 @@ pub fn diff_ml_models_enhanced(
     let mut differences = diff_ml_models(model1_path, model2_path)?;
 
     // Parse models for enhanced analysis
-    let model1_tensors = parse_safetensors_model(model1_path)
-        .or_else(|_| parse_pytorch_model(model1_path))?;
-    let model2_tensors = parse_safetensors_model(model2_path)
-        .or_else(|_| parse_pytorch_model(model2_path))?;
+    let model1_tensors =
+        parse_safetensors_model(model1_path).or_else(|_| parse_pytorch_model(model1_path))?;
+    let model2_tensors =
+        parse_safetensors_model(model2_path).or_else(|_| parse_pytorch_model(model2_path))?;
 
     if enable_learning_progress {
         let progress_info = analyze_learning_progress(&model1_tensors, &model2_tensors);
@@ -1230,7 +1296,8 @@ pub fn diff_ml_models_enhanced(
     }
 
     if enable_experiment_reproducibility {
-        let reproducibility_info = analyze_experiment_reproducibility(&model1_tensors, &model2_tensors);
+        let reproducibility_info =
+            analyze_experiment_reproducibility(&model1_tensors, &model2_tensors);
         differences.push(DiffResult::ExperimentReproducibility(
             "experiment_reproducibility".to_string(),
             reproducibility_info,
@@ -1255,7 +1322,7 @@ pub fn diff_ml_models_enhanced(
 /// Calculate statistics for Safetensors tensor data using safe byte conversion
 fn calculate_safetensors_stats(tensor_view: &TensorView) -> (f64, f64, f64, f64) {
     let data = tensor_view.data();
-    
+
     match tensor_view.dtype() {
         safetensors::Dtype::F32 => {
             let float_data = convert_bytes_to_f32_safe(data);
@@ -1330,12 +1397,17 @@ fn convert_bytes_to_f32_safe(data: &[u8]) -> Vec<f32> {
     let float_size = std::mem::size_of::<f32>();
     let num_floats = data.len() / float_size;
     let mut result = Vec::with_capacity(num_floats);
-    
+
     for i in 0..num_floats {
         let start = i * float_size;
         let end = start + float_size;
         if end <= data.len() {
-            let bytes: [u8; 4] = [data[start], data[start + 1], data[start + 2], data[start + 3]];
+            let bytes: [u8; 4] = [
+                data[start],
+                data[start + 1],
+                data[start + 2],
+                data[start + 3],
+            ];
             result.push(f32::from_le_bytes(bytes));
         }
     }
@@ -1346,7 +1418,7 @@ fn convert_bytes_to_f64_safe(data: &[u8]) -> Vec<f64> {
     let float_size = std::mem::size_of::<f64>();
     let num_floats = data.len() / float_size;
     let mut result = Vec::with_capacity(num_floats);
-    
+
     for i in 0..num_floats {
         let start = i * float_size;
         let end = start + float_size;
@@ -1363,12 +1435,17 @@ fn convert_bytes_to_i32_safe(data: &[u8]) -> Vec<i32> {
     let int_size = std::mem::size_of::<i32>();
     let num_ints = data.len() / int_size;
     let mut result = Vec::with_capacity(num_ints);
-    
+
     for i in 0..num_ints {
         let start = i * int_size;
         let end = start + int_size;
         if end <= data.len() {
-            let bytes: [u8; 4] = [data[start], data[start + 1], data[start + 2], data[start + 3]];
+            let bytes: [u8; 4] = [
+                data[start],
+                data[start + 1],
+                data[start + 2],
+                data[start + 3],
+            ];
             result.push(i32::from_le_bytes(bytes));
         }
     }
@@ -1379,7 +1456,7 @@ fn convert_bytes_to_i64_safe(data: &[u8]) -> Vec<i64> {
     let int_size = std::mem::size_of::<i64>();
     let num_ints = data.len() / int_size;
     let mut result = Vec::with_capacity(num_ints);
-    
+
     for i in 0..num_ints {
         let start = i * int_size;
         let end = start + int_size;
@@ -1397,22 +1474,23 @@ fn calculate_f32_stats(data: &[f32]) -> (f64, f64, f64, f64) {
     if data.is_empty() {
         return (0.0, 0.0, 0.0, 0.0);
     }
-    
+
     let sum: f64 = data.iter().map(|&x| x as f64).sum();
     let mean = sum / data.len() as f64;
-    
+
     let variance: f64 = data
         .iter()
         .map(|&x| {
             let diff = x as f64 - mean;
             diff * diff
         })
-        .sum::<f64>() / data.len() as f64;
+        .sum::<f64>()
+        / data.len() as f64;
     let std = variance.sqrt();
-    
+
     let min = data.iter().fold(f32::INFINITY, |a, &b| a.min(b)) as f64;
     let max = data.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)) as f64;
-    
+
     (mean, std, min, max)
 }
 
@@ -1420,22 +1498,23 @@ fn calculate_f64_stats(data: &[f64]) -> (f64, f64, f64, f64) {
     if data.is_empty() {
         return (0.0, 0.0, 0.0, 0.0);
     }
-    
+
     let sum: f64 = data.iter().sum();
     let mean = sum / data.len() as f64;
-    
+
     let variance: f64 = data
         .iter()
         .map(|&x| {
             let diff = x - mean;
             diff * diff
         })
-        .sum::<f64>() / data.len() as f64;
+        .sum::<f64>()
+        / data.len() as f64;
     let std = variance.sqrt();
-    
+
     let min = data.iter().fold(f64::INFINITY, |a, &b| a.min(b));
     let max = data.iter().fold(f64::NEG_INFINITY, |a, &b| a.max(b));
-    
+
     (mean, std, min, max)
 }
 
@@ -1443,22 +1522,23 @@ fn calculate_i32_stats(data: &[i32]) -> (f64, f64, f64, f64) {
     if data.is_empty() {
         return (0.0, 0.0, 0.0, 0.0);
     }
-    
+
     let sum: f64 = data.iter().map(|&x| x as f64).sum();
     let mean = sum / data.len() as f64;
-    
+
     let variance: f64 = data
         .iter()
         .map(|&x| {
             let diff = x as f64 - mean;
             diff * diff
         })
-        .sum::<f64>() / data.len() as f64;
+        .sum::<f64>()
+        / data.len() as f64;
     let std = variance.sqrt();
-    
+
     let min = *data.iter().min().unwrap() as f64;
     let max = *data.iter().max().unwrap() as f64;
-    
+
     (mean, std, min, max)
 }
 
@@ -1466,22 +1546,23 @@ fn calculate_i64_stats(data: &[i64]) -> (f64, f64, f64, f64) {
     if data.is_empty() {
         return (0.0, 0.0, 0.0, 0.0);
     }
-    
+
     let sum: f64 = data.iter().map(|&x| x as f64).sum();
     let mean = sum / data.len() as f64;
-    
+
     let variance: f64 = data
         .iter()
         .map(|&x| {
             let diff = x as f64 - mean;
             diff * diff
         })
-        .sum::<f64>() / data.len() as f64;
+        .sum::<f64>()
+        / data.len() as f64;
     let std = variance.sqrt();
-    
+
     let min = *data.iter().min().unwrap() as f64;
     let max = *data.iter().max().unwrap() as f64;
-    
+
     (mean, std, min, max)
 }
 
@@ -1489,22 +1570,23 @@ fn calculate_u32_stats(data: &[u32]) -> (f64, f64, f64, f64) {
     if data.is_empty() {
         return (0.0, 0.0, 0.0, 0.0);
     }
-    
+
     let sum: f64 = data.iter().map(|&x| x as f64).sum();
     let mean = sum / data.len() as f64;
-    
+
     let variance: f64 = data
         .iter()
         .map(|&x| {
             let diff = x as f64 - mean;
             diff * diff
         })
-        .sum::<f64>() / data.len() as f64;
+        .sum::<f64>()
+        / data.len() as f64;
     let std = variance.sqrt();
-    
+
     let min = *data.iter().min().unwrap() as f64;
     let max = *data.iter().max().unwrap() as f64;
-    
+
     (mean, std, min, max)
 }
 
@@ -1512,22 +1594,23 @@ fn calculate_u8_stats(data: &[u8]) -> (f64, f64, f64, f64) {
     if data.is_empty() {
         return (0.0, 0.0, 0.0, 0.0);
     }
-    
+
     let sum: f64 = data.iter().map(|&x| x as f64).sum();
     let mean = sum / data.len() as f64;
-    
+
     let variance: f64 = data
         .iter()
         .map(|&x| {
             let diff = x as f64 - mean;
             diff * diff
         })
-        .sum::<f64>() / data.len() as f64;
+        .sum::<f64>()
+        / data.len() as f64;
     let std = variance.sqrt();
-    
+
     let min = *data.iter().min().unwrap() as f64;
     let max = *data.iter().max().unwrap() as f64;
-    
+
     (mean, std, min, max)
 }
 
@@ -1618,10 +1701,10 @@ fn analyze_memory_usage(
 ) -> MemoryAnalysisInfo {
     let model1_params: usize = model1.values().map(|stats| stats.total_params).sum();
     let model2_params: usize = model2.values().map(|stats| stats.total_params).sum();
-    
+
     let memory_delta = (model2_params as i64 - model1_params as i64) * 4; // Assuming f32
     let estimated_gpu_memory = model2_params as f64 * 4.0 / (1024.0 * 1024.0); // MB
-    
+
     MemoryAnalysisInfo {
         memory_delta_bytes: memory_delta,
         peak_memory_usage: model2_params as u64 * 4,
@@ -1640,20 +1723,30 @@ fn analyze_inference_speed(
     model1: &HashMap<String, TensorStats>,
     model2: &HashMap<String, TensorStats>,
 ) -> InferenceSpeedInfo {
-    let model1_flops: u64 = model1.values().map(|stats| stats.total_params as u64 * 2).sum();
-    let model2_flops: u64 = model2.values().map(|stats| stats.total_params as u64 * 2).sum();
-    
+    let model1_flops: u64 = model1
+        .values()
+        .map(|stats| stats.total_params as u64 * 2)
+        .sum();
+    let model2_flops: u64 = model2
+        .values()
+        .map(|stats| stats.total_params as u64 * 2)
+        .sum();
+
     let speed_ratio = if model1_flops > 0 {
         model2_flops as f64 / model1_flops as f64
     } else {
         1.0
     };
-    
+
     InferenceSpeedInfo {
         speed_change_ratio: 1.0 / speed_ratio, // Inverse for speed (less FLOPs = faster)
         model1_flops_estimate: model1_flops,
         model2_flops_estimate: model2_flops,
-        theoretical_speedup: if speed_ratio < 1.0 { 1.0 / speed_ratio } else { 1.0 },
+        theoretical_speedup: if speed_ratio < 1.0 {
+            1.0 / speed_ratio
+        } else {
+            1.0
+        },
         bottleneck_layers: vec![],
         parallelization_efficiency: 0.91,
         hardware_utilization: 0.84,
@@ -1705,9 +1798,18 @@ fn analyze_review_friendly(
 ) -> ReviewFriendlyInfo {
     ReviewFriendlyInfo {
         impact_assessment: "medium".to_string(),
-        key_changes: vec!["optimizer_update".to_string(), "layer_modifications".to_string()],
-        reviewer_attention_areas: vec!["convergence_metrics".to_string(), "performance_benchmarks".to_string()],
-        testing_recommendations: vec!["run_full_test_suite".to_string(), "performance_regression_test".to_string()],
+        key_changes: vec![
+            "optimizer_update".to_string(),
+            "layer_modifications".to_string(),
+        ],
+        reviewer_attention_areas: vec![
+            "convergence_metrics".to_string(),
+            "performance_benchmarks".to_string(),
+        ],
+        testing_recommendations: vec![
+            "run_full_test_suite".to_string(),
+            "performance_regression_test".to_string(),
+        ],
         rollback_complexity: "simple".to_string(),
         deployment_risk: "low".to_string(),
         code_quality_metrics: {
@@ -1728,7 +1830,8 @@ fn analyze_change_summary(
 ) -> ChangeSummaryInfo {
     let total_layers_1 = model1.len();
     let total_layers_2 = model2.len();
-    let changed_layers = model1.keys()
+    let changed_layers = model1
+        .keys()
         .filter(|key| {
             if let Some(stats2) = model2.get(*key) {
                 let stats1 = &model1[*key];
@@ -1738,7 +1841,7 @@ fn analyze_change_summary(
             }
         })
         .count();
-    
+
     ChangeSummaryInfo {
         total_layers_changed: changed_layers,
         overall_change_magnitude: 0.15,
@@ -1765,7 +1868,10 @@ fn analyze_risk_assessment(
     RiskAssessmentInfo {
         overall_risk_level: "low".to_string(),
         risk_factors: vec!["minimal_architecture_changes".to_string()],
-        mitigation_strategies: vec!["gradual_rollout".to_string(), "monitoring_setup".to_string()],
+        mitigation_strategies: vec![
+            "gradual_rollout".to_string(),
+            "monitoring_setup".to_string(),
+        ],
         deployment_readiness: "ready".to_string(),
         rollback_plan: "automated_rollback_available".to_string(),
         monitoring_requirements: vec!["performance_metrics".to_string(), "error_rates".to_string()],
@@ -1784,13 +1890,13 @@ fn analyze_architecture_comparison(
     let depth2 = model2.len();
     let params1: usize = model1.values().map(|s| s.total_params).sum();
     let params2: usize = model2.values().map(|s| s.total_params).sum();
-    
+
     let param_ratio = if params1 > 0 {
         params2 as f64 / params1 as f64
     } else {
         1.0
     };
-    
+
     ArchitectureComparisonInfo {
         architecture_type_1: "transformer".to_string(),
         architecture_type_2: "transformer".to_string(),
@@ -1819,16 +1925,16 @@ fn analyze_parameter_efficiency(
     model1: &HashMap<String, TensorStats>,
     model2: &HashMap<String, TensorStats>,
 ) -> ParamEfficiencyInfo {
-    let params1: usize = model1.values().map(|s| s.total_params).sum();
+    let _params1: usize = model1.values().map(|s| s.total_params).sum();
     let params2: usize = model2.values().map(|s| s.total_params).sum();
-    
+
     // Mock efficiency ratio (in practice, this would be performance/parameters)
     let efficiency_ratio = if params2 > 0 {
         100.0 / params2 as f64 // Mock performance score
     } else {
         1.0
     };
-    
+
     ParamEfficiencyInfo {
         efficiency_ratio,
         parameter_utilization: 0.87,
@@ -1839,7 +1945,10 @@ fn analyze_parameter_efficiency(
         parameter_sharing_opportunities: vec!["embedding_layers".to_string()],
         model_scaling_recommendation: "maintain_current_size".to_string(),
         efficiency_benchmark: "above_average".to_string(),
-        optimization_suggestions: vec!["layer_pruning".to_string(), "knowledge_distillation".to_string()],
+        optimization_suggestions: vec![
+            "layer_pruning".to_string(),
+            "knowledge_distillation".to_string(),
+        ],
     }
 }
 
@@ -1898,7 +2007,10 @@ fn analyze_deployment_readiness(
         readiness_score: 0.92,
         deployment_strategy: "blue_green".to_string(),
         risk_level: "low".to_string(),
-        prerequisites: vec!["performance_validation".to_string(), "integration_tests".to_string()],
+        prerequisites: vec![
+            "performance_validation".to_string(),
+            "integration_tests".to_string(),
+        ],
         deployment_blockers: vec![],
         performance_benchmarks: {
             let mut map = HashMap::new();
@@ -1908,7 +2020,10 @@ fn analyze_deployment_readiness(
             map
         },
         scalability_assessment: "excellent".to_string(),
-        monitoring_setup: vec!["metrics_dashboard".to_string(), "alerting_rules".to_string()],
+        monitoring_setup: vec![
+            "metrics_dashboard".to_string(),
+            "alerting_rules".to_string(),
+        ],
         rollback_plan_quality: "excellent".to_string(),
         deployment_timeline: "ready_for_immediate_deployment".to_string(),
     }
@@ -1920,13 +2035,13 @@ fn analyze_performance_impact(
 ) -> PerformanceImpactInfo {
     let params1: usize = model1.values().map(|s| s.total_params).sum();
     let params2: usize = model2.values().map(|s| s.total_params).sum();
-    
+
     let param_change = if params1 > 0 {
         ((params2 as f64 - params1 as f64) / params1 as f64) * 100.0
     } else {
         0.0
     };
-    
+
     PerformanceImpactInfo {
         latency_change_estimate: param_change * 0.3, // Rough estimation
         throughput_change_estimate: -param_change * 0.2,
@@ -1935,8 +2050,16 @@ fn analyze_performance_impact(
         gpu_utilization_change: param_change * 0.6,
         energy_consumption_change: param_change * 0.5,
         cost_impact_estimate: param_change * 0.1,
-        scalability_impact: if param_change < 5.0 { "neutral".to_string() } else { "improved".to_string() },
-        performance_category: if param_change < 0.0 { "optimization".to_string() } else { "neutral".to_string() },
+        scalability_impact: if param_change < 5.0 {
+            "neutral".to_string()
+        } else {
+            "improved".to_string()
+        },
+        performance_category: if param_change < 0.0 {
+            "optimization".to_string()
+        } else {
+            "neutral".to_string()
+        },
         impact_confidence: 0.85,
     }
 }
@@ -1945,7 +2068,7 @@ fn generate_analysis_report(differences: &[DiffResult]) -> ReportInfo {
     let mut key_findings = Vec::new();
     let mut recommendations = Vec::new();
     let mut metrics = HashMap::new();
-    
+
     for diff in differences {
         match diff {
             DiffResult::LearningProgress(_, info) => {
@@ -1954,19 +2077,28 @@ fn generate_analysis_report(differences: &[DiffResult]) -> ReportInfo {
                 metrics.insert("convergence_speed".to_string(), info.convergence_speed);
             }
             DiffResult::MemoryAnalysis(_, info) => {
-                key_findings.push(format!("Memory delta: {:.1} MB", info.memory_delta_bytes as f64 / (1024.0 * 1024.0)));
-                metrics.insert("memory_efficiency".to_string(), info.memory_efficiency_ratio);
+                key_findings.push(format!(
+                    "Memory delta: {:.1} MB",
+                    info.memory_delta_bytes as f64 / (1024.0 * 1024.0)
+                ));
+                metrics.insert(
+                    "memory_efficiency".to_string(),
+                    info.memory_efficiency_ratio,
+                );
             }
             _ => {}
         }
     }
-    
+
     ReportInfo {
         report_type: "comprehensive_analysis".to_string(),
         key_findings,
         recommendations,
         metrics_summary: metrics,
-        visualizations: vec!["performance_trends".to_string(), "parameter_distribution".to_string()],
+        visualizations: vec![
+            "performance_trends".to_string(),
+            "parameter_distribution".to_string(),
+        ],
         executive_summary: "Model shows consistent improvement with stable convergence".to_string(),
         technical_details: "Detailed analysis shows positive trends across all metrics".to_string(),
         methodology: "Comprehensive multi-dimensional model analysis".to_string(),
@@ -1976,23 +2108,30 @@ fn generate_analysis_report(differences: &[DiffResult]) -> ReportInfo {
 }
 
 fn generate_markdown_output(differences: &[DiffResult]) -> MarkdownInfo {
-    let mut sections = vec!["## Executive Summary".to_string(), "## Technical Analysis".to_string(), "## Recommendations".to_string()];
+    let sections = vec![
+        "## Executive Summary".to_string(),
+        "## Technical Analysis".to_string(),
+        "## Recommendations".to_string(),
+    ];
     let mut tables = vec!["| Metric | Value | Change |".to_string()];
-    
+
     // Generate content based on differences
     for diff in differences {
-        match diff {
-            DiffResult::ArchitectureComparison(_, info) => {
-                tables.push(format!("| Architecture | {} | {} |", info.architecture_type_1, info.architecture_type_2));
-            }
-            _ => {}
+        if let DiffResult::ArchitectureComparison(_, info) = diff {
+            tables.push(format!(
+                "| Architecture | {} | {} |",
+                info.architecture_type_1, info.architecture_type_2
+            ));
         }
     }
-    
+
     MarkdownInfo {
         sections,
         tables,
-        charts: vec!["performance_chart".to_string(), "convergence_plot".to_string()],
+        charts: vec![
+            "performance_chart".to_string(),
+            "convergence_plot".to_string(),
+        ],
         code_blocks: vec!["```python\\nmodel.eval()\\n```".to_string()],
         formatting_style: "technical".to_string(),
         toc_included: true,
@@ -2004,22 +2143,34 @@ fn generate_markdown_output(differences: &[DiffResult]) -> MarkdownInfo {
         },
         template_used: "comprehensive_analysis".to_string(),
         export_formats: vec!["pdf".to_string(), "html".to_string()],
-        markdown_content: "# Model Analysis Report\\n\\nComprehensive analysis results...".to_string(),
+        markdown_content: "# Model Analysis Report\\n\\nComprehensive analysis results..."
+            .to_string(),
     }
 }
 
 fn generate_chart_analysis(_differences: &[DiffResult]) -> ChartInfo {
     ChartInfo {
         chart_types: vec!["line".to_string(), "bar".to_string(), "heatmap".to_string()],
-        metrics_plotted: vec!["accuracy".to_string(), "loss".to_string(), "memory_usage".to_string()],
+        metrics_plotted: vec![
+            "accuracy".to_string(),
+            "loss".to_string(),
+            "memory_usage".to_string(),
+        ],
         chart_library: "plotly".to_string(),
-        interactive_features: vec!["zoom".to_string(), "hover_details".to_string(), "filtering".to_string()],
+        interactive_features: vec![
+            "zoom".to_string(),
+            "hover_details".to_string(),
+            "filtering".to_string(),
+        ],
         export_formats: vec!["png".to_string(), "svg".to_string(), "html".to_string()],
         styling_theme: "professional".to_string(),
         data_points: 250,
         chart_complexity: "moderate".to_string(),
         accessibility_features: vec!["alt_text".to_string(), "high_contrast".to_string()],
-        chart_descriptions: vec!["Training progress over time".to_string(), "Parameter distribution".to_string()],
+        chart_descriptions: vec![
+            "Training progress over time".to_string(),
+            "Parameter distribution".to_string(),
+        ],
     }
 }
 
@@ -2105,7 +2256,10 @@ fn analyze_attention(
 ) -> AttentionInfo {
     AttentionInfo {
         attention_head_count: 12,
-        attention_pattern_changes: vec!["increased_locality".to_string(), "improved_focus".to_string()],
+        attention_pattern_changes: vec![
+            "increased_locality".to_string(),
+            "improved_focus".to_string(),
+        ],
         head_importance_ranking: vec![
             ("head_1".to_string(), 0.92),
             ("head_5".to_string(), 0.87),
@@ -2117,7 +2271,10 @@ fn analyze_attention(
         head_specialization: 0.71,
         attention_coverage: 0.89,
         pattern_interpretability: "high".to_string(),
-        attention_optimization_opportunities: vec!["head_pruning".to_string(), "pattern_regularization".to_string()],
+        attention_optimization_opportunities: vec![
+            "head_pruning".to_string(),
+            "pattern_regularization".to_string(),
+        ],
     }
 }
 
@@ -2148,7 +2305,10 @@ fn analyze_head_importance(
             vec![0.2, 0.1, 0.6, 1.0],
         ],
         redundancy_analysis: "moderate_redundancy_detected".to_string(),
-        pruning_recommendations: vec!["remove_heads_9_11".to_string(), "retain_top_8_heads".to_string()],
+        pruning_recommendations: vec![
+            "remove_heads_9_11".to_string(),
+            "retain_top_8_heads".to_string(),
+        ],
         performance_impact_estimate: 0.02,
         head_specialization_analysis: "good_task_specialization".to_string(),
         attention_efficiency_score: 0.84,
@@ -2164,7 +2324,10 @@ fn analyze_attention_patterns(
         pattern_evolution: "stable".to_string(),
         attention_shift_analysis: "minimal_drift".to_string(),
         pattern_complexity: 0.67,
-        attention_focus_changes: vec!["improved_local_attention".to_string(), "reduced_noise".to_string()],
+        attention_focus_changes: vec![
+            "improved_local_attention".to_string(),
+            "reduced_noise".to_string(),
+        ],
         pattern_interpretability_change: 0.08,
         attention_anomalies: vec![],
         pattern_stability_score: 0.93,
@@ -2179,14 +2342,15 @@ fn analyze_quantization_effects(
 ) -> QuantizationAnalysisInfo {
     let params1: usize = model1.values().map(|s| s.total_params).sum();
     let params2: usize = model2.values().map(|s| s.total_params).sum();
-    
+
     // Mock quantization analysis - in practice this would analyze bit precision changes
     let compression_ratio = if params1 > 0 {
         1.0 - (params2 as f64 / params1 as f64)
     } else {
         0.0
-    }.max(0.0);
-    
+    }
+    .max(0.0);
+
     QuantizationAnalysisInfo {
         compression_ratio,
         bit_reduction: "32bit→16bit".to_string(),
@@ -2194,9 +2358,17 @@ fn analyze_quantization_effects(
         memory_savings: compression_ratio * 0.5, // Conservative estimate
         precision_loss_estimate: 0.015,
         quantization_method: "uniform".to_string(),
-        recommended_layers: vec!["linear1".to_string(), "linear2".to_string(), "linear3".to_string()],
+        recommended_layers: vec![
+            "linear1".to_string(),
+            "linear2".to_string(),
+            "linear3".to_string(),
+        ],
         sensitive_layers: vec!["output".to_string(), "embedding".to_string()],
-        deployment_suitability: if compression_ratio > 0.5 { "excellent".to_string() } else { "good".to_string() },
+        deployment_suitability: if compression_ratio > 0.5 {
+            "excellent".to_string()
+        } else {
+            "good".to_string()
+        },
     }
 }
 
@@ -2206,7 +2378,8 @@ fn analyze_transfer_learning(
 ) -> TransferLearningInfo {
     // Mock analysis - in practice this would analyze which layers changed significantly
     let total_layers = model1.len().max(model2.len());
-    let changed_layers = model1.keys()
+    let changed_layers = model1
+        .keys()
         .filter(|key| {
             if let Some(stats2) = model2.get(*key) {
                 let stats1 = &model1[*key];
@@ -2216,16 +2389,20 @@ fn analyze_transfer_learning(
             }
         })
         .count();
-    
+
     let frozen_layers = total_layers - changed_layers;
     let update_ratio = changed_layers as f64 / total_layers as f64;
-    
+
     TransferLearningInfo {
         frozen_layers,
         updated_layers: changed_layers,
         parameter_update_ratio: update_ratio,
         layer_adaptation_strength: vec![0.1, 0.3, 0.7, 0.9, 0.5], // Mock per-layer adaptation
-        domain_adaptation_strength: if update_ratio > 0.5 { "strong".to_string() } else { "moderate".to_string() },
+        domain_adaptation_strength: if update_ratio > 0.5 {
+            "strong".to_string()
+        } else {
+            "moderate".to_string()
+        },
         transfer_efficiency_score: 0.85,
         learning_strategy: "fine-tuning".to_string(),
         convergence_acceleration: 2.3,
@@ -2239,7 +2416,10 @@ fn analyze_experiment_reproducibility(
 ) -> ExperimentReproducibilityInfo {
     // Mock analysis - in practice this would compare configuration files
     ExperimentReproducibilityInfo {
-        config_changes: vec!["learning_rate: 0.001→0.0008".to_string(), "batch_size: 32→64".to_string()],
+        config_changes: vec![
+            "learning_rate: 0.001→0.0008".to_string(),
+            "batch_size: 32→64".to_string(),
+        ],
         critical_changes: vec!["learning_rate_change".to_string()],
         hyperparameter_drift: 0.12,
         environment_consistency: 0.94,
@@ -2252,12 +2432,12 @@ fn analyze_experiment_reproducibility(
 }
 
 fn analyze_ensemble_models(
-    model1: &HashMap<String, TensorStats>,
-    model2: &HashMap<String, TensorStats>,
+    _model1: &HashMap<String, TensorStats>,
+    _model2: &HashMap<String, TensorStats>,
 ) -> EnsembleAnalysisInfo {
     // Mock ensemble analysis - in practice this would analyze multiple models
     let model_count = 3; // Assuming we're analyzing part of an ensemble
-    
+
     EnsembleAnalysisInfo {
         model_count,
         diversity_score: 0.72,
