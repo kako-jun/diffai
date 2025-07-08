@@ -469,3 +469,49 @@ fn test_parse_csv_no_headers() {
     let parsed = parse_csv(csv_content).unwrap();
     assert_eq!(parsed, expected);
 }
+
+#[test]
+fn test_diffx_core_integration_basic() {
+    // Test that diffx-core integration produces the same results for basic cases
+    let v1 = json!({ "a": 1, "b": "hello" });
+    let v2 = json!({ "a": 2, "b": "hello" });
+    
+    // Compare basic diff (uses diffx-core) with full diff 
+    let basic_differences = diff_basic(&v1, &v2);
+    let full_differences = diff(&v1, &v2, None, None, None);
+    
+    assert_eq!(basic_differences.len(), full_differences.len());
+    assert_eq!(basic_differences.len(), 1);
+    
+    // Both should detect the same modification
+    match (&basic_differences[0], &full_differences[0]) {
+        (DiffResult::Modified(path1, old1, new1), DiffResult::Modified(path2, old2, new2)) => {
+            assert_eq!(path1, path2);
+            assert_eq!(old1, old2);
+            assert_eq!(new1, new2);
+        }
+        _ => panic!("Expected Modified difference in both results"),
+    }
+}
+
+#[test]
+fn test_diffx_core_optimization_path() {
+    // Test that basic cases automatically use diffx-core optimization
+    let v1 = json!({ "users": [{"id": 1, "name": "Alice"}], "config": {"theme": "dark"} });
+    let v2 = json!({ "users": [{"id": 1, "name": "Bob"}], "config": {"theme": "light"} });
+    
+    // This call should use diffx-core internally (no special parameters)
+    let differences = diff(&v1, &v2, None, None, None);
+    
+    assert_eq!(differences.len(), 2);
+    
+    let name_change = differences.iter().find(|d| {
+        matches!(d, DiffResult::Modified(path, _, _) if path.contains("name"))
+    });
+    let theme_change = differences.iter().find(|d| {
+        matches!(d, DiffResult::Modified(path, _, _) if path.contains("theme"))
+    });
+    
+    assert!(name_change.is_some(), "Should detect name change");
+    assert!(theme_change.is_some(), "Should detect theme change");
+}
