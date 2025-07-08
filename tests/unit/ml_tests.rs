@@ -247,8 +247,7 @@ fn test_pytorch_vs_safetensors_comparison() {
                 for name in pytorch_tensors.keys() {
                     assert!(
                         safetensors_tensors.contains_key(name),
-                        "Safetensors should contain tensor: {}",
-                        name
+                        "Safetensors should contain tensor: {name}"
                     );
                 }
             }
