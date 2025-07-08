@@ -22,28 +22,47 @@ diffaiは、AI・機械学習分野でのデータ差分抽出に特化したツ
 - **JSON**: MLOpsツール統合用
 - **YAML**: 設定ファイル・人間可読用
 
-## 🚀 高度なML分析機能（13機能実装済み）
+## 🚀 高度なML分析機能（28機能実装済み）
 
-### 🔬 学習・収束分析
+### 🔬 学習・収束分析 (4機能)
 - `--learning-progress`: 学習進捗追跡
 - `--convergence-analysis`: 収束状態分析
 - `--anomaly-detection`: 異常検知（勾配爆発・消失）
 - `--gradient-analysis`: 勾配分析
 
-### 🏗️ アーキテクチャ・性能分析  
+### 🏗️ アーキテクチャ・性能分析 (4機能)
 - `--architecture-comparison`: モデル構造比較
 - `--param-efficiency-analysis`: パラメータ効率分析
 - `--memory-analysis`: メモリ使用量分析
 - `--inference-speed-estimate`: 推論速度推定
 
-### 🔧 MLOps・デプロイ支援
+### 🔧 MLOps・デプロイ支援 (7機能)
 - `--deployment-readiness`: デプロイ準備評価
 - `--regression-test`: 回帰テスト
 - `--risk-assessment`: リスク評価
 - `--hyperparameter-impact`: ハイパーパラメータ影響分析
+- `--learning-rate-analysis`: 学習率効果分析
+- `--alert-on-degradation`: 性能劣化アラート
+- `--performance-impact-estimate`: 性能影響推定
 
-### 📊 実験・文書化支援
+### 📊 実験・文書化支援 (4機能)
 - `--generate-report`: 実験レポート自動生成
+- `--markdown-output`: Markdown形式出力
+- `--include-charts`: チャート・可視化組み込み
+- `--review-friendly`: レビュー向け出力
+
+### 🧠 高度分析機能 (6機能)
+- `--embedding-analysis`: 埋め込み層変化解析
+- `--similarity-matrix`: 類似度行列生成
+- `--clustering-change`: クラスタリング変化解析
+- `--attention-analysis`: アテンション機構分析（Transformer）
+- `--head-importance`: アテンションヘッド重要度分析
+- `--attention-pattern-diff`: アテンションパターン比較
+
+### ⚡ その他の分析機能 (3機能)
+- `--quantization-analysis`: 量子化分析
+- `--sort-by-change-magnitude`: 変化量ソート
+- `--change-summary`: 変更詳細サマリー
 
 ## 💡 使用例
 
@@ -107,6 +126,19 @@ diffai real_models_test/distilbert_base/model.safetensors \
 - [x] **アンサンブル分析**: モデル多様性・相関・冗長性検出
 - [x] **diffx-core統合**: オブジェクト・配列比較の効率化
 - [x] **包括的テスト**: 6つの新テスト関数で全機能検証済み
+
+### ✅ 完了済み（v0.2.3）
+- [x] **外部CLI依存完全除去**: diffx CLIに依存しない自立動作実現
+- [x] **28のML分析機能**: 大幅機能拡張（学習・アーキテクチャ・MLOps・文書化・高度分析）
+- [x] **PyTorch多次元テンソル対応**: `flatten_all()`で全テンソル形状サポート
+- [x] **テスト完全通過**: 47個全テスト成功（0失敗、0無視）
+- [x] **Struct field不整合解決**: CLI-Core間の54個の構造体フィールド整合性修正
+- [x] **diffx-core完全統合**: 効率的な基本差分+拡張ML機能の最適化アーキテクチャ
+
+### ✅ 完了済み（v0.2.4）
+- [x] **CLAUDE.md最新化**: 28機能の正確な実装状況と最新の技術仕様を反映
+- [x] **技術文書完備**: 外部CLI依存除去・PyTorch多次元対応・テスト完全通過の詳細記録
+- [x] **開発履歴整理**: 7つの主要バージョンでの段階的改善プロセス文書化
 
 ### 🔄 進行中
 - [ ] **パフォーマンステスト**: 大容量モデルでのベンチマーク
@@ -315,4 +347,4 @@ cargo test -p diffai-core  # ✅ 全テスト成功
 
 ---
 
-**diffai は AI/ML分野で最も包括的なモデル比較ツールとして、17の分析軸で360度モデル評価を提供します。Ultra-sync機能により量子化・転移学習・実験再現性・アンサンブル分析が可能になり、diffx-core統合でオブジェクト比較も効率化されました。**
+**diffai は AI/ML分野で最も包括的なモデル比較ツールとして、28の分析軸で360度モデル評価を提供します。外部CLI依存を完全除去した自立動作アーキテクチャにより、あらゆる環境での安定動作を実現。PyTorch多次元テンソル対応・テスト完全通過・diffx-core統合により、研究開発からMLOpsまで幅広い用途に対応します。**
