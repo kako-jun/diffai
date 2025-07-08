@@ -325,6 +325,10 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
             DiffResult::AttentionPatternDiff(k, _) => k.clone(),
             DiffResult::TensorAdded(k, _) => k.clone(),
             DiffResult::TensorRemoved(k, _) => k.clone(),
+            DiffResult::QuantizationAnalysis(k, _) => k.clone(),
+            DiffResult::TransferLearningAnalysis(k, _) => k.clone(),
+            DiffResult::ExperimentReproducibility(k, _) => k.clone(),
+            DiffResult::EnsembleAnalysis(k, _) => k.clone(),
         }
     };
 
@@ -492,6 +496,22 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
             DiffResult::TensorRemoved(_, stats) => {
                 // Use tensor parameter count as magnitude (normalized)
                 (stats.total_params as f64).log10().max(0.0)
+            }
+            DiffResult::QuantizationAnalysis(_, quant) => {
+                // Use compression ratio as magnitude
+                quant.compression_ratio
+            }
+            DiffResult::TransferLearningAnalysis(_, transfer) => {
+                // Use parameter update ratio as magnitude
+                transfer.parameter_update_ratio
+            }
+            DiffResult::ExperimentReproducibility(_, experiment) => {
+                // Use inverse of reproducibility score as magnitude (higher = more concerning)
+                1.0 - experiment.reproducibility_score
+            }
+            DiffResult::EnsembleAnalysis(_, ensemble) => {
+                // Use diversity score as magnitude
+                ensemble.diversity_score
             }
             _ => 0.0, // Non-ML changes have no magnitude
         }
@@ -772,6 +792,36 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
                 format!("- {}: shape={:?}, dtype={}, params={} (tensor_removed)",
                     k, stats.shape, stats.dtype, stats.total_params).red()
             }
+            DiffResult::QuantizationAnalysis(k, quant) => {
+                format!("📉 {}: compression={:.1}%, speedup={:.1}x, precision_loss={:.1}%, suitability={} (quantization)",
+                    k, quant.compression_ratio * 100.0, quant.estimated_speedup, 
+                    quant.precision_loss_estimate * 100.0, quant.deployment_suitability).bright_blue()
+            }
+            DiffResult::TransferLearningAnalysis(k, transfer) => {
+                format!("🎯 {}: frozen={}/{}, updated_params={:.1}%, adaptation={}, efficiency={:.2} (transfer_learning)",
+                    k, transfer.frozen_layers, transfer.total_layers, 
+                    transfer.parameter_update_ratio * 100.0, transfer.domain_adaptation_strength,
+                    transfer.transfer_efficiency_score).green()
+            }
+            DiffResult::ExperimentReproducibility(k, experiment) => {
+                let color = match experiment.reproducibility_score {
+                    x if x > 0.8 => format!("🔬 {}: score={:.2}, critical_changes={}, determinism={} (reproducibility)",
+                        k, experiment.reproducibility_score, experiment.critical_changes.len(),
+                        experiment.model_determinism).green(),
+                    x if x > 0.5 => format!("🔬 {}: score={:.2}, critical_changes={}, determinism={} (reproducibility)",
+                        k, experiment.reproducibility_score, experiment.critical_changes.len(),
+                        experiment.model_determinism).yellow(),
+                    _ => format!("🔬 {}: score={:.2}, critical_changes={}, determinism={} (reproducibility)",
+                        k, experiment.reproducibility_score, experiment.critical_changes.len(),
+                        experiment.model_determinism).red(),
+                };
+                color
+            }
+            DiffResult::EnsembleAnalysis(k, ensemble) => {
+                format!("🎭 {}: models={}, diversity={:.2}, efficiency={:.2}x, redundancy={} (ensemble)",
+                    k, ensemble.model_count, ensemble.diversity_score, 
+                    ensemble.ensemble_efficiency, ensemble.redundancy_detection.len()).magenta()
+            }
         };
 
         println!("{}{}", indent, diff_str);
@@ -892,6 +942,18 @@ fn print_yaml_output(differences: Vec<DiffResult>) -> Result<()> {
             }),
             DiffResult::TensorRemoved(key, stats) => serde_json::json!({
                 "TensorRemoved": [key, stats]
+            }),
+            DiffResult::QuantizationAnalysis(key, quant) => serde_json::json!({
+                "QuantizationAnalysis": [key, quant]
+            }),
+            DiffResult::TransferLearningAnalysis(key, transfer) => serde_json::json!({
+                "TransferLearningAnalysis": [key, transfer]
+            }),
+            DiffResult::ExperimentReproducibility(key, experiment) => serde_json::json!({
+                "ExperimentReproducibility": [key, experiment]
+            }),
+            DiffResult::EnsembleAnalysis(key, ensemble) => serde_json::json!({
+                "EnsembleAnalysis": [key, ensemble]
             }),
         })
         .collect();
@@ -1083,6 +1145,10 @@ fn main() -> Result<()> {
                 DiffResult::AttentionPatternDiff(k, _) => k,
                 DiffResult::TensorAdded(k, _) => k,
                 DiffResult::TensorRemoved(k, _) => k,
+                DiffResult::QuantizationAnalysis(k, _) => k,
+                DiffResult::TransferLearningAnalysis(k, _) => k,
+                DiffResult::ExperimentReproducibility(k, _) => k,
+                DiffResult::EnsembleAnalysis(k, _) => k,
             };
             key.starts_with(&filter_path)
         });
@@ -1209,6 +1275,10 @@ fn compare_directories(
                             DiffResult::AttentionPatternDiff(k, _) => k,
                             DiffResult::TensorAdded(k, _) => k,
                             DiffResult::TensorRemoved(k, _) => k,
+                            DiffResult::QuantizationAnalysis(k, _) => k,
+                            DiffResult::TransferLearningAnalysis(k, _) => k,
+                            DiffResult::ExperimentReproducibility(k, _) => k,
+                            DiffResult::EnsembleAnalysis(k, _) => k,
                         };
                         key.starts_with(filter_path_str)
                     });

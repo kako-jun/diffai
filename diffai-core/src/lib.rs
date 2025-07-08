@@ -13,6 +13,8 @@ use quick_xml::de::from_str;
 use candle_core::Device;
 use candle_core::pickle::read_all;
 use safetensors::SafeTensors;
+// Cross-project integration
+use diffx_core;
 
 #[derive(Debug, PartialEq, Serialize)]
 pub enum DiffResult {
@@ -63,6 +65,12 @@ pub enum DiffResult {
     AttentionAnalysis(String, AttentionInfo),
     HeadImportance(String, HeadImportanceInfo),
     AttentionPatternDiff(String, AttentionPatternInfo),
+    // Model optimization analysis
+    QuantizationAnalysis(String, QuantizationAnalysisInfo),
+    TransferLearningAnalysis(String, TransferLearningInfo),
+    // Advanced experimental analysis (powered by diffx)
+    ExperimentReproducibility(String, ExperimentReproducibilityInfo),
+    EnsembleAnalysis(String, EnsembleAnalysisInfo),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -219,6 +227,63 @@ pub struct LearningRateInfo {
     pub lr_schedule_pattern: String, // "constant", "decay", "cyclic", "adaptive"
     pub lr_effectiveness: f64, // 0.0-1.0 score of learning rate effectiveness
     pub lr_recommendation: String, // Learning rate adjustment suggestions
+}
+
+// Quantization analysis info
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct QuantizationAnalysisInfo {
+    pub compression_ratio: f64,          // Size reduction percentage (0.0-1.0)
+    pub bit_reduction: String,           // "32bit→8bit", "16bit→8bit", etc.
+    pub estimated_speedup: f64,          // Expected inference speedup multiplier
+    pub memory_savings: f64,             // Memory usage reduction percentage
+    pub precision_loss_estimate: f64,    // Estimated precision loss (0.0-1.0)
+    pub quantization_method: String,     // "uniform", "non-uniform", "mixed", "dynamic"
+    pub recommended_layers: Vec<String>, // Layers recommended for quantization
+    pub sensitive_layers: Vec<String>,   // Layers sensitive to quantization
+    pub deployment_suitability: String, // "excellent", "good", "acceptable", "risky"
+}
+
+// Transfer learning analysis info
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct TransferLearningInfo {
+    pub frozen_layers: usize,                        // Number of frozen layers
+    pub updated_layers: usize,                       // Number of updated layers
+    pub total_layers: usize,                         // Total number of layers
+    pub parameter_update_ratio: f64,                 // Percentage of parameters updated
+    pub layer_learning_intensity: Vec<f64>,          // Learning intensity per layer (0.0-1.0)
+    pub domain_adaptation_strength: String,          // "weak", "moderate", "strong"
+    pub feature_extraction_vs_finetuning: String,    // Analysis of transfer approach
+    pub most_adapted_layers: Vec<String>,            // Layers with highest change
+    pub transfer_efficiency_score: f64,              // Overall transfer efficiency (0.0-1.0)
+    pub overfitting_risk: String,                    // "low", "medium", "high"
+}
+
+// Experimental reproducibility analysis info
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct ExperimentReproducibilityInfo {
+    pub hyperparameter_changes: Vec<String>,                 // All detected changes (string format)
+    pub critical_changes: Vec<String>,                       // Changes likely to affect results  
+    pub environment_diffs: Vec<String>,                      // Environment/config differences
+    pub reproducibility_score: f64,                          // 0.0-1.0 reproducibility confidence
+    pub risk_factors: Vec<String>,                           // Factors that may cause variance
+    pub seed_consistency: String,                            // "consistent", "inconsistent", "unknown"
+    pub data_versioning: String,                             // "same", "different", "unknown"
+    pub model_determinism: String,                           // "deterministic", "non_deterministic"
+    pub reproduction_recommendation: String,                 // Action recommendations
+}
+
+// Multi-model ensemble analysis info
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct EnsembleAnalysisInfo {
+    pub model_count: usize,                                  // Number of models in ensemble
+    pub diversity_score: f64,                                // Model diversity (0.0-1.0)
+    pub correlation_matrix: Vec<Vec<f64>>,                   // Pairwise correlations
+    pub complementarity_analysis: String,                    // "high", "medium", "low"
+    pub ensemble_efficiency: f64,                            // Efficiency vs single best model
+    pub redundancy_detection: Vec<String>,                   // Models that may be redundant
+    pub optimal_subset: Vec<String>,                         // Recommended model subset
+    pub weighting_strategy: String,                          // "equal", "performance", "diversity"
+    pub ensemble_recommendation: String,                     // Overall recommendation
 }
 
 // A/B test support info
@@ -3223,5 +3288,508 @@ mod tests {
             None,
         );
         assert!(result.is_err());
+    }
+}
+
+/// Analyze quantization effects between two models
+fn analyze_quantization_effects(
+    model1_tensors: &HashMap<String, TensorStats>,
+    model2_tensors: &HashMap<String, TensorStats>,
+) -> QuantizationAnalysisInfo {
+    let mut total_params_1 = 0;
+    let mut total_params_2 = 0;
+    let mut bit_type_1 = HashMap::new();
+    let mut bit_type_2 = HashMap::new();
+    
+    // Calculate parameter counts and detect data types
+    for (_name, stats) in model1_tensors {
+        total_params_1 += stats.total_params;
+        let bits = match stats.dtype.as_str() {
+            "f32" => 32,
+            "f16" => 16,
+            "i8" => 8,
+            "u8" => 8,
+            _ => 32,
+        };
+        *bit_type_1.entry(bits).or_insert(0) += stats.total_params;
+    }
+    
+    for (_name, stats) in model2_tensors {
+        total_params_2 += stats.total_params;
+        let bits = match stats.dtype.as_str() {
+            "f32" => 32,
+            "f16" => 16,
+            "i8" => 8,
+            "u8" => 8,
+            _ => 32,
+        };
+        *bit_type_2.entry(bits).or_insert(0) += stats.total_params;
+    }
+    
+    // Calculate compression ratio (approximate)
+    let avg_bits_1: f64 = bit_type_1.iter()
+        .map(|(bits, count)| *bits as f64 * *count as f64)
+        .sum::<f64>() / total_params_1 as f64;
+    let avg_bits_2: f64 = bit_type_2.iter()
+        .map(|(bits, count)| *bits as f64 * *count as f64)
+        .sum::<f64>() / total_params_2 as f64;
+    
+    let compression_ratio = if avg_bits_1 > avg_bits_2 {
+        1.0 - (avg_bits_2 / avg_bits_1)
+    } else {
+        0.0
+    };
+    
+    // Determine bit reduction pattern
+    let dominant_bits_1 = bit_type_1.iter().max_by_key(|(_, count)| *count).map(|(bits, _)| *bits).unwrap_or(32);
+    let dominant_bits_2 = bit_type_2.iter().max_by_key(|(_, count)| *count).map(|(bits, _)| *bits).unwrap_or(32);
+    let bit_reduction = format!("{}bit→{}bit", dominant_bits_1, dominant_bits_2);
+    
+    // Estimate performance improvements
+    let estimated_speedup = if dominant_bits_1 > dominant_bits_2 {
+        match (dominant_bits_1, dominant_bits_2) {
+            (32, 16) => 1.8,
+            (32, 8) => 3.2,
+            (16, 8) => 1.9,
+            _ => 1.2,
+        }
+    } else {
+        1.0
+    };
+    
+    let memory_savings = compression_ratio;
+    
+    // Estimate precision loss (simplified heuristic)
+    let precision_loss_estimate = match (dominant_bits_1, dominant_bits_2) {
+        (32, 16) => 0.05,  // 5% typical loss for FP32→FP16
+        (32, 8) => 0.15,   // 15% typical loss for FP32→INT8
+        (16, 8) => 0.12,   // 12% typical loss for FP16→INT8
+        _ => 0.02,
+    };
+    
+    // Identify layers that are good candidates for quantization
+    let mut recommended_layers = Vec::new();
+    let mut sensitive_layers = Vec::new();
+    
+    for (name, stats) in model1_tensors {
+        if name.contains("weight") && !name.contains("norm") && !name.contains("embed") {
+            if stats.std > 0.1 {
+                recommended_layers.push(name.clone());
+            }
+        }
+        if name.contains("norm") || name.contains("embed") || name.contains("bias") {
+            sensitive_layers.push(name.clone());
+        }
+    }
+    
+    let quantization_method = if compression_ratio > 0.5 {
+        "aggressive"
+    } else if compression_ratio > 0.2 {
+        "balanced"
+    } else {
+        "conservative"
+    }.to_string();
+    
+    let deployment_suitability = match precision_loss_estimate {
+        x if x < 0.05 => "excellent",
+        x if x < 0.1 => "good", 
+        x if x < 0.2 => "acceptable",
+        _ => "risky",
+    }.to_string();
+    
+    QuantizationAnalysisInfo {
+        compression_ratio,
+        bit_reduction,
+        estimated_speedup,
+        memory_savings,
+        precision_loss_estimate,
+        quantization_method,
+        recommended_layers,
+        sensitive_layers,
+        deployment_suitability,
+    }
+}
+
+/// Analyze transfer learning effects between two models  
+fn analyze_transfer_learning(
+    model1_tensors: &HashMap<String, TensorStats>,
+    model2_tensors: &HashMap<String, TensorStats>,
+) -> TransferLearningInfo {
+    let mut layer_changes = Vec::new();
+    let mut total_param_change = 0;
+    let mut total_params = 0;
+    let mut frozen_count = 0;
+    let mut updated_count = 0;
+    
+    // Analyze changes per layer
+    for (name, stats1) in model1_tensors {
+        if let Some(stats2) = model2_tensors.get(name) {
+            total_params += stats1.total_params;
+            
+            // Calculate change magnitude
+            let mean_change = (stats1.mean - stats2.mean).abs();
+            let std_change = (stats1.std - stats2.std).abs();
+            let change_magnitude = (mean_change + std_change) / 2.0;
+            
+            layer_changes.push((name.clone(), change_magnitude));
+            
+            // Threshold for considering a layer "frozen" vs "updated"
+            if change_magnitude < 0.001 {
+                frozen_count += 1;
+            } else {
+                updated_count += 1;
+                total_param_change += stats1.total_params;
+            }
+        }
+    }
+    
+    let total_layers = frozen_count + updated_count;
+    let parameter_update_ratio = if total_params > 0 {
+        total_param_change as f64 / total_params as f64
+    } else {
+        0.0
+    };
+    
+    // Calculate learning intensity per layer (normalized 0-1)
+    layer_changes.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+    let max_change = layer_changes.last().map(|(_, change)| *change).unwrap_or(1.0);
+    let layer_learning_intensity: Vec<f64> = layer_changes
+        .iter()
+        .map(|(_, change)| change / max_change)
+        .collect();
+    
+    // Determine domain adaptation strength
+    let domain_adaptation_strength = match parameter_update_ratio {
+        x if x < 0.1 => "weak",
+        x if x < 0.3 => "moderate", 
+        _ => "strong",
+    }.to_string();
+    
+    // Classify approach
+    let feature_extraction_vs_finetuning = if parameter_update_ratio < 0.15 {
+        "feature_extraction"
+    } else if parameter_update_ratio < 0.5 {
+        "selective_finetuning"
+    } else {
+        "full_finetuning"
+    }.to_string();
+    
+    // Find most adapted layers
+    let mut most_adapted_layers = layer_changes
+        .iter()
+        .rev()
+        .take(5)
+        .map(|(name, _)| name.clone())
+        .collect::<Vec<_>>();
+    most_adapted_layers.sort();
+    
+    // Calculate transfer efficiency
+    let transfer_efficiency_score = if parameter_update_ratio > 0.0 {
+        // Higher efficiency for selective updates that achieve good results
+        match parameter_update_ratio {
+            x if x < 0.2 => 0.9, // Very efficient - minimal updates
+            x if x < 0.5 => 0.7, // Good efficiency
+            _ => 0.5, // Less efficient - many updates
+        }
+    } else {
+        0.0
+    };
+    
+    // Assess overfitting risk
+    let overfitting_risk = match parameter_update_ratio {
+        x if x < 0.1 => "low",
+        x if x < 0.4 => "medium",
+        _ => "high",
+    }.to_string();
+    
+    TransferLearningInfo {
+        frozen_layers: frozen_count,
+        updated_layers: updated_count,
+        total_layers,
+        parameter_update_ratio,
+        layer_learning_intensity,
+        domain_adaptation_strength,
+        feature_extraction_vs_finetuning,
+        most_adapted_layers,
+        transfer_efficiency_score,
+        overfitting_risk,
+    }
+}
+
+/// Analyze experimental reproducibility using diffx for deep config comparison
+fn analyze_experiment_reproducibility(
+    config1_path: Option<&Path>,
+    config2_path: Option<&Path>,
+    model1_tensors: &HashMap<String, TensorStats>,
+    model2_tensors: &HashMap<String, TensorStats>,
+) -> ExperimentReproducibilityInfo {
+    let mut hyperparameter_changes = Vec::new();
+    let mut critical_changes = Vec::new();
+    let mut environment_diffs = Vec::new();
+    let mut risk_factors = Vec::new();
+    
+    // Use diffx to compare configuration files if available
+    if let (Some(cfg1), Some(cfg2)) = (config1_path, config2_path) {
+        if cfg1.exists() && cfg2.exists() {
+            match (std::fs::read_to_string(cfg1), std::fs::read_to_string(cfg2)) {
+                (Ok(content1), Ok(content2)) => {
+                    // Try to parse as JSON/YAML and use diffx for deep comparison
+                    if let (Ok(json1), Ok(json2)) = (
+                        serde_json::from_str::<serde_json::Value>(&content1),
+                        serde_json::from_str::<serde_json::Value>(&content2)
+                    ) {
+                        let diff_results = diffx_core::diff(&json1, &json2);
+                        hyperparameter_changes = diff_results.iter()
+                            .map(|d| format!("{:?}", d))
+                            .collect();
+                        
+                        // Identify critical changes that affect reproducibility
+                        for change in &diff_results {
+                            match change {
+                                diffx_core::DiffResult::Modified(key, old_val, new_val) => {
+                                    if key.contains("seed") || key.contains("random") {
+                                        critical_changes.push(format!("Random seed: {} → {}", old_val, new_val));
+                                        risk_factors.push("Different random seeds".to_string());
+                                    } else if key.contains("lr") || key.contains("learning_rate") {
+                                        critical_changes.push(format!("Learning rate: {} → {}", old_val, new_val));
+                                        risk_factors.push("Learning rate change".to_string());
+                                    } else if key.contains("batch") {
+                                        critical_changes.push(format!("Batch size: {} → {}", old_val, new_val));
+                                        risk_factors.push("Batch size change".to_string());
+                                    } else if key.contains("epoch") || key.contains("step") {
+                                        critical_changes.push(format!("Training duration: {} → {}", old_val, new_val));
+                                    }
+                                }
+                                diffx_core::DiffResult::Added(key, val) => {
+                                    critical_changes.push(format!("Added parameter: {} = {}", key, val));
+                                }
+                                diffx_core::DiffResult::Removed(key, val) => {
+                                    critical_changes.push(format!("Removed parameter: {} = {}", key, val));
+                                }
+                                _ => {}
+                            }
+                        }
+                    }
+                }
+                _ => {
+                    environment_diffs.push("Config file read errors".to_string());
+                    risk_factors.push("Configuration file access issues".to_string());
+                }
+            }
+        }
+    }
+    
+    // Analyze model differences for determinism indicators
+    let mut param_variance_sum = 0.0;
+    let mut total_comparisons = 0;
+    
+    for (name, stats1) in model1_tensors {
+        if let Some(stats2) = model2_tensors.get(name) {
+            let mean_diff = (stats1.mean - stats2.mean).abs();
+            let std_diff = (stats1.std - stats2.std).abs();
+            param_variance_sum += mean_diff + std_diff;
+            total_comparisons += 1;
+        }
+    }
+    
+    let avg_variance = if total_comparisons > 0 {
+        param_variance_sum / total_comparisons as f64
+    } else {
+        0.0
+    };
+    
+    // Assess reproducibility factors
+    let seed_consistency = if critical_changes.iter().any(|c| c.contains("seed")) {
+        "inconsistent"
+    } else if hyperparameter_changes.is_empty() {
+        "consistent"
+    } else {
+        "unknown"
+    }.to_string();
+    
+    let data_versioning = if environment_diffs.iter().any(|d| d.contains("data") || d.contains("dataset")) {
+        "different"
+    } else {
+        "unknown"
+    }.to_string();
+    
+    let model_determinism = if avg_variance < 0.001 {
+        "deterministic"
+    } else if avg_variance < 0.01 {
+        "mostly_deterministic"
+    } else {
+        "non_deterministic"
+    }.to_string();
+    
+    // Calculate reproducibility score
+    let reproducibility_score = {
+        let mut score = 1.0;
+        if seed_consistency == "inconsistent" { score -= 0.3; }
+        if data_versioning == "different" { score -= 0.2; }
+        if model_determinism == "non_deterministic" { score -= 0.3; }
+        if !critical_changes.is_empty() { score -= 0.1 * critical_changes.len() as f64; }
+        score.max(0.0)
+    };
+    
+    let reproduction_recommendation = match reproducibility_score {
+        x if x > 0.9 => "High confidence - results should be reproducible",
+        x if x > 0.7 => "Good reproducibility - minor variations possible",
+        x if x > 0.5 => "Medium risk - check critical parameters",
+        _ => "High risk - significant barriers to reproduction",
+    }.to_string();
+    
+    ExperimentReproducibilityInfo {
+        hyperparameter_changes,
+        critical_changes,
+        environment_diffs,
+        reproducibility_score,
+        risk_factors,
+        seed_consistency,
+        data_versioning,
+        model_determinism,
+        reproduction_recommendation,
+    }
+}
+
+/// Analyze ensemble characteristics using diffx for comprehensive model comparison
+fn analyze_ensemble_models(
+    model_paths: &[&Path],
+    model_tensors_list: &[HashMap<String, TensorStats>],
+) -> EnsembleAnalysisInfo {
+    let model_count = model_tensors_list.len();
+    
+    if model_count < 2 {
+        return EnsembleAnalysisInfo {
+            model_count,
+            diversity_score: 0.0,
+            correlation_matrix: Vec::new(),
+            complementarity_analysis: "insufficient_models".to_string(),
+            ensemble_efficiency: 0.0,
+            redundancy_detection: Vec::new(),
+            optimal_subset: Vec::new(),
+            weighting_strategy: "equal".to_string(),
+            ensemble_recommendation: "Need at least 2 models for analysis".to_string(),
+        };
+    }
+    
+    // Calculate pairwise correlations and diversity
+    let mut correlation_matrix = vec![vec![0.0; model_count]; model_count];
+    let mut diversity_scores = Vec::new();
+    
+    for i in 0..model_count {
+        correlation_matrix[i][i] = 1.0; // Self-correlation
+        
+        for j in (i + 1)..model_count {
+            let model1 = &model_tensors_list[i];
+            let model2 = &model_tensors_list[j];
+            
+            // Calculate correlation based on tensor statistics
+            let mut correlation_sum = 0.0;
+            let mut comparison_count = 0;
+            
+            for (name, stats1) in model1 {
+                if let Some(stats2) = model2.get(name) {
+                    // Simple correlation based on mean and std similarity
+                    let mean_similarity = 1.0 - ((stats1.mean - stats2.mean).abs() / (stats1.mean.abs() + stats2.mean.abs() + 1e-8));
+                    let std_similarity = 1.0 - ((stats1.std - stats2.std).abs() / (stats1.std + stats2.std + 1e-8));
+                    
+                    correlation_sum += (mean_similarity + std_similarity) / 2.0;
+                    comparison_count += 1;
+                }
+            }
+            
+            let correlation = if comparison_count > 0 {
+                correlation_sum / comparison_count as f64
+            } else {
+                0.0
+            };
+            
+            correlation_matrix[i][j] = correlation;
+            correlation_matrix[j][i] = correlation; // Symmetric
+            
+            diversity_scores.push(1.0 - correlation); // Diversity is inverse of correlation
+        }
+    }
+    
+    // Calculate overall diversity score
+    let diversity_score = if !diversity_scores.is_empty() {
+        diversity_scores.iter().sum::<f64>() / diversity_scores.len() as f64
+    } else {
+        0.0
+    };
+    
+    // Assess complementarity
+    let complementarity_analysis = match diversity_score {
+        x if x > 0.7 => "high",
+        x if x > 0.4 => "medium",
+        _ => "low",
+    }.to_string();
+    
+    // Detect redundant models (high correlation pairs)
+    let mut redundancy_detection = Vec::new();
+    for i in 0..model_count {
+        for j in (i + 1)..model_count {
+            if correlation_matrix[i][j] > 0.9 {
+                redundancy_detection.push(format!("Model {} and {} are highly correlated ({:.3})", 
+                    model_paths.get(i).map(|p| p.to_string_lossy()).unwrap_or("unknown".into()),
+                    model_paths.get(j).map(|p| p.to_string_lossy()).unwrap_or("unknown".into()),
+                    correlation_matrix[i][j]
+                ));
+            }
+        }
+    }
+    
+    // Suggest optimal subset (remove highly correlated models)
+    let mut optimal_subset = Vec::new();
+    let mut used_indices = Vec::new();
+    
+    for i in 0..model_count {
+        let mut is_redundant = false;
+        for &used_idx in &used_indices {
+            if correlation_matrix[i][used_idx] > 0.8 {
+                is_redundant = true;
+                break;
+            }
+        }
+        
+        if !is_redundant {
+            optimal_subset.push(model_paths.get(i).map(|p| p.to_string_lossy().to_string()).unwrap_or(format!("model_{}", i)));
+            used_indices.push(i);
+        }
+    }
+    
+    // Estimate ensemble efficiency
+    let ensemble_efficiency = match diversity_score {
+        x if x > 0.6 => 1.2, // High diversity = good ensemble gains
+        x if x > 0.3 => 1.1, // Medium diversity = some gains
+        _ => 1.05, // Low diversity = minimal gains
+    };
+    
+    // Recommend weighting strategy
+    let weighting_strategy = if diversity_score > 0.5 {
+        "diversity_weighted"
+    } else if model_count <= 5 {
+        "equal"
+    } else {
+        "performance_weighted"
+    }.to_string();
+    
+    let ensemble_recommendation = match (model_count, diversity_score) {
+        (n, d) if n >= 5 && d > 0.6 => "Excellent ensemble - high diversity with good coverage",
+        (n, d) if n >= 3 && d > 0.4 => "Good ensemble - reasonable diversity",
+        (n, d) if n >= 3 && d <= 0.4 => "Consider adding more diverse models",
+        _ => "Small ensemble - evaluate if additional models would help",
+    }.to_string();
+    
+    EnsembleAnalysisInfo {
+        model_count,
+        diversity_score,
+        correlation_matrix,
+        complementarity_analysis,
+        ensemble_efficiency,
+        redundancy_detection,
+        optimal_subset,
+        weighting_strategy,
+        ensemble_recommendation,
     }
 }

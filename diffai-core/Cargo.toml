@@ -29,6 +29,8 @@ candle-core = { workspace = true }
 candle-nn = { workspace = true }
 safetensors = { workspace = true }
 bytemuck = { workspace = true }
+# Cross-project integration
+diffx-core = { workspace = true }
 
 [dev-dependencies]
 criterion = { workspace = true }
