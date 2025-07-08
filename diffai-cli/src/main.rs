@@ -550,13 +550,13 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
             }
             DiffResult::AnomalyDetection(k, anomaly) => {
                 let color = match anomaly.severity.as_str() {
-                    "critical" => format!("🚨 {}: type={}, severity={}, affected={} layers, action=\"{}\"",
+                    "critical" => format!("[CRITICAL] {}: type={}, severity={}, affected={} layers, action=\"{}\"",
                         k, anomaly.anomaly_type, anomaly.severity, anomaly.affected_layers.len(),
                         anomaly.recommended_action).bright_red(),
-                    "warning" => format!("⚠️ {}: type={}, severity={}, affected={} layers, action=\"{}\"",
+                    "warning" => format!("[WARNING] {}: type={}, severity={}, affected={} layers, action=\"{}\"",
                         k, anomaly.anomaly_type, anomaly.severity, anomaly.affected_layers.len(),
                         anomaly.recommended_action).yellow(),
-                    _ => format!("✅ {}: type={}, severity={}, action=\"{}\"",
+                    _ => format!("{}: type={}, severity={}, action=\"{}\"",
                         k, anomaly.anomaly_type, anomaly.severity,
                         anomaly.recommended_action).green(),
                 };
@@ -564,13 +564,13 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
             }
             DiffResult::GradientAnalysis(k, gradient) => {
                 let color = match gradient.gradient_flow_health.as_str() {
-                    "exploding" => format!("💥 {}: flow_health={}, norm={:.6}, problematic={} layers",
+                    "exploding" => format!("{}: flow_health={}, norm={:.6}, problematic={} layers",
                         k, gradient.gradient_flow_health, gradient.gradient_norm_estimate,
                         gradient.problematic_layers.len()).bright_red(),
-                    "dead" | "diminishing" => format!("☠️ {}: flow_health={}, norm={:.6}, problematic={} layers",
+                    "dead" | "diminishing" => format!("{}: flow_health={}, norm={:.6}, problematic={} layers",
                         k, gradient.gradient_flow_health, gradient.gradient_norm_estimate,
                         gradient.problematic_layers.len()).bright_red(),
-                    _ => format!("🌊 {}: flow_health={}, norm={:.6}, ratio={:.4}",
+                    _ => format!("{}: flow_health={}, norm={:.6}, ratio={:.4}",
                         k, gradient.gradient_flow_health, gradient.gradient_norm_estimate,
                         gradient.gradient_ratio).bright_cyan(),
                 };
@@ -579,15 +579,15 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
             DiffResult::MemoryAnalysis(k, memory) => {
                 let delta_mb = memory.memory_delta_bytes as f64 / (1024.0 * 1024.0);
                 let color = if memory.memory_delta_bytes > 100_000_000 {  // > 100MB increase
-                    format!("🧠 {}: delta={:+.1}MB, gpu_est={:.1}MB, efficiency={:.6}, \"{}\"",
+                    format!("{}: delta={:+.1}MB, gpu_est={:.1}MB, efficiency={:.6}, \"{}\"",
                         k, delta_mb, memory.estimated_gpu_memory_mb, memory.memory_efficiency_ratio,
                         memory.memory_recommendation).yellow()
                 } else if memory.memory_delta_bytes < -50_000_000 {  // > 50MB decrease
-                    format!("🧠 {}: delta={:+.1}MB, gpu_est={:.1}MB, efficiency={:.6}, \"{}\"",
+                    format!("{}: delta={:+.1}MB, gpu_est={:.1}MB, efficiency={:.6}, \"{}\"",
                         k, delta_mb, memory.estimated_gpu_memory_mb, memory.memory_efficiency_ratio,
                         memory.memory_recommendation).green()
                 } else {
-                    format!("🧠 {}: delta={:+.1}MB, gpu_est={:.1}MB, efficiency={:.6}, \"{}\"",
+                    format!("{}: delta={:+.1}MB, gpu_est={:.1}MB, efficiency={:.6}, \"{}\"",
                         k, delta_mb, memory.estimated_gpu_memory_mb, memory.memory_efficiency_ratio,
                         memory.memory_recommendation).bright_blue()
                 };
@@ -600,15 +600,15 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
                     1.0
                 };
                 let color = if speed.speed_change_ratio > 1.5 {
-                    format!("⚡ {}: speed_ratio={:.2}x, flops_ratio={:.2}x, bottlenecks={}, \"{}\"",
+                    format!("{}: speed_ratio={:.2}x, flops_ratio={:.2}x, bottlenecks={}, \"{}\"",
                         k, speed.speed_change_ratio, flops_ratio, speed.bottleneck_layers.len(),
                         speed.inference_recommendation).red()
                 } else if speed.speed_change_ratio < 0.7 {
-                    format!("⚡ {}: speed_ratio={:.2}x, flops_ratio={:.2}x, bottlenecks={}, \"{}\"",
+                    format!("{}: speed_ratio={:.2}x, flops_ratio={:.2}x, bottlenecks={}, \"{}\"",
                         k, speed.speed_change_ratio, flops_ratio, speed.bottleneck_layers.len(),
                         speed.inference_recommendation).bright_green()
                 } else {
-                    format!("⚡ {}: speed_ratio={:.2}x, flops_ratio={:.2}x, bottlenecks={}, \"{}\"",
+                    format!("{}: speed_ratio={:.2}x, flops_ratio={:.2}x, bottlenecks={}, \"{}\"",
                         k, speed.speed_change_ratio, flops_ratio, speed.bottleneck_layers.len(),
                         speed.inference_recommendation).bright_cyan()
                 };
@@ -616,20 +616,20 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
             }
             DiffResult::RegressionTest(k, regression) => {
                 let color = if regression.test_passed {
-                    format!("✅ {}: passed={}, degradation={:.1}%, severity={}, \"{}\"",
+                    format!("{}: passed={}, degradation={:.1}%, severity={}, \"{}\"",
                         k, regression.test_passed, regression.performance_degradation,
                         regression.severity_level, regression.recommended_action).green()
                 } else {
                     match regression.severity_level.as_str() {
-                        "critical" => format!("🚨 {}: passed={}, degradation={:.1}%, severity={}, failed={} checks, \"{}\"",
+                        "critical" => format!("[CRITICAL] {}: passed={}, degradation={:.1}%, severity={}, failed={} checks, \"{}\"",
                             k, regression.test_passed, regression.performance_degradation,
                             regression.severity_level, regression.failed_checks.len(),
                             regression.recommended_action).bright_red(),
-                        "high" => format!("⚠️ {}: passed={}, degradation={:.1}%, severity={}, failed={} checks, \"{}\"",
+                        "high" => format!("[HIGH] {}: passed={}, degradation={:.1}%, severity={}, failed={} checks, \"{}\"",
                             k, regression.test_passed, regression.performance_degradation,
                             regression.severity_level, regression.failed_checks.len(),
                             regression.recommended_action).red(),
-                        _ => format!("⚠️ {}: passed={}, degradation={:.1}%, severity={}, failed={} checks, \"{}\"",
+                        _ => format!("{}: passed={}, degradation={:.1}%, severity={}, failed={} checks, \"{}\"",
                             k, regression.test_passed, regression.performance_degradation,
                             regression.severity_level, regression.failed_checks.len(),
                             regression.recommended_action).yellow(),
@@ -640,132 +640,132 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
             DiffResult::AlertOnDegradation(k, alert) => {
                 let color = if alert.alert_triggered {
                     match alert.alert_type.as_str() {
-                        "memory" | "performance" => format!("🚨 {}: triggered={}, type={}, threshold_exceeded={:.2}x, \"{}\"",
+                        "memory" | "performance" => format!("[ALERT] {}: triggered={}, type={}, threshold_exceeded={:.2}x, \"{}\"",
                             k, alert.alert_triggered, alert.alert_type, alert.threshold_exceeded,
                             alert.alert_message).bright_red(),
-                        "stability" => format!("⚠️ {}: triggered={}, type={}, threshold_exceeded={:.2}x, \"{}\"",
+                        "stability" => format!("[WARNING] {}: triggered={}, type={}, threshold_exceeded={:.2}x, \"{}\"",
                             k, alert.alert_triggered, alert.alert_type, alert.threshold_exceeded,
                             alert.alert_message).yellow(),
-                        _ => format!("ℹ️ {}: triggered={}, type={}, \"{}\"",
+                        _ => format!("{}: triggered={}, type={}, \"{}\"",
                             k, alert.alert_triggered, alert.alert_type, alert.alert_message).blue(),
                     }
                 } else {
-                    format!("✅ {}: triggered={}, \"{}\"",
+                    format!("{}: triggered={}, \"{}\"",
                         k, alert.alert_triggered, alert.alert_message).green()
                 };
                 color
             }
             DiffResult::ReviewFriendly(k, review) => {
-                format!("👥 {}: impact={}, approval={}, key_changes={}, \"{}\"",
+                format!("{}: impact={}, approval={}, key_changes={}, \"{}\"",
                     k, review.impact_assessment, review.approval_recommendation,
                     review.key_changes.len(), review.summary).bright_cyan()
             }
             DiffResult::ChangeSummary(k, summary) => {
-                format!("📝 {}: layers_changed={}, magnitude={:.4}, patterns={}, most_changed={}",
+                format!("{}: layers_changed={}, magnitude={:.4}, patterns={}, most_changed={}",
                     k, summary.total_layers_changed, summary.overall_change_magnitude,
                     summary.change_patterns.len(), summary.most_changed_layers.len()).bright_blue()
             }
             DiffResult::RiskAssessment(k, risk) => {
                 let color = match risk.overall_risk_level.as_str() {
-                    "critical" => format!("🚨 {}: risk={}, readiness={}, factors={}, rollback={}",
+                    "critical" => format!("[CRITICAL] {}: risk={}, readiness={}, factors={}, rollback={}",
                         k, risk.overall_risk_level, risk.deployment_readiness,
                         risk.risk_factors.len(), risk.rollback_difficulty).bright_red(),
-                    "high" => format!("⚠️ {}: risk={}, readiness={}, factors={}, rollback={}",
+                    "high" => format!("[HIGH] {}: risk={}, readiness={}, factors={}, rollback={}",
                         k, risk.overall_risk_level, risk.deployment_readiness,
                         risk.risk_factors.len(), risk.rollback_difficulty).yellow(),
-                    _ => format!("✅ {}: risk={}, readiness={}, factors={}, rollback={}",
+                    _ => format!("{}: risk={}, readiness={}, factors={}, rollback={}",
                         k, risk.overall_risk_level, risk.deployment_readiness,
                         risk.risk_factors.len(), risk.rollback_difficulty).green(),
                 };
                 color
             }
             DiffResult::ArchitectureComparison(k, arch) => {
-                format!("🏗️ {}: type1={}, type2={}, depth={}→{}, differences={}, \"{}\"",
+                format!("{}: type1={}, type2={}, depth={}→{}, differences={}, \"{}\"",
                     k, arch.architecture_type_1, arch.architecture_type_2,
                     arch.layer_depth_comparison.0, arch.layer_depth_comparison.1,
                     arch.architectural_differences.len(), arch.recommendation).bright_magenta()
             }
             DiffResult::ParamEfficiencyAnalysis(k, efficiency) => {
-                format!("⚡ {}: efficiency_ratio={:.4}, utilization={:.2}, pruning_potential={:.2}, category={}, bottlenecks={}, \"{}\"",
+                format!("{}: efficiency_ratio={:.4}, utilization={:.2}, pruning_potential={:.2}, category={}, bottlenecks={}, \"{}\"",
                     k, efficiency.efficiency_ratio, efficiency.parameter_utilization,
                     efficiency.pruning_potential, efficiency.efficiency_category,
                     efficiency.efficiency_bottlenecks.len(), efficiency.model_scaling_recommendation).bright_yellow()
             }
             DiffResult::HyperparameterImpact(k, hyper) => {
-                format!("🎛️ {}: lr_impact={:.4}, batch_impact={:.4}, convergence={:.4}, performance={:.4}",
+                format!("{}: lr_impact={:.4}, batch_impact={:.4}, convergence={:.4}, performance={:.4}",
                     k, hyper.learning_rate_impact, hyper.batch_size_impact,
                     hyper.convergence_impact, hyper.performance_prediction).bright_cyan()
             }
             DiffResult::LearningRateAnalysis(k, lr) => {
-                format!("📈 {}: current_lr={:.6}, schedule={}, effectiveness={:.4}, stability_impact={:.4}, \"{}\"",
+                format!("{}: current_lr={:.6}, schedule={}, effectiveness={:.4}, stability_impact={:.4}, \"{}\"",
                     k, lr.current_lr, lr.lr_schedule_type,
                     lr.lr_effectiveness, lr.stability_impact, lr.schedule_optimization).bright_green()
             }
             DiffResult::DeploymentReadiness(k, deploy) => {
                 let color = match deploy.deployment_strategy.as_str() {
-                    "hold" => format!("🛑 {}: readiness={:.2}, strategy={}, risk={}, blockers={}, rollback={}",
+                    "hold" => format!("[HOLD] {}: readiness={:.2}, strategy={}, risk={}, blockers={}, rollback={}",
                         k, deploy.readiness_score, deploy.deployment_strategy,
                         deploy.risk_level, deploy.deployment_blockers.len(),
                         deploy.rollback_plan_quality).red(),
-                    "gradual" => format!("⚠️ {}: readiness={:.2}, strategy={}, risk={}, prerequisites={}, scalability={}",
+                    "gradual" => format!("[GRADUAL] {}: readiness={:.2}, strategy={}, risk={}, prerequisites={}, scalability={}",
                         k, deploy.readiness_score, deploy.deployment_strategy,
                         deploy.risk_level, deploy.prerequisites.len(),
                         deploy.scalability_assessment).yellow(),
-                    _ => format!("✅ {}: readiness={:.2}, strategy={}, risk={}, timeline={}",
+                    _ => format!("{}: readiness={:.2}, strategy={}, risk={}, timeline={}",
                         k, deploy.readiness_score, deploy.deployment_strategy,
                         deploy.risk_level, deploy.deployment_timeline).green(),
                 };
                 color
             }
             DiffResult::PerformanceImpactEstimate(k, perf) => {
-                format!("🚀 {}: latency_change={:.2}%, throughput_change={:.2}%, memory_change={:.2}%, category={}, confidence={:.4}",
+                format!("{}: latency_change={:.2}%, throughput_change={:.2}%, memory_change={:.2}%, category={}, confidence={:.4}",
                     k, perf.latency_change_estimate, perf.throughput_change_estimate,
                     perf.memory_usage_change, perf.performance_category,
                     perf.impact_confidence).bright_purple()
             }
             DiffResult::GenerateReport(k, report) => {
-                format!("📄 {}: type=\"{}\", findings={}, recommendations={}, confidence={:.2}",
+                format!("{}: type=\"{}\", findings={}, recommendations={}, confidence={:.2}",
                     k, report.report_type, report.key_findings.len(),
                     report.recommendations.len(), report.confidence_level).bright_blue()
             }
             DiffResult::MarkdownOutput(k, markdown) => {
-                format!("📋 {}: sections={}, tables={}, charts={}, length={} chars",
+                format!("{}: sections={}, tables={}, charts={}, length={} chars",
                     k, markdown.sections.len(), markdown.tables.len(),
                     markdown.charts.len(), markdown.markdown_content.len()).blue()
             }
             DiffResult::IncludeCharts(k, chart) => {
-                format!("📊 {}: types={}, data_points={}, library={}, complexity={}",
+                format!("{}: types={}, data_points={}, library={}, complexity={}",
                     k, chart.chart_types.len(), chart.data_points,
                     chart.chart_library, chart.chart_complexity).cyan()
             }
             DiffResult::EmbeddingAnalysis(k, embed) => {
-                format!("🧬 {}: dim_change={}→{}, semantic_drift={:.4}, similarity_preservation={:.4}, clustering_stability={:.4}",
+                format!("{}: dim_change={}→{}, semantic_drift={:.4}, similarity_preservation={:.4}, clustering_stability={:.4}",
                     k, embed.embedding_dimension_change.0, embed.embedding_dimension_change.1,
                     embed.semantic_drift, embed.similarity_preservation, embed.clustering_stability).purple()
             }
             DiffResult::SimilarityMatrix(k, sim) => {
-                format!("🔗 {}: matrix_dims={}x{}, clustering_coeff={:.4}, sparsity={:.4}, outliers={}, metric={}",
+                format!("{}: matrix_dims={}x{}, clustering_coeff={:.4}, sparsity={:.4}, outliers={}, metric={}",
                     k, sim.matrix_dimensions.0, sim.matrix_dimensions.1, sim.clustering_coefficient,
                     sim.matrix_sparsity, sim.outlier_detection.len(), sim.distance_metric).bright_purple()
             }
             DiffResult::ClusteringChange(k, cluster) => {
-                format!("🎯 {}: clusters={}→{}, stability={:.4}, migrated={}, new={}, dissolved={}, \"{}\"",
+                format!("{}: clusters={}→{}, stability={:.4}, migrated={}, new={}, dissolved={}, \"{}\"",
                     k, cluster.cluster_count_change.0, cluster.cluster_count_change.1, cluster.cluster_stability,
                     cluster.cluster_count_change.0, cluster.cluster_count_change.1,
                     cluster.optimal_cluster_count, cluster.clustering_recommendation).magenta()
             }
             DiffResult::AttentionAnalysis(k, attention) => {
-                format!("👁️ {}: layers={}, pattern_changes={}, focus_shift={}, \"{}\"",
+                format!("{}: layers={}, pattern_changes={}, focus_shift={}, \"{}\"",
                     k, attention.attention_head_count, attention.attention_pattern_changes.len(),
                     attention.pattern_consistency, attention.pattern_interpretability).bright_red()
             }
             DiffResult::HeadImportance(k, head) => {
-                format!("🎭 {}: important_heads={}, prunable_heads={}, specializations={}",
+                format!("{}: important_heads={}, prunable_heads={}, specializations={}",
                     k, head.critical_heads.len(), head.prunable_heads.len(),
                     head.head_rankings.len()).red()
             }
             DiffResult::AttentionPatternDiff(k, pattern) => {
-                format!("🔍 {}: pattern={}→{}, similarity={:.4}, span_change={:.4}, \"{}\"",
+                format!("{}: pattern={}→{}, similarity={:.4}, span_change={:.4}, \"{}\"",
                     k, pattern.pattern_evolution, pattern.attention_shift_analysis, pattern.pattern_similarity,
                     pattern.attention_focus_changes.len(), pattern.pattern_recommendation).bright_cyan()
             }
@@ -778,32 +778,32 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
                     k, stats.shape, stats.dtype, stats.total_params).red()
             }
             DiffResult::QuantizationAnalysis(k, quant) => {
-                format!("📉 {}: compression={:.1}%, speedup={:.1}x, precision_loss={:.1}%, suitability={} (quantization)",
+                format!("{}: compression={:.1}%, speedup={:.1}x, precision_loss={:.1}%, suitability={} (quantization)",
                     k, quant.compression_ratio * 100.0, quant.estimated_speedup,
                     quant.precision_loss_estimate * 100.0, quant.deployment_suitability).bright_blue()
             }
             DiffResult::TransferLearningAnalysis(k, transfer) => {
-                format!("🎯 {}: frozen={}/{}, updated_params={:.1}%, adaptation={}, efficiency={:.2} (transfer_learning)",
+                format!("{}: frozen={}/{}, updated_params={:.1}%, adaptation={}, efficiency={:.2} (transfer_learning)",
                     k, transfer.frozen_layers, transfer.updated_layers,
                     transfer.parameter_update_ratio * 100.0, transfer.domain_adaptation_strength,
                     transfer.transfer_efficiency_score).green()
             }
             DiffResult::ExperimentReproducibility(k, experiment) => {
                 let color = match experiment.reproducibility_score {
-                    x if x > 0.8 => format!("🔬 {}: score={:.2}, critical_changes={}, determinism={} (reproducibility)",
+                    x if x > 0.8 => format!("{}: score={:.2}, critical_changes={}, determinism={} (reproducibility)",
                         k, experiment.reproducibility_score, experiment.critical_changes.len(),
                         experiment.reproducibility_score).green(),
-                    x if x > 0.5 => format!("🔬 {}: score={:.2}, critical_changes={}, determinism={} (reproducibility)",
+                    x if x > 0.5 => format!("{}: score={:.2}, critical_changes={}, determinism={} (reproducibility)",
                         k, experiment.reproducibility_score, experiment.critical_changes.len(),
                         experiment.reproducibility_score).yellow(),
-                    _ => format!("🔬 {}: score={:.2}, critical_changes={}, determinism={} (reproducibility)",
+                    _ => format!("{}: score={:.2}, critical_changes={}, determinism={} (reproducibility)",
                         k, experiment.reproducibility_score, experiment.critical_changes.len(),
                         experiment.reproducibility_score).red(),
                 };
                 color
             }
             DiffResult::EnsembleAnalysis(k, ensemble) => {
-                format!("🎭 {}: models={}, diversity={:.2}, efficiency={:.2}x, redundancy={} (ensemble)",
+                format!("{}: models={}, diversity={:.2}, efficiency={:.2}x, redundancy={} (ensemble)",
                     k, ensemble.model_count, ensemble.diversity_score,
                     ensemble.ensemble_efficiency, ensemble.optimal_subset.len()).magenta()
             }
