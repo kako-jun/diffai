@@ -148,7 +148,6 @@ fn test_error_handling_invalid_model_file() {
     let result = diff_ml_models(
         Path::new("nonexistent_file.safetensors"),
         Path::new("another_nonexistent_file.safetensors"),
-        None,
     );
     assert!(result.is_err());
 }
@@ -159,7 +158,6 @@ fn test_error_handling_invalid_diff() {
     let result = diff_ml_models(
         Path::new("nonexistent1.safetensors"),
         Path::new("nonexistent2.safetensors"),
-        None,
     );
     assert!(result.is_err());
 }
@@ -246,7 +244,7 @@ fn test_pytorch_vs_safetensors_comparison() {
                 );
 
                 // Check that tensor names match
-                for (name, _) in &pytorch_tensors {
+                for name in pytorch_tensors.keys() {
                     assert!(
                         safetensors_tensors.contains_key(name),
                         "Safetensors should contain tensor: {}",
@@ -269,7 +267,7 @@ fn test_pytorch_model_diff() {
     let model2_path = Path::new("tests/fixtures/ml_models/simple_modified.pt");
 
     if model1_path.exists() && model2_path.exists() {
-        let result = diff_ml_models(model1_path, model2_path, None);
+        let result = diff_ml_models(model1_path, model2_path);
 
         match result {
             Ok(diff_results) => {
@@ -340,46 +338,34 @@ fn test_transfer_learning_info() {
     let transfer_info = TransferLearningInfo {
         frozen_layers: 8,
         updated_layers: 2,
-        total_layers: 10,
         parameter_update_ratio: 0.3,
-        layer_learning_intensity: vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8, 0.9],
+        layer_adaptation_strength: vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8, 0.9],
         domain_adaptation_strength: "moderate".to_string(),
-        feature_extraction_vs_finetuning: "fine-tuning".to_string(),
-        most_adapted_layers: vec!["layer8".to_string(), "layer9".to_string()],
         transfer_efficiency_score: 0.85,
-        overfitting_risk: "low".to_string(),
+        learning_strategy: "fine-tuning".to_string(),
+        convergence_acceleration: 2.5,
+        knowledge_preservation: 0.9,
     };
 
     // Test basic properties
     assert_eq!(transfer_info.frozen_layers, 8);
     assert_eq!(transfer_info.updated_layers, 2);
-    assert_eq!(transfer_info.total_layers, 10);
     assert_eq!(transfer_info.parameter_update_ratio, 0.3);
     assert_eq!(transfer_info.domain_adaptation_strength, "moderate");
-    assert_eq!(
-        transfer_info.feature_extraction_vs_finetuning,
-        "fine-tuning"
-    );
+    assert_eq!(transfer_info.learning_strategy, "fine-tuning");
 
-    // Test that layer counts are non-negative
-    assert!(transfer_info.frozen_layers >= 0);
-    assert!(transfer_info.updated_layers >= 0);
+    // Test that layer counts are non-negative (usize is always >= 0)
+    // These assertions are kept for documentation purposes
 
     // Test that parameter update ratio is reasonable (0-1)
     assert!(
         transfer_info.parameter_update_ratio >= 0.0 && transfer_info.parameter_update_ratio <= 1.0
     );
 
-    // Test total layers calculation
+    // Test layer adaptation strength vector
     assert_eq!(
-        transfer_info.frozen_layers + transfer_info.updated_layers,
-        transfer_info.total_layers
-    );
-
-    // Test layer intensity vector
-    assert_eq!(
-        transfer_info.layer_learning_intensity.len(),
-        transfer_info.total_layers
+        transfer_info.layer_adaptation_strength.len(),
+        transfer_info.frozen_layers + transfer_info.updated_layers
     );
 }
 
@@ -387,36 +373,35 @@ fn test_transfer_learning_info() {
 fn test_experiment_reproducibility_info() {
     // Test ExperimentReproducibilityInfo data structure
     let repro_info = ExperimentReproducibilityInfo {
-        hyperparameter_changes: vec![
+        config_changes: vec![
             "learning_rate: 0.001 -> 0.002".to_string(),
             "batch_size: 32 -> 64".to_string(),
         ],
         critical_changes: vec!["learning_rate: 0.001 -> 0.002".to_string()],
-        environment_diffs: vec!["cuda_version: 11.8 -> 12.0".to_string()],
+        hyperparameter_drift: 0.2,
+        environment_consistency: 0.9,
+        seed_management: "deterministic".to_string(),
         reproducibility_score: 0.85,
         risk_factors: vec!["learning_rate_change".to_string()],
-        seed_consistency: "consistent".to_string(),
-        data_versioning: "same".to_string(),
-        model_determinism: "deterministic".to_string(),
-        reproduction_recommendation: "verify learning rate impact".to_string(),
+        reproduction_difficulty: "moderate".to_string(),
+        documentation_quality: 0.8,
     };
 
     // Test basic properties
-    assert_eq!(repro_info.hyperparameter_changes.len(), 2);
+    assert_eq!(repro_info.config_changes.len(), 2);
     assert_eq!(repro_info.critical_changes.len(), 1);
     assert_eq!(repro_info.reproducibility_score, 0.85);
-    assert_eq!(repro_info.seed_consistency, "consistent");
-    assert_eq!(repro_info.data_versioning, "same");
+    assert_eq!(repro_info.seed_management, "deterministic");
 
     // Test that scores are in valid range (0-1)
     assert!(repro_info.reproducibility_score >= 0.0 && repro_info.reproducibility_score <= 1.0);
 
     // Test that change vectors are initialized
-    assert!(!repro_info.hyperparameter_changes.is_empty());
+    assert!(!repro_info.config_changes.is_empty());
     assert!(!repro_info.critical_changes.is_empty());
 
-    // Test that critical changes <= hyperparameter changes
-    assert!(repro_info.critical_changes.len() <= repro_info.hyperparameter_changes.len());
+    // Test that critical changes <= config changes
+    assert!(repro_info.critical_changes.len() <= repro_info.config_changes.len());
 }
 
 #[test]
@@ -430,23 +415,23 @@ fn test_ensemble_analysis_info() {
             vec![0.3, 1.0, 0.4],
             vec![0.2, 0.4, 1.0],
         ],
-        complementarity_analysis: "high".to_string(),
         ensemble_efficiency: 0.88,
-        redundancy_detection: vec![],
+        redundancy_analysis: "no redundancy detected".to_string(),
         optimal_subset: vec![
             "model1".to_string(),
             "model2".to_string(),
             "model3".to_string(),
         ],
         weighting_strategy: "performance".to_string(),
-        ensemble_recommendation: "use all models".to_string(),
+        ensemble_stability: 0.85,
+        computational_overhead: 3.0,
     };
 
     // Test basic properties
     assert_eq!(ensemble_info.model_count, 3);
     assert_eq!(ensemble_info.diversity_score, 0.72);
     assert_eq!(ensemble_info.ensemble_efficiency, 0.88);
-    assert_eq!(ensemble_info.complementarity_analysis, "high");
+    assert_eq!(ensemble_info.redundancy_analysis, "no redundancy detected");
     assert_eq!(ensemble_info.weighting_strategy, "performance");
 
     // Test correlation matrix dimensions
@@ -467,8 +452,8 @@ fn test_ensemble_analysis_info() {
     // Test that model count is positive
     assert!(ensemble_info.model_count > 0);
 
-    // Test recommendations
-    assert!(!ensemble_info.ensemble_recommendation.is_empty());
+    // Test that optimal subset is not empty
+    assert!(!ensemble_info.optimal_subset.is_empty());
 }
 
 #[test]
@@ -520,42 +505,38 @@ fn test_transfer_learning_edge_cases() {
     let full_finetune = TransferLearningInfo {
         frozen_layers: 0,
         updated_layers: 12,
-        total_layers: 12,
         parameter_update_ratio: 1.0,
-        layer_learning_intensity: vec![0.9; 12],
+        layer_adaptation_strength: vec![0.9; 12],
         domain_adaptation_strength: "strong".to_string(),
-        feature_extraction_vs_finetuning: "full-training".to_string(),
-        most_adapted_layers: (0..12).map(|i| format!("layer{}", i)).collect(),
         transfer_efficiency_score: 0.95,
-        overfitting_risk: "high".to_string(),
+        learning_strategy: "full-training".to_string(),
+        convergence_acceleration: 1.2,
+        knowledge_preservation: 0.3,
     };
 
     assert_eq!(full_finetune.frozen_layers, 0);
     assert!(full_finetune.updated_layers > 0);
     assert_eq!(full_finetune.parameter_update_ratio, 1.0);
     assert_eq!(full_finetune.domain_adaptation_strength, "strong");
-    assert_eq!(full_finetune.overfitting_risk, "high");
 
     // Test minimal adaptation (most layers frozen)
     let minimal_adapt = TransferLearningInfo {
         frozen_layers: 11,
         updated_layers: 1,
-        total_layers: 12,
         parameter_update_ratio: 0.05,
-        layer_learning_intensity: {
+        layer_adaptation_strength: {
             let mut intensity = vec![0.0; 11];
             intensity.push(0.8); // Only last layer adapted
             intensity
         },
         domain_adaptation_strength: "weak".to_string(),
-        feature_extraction_vs_finetuning: "feature-extraction".to_string(),
-        most_adapted_layers: vec!["layer11".to_string()],
         transfer_efficiency_score: 0.65,
-        overfitting_risk: "low".to_string(),
+        learning_strategy: "feature-extraction".to_string(),
+        convergence_acceleration: 3.2,
+        knowledge_preservation: 0.95,
     };
 
     assert!(minimal_adapt.frozen_layers > minimal_adapt.updated_layers);
     assert!(minimal_adapt.parameter_update_ratio < 0.1);
     assert_eq!(minimal_adapt.domain_adaptation_strength, "weak");
-    assert_eq!(minimal_adapt.overfitting_risk, "low");
 }
