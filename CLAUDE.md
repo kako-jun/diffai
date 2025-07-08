@@ -151,6 +151,20 @@ diffai real_models_test/distilbert_base/model.safetensors \
 - **Python/Node.js bindings**: 多言語対応
 - **可視化機能**: グラフ・チャート生成
 
+## 🎯 開発方針
+
+### 📋 実装仕様
+**開発の指針は README.md の「Comparison Strategy & Supported Formats」セクションを参照**
+- 3つの処理戦略（MLモデル・科学データ・構造化データ）
+- 各フォーマットの対応状況と実装優先度
+- 巨大ファイル処理戦略
+
+### 🚀 今後の開発
+README.mdに記載された仕様に従って段階的に実装:
+1. **Phase 2**: Scientific Data Support (NumPy, HDF5, MATLAB)
+2. **Phase 3**: ML Framework Expansion (TensorFlow, ONNX)  
+3. **Phase 4**: MLOps Integration (HuggingFace, MLflow)
+
 ---
 
 # 🔧 開発・貢献ガイド
