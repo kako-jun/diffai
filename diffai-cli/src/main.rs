@@ -323,6 +323,8 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
             DiffResult::AttentionAnalysis(k, _) => k.clone(),
             DiffResult::HeadImportance(k, _) => k.clone(),
             DiffResult::AttentionPatternDiff(k, _) => k.clone(),
+            DiffResult::TensorAdded(k, _) => k.clone(),
+            DiffResult::TensorRemoved(k, _) => k.clone(),
         }
     };
 
@@ -482,6 +484,14 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
             DiffResult::AttentionPatternDiff(_, pattern) => {
                 // Use pattern similarity (inverted) as magnitude
                 1.0 - pattern.pattern_similarity
+            }
+            DiffResult::TensorAdded(_, stats) => {
+                // Use tensor parameter count as magnitude (normalized)
+                (stats.total_params as f64).log10().max(0.0)
+            }
+            DiffResult::TensorRemoved(_, stats) => {
+                // Use tensor parameter count as magnitude (normalized)
+                (stats.total_params as f64).log10().max(0.0)
             }
             _ => 0.0, // Non-ML changes have no magnitude
         }
@@ -754,6 +764,14 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
                     k, pattern.pattern_type_1, pattern.pattern_type_2, pattern.pattern_similarity,
                     pattern.attention_span_change, pattern.pattern_change_summary).bright_cyan()
             }
+            DiffResult::TensorAdded(k, stats) => {
+                format!("+ {}: shape={:?}, dtype={}, params={} (tensor_added)",
+                    k, stats.shape, stats.dtype, stats.total_params).green()
+            }
+            DiffResult::TensorRemoved(k, stats) => {
+                format!("- {}: shape={:?}, dtype={}, params={} (tensor_removed)",
+                    k, stats.shape, stats.dtype, stats.total_params).red()
+            }
         };
 
         println!("{}{}", indent, diff_str);
@@ -868,6 +886,12 @@ fn print_yaml_output(differences: Vec<DiffResult>) -> Result<()> {
             }),
             DiffResult::AttentionPatternDiff(key, pattern) => serde_json::json!({
                 "AttentionPatternDiff": [key, pattern]
+            }),
+            DiffResult::TensorAdded(key, stats) => serde_json::json!({
+                "TensorAdded": [key, stats]
+            }),
+            DiffResult::TensorRemoved(key, stats) => serde_json::json!({
+                "TensorRemoved": [key, stats]
             }),
         })
         .collect();
@@ -1057,6 +1081,8 @@ fn main() -> Result<()> {
                 DiffResult::AttentionAnalysis(k, _) => k,
                 DiffResult::HeadImportance(k, _) => k,
                 DiffResult::AttentionPatternDiff(k, _) => k,
+                DiffResult::TensorAdded(k, _) => k,
+                DiffResult::TensorRemoved(k, _) => k,
             };
             key.starts_with(&filter_path)
         });
@@ -1181,6 +1207,8 @@ fn compare_directories(
                             DiffResult::AttentionAnalysis(k, _) => k,
                             DiffResult::HeadImportance(k, _) => k,
                             DiffResult::AttentionPatternDiff(k, _) => k,
+                            DiffResult::TensorAdded(k, _) => k,
+                            DiffResult::TensorRemoved(k, _) => k,
                         };
                         key.starts_with(filter_path_str)
                     });

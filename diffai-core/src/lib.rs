@@ -11,6 +11,7 @@ use csv::ReaderBuilder;
 use quick_xml::de::from_str;
 // AI/ML dependencies
 use candle_core::Device;
+use candle_core::pickle::read_all;
 use safetensors::SafeTensors;
 
 #[derive(Debug, PartialEq, Serialize)]
@@ -22,6 +23,8 @@ pub enum DiffResult {
     // AI/ML specific diff results
     TensorShapeChanged(String, Vec<usize>, Vec<usize>),
     TensorStatsChanged(String, TensorStats, TensorStats),
+    TensorAdded(String, TensorStats),
+    TensorRemoved(String, TensorStats),
     ModelArchitectureChanged(String, ModelInfo, ModelInfo),
     // Learning progress analysis
     LearningProgress(String, LearningProgressInfo),
@@ -822,15 +825,46 @@ pub fn parse_pytorch_model(file_path: &Path) -> Result<HashMap<String, TensorSta
         }
     }
 
-    // If safetensors parsing fails, the file is likely in PyTorch pickle format
-    // For now, provide a more informative error message suggesting conversion
-    Err(anyhow!(
-        "Failed to parse file {}: Only Safetensors format is fully supported. \
-        PyTorch (.pt/.pth) files are not yet fully implemented. \
-        Please convert your PyTorch model to Safetensors format using: \
-        `torch.save(model.state_dict(), 'model.safetensors')`",
-        file_path.display()
-    ))
+    // If safetensors parsing fails, try to load as PyTorch pickle format
+    match read_all(file_path) {
+        Ok(pth_tensors) => {
+            // Process PyTorch tensors using candle_core::pickle
+            for (name, tensor) in pth_tensors {
+                let shape: Vec<usize> = tensor.shape().dims().to_vec();
+                let dtype = match tensor.dtype() {
+                    candle_core::DType::F32 => "f32".to_string(),
+                    candle_core::DType::F64 => "f64".to_string(),
+                    candle_core::DType::I64 => "i64".to_string(),
+                    candle_core::DType::U32 => "u32".to_string(),
+                    candle_core::DType::U8 => "u8".to_string(),
+                    candle_core::DType::F16 => "f16".to_string(),
+                    candle_core::DType::BF16 => "bf16".to_string(),
+                };
+
+                let total_params = shape.iter().product();
+                let (mean, std, min, max) = calculate_pytorch_tensor_stats(&tensor)?;
+
+                let stats = TensorStats {
+                    mean,
+                    std,
+                    min,
+                    max,
+                    shape,
+                    dtype,
+                    total_params,
+                };
+
+                model_tensors.insert(name, stats);
+            }
+            Ok(model_tensors)
+        }
+        Err(e) => Err(anyhow!(
+            "Failed to parse file {}: Unable to read as either Safetensors or PyTorch format. \
+            Error: {}. Please ensure the file is a valid model file.",
+            file_path.display(),
+            e
+        ))
+    }
 }
 
 /// Parse a Safetensors file (.safetensors) and extract tensor information  
@@ -2424,6 +2458,34 @@ fn calculate_safetensors_stats(
         _ => {
             // For other data types, return zero stats
             (0.0, 0.0, 0.0, 0.0)
+        }
+    }
+}
+
+/// Calculate statistics for a PyTorch tensor using candle_core::Tensor
+fn calculate_pytorch_tensor_stats(tensor: &candle_core::Tensor) -> Result<(f64, f64, f64, f64)> {
+    match tensor.dtype() {
+        candle_core::DType::F32 => {
+            let data = tensor.to_vec1::<f32>()?;
+            Ok(calculate_f32_stats(&data))
+        }
+        candle_core::DType::F64 => {
+            let data = tensor.to_vec1::<f64>()?;
+            Ok(calculate_f64_stats(&data))
+        }
+        candle_core::DType::F16 => {
+            // Convert F16 to F32 for calculations
+            let data = tensor.to_dtype(candle_core::DType::F32)?.to_vec1::<f32>()?;
+            Ok(calculate_f32_stats(&data))
+        }
+        candle_core::DType::BF16 => {
+            // Convert BF16 to F32 for calculations
+            let data = tensor.to_dtype(candle_core::DType::F32)?.to_vec1::<f32>()?;
+            Ok(calculate_f32_stats(&data))
+        }
+        _ => {
+            // For other data types (integers, etc.), return zero stats
+            Ok((0.0, 0.0, 0.0, 0.0))
         }
     }
 }
