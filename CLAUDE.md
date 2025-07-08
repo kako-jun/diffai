@@ -148,36 +148,37 @@ diffai real_models_test/distilbert_base/model.safetensors \
 
 # 📅 最新の改善履歴
 
-## 2025-01-08: diffx-core統合とコード重複削除 ✅
+## 2025-01-08: diffx-core統合とアーキテクチャ改善 ✅
 
-### 🎯 課題解決
-1. **400+行の重複コード削除**: diffaiの基本的なdiff機能をdiffx-coreに完全移行
-2. **diffx CLIとの統合**: 高度な機能（epsilon、ignore_keys_regex、array_id_key）をdiffx CLIで処理
-3. **コードベース簡素化**: diffaiをAI/ML特化機能に集中
+### 🎯 課題解決（重要なアーキテクチャ改善）
+1. **外部CLI依存除去**: diffx CLIが全環境にインストールされている前提の処理を修正
+2. **レガシー実装削除**: まだ利用者のいない後方互換性コードの削除
+3. **再エクスポート整理**: 不要なvalue_type_name再エクスポートの見直し
 
 ### ✅ 実装内容
-- **重複削除**: `diff()`, `diff_objects()`, `diff_arrays()`, `values_are_equal()` の400+行を削除
-- **diffx-core統合**: 基本比較をdiffx-coreライブラリで実行
-- **diffx CLI統合**: 高度機能でdiffx CLIを自動呼び出し
-- **後方互換性**: 単体テスト用レガシー実装を保持
-- **value_type_name統合**: diffx-coreの関数を再エクスポート
+- **完全独立化**: diffx CLIへの外部依存を完全除去、どの環境でも動作
+- **diffx-core直接利用**: ライブラリレベルでの統合に変更
+- **レガシーコード削除**: 400+行の旧diff実装を完全削除
+- **クリーンアーキテクチャ**: 
+  - 基本比較: diffx-coreライブラリを直接使用
+  - 高度機能: epsilon、ignore_keys_regex、array_id_keyをdiffai内で直接実装
+- **依存関係整理**: value_type_name再エクスポートを削除、CLI側で直接インポート
 
 ### 🎉 検証結果
 ```bash
-# 統合テスト: 46/47 テスト成功 (diffx CLI統合確認済み)
-cargo test integration
+# コア機能テスト: diffx-core統合確認
+cargo test -p diffai-core  # ✅ 全テスト成功
 
-# CLIテスト: array_id_key, epsilon, ignore_keys_regex 全て動作
-./target/release/diffai users1.json users2.json --array-id-key id
-# ✅ [id=1].age: 25 -> 26  (diffx CLI経由で正常動作)
-
-./target/release/diffai data1.json data2.json --epsilon 0.00001
-# ✅ No differences found.  (epsilon処理成功)
+# アーキテクチャ改善確認
+- 外部CLI呼び出し除去: Command::new("diffx") → diffx_core::diff()
+- 移植性向上: 任意の環境でdiffaiが単独動作可能
+- 保守性向上: 外部ツール前提なし、内部実装で完結
 ```
 
-- ✅ **コードベース30%削減**: 3819行 → 3400行程度に削減
-- ✅ **diffx統合成功**: CLI呼び出しで高度機能を完全サポート  
+- ✅ **移植性向上**: diffx未インストール環境でも完全動作
+- ✅ **アーキテクチャ改善**: 外部依存なしのクリーンな実装  
 - ✅ **AI/ML機能維持**: 17の分析機能は全て保持・動作確認
+- ✅ **コードベース整理**: 重複削除とレガシー実装除去完了
 
 ## 2025-01-08: PyTorch完全サポート実装 ✅
 
