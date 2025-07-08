@@ -5,8 +5,9 @@ use clap::{Parser, ValueEnum};
 use colored::*;
 use diffai_core::{
     diff, diff_ml_models, diff_ml_models_enhanced, parse_csv, parse_ini, parse_xml,
-    value_type_name, DiffResult,
+    DiffResult,
 };
+use diffx_core::value_type_name;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -765,24 +766,24 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
             }
             DiffResult::ClusteringChange(k, cluster) => {
                 format!("🎯 {}: clusters={}→{}, stability={:.4}, migrated={}, new={}, dissolved={}, \"{}\"",
-                    k, cluster.clusters_before, cluster.clusters_after, cluster.cluster_stability,
-                    cluster.migrated_entities.len(), cluster.new_clusters.len(),
-                    cluster.dissolved_clusters.len(), cluster.clustering_recommendation).magenta()
+                    k, cluster.cluster_count_change.0, cluster.cluster_count_change.1, cluster.cluster_stability,
+                    cluster.cluster_count_change.0, cluster.cluster_count_change.1,
+                    cluster.optimal_cluster_count, cluster.clustering_recommendation).magenta()
             }
             DiffResult::AttentionAnalysis(k, attention) => {
                 format!("👁️ {}: layers={}, pattern_changes={}, focus_shift={}, \"{}\"",
-                    k, attention.attention_layers.len(), attention.attention_pattern_changes.len(),
-                    attention.attention_focus_shift, attention.attention_recommendation).bright_red()
+                    k, attention.attention_head_count, attention.attention_pattern_changes.len(),
+                    attention.pattern_consistency, attention.pattern_interpretability).bright_red()
             }
             DiffResult::HeadImportance(k, head) => {
                 format!("🎭 {}: important_heads={}, prunable_heads={}, specializations={}",
-                    k, head.most_important_heads.len(), head.prunable_heads.len(),
-                    head.head_specialization.len()).red()
+                    k, head.critical_heads.len(), head.prunable_heads.len(),
+                    head.head_rankings.len()).red()
             }
             DiffResult::AttentionPatternDiff(k, pattern) => {
                 format!("🔍 {}: pattern={}→{}, similarity={:.4}, span_change={:.4}, \"{}\"",
-                    k, pattern.pattern_type_1, pattern.pattern_type_2, pattern.pattern_similarity,
-                    pattern.attention_span_change, pattern.pattern_change_summary).bright_cyan()
+                    k, pattern.pattern_evolution, pattern.attention_shift_analysis, pattern.pattern_similarity,
+                    pattern.attention_focus_changes.len(), pattern.pattern_recommendation).bright_cyan()
             }
             DiffResult::TensorAdded(k, stats) => {
                 format!("+ {}: shape={:?}, dtype={}, params={} (tensor_added)",
@@ -799,7 +800,7 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
             }
             DiffResult::TransferLearningAnalysis(k, transfer) => {
                 format!("🎯 {}: frozen={}/{}, updated_params={:.1}%, adaptation={}, efficiency={:.2} (transfer_learning)",
-                    k, transfer.frozen_layers, transfer.total_layers, 
+                    k, transfer.frozen_layers, transfer.updated_layers, 
                     transfer.parameter_update_ratio * 100.0, transfer.domain_adaptation_strength,
                     transfer.transfer_efficiency_score).green()
             }
@@ -807,20 +808,20 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
                 let color = match experiment.reproducibility_score {
                     x if x > 0.8 => format!("🔬 {}: score={:.2}, critical_changes={}, determinism={} (reproducibility)",
                         k, experiment.reproducibility_score, experiment.critical_changes.len(),
-                        experiment.model_determinism).green(),
+                        experiment.reproducibility_score).green(),
                     x if x > 0.5 => format!("🔬 {}: score={:.2}, critical_changes={}, determinism={} (reproducibility)",
                         k, experiment.reproducibility_score, experiment.critical_changes.len(),
-                        experiment.model_determinism).yellow(),
+                        experiment.reproducibility_score).yellow(),
                     _ => format!("🔬 {}: score={:.2}, critical_changes={}, determinism={} (reproducibility)",
                         k, experiment.reproducibility_score, experiment.critical_changes.len(),
-                        experiment.model_determinism).red(),
+                        experiment.reproducibility_score).red(),
                 };
                 color
             }
             DiffResult::EnsembleAnalysis(k, ensemble) => {
                 format!("🎭 {}: models={}, diversity={:.2}, efficiency={:.2}x, redundancy={} (ensemble)",
                     k, ensemble.model_count, ensemble.diversity_score, 
-                    ensemble.ensemble_efficiency, ensemble.redundancy_detection.len()).magenta()
+                    ensemble.ensemble_efficiency, ensemble.optimal_subset.len()).magenta()
             }
         };
 
@@ -1061,7 +1062,7 @@ fn main() -> Result<()> {
                 diff_ml_models_enhanced(
                     &args.input1,
                     &args.input2,
-                    epsilon,
+                    epsilon.is_some(),
                     args.show_layer_impact,
                     args.quantization_analysis,
                     args.stats,
@@ -1094,7 +1095,7 @@ fn main() -> Result<()> {
                 )?
             } else {
                 // Use basic ML comparison for backward compatibility
-                diff_ml_models(&args.input1, &args.input2, epsilon)?
+                diff_ml_models(&args.input1, &args.input2)?
             }
         }
         _ => {
