@@ -1,417 +1,333 @@
 # diffai
 
-> **🤖 AI/ML specialized diff tool - Focus on model changes, not formatting noise**
-
-[English README](README.md) | [日本語版 README](README_ja.md)
+> **AI/ML specialized diff tool for PyTorch, Safetensors, NumPy, and MATLAB files**
 
 [![CI](https://github.com/kako-jun/diffai/actions/workflows/ci.yml/badge.svg)](https://github.com/kako-jun/diffai/actions/workflows/ci.yml)
 [![Crates.io](https://img.shields.io/crates/v/diffai.svg)](https://crates.io/crates/diffai)
 [![Documentation](https://img.shields.io/badge/docs-GitHub-blue)](https://github.com/kako-jun/diffai/tree/main/docs/index.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A next-generation diff tool specialized for **AI/ML workflows** that understands model structures, tensor statistics, and experiment data - not just text changes. Perfect for PyTorch, Safetensors, JSON configs, and structured data.
+A next-generation diff tool specialized for **AI/ML and scientific computing workflows** that understands model structures, tensor statistics, and numerical data - not just text changes. Native support for PyTorch, Safetensors, NumPy arrays, MATLAB files, and structured data.
 
 ```bash
-# Traditional diff can't understand model structure
+# Traditional diff fails with binary model files
 $ diff model_v1.safetensors model_v2.safetensors
 Binary files model_v1.safetensors and model_v2.safetensors differ
 
-# diffai shows semantic model changes
-$ diffai model_v1.safetensors model_v2.safetensors
-⬚ tensor.linear1.weight: [256, 128] -> [512, 128]
-📊 tensor.linear2.weight: mean=0.0012→0.0098, std=0.9987→1.0234
-+ tensor.new_layer.weight: shape=[64, 64], dtype=f32, params=4096
+# diffai shows meaningful model changes
+$ diffai model_v1.safetensors model_v2.safetensors --stats
+  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
+  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
+  ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
+  gradient_analysis: flow_health=healthy, norm=0.015000, ratio=1.0500
 ```
 
-## ✨ Key Features
+## Key Features
 
-- **🧠 AI/ML Specialized**: Native support for PyTorch (.pt/.pth) and Safetensors (.safetensors) models
-- **📊 Tensor Analysis**: Automatic calculation of tensor statistics (mean, std, min, max, shape)
-- **🔥 Advanced Analytics**: Layer impact analysis, quantization analysis, change magnitude sorting
-- **📈 ML Statistics**: Detailed model statistics with `--stats` flag
-- **🔧 Multiple Formats**: JSON, YAML, TOML, XML, INI, CSV support (inherited from diffx)
-- **🤖 MLOps Friendly**: Clean CLI output perfect for automation and CI/CD pipelines
-- **⚡ Fast**: Built in Rust for maximum performance with large model files
-- **🎯 Semantic Awareness**: Focuses on meaningful changes, ignores formatting noise
+- **AI/ML Native**: Direct support for PyTorch (.pt/.pth), Safetensors (.safetensors), NumPy (.npy/.npz), and MATLAB (.mat) files
+- **Tensor Analysis**: Automatic calculation of tensor statistics (mean, std, min, max, shape, memory usage)
+- **28 ML Analysis Functions**: Learning progress, convergence analysis, architecture comparison, deployment readiness, and more
+- **Scientific Data Support**: NumPy arrays and MATLAB matrices with complex number support
+- **Pure Rust Implementation**: No system dependencies, works on Windows/Linux/macOS without additional installations
+- **Multiple Output Formats**: Colored CLI, JSON for MLOps integration, YAML for human-readable reports
+- **Fast and Memory Efficient**: Built in Rust for handling large model files efficiently
 
-## 🚀 Why diffai over generic diff tools?
+## Why diffai?
 
-Traditional diff tools fail with AI/ML workflows:
+Traditional diff tools are inadequate for AI/ML workflows:
 
 | Challenge | Traditional Tools | diffai |
 |-----------|------------------|---------|
-| **Binary model files** | "Binary files differ" 🚫 | Tensor-level analysis ✅ |
-| **Large files (GB+)** | Memory issues 🚫 | Efficient streaming ✅ |
-| **Statistical changes** | No insight 🚫 | Mean/std/shape comparison ✅ |
-| **ML-specific formats** | No support 🚫 | Native PyTorch/Safetensors ✅ |
-| **Experiment tracking** | Manual work 🚫 | Automated analysis ✅ |
+| **Binary model files** | "Binary files differ" | Tensor-level analysis with statistics |
+| **Large files (GB+)** | Memory issues or failures | Efficient streaming and chunked processing |
+| **Statistical changes** | No semantic understanding | Mean/std/shape comparison with significance |
+| **ML-specific formats** | No support | Native PyTorch/Safetensors/NumPy/MATLAB |
+| **Scientific workflows** | Text-only comparison | Numerical array analysis and visualization |
 
-## 📊 Real-World Use Cases
+## Installation
 
-### 🔬 Model Development
-
-```bash
-# Compare before/after fine-tuning
-diffai pretrained_model.safetensors finetuned_model.safetensors
-
-# Analyze quantization impact
-diffai model_fp32.safetensors model_int8.safetensors --epsilon 0.01
-
-# Track training progress
-diffai checkpoint_epoch_10.pt checkpoint_epoch_20.pt
-```
-
-### 🚀 MLOps & Production
+### From crates.io (Recommended)
 
 ```bash
-# CI/CD model validation
-diffai production_model.safetensors candidate_model.safetensors --output json
-
-# A/B testing preparation
-diffai model_a.safetensors model_b.safetensors --output yaml > deployment_diff.yaml
-
-# Experiment configuration tracking
-diffai config_baseline.json config_optimized.json --ignore-keys-regex "^timestamp$"
-```
-
-### 📈 Research & Experimentation
-
-```bash
-# Architecture comparison
-diffai resnet_model.safetensors transformer_model.safetensors
-
-# Hyperparameter impact analysis
-diffai model_lr_001.safetensors model_lr_0001.safetensors
-
-# Data drift detection in model weights
-diffai model_dataset_v1.safetensors model_dataset_v2.safetensors
-```
-
-### 🔥 Advanced Analytics Features
-
-```bash
-# Layer-by-layer impact analysis
-diffai model_v1.safetensors model_v2.safetensors --show-layer-impact
-
-# Quantization analysis for model optimization
-diffai model_fp32.safetensors model_int8.safetensors --quantization-analysis
-
-# Sort changes by magnitude (biggest changes first)
-diffai model_before.safetensors model_after.safetensors --sort-by-change-magnitude
-
-# Detailed statistics and model analysis
-diffai model_v1.safetensors model_v2.safetensors --stats
-
-# Combined advanced analysis
-diffai model_v1.safetensors model_v2.safetensors --stats --show-layer-impact --sort-by-change-magnitude
-
-# Phase 2: Experiment Analysis
-diffai checkpoint_epoch_10.safetensors checkpoint_epoch_50.safetensors --learning-curve-analysis
-diffai model_baseline.safetensors model_modified.safetensors --hyperparameter-comparison
-diffai model_v1.safetensors model_v2.safetensors --statistical-significance
-```
-
-## 🏗️ Architecture
-
-### System Overview
-
-```mermaid
-graph TB
-    subgraph Core["diffai-core"]
-        B[Format Parsers]
-        C[Semantic Diff Engine]
-        D[ML Model Analyzer]
-        E[Output Formatters]
-        B --> C
-        D --> C
-        C --> E
-    end
-
-    F[CLI Tool] --> Core
-
-    subgraph Formats["Input Formats"]
-        H[PyTorch .pt/.pth]
-        I[Safetensors .safetensors]
-        J[JSON/YAML/TOML]
-        K[XML/INI/CSV]
-    end
-
-    Formats --> B
-    I --> D
-
-    subgraph Output["Output Formats"]
-        L[CLI Display with AI symbols]
-        M[JSON Output]
-        N[YAML Output]
-    end
-
-    E --> Output
-```
-
-### Project Structure
-
-```
-diffai/
-├── diffai-core/     # Core diff library with ML support
-├── diffai-cli/      # CLI wrapper
-├── tests/           # Comprehensive test suite
-│   ├── fixtures/    # Test data including ML models
-│   ├── integration/ # CLI integration tests
-│   ├── unit/        # Core library unit tests
-│   └── output/      # Test intermediate files
-├── docs/            # AI/ML focused documentation
-├── examples/        # Real-world ML use cases
-└── scripts/         # Model generation utilities
-```
-
-### Technology Stack
-
-- **Rust** (Fast, safe, memory-efficient for large models)
-- **AI/ML**: `candle-core`, `safetensors`, `bytemuck` for tensor processing
-- **Parsers**: `serde_json`, `serde_yml`, `toml`, `quick-xml`, `csv`
-- **CLI**: `clap` (argument parsing), `colored` (AI-friendly output)
-
-## 🚀 Quick Start
-
-### Installation
-
-```bash
-# Install from crates.io
 cargo install diffai
+```
 
-# Or build from source
+### From Source
+
+```bash
 git clone https://github.com/kako-jun/diffai.git
 cd diffai
-cargo install --path diffai-cli
+cargo build --release
 ```
 
-### Basic Usage
+## Quick Start
+
+### Basic Model Comparison
 
 ```bash
-# Compare ML model files
-diffai model1.safetensors model2.safetensors
+# Compare PyTorch models
+diffai model_old.pt model_new.pt --stats
 
-# Compare with different output formats
-diffai config.yaml config_new.yaml --output json
-diffai experiment.json experiment_v2.json --output yaml
+# Compare Safetensors with detailed analysis
+diffai checkpoint_v1.safetensors checkpoint_v2.safetensors --learning-progress
 
-# Advanced ML-specific options
-diffai large_model.pt large_model_v2.pt --epsilon 1e-6
-diffai config.json config_new.json --ignore-keys-regex "^(timestamp|run_id)$"
+# Compare NumPy arrays
+diffai data_v1.npy data_v2.npy --stats
 
-# Directory comparison for experiment tracking
-diffai experiment_v1/ experiment_v2/ --recursive
+# Compare MATLAB files
+diffai experiment_v1.mat experiment_v2.mat --stats
 ```
 
-### ML Model Analysis Examples
+### Advanced ML Analysis
 
 ```bash
-# Fine-tuning analysis
-diffai models/base.safetensors models/finetuned.safetensors
-# Output:
-# 📊 tensor.transformer.h.0.attn.weight: mean=0.0023→0.0156, std=0.0891→0.1234
-# ⬚ tensor.classifier.weight: [768, 1000] -> [768, 10]
+# Learning progress analysis
+diffai baseline.safetensors finetuned.safetensors --learning-progress --convergence-analysis
 
-# Quantization impact assessment
-diffai models/fp32.safetensors models/int8.safetensors --epsilon 0.1
-# Output:
-# 📊 tensor.conv1.weight: mean=0.0045→0.0043, std=0.2341→0.2298
-# No differences found (within epsilon tolerance)
+# Architecture and deployment analysis
+diffai model_v1.safetensors model_v2.safetensors --architecture-comparison --deployment-readiness
 
-# Training checkpoint progression
-diffai checkpoints/epoch_10.pt checkpoints/epoch_50.pt
-# Output:
-# 📊 tensor.layers.0.weight: mean=-0.0012→0.0034, std=1.2341→0.8907
-# 📊 tensor.layers.1.bias: mean=0.1234→0.0567, std=0.4567→0.3210
+# Performance impact assessment
+diffai original.pt optimized.pt --quantization-analysis --memory-analysis
+
+# Generate detailed report in JSON
+diffai model_v1.safetensors model_v2.safetensors --generate-report --output json
 ```
 
-## 🔗 Integration Examples
+## Supported File Formats
 
-### CI/CD Pipeline
+### ML Model Formats
+- **Safetensors** (.safetensors) - HuggingFace standard format
+- **PyTorch** (.pt, .pth) - PyTorch model files with Candle integration
 
-```yaml
-name: Model Validation
-on: [push, pull_request]
-jobs:
-  model-diff:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install diffai
-        run: cargo install diffai
-      - name: Compare model changes
-        run: |
-          diffai models/baseline.safetensors models/candidate.safetensors \
-            --output json > model_diff.json
-          # Process model_diff.json for deployment decisions
+### Scientific Data Formats  
+- **NumPy** (.npy, .npz) - NumPy arrays with full statistical analysis
+- **MATLAB** (.mat) - MATLAB matrices with complex number support
+
+### Structured Data Formats
+- **JSON** (.json) - JavaScript Object Notation
+- **YAML** (.yaml, .yml) - YAML Ain't Markup Language
+- **TOML** (.toml) - Tom's Obvious Minimal Language  
+- **XML** (.xml) - Extensible Markup Language
+- **INI** (.ini) - Configuration files
+- **CSV** (.csv) - Comma-separated values
+
+## ML Analysis Functions
+
+diffai provides 28 specialized analysis functions for comprehensive model evaluation:
+
+### Learning & Convergence Analysis
+- `--learning-progress` - Track learning progress between checkpoints
+- `--convergence-analysis` - Analyze convergence stability and patterns
+- `--anomaly-detection` - Detect training anomalies (gradient explosion, vanishing gradients)
+- `--gradient-analysis` - Analyze gradient characteristics and flow
+
+### Architecture & Performance Analysis
+- `--architecture-comparison` - Compare model architectures and structural changes
+- `--param-efficiency-analysis` - Analyze parameter efficiency between models
+- `--memory-analysis` - Analyze memory usage and optimization opportunities
+- `--inference-speed-estimate` - Estimate inference speed and performance characteristics
+
+### MLOps & Deployment Support
+- `--deployment-readiness` - Assess deployment readiness and compatibility
+- `--regression-test` - Perform automated regression testing
+- `--risk-assessment` - Evaluate deployment risks and stability
+- `--hyperparameter-impact` - Analyze hyperparameter impact on model changes
+- `--learning-rate-analysis` - Analyze learning rate effects and optimization
+- `--alert-on-degradation` - Alert on performance degradation beyond thresholds
+- `--performance-impact-estimate` - Estimate performance impact of changes
+
+### Experiment & Documentation Support
+- `--generate-report` - Generate comprehensive analysis reports
+- `--markdown-output` - Output results in markdown format for documentation
+- `--include-charts` - Include charts and visualizations in output (planned)
+- `--review-friendly` - Generate review-friendly output for human reviewers
+
+### Advanced Analysis Functions
+- `--embedding-analysis` - Analyze embedding layer changes and semantic drift
+- `--similarity-matrix` - Generate similarity matrix for model comparison
+- `--clustering-change` - Analyze clustering changes in model representations
+- `--attention-analysis` - Analyze attention mechanism patterns (Transformer models)
+- `--head-importance` - Analyze attention head importance and specialization
+- `--attention-pattern-diff` - Compare attention patterns between models
+
+### Additional Analysis Functions
+- `--quantization-analysis` - Analyze quantization effects and efficiency
+- `--sort-by-change-magnitude` - Sort differences by magnitude for prioritization
+- `--change-summary` - Generate detailed change summaries
+
+## Output Formats
+
+### CLI Output (Default)
+Colored, human-readable output with intuitive symbols:
+- `~` Changed tensors/arrays with statistical comparison
+- `+` Added tensors/arrays with metadata
+- `-` Removed tensors/arrays with metadata
+
+### JSON Output
+Structured output for MLOps integration and automation:
+```bash
+diffai model1.safetensors model2.safetensors --output json | jq .
 ```
 
-### MLflow Integration
-
-```python
-import subprocess
-import json
-import mlflow
-
-def compare_models(model1_path, model2_path):
-    result = subprocess.run([
-        'diffai', model1_path, model2_path, '--output', 'json'
-    ], capture_output=True, text=True)
-    
-    diff_data = json.loads(result.stdout)
-    
-    # Log model comparison to MLflow
-    with mlflow.start_run():
-        mlflow.log_dict(diff_data, "model_comparison.json")
-        mlflow.log_metric("tensor_changes", len(diff_data))
+### YAML Output  
+Human-readable structured output for documentation:
+```bash
+diffai model1.safetensors model2.safetensors --output yaml
 ```
 
-### Pre-commit Hook
+## Real-World Use Cases
+
+### Research & Development
+```bash
+# Compare model before and after fine-tuning
+diffai pretrained_model.safetensors finetuned_model.safetensors \
+  --learning-progress --convergence-analysis --stats
+
+# Analyze architectural changes during development
+diffai baseline_architecture.pt improved_architecture.pt \
+  --architecture-comparison --param-efficiency-analysis
+```
+
+### MLOps & CI/CD
+```bash
+# Automated model validation in CI/CD
+diffai production_model.safetensors candidate_model.safetensors \
+  --deployment-readiness --regression-test --risk-assessment
+
+# Performance impact assessment
+diffai original_model.pt optimized_model.pt \
+  --quantization-analysis --memory-analysis --performance-impact-estimate
+```
+
+### Scientific Computing
+```bash
+# Compare NumPy experiment results
+diffai baseline_results.npy new_results.npy --stats
+
+# Analyze MATLAB simulation data
+diffai simulation_v1.mat simulation_v2.mat --stats
+
+# Compare compressed NumPy archives
+diffai dataset_v1.npz dataset_v2.npz --stats
+```
+
+### Experiment Tracking
+```bash
+# Generate comprehensive reports
+diffai experiment_baseline.safetensors experiment_improved.safetensors \
+  --generate-report --markdown-output --review-friendly
+
+# A/B test analysis
+diffai model_a.safetensors model_b.safetensors \
+  --statistical-significance --hyperparameter-comparison
+```
+
+## Command-Line Options
+
+### Basic Options
+- `-f, --format <FORMAT>` - Specify input file format
+- `-o, --output <OUTPUT>` - Choose output format (cli, json, yaml)
+- `-r, --recursive` - Compare directories recursively
+- `--stats` - Show detailed statistics for ML models
+
+### Advanced Options
+- `--path <PATH>` - Filter differences by specific path
+- `--ignore-keys-regex <REGEX>` - Ignore keys matching regex pattern
+- `--epsilon <FLOAT>` - Set tolerance for float comparisons
+- `--array-id-key <KEY>` - Specify key for array element identification
+- `--sort-by-change-magnitude` - Sort by change magnitude
+
+## Examples
+
+### Basic Tensor Comparison
+```bash
+$ diffai simple_model_v1.safetensors simple_model_v2.safetensors --stats
+  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
+  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
+  ~ fc2.bias: mean=-0.0076->-0.0257, std=0.0661->0.0973
+  ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
+  ~ fc3.bias: mean=-0.0074->-0.0130, std=0.1031->0.1093
+  ~ fc3.weight: mean=-0.0035->-0.0010, std=0.0990->0.1113
+```
+
+### Advanced Analysis
+```bash
+$ diffai baseline.safetensors improved.safetensors --deployment-readiness --architecture-comparison
+deployment_readiness: readiness=0.92, strategy=blue_green, risk=low, timeline=ready_for_immediate_deployment
+architecture_comparison: type1=feedforward, type2=feedforward, depth=3->3, differences=0
+  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
+  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
+```
+
+### Scientific Data Analysis
+```bash
+$ diffai experiment_data_v1.npy experiment_data_v2.npy --stats
+  ~ data: shape=[1000, 256], mean=0.1234->0.1456, std=0.9876->0.9654, dtype=float64
+```
+
+### MATLAB File Comparison
+```bash
+$ diffai simulation_v1.mat simulation_v2.mat --stats
+  ~ results: var=results, shape=[500, 100], mean=2.3456->2.4567, std=1.2345->1.3456, dtype=double
+  + new_variable: var=new_variable, shape=[100], dtype=single, elements=100, size=0.39KB
+```
+
+## Performance
+
+diffai is optimized for large files and scientific workflows:
+
+- **Memory Efficient**: Streaming processing for GB+ files
+- **Fast**: Rust implementation with optimized tensor operations
+- **Scalable**: Handles models with millions/billions of parameters
+- **Cross-Platform**: Works on Windows, Linux, and macOS without dependencies
+
+## Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### Development Setup
 
 ```bash
-#!/bin/bash
-# .git/hooks/pre-commit
-if diffai models/current.safetensors models/staging.safetensors \
-   --output json | jq -e '.[] | select(.TensorStatsChanged)' > /dev/null; then
-  echo "⚠️  Significant model changes detected. Please review:"
-  diffai models/current.safetensors models/staging.safetensors
-  read -p "Continue with commit? (y/N) " -n 1 -r
-  echo
-  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    exit 1
-  fi
-fi
+git clone https://github.com/kako-jun/diffai.git
+cd diffai
+cargo build
+cargo test
 ```
 
-## 🎯 Relationship to diffx
+### Running Tests
 
-`diffai` is a specialized fork of the [`diffx`](https://github.com/kako-jun/diffx) project, inheriting its robust structured data comparison capabilities while adding AI/ML-specific features:
+```bash
+# Run all tests
+cargo test
 
-### Inherited from diffx
-- ✅ **Semantic diff** for JSON, YAML, TOML, XML, INI, CSV
-- ✅ **Format auto-detection** from file extensions
-- ✅ **Multiple output formats** (CLI, JSON, YAML, Unified)
-- ✅ **Advanced filtering** (regex, path-based, epsilon tolerance)
-- ✅ **Directory comparison** with recursive traversal
+# Run specific test categories
+cargo test --test integration
+cargo test --test ml_analysis
+```
 
-### Added for AI/ML
-- 🆕 **PyTorch model support** (.pt, .pth files)
-- 🆕 **Safetensors support** (.safetensors files) 
-- 🆕 **Tensor statistics** (mean, std, min, max, shape, dtype)
-- 🆕 **ML-friendly CLI output** with specialized symbols
-- 🆕 **Model architecture analysis** (layer counts, parameter counts)
-- 🆕 **Future**: Integration with MLOps tools, experiment tracking
+## License
 
-## 🎯 Comparison Strategy & Supported Formats
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### 📊 Format Categories & Processing Strategies
+## Related Projects
 
-### Phase 2: Experiment Analysis ✅ **COMPLETED**
-- ✅ **Hyperparameter comparison** from model file patterns
-- ✅ **Learning curve analysis** from training checkpoints
-- ✅ **Statistical significance testing** for metric changes
+- **[diffx](https://github.com/kako-jun/diffx)** - General-purpose structured data diff tool (diffai's sibling project)
+- **[safetensors](https://github.com/huggingface/safetensors)** - Simple, safe way to store and distribute tensors
+- **[PyTorch](https://pytorch.org/)** - Machine learning framework
+- **[NumPy](https://numpy.org/)** - Fundamental package for scientific computing with Python
 
-#### **MLモデル比較** (Statistical Meta-Analysis)
-**Purpose**: Answer "Is this fine-tuning effective?" with human-understandable insights
-**Strategy**: Extract statistical summaries from model weights (GB→KB compression)
-
-**Currently Supported**:
-- `.safetensors` - HuggingFace standard, fully supported
-- `.pt`, `.pth` - PyTorch, fully supported
-
-**Planned Support**:
-- `.pb` - TensorFlow Protocol Buffer
-- `.h5` - TensorFlow/Keras HDF5 
-- `.onnx` - ONNX standard
-- `saved_model/` - TensorFlow SavedModel format
-
-#### **Scientific Data Comparison** (Numerical Array Analysis)
-**Purpose**: Detect statistical changes in numerical arrays
-**Strategy**: NumPy/scientific computing libraries for chunk-based parallel processing
-
-**Planned Support**:
-- `.npy`, `.npz` - NumPy arrays (statistical analysis)
-- `.mat` - MATLAB format (numerical data)
-- `.hdf5`, `.h5` - Scientific data standard
-- `.zarr` - Cloud-native array storage
-
-#### **Structured Data Comparison** (Detailed Diff)
-**Purpose**: Accurate tracking of configuration and data changes
-**Strategy**: diffx-core based detailed diff with streaming optimization
-
-**Currently Supported**:
-- `.json` - JSON config/log files
-- `.yaml`, `.yml` - YAML configuration
-- `.toml` - TOML configuration  
-- `.xml` - XML structured data
-- `.ini` - INI configuration
-- `.csv` - CSV tabular data
-
-**Planned Support**:
-- `.jsonl` - JSON Lines (log files)
-- `.parquet` - Columnar data format
-- `.avro` - Schema-based data
-
-### 🚀 Large File Handling Strategy
-
-- **ML Models**: Statistical summary extraction (multi-GB → few KB summary)
-- **Scientific Data**: Representative sampling, parallel chunk processing
-- **Structured Data**: Streaming comparison, memory-efficient processing
-
-## 🔮 Development Roadmap
-
-### Phase 1: Current Implementation ✅ **COMPLETED**
-- ✅ PyTorch/Safetensors support (28 ML analysis features)
-- ✅ diffx-core integration for structured data
-- ✅ Statistical meta-analysis for model comparison
-- ✅ Analysis results comparison (experiment vs experiment)
-
-### Phase 2: Scientific Data Support
-- 📋 **NumPy array support** (.npy/.npz statistical analysis)
-- 📋 **HDF5 scientific data** format support  
-- 📋 **MATLAB .mat files** numerical comparison
-- 📋 **Large array optimization** (chunked processing)
+## Roadmap
 
 ### Phase 3: ML Framework Expansion
-- 📋 **TensorFlow support** (.pb, .h5, SavedModel)
-- 📋 **ONNX format support** (.onnx interoperability)
-- 📋 **Framework-agnostic analysis** (unified statistics)
+- TensorFlow support (.pb, .h5, SavedModel)
+- ONNX format support
+- Advanced visualization and charting
 
-### Phase 4: MLOps Integration  
-- 📋 **HuggingFace Hub integration** (model comparison API)
-- 📋 **MLflow compatibility** (experiment tracking)
-- 📋 **Weights & Biases export** (analysis reporting)
+### Phase 4: MLOps Integration
+- MLflow integration for experiment tracking
+- Weights & Biases integration
+- DVC compatibility for data/model versioning
+- CI/CD pipeline templates
 
-## 📚 Documentation
-
-For comprehensive documentation, see our [docs directory](docs/index.md):
-
-- **[Installation Guide](docs/user-guide/installation.md)** - Setup for various environments
-- **[Basic Usage](docs/user-guide/basic-usage.md)** - Command reference and examples
-- **[ML Workflows](docs/user-guide/ml-workflows.md)** - Integration with ML development
-- **[Architecture](docs/architecture/design-principles.md)** - Design principles and architecture
-
-## 🤝 Contributing
-
-We welcome contributions from the AI/ML community! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-**Areas where we need help:**
-- 🧠 Additional ML framework support (TensorFlow, ONNX, JAX)
-- 📊 Advanced statistical analysis features
-- 🔧 MLOps tool integrations
-- 📚 Documentation and examples
-- 🧪 Testing with real-world models
-
-## 🏆 Community
-
-- **GitHub Discussions**: Share use cases and get help
-- **Issues**: Report bugs or request features
-- **Pull Requests**: Contribute code or documentation
-
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE) for details.
-
----
-
-<sub>Built with ❤️ for the AI/ML community. Inspired by the need for better model comparison tools in modern ML workflows.</sub>
+For detailed development status and technical specifications, see [CLAUDE.md](CLAUDE.md).
