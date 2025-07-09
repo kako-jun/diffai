@@ -284,7 +284,7 @@ diffaiは大型ファイルと科学計算ワークフローに最適化：
 
 ## 貢献
 
-貢献を歓迎します！ガイドラインは [CONTRIBUTING.md](CONTRIBUTING.md) をご覧ください。
+貢献を歓迎します！ガイドラインは [CONTRIBUTING](CONTRIBUTING.md) をご覧ください。
 
 ### 開発環境セットアップ
 
@@ -329,5 +329,3 @@ cargo test --test ml_analysis
 - Weights & Biases統合
 - データ・モデルバージョニングのためのDVC互換性
 - CI/CDパイプラインテンプレート
-
-詳細な開発状況と技術仕様については、[CLAUDE.md](CLAUDE.md) をご覧ください。

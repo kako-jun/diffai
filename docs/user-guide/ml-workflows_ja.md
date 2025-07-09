@@ -2,7 +2,7 @@
 
 機械学習・AI開発における diffai の活用方法について説明します。
 
-## 🎯 ML開発での活用シーン
+## ML開発での活用シーン
 
 ### 1. モデル開発・改良
 
@@ -34,7 +34,7 @@ diffai original/model.pth quantized/model.pth --show-structure
 diffai full/model.pth pruned/model.pth --diff-only
 ```
 
-## 🔬 典型的なワークフロー
+## 典型的なワークフロー
 
 ### 実験サイクル
 
@@ -62,7 +62,7 @@ diffai baseline/model.pth experiment/model.pth --format json > comparison.json
 python scripts/visualize_comparison.py comparison.json
 ```
 
-## 🛠️ 具体的な活用例
+## 具体的な活用例
 
 ### PyTorchモデルの進化追跡
 
@@ -77,16 +77,16 @@ done
 **出力例:**
 ```
 === Epoch 5 ===
-📊 Model Changes:
-  ✅ No structural changes
-  📈 Parameters: 11,689,512 → 11,689,512 (0% change)
-  🔄 Weight updates: 94.3% of parameters modified
+Model Changes:
+  No structural changes
+  Parameters: 11,689,512 -> 11,689,512 (0% change)
+  Weight updates: 94.3% of parameters modified
 
 === Epoch 10 ===
-📊 Model Changes:
-  ✅ No structural changes  
-  📈 Parameters: 11,689,512 → 11,689,512 (0% change)
-  🔄 Weight updates: 87.1% of parameters modified
+Model Changes:
+  No structural changes  
+  Parameters: 11,689,512 -> 11,689,512 (0% change)
+  Weight updates: 87.1% of parameters modified
 ```
 
 ### Safetensors形式での比較
@@ -109,7 +109,7 @@ diffai dataset_v1.csv dataset_v2.csv --stats --format json
 diffai train.csv val.csv --stats --show-distribution
 ```
 
-## 🔄 継続的インテグレーション
+## 継続的インテグレーション
 
 ### GitHub Actions での活用
 
@@ -147,14 +147,14 @@ jobs:
           const fs = require('fs');
           const diff = JSON.parse(fs.readFileSync('model_diff.json', 'utf8'));
           
-          const comment = `## 🤖 Model Comparison Report
+          const comment = `## Model Comparison Report
           
           **Parameter Count:** ${diff.comparison.param_diff}
           **Structure Changes:** ${diff.comparison.structure_changes}
           **Significant Changes:** ${diff.comparison.significant_changes}
           
           <details>
-          <summary>📊 Detailed Comparison</summary>
+          <summary>Detailed Comparison</summary>
           
           \`\`\`json
           ${JSON.stringify(diff, null, 2)}
@@ -203,7 +203,7 @@ def compare_models_with_mlflow(run_id1, run_id2):
     return comparison
 ```
 
-## 📈 パフォーマンス分析
+## パフォーマンス分析
 
 ### モデルサイズの追跡
 
@@ -229,7 +229,7 @@ diffai full_precision/model.pth quantized/model.pth --quantization-analysis
 diffai full_precision/results.json quantized/results.json --metric-comparison
 ```
 
-## 🎯 ベストプラクティス
+## ベストプラクティス
 
 ### 1. 比較の自動化
 
@@ -246,9 +246,9 @@ diffai $BASELINE $EXPERIMENT --format json > $REPORT
 
 # 構造的な変更があるかチェック
 if diffai $BASELINE $EXPERIMENT --diff-only --quiet; then
-    echo "✅ No structural changes detected"
+    echo "No structural changes detected"
 else
-    echo "⚠️ Structural changes found - review required"
+    echo "WARNING: Structural changes found - review required"
     diffai $BASELINE $EXPERIMENT --show-structure
 fi
 
@@ -283,11 +283,11 @@ diffai model1.pth model2.pth --template team_report.jinja2 > team_comparison.htm
 
 # Slackに結果を通知
 curl -X POST -H 'Content-type: application/json' \
-  --data '{"text":"🤖 Model comparison completed: see attached report"}' \
+  --data '{"text":"Model comparison completed: see attached report"}' \
   $SLACK_WEBHOOK_URL
 ```
 
-## 🔗 関連ツールとの連携
+## 関連ツールとの連携
 
 ### Weights & Biases
 
@@ -327,7 +327,7 @@ def log_comparison_to_tensorboard(model1, model2, step):
     writer.close()
 ```
 
-## 📚 次のステップ
+## 次のステップ
 
 - [設定](configuration_ja.md) - 詳細な設定方法
 - [API リファレンス](../api/cli_ja.md) - 全コマンドの詳細

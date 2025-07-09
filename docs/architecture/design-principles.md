@@ -2,7 +2,7 @@
 
 Core design philosophy and principles behind diffai.
 
-## 🎯 Core Design Principles
+## Core Design Principles
 
 ### 1. AI/ML Specialized Focus
 
@@ -93,7 +93,7 @@ impl Config {
 - Safe and predictable behavior
 - Improved developer productivity
 
-## 🏗️ Architectural Design Decisions
+## Architectural Design Decisions
 
 ### 1. Modular, Not Monolithic Design
 
@@ -161,7 +161,7 @@ pub enum DiffaiError {
 - Separation of recoverable and unrecoverable errors
 - User-friendly error messages
 
-## 🎨 User Experience Principles
+## User Experience Principles
 
 ### 1. Intuitive Interface
 
@@ -221,7 +221,7 @@ impl OutputFormatter {
 - Visual clarity
 - Consistent formatting
 
-## 🔄 Continuous Improvement
+## Continuous Improvement
 
 ### 1. Built-in Feedback Loop
 
@@ -285,7 +285,7 @@ pub struct PluginManager {
 - Encourage community contributions
 - Address diverse needs
 
-## 🚀 Future Vision
+## Future Vision
 
 ### 1. Scalability
 
@@ -305,7 +305,7 @@ pub struct PluginManager {
 - Performance impact prediction
 - Automatic optimization suggestions
 
-## 📚 Design Documentation
+## Design Documentation
 
 For detailed design documentation, see:
 
@@ -315,7 +315,7 @@ For detailed design documentation, see:
 
 These design principles position diffai as an essential tool for AI/ML development and ensure long-term success.
 
-## 🌐 Language Support
+## Language Support
 
 - **English**: Current documentation
 - **日本語**: [Japanese version](design-principles_ja.md)

@@ -284,7 +284,7 @@ diffai is optimized for large files and scientific workflows:
 
 ## Contributing
 
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+We welcome contributions! Please see [CONTRIBUTING](CONTRIBUTING.md) for guidelines.
 
 ### Development Setup
 
@@ -329,5 +329,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Weights & Biases integration
 - DVC compatibility for data/model versioning
 - CI/CD pipeline templates
-
-For detailed development status and technical specifications, see [CLAUDE.md](CLAUDE.md).

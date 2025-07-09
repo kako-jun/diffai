@@ -2,7 +2,7 @@
 
 Setup guide for diffai in various environments.
 
-## 📦 Package Manager Installation
+## Package Manager Installation
 
 ### Cargo (Rust)
 
@@ -21,7 +21,7 @@ cargo install --git https://github.com/kako-jun/diffai
 # brew install diffai
 ```
 
-## 🔧 Build from Source
+## Build from Source
 
 ### Prerequisites
 - Rust 1.70 or higher
@@ -44,7 +44,7 @@ cargo install --path .
 diffai --version
 ```
 
-## 🐳 Using Docker
+## Using Docker
 
 ```bash
 # Build Docker image
@@ -54,7 +54,7 @@ docker build -t diffai .
 docker run -v $(pwd):/workspace diffai /workspace/model1.pth /workspace/model2.pth
 ```
 
-## 🚀 Development Environment Setup
+## Development Environment Setup
 
 ### Recommended Environment
 - VS Code + rust-analyzer
@@ -76,7 +76,7 @@ cargo test
 pre-commit install
 ```
 
-## 📋 Verification
+## Verification
 
 After installation, verify with the following commands:
 
@@ -91,7 +91,7 @@ diffai --help
 diffai examples/models/sample1.json examples/models/sample2.json
 ```
 
-## 🔍 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -120,11 +120,11 @@ If issues persist, get support at:
 - [GitHub Issues](https://github.com/kako-jun/diffai/issues)
 - [Discussion](https://github.com/kako-jun/diffai/discussions)
 
-## 🎯 Next Steps
+## Next Steps
 
 After installation, see [Basic Usage](basic-usage.md) to get started with diffai.
 
-## 🌐 Language Support
+## Language Support
 
 - **English**: Current documentation
 - **日本語**: [Japanese version](installation_ja.md)

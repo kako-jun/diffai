@@ -2,11 +2,11 @@
 
 このガイドでは、PyTorch や Safetensors ファイルを含む機械学習モデルの比較における diffai の特化機能について説明します。
 
-## 🧠 概要
+## 概要
 
 diffai は AI/ML モデル形式をネイティブサポートし、単なるバイナリファイルとしてではなく、テンソルレベルでモデルを比較できます。これにより、学習、ファインチューニング、量子化、デプロイメント中のモデル変更を意味のある方法で分析できます。
 
-## 📊 サポートされているML形式
+## サポートされているML形式
 
 ### PyTorchモデル
 - **`.pt` ファイル**: PyTorch モデルファイル（pickle 形式）
@@ -20,7 +20,7 @@ diffai は AI/ML モデル形式をネイティブサポートし、単なるバ
 - **`.h5` ファイル**: Keras/TensorFlow HDF5 形式
 - **`.pb` ファイル**: TensorFlow Protocol Buffer 形式
 
-## 🔍 diffai が分析する内容
+## diffai が分析する内容
 
 ### テンソル統計
 モデル内の各テンソルについて、diffai は以下を計算・比較します：
@@ -38,7 +38,7 @@ diffai は AI/ML モデル形式をネイティブサポートし、単なるバ
 - **レイヤーの追加/削除**: 新規または削除されたレイヤー
 - **形状の変更**: 変更されたレイヤーの次元
 
-## 🚀 基本的なモデル比較
+## 基本的なモデル比較
 
 ### シンプルな比較
 
@@ -56,8 +56,8 @@ diffai pretrained.safetensors finetuned.safetensors
 ### 出力例
 
 ```
-📊 tensor.transformer.h.0.attn.weight: mean=0.0023→0.0156, std=0.0891→0.1234
-⬚ tensor.classifier.weight: [768, 1000] -> [768, 10]
+tensor.transformer.h.0.attn.weight: mean=0.0023->0.0156, std=0.0891->0.1234
+tensor.classifier.weight: [768, 1000] -> [768, 10]
 + tensor.new_layer.weight: shape=[64, 64], dtype=f32, params=4096
 - tensor.old_layer.bias: shape=[256], dtype=f32, params=256
 ```
@@ -66,14 +66,14 @@ diffai pretrained.safetensors finetuned.safetensors
 
 | 記号 | 意味 | 説明 |
 |------|------|------|
-| `📊` | 統計値が変更 | テンソル値が変更されたが形状は同じ |
-| `⬚` | 形状が変更 | テンソルの次元が変更された |
+| `~` | 統計値が変更 | テンソル値が変更されたが形状は同じ |
+| `□` | 形状が変更 | テンソルの次元が変更された |
 | `+` | 追加 | 新しいテンソル/レイヤーが追加された |
 | `-` | 削除 | テンソル/レイヤーが削除された |
 | `~` | 変更 | 一般的な変更 |
 | `!` | 型が変更 | データ型が変更された |
 
-## ⚙️ 高度なオプション
+## 高度なオプション
 
 ### イプシロン許容値
 
@@ -110,7 +110,7 @@ diffai model1.safetensors model2.safetensors --path "tensor.classifier"
 diffai model1.safetensors model2.safetensors --ignore-keys-regex "^(timestamp|_metadata)"
 ```
 
-## 🎯 一般的な使用例
+## 一般的な使用例
 
 ### 1. ファインチューニング分析
 
@@ -120,8 +120,8 @@ diffai model1.safetensors model2.safetensors --ignore-keys-regex "^(timestamp|_m
 diffai pretrained_bert.safetensors finetuned_bert.safetensors
 
 # 期待される出力: アテンション層の統計的変化
-# 📊 tensor.bert.encoder.layer.11.attention.self.query.weight: mean=-0.0001→0.0023
-# 📊 tensor.classifier.weight: mean=0.0000→0.0145, std=0.0200→0.0890
+# tensor.bert.encoder.layer.11.attention.self.query.weight: mean=-0.0001->0.0023
+# tensor.classifier.weight: mean=0.0000->0.0145, std=0.0200->0.0890
 ```
 
 **分析**: 
@@ -136,7 +136,7 @@ FP32 と量子化モデルを比較：
 diffai model_fp32.safetensors model_int8.safetensors --epsilon 0.1
 
 # 期待される出力: 制御された精度損失
-# 📊 tensor.conv1.weight: mean=0.0045→0.0043, std=0.2341→0.2298
+# tensor.conv1.weight: mean=0.0045->0.0043, std=0.2341->0.2298
 # 差異が見つかりませんでした（イプシロン許容値内）
 ```
 
@@ -152,8 +152,8 @@ diffai model_fp32.safetensors model_int8.safetensors --epsilon 0.1
 diffai checkpoint_epoch_10.pt checkpoint_epoch_50.pt
 
 # 期待される出力: 収束パターン
-# 📊 tensor.layers.0.weight: mean=-0.0012→0.0034, std=1.2341→0.8907
-# 📊 tensor.layers.1.bias: mean=0.1234→0.0567, std=0.4567→0.3210
+# tensor.layers.0.weight: mean=-0.0012->0.0034, std=1.2341->0.8907
+# tensor.layers.1.bias: mean=0.1234->0.0567, std=0.4567->0.3210
 ```
 
 **分析**:
@@ -168,7 +168,7 @@ diffai checkpoint_epoch_10.pt checkpoint_epoch_50.pt
 diffai resnet50.safetensors efficientnet_b0.safetensors
 
 # 期待される出力: 構造的差異
-# ⬚ tensor.features.conv1.weight: [64, 3, 7, 7] -> [32, 3, 3, 3]
+# tensor.features.conv1.weight: [64, 3, 7, 7] -> [32, 3, 3, 3]
 # + tensor.features.mbconv.expand_conv.weight: shape=[96, 32, 1, 1]
 # - tensor.features.layer4.2.downsample.0.weight: shape=[2048, 1024, 1, 1]
 ```
@@ -177,7 +177,7 @@ diffai resnet50.safetensors efficientnet_b0.safetensors
 - 形状変化は異なるレイヤーサイズを示す
 - 追加/削除されたテンソルはアーキテクチャ革新を示す
 
-## 📈 パフォーマンス最適化
+## パフォーマンス最適化
 
 ### メモリ考慮事項
 
@@ -204,7 +204,7 @@ diffai --threads 8 model1.safetensors model2.safetensors
 diffai --shape-only model1.safetensors model2.safetensors
 ```
 
-## 🔧 統合例
+## 統合例
 
 ### MLflow統合
 
@@ -264,7 +264,7 @@ jobs:
           # 多くのパラメータが変更された場合は警告
           changes=$(jq length model_diff.json)
           if [ "$changes" -gt 10 ]; then
-            echo "⚠️ 多くのパラメータ変更が検出されました: $changes"
+            echo "WARNING: 多くのパラメータ変更が検出されました: $changes"
           fi
 ```
 
@@ -278,7 +278,7 @@ model_files=$(git diff --cached --name-only | grep -E '\.(pt|pth|safetensors)$')
 
 for file in $model_files; do
     if [ -f "$file" ]; then
-        echo "🔍 $file のモデル変更を分析中"
+        echo "$file のモデル変更を分析中"
         
         # 前のバージョンと比較
         git show HEAD:"$file" > /tmp/old_model
@@ -289,7 +289,7 @@ for file in $model_files; do
         shape_changes=$(jq '[.[] | select(.TensorShapeChanged)] | length' /tmp/model_diff.json)
         
         if [ "$shape_changes" -gt 0 ]; then
-            echo "⚠️ $file でアーキテクチャ変更が検出されました"
+            echo "WARNING: $file でアーキテクチャ変更が検出されました"
             diffai /tmp/old_model "$file"
             
             read -p "コミットを続行しますか？ (y/N) " -n 1 -r
@@ -304,7 +304,7 @@ for file in $model_files; do
 done
 ```
 
-## 🚨 トラブルシューティング
+## トラブルシューティング
 
 ### よくある問題
 
@@ -344,7 +344,7 @@ file model.safetensors
 gunzip model.safetensors.gz
 ```
 
-## 📊 ベストプラクティス
+## ベストプラクティス
 
 ### 1. イプシロン値の選択
 
