@@ -41,7 +41,7 @@ fn benchmark_ml_model_comparison(c: &mut Criterion) {
                 black_box(diff_ml_models_enhanced(
                     black_box(*model1_path),
                     black_box(*model2_path),
-                    Some(1e-6),
+                    true,  // use_epsilon
                     false, // show_layer_impact
                     false, // quantization_analysis
                     false, // detailed_stats
@@ -81,7 +81,7 @@ fn benchmark_ml_model_comparison(c: &mut Criterion) {
                 black_box(diff_ml_models_enhanced(
                     black_box(*model1_path),
                     black_box(*model2_path),
-                    Some(1e-6),
+                    true,  // use_epsilon
                     true,  // show_layer_impact
                     true,  // quantization_analysis
                     true,  // detailed_stats
@@ -168,7 +168,7 @@ fn benchmark_real_models(c: &mut Criterion) {
                 black_box(diff_ml_models_enhanced(
                     black_box(model1_path),
                     black_box(model2_path),
-                    Some(1e-6),
+                    true,  // use_epsilon
                     true,  // show_layer_impact
                     false, // quantization_analysis
                     true,  // detailed_stats
