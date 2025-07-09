@@ -30,8 +30,4 @@ PyTorch、Safetensors、NumPy、MATLABファイル対応のAI/ML特化差分ツ�
 3. [MLモデル比較](user-guide/ml-model-comparison_ja.md) - PyTorchとSafetensorsモデルを比較する
 4. [科学データ分析](user-guide/scientific-data_ja.md) - NumPyとMATLABファイルを扱う
 
-## 言語サポート
-
-- **日本語**: 現在のドキュメント
-- **English**: [English version](index.md)
 

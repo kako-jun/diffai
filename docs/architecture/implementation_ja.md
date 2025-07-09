@@ -413,7 +413,3 @@ cargo bench
 - [CLIリファレンス](../reference/cli-reference_ja.md) - コマンドライン仕様
 - [ML分析機能](../reference/ml-analysis_ja.md) - 機械学習分析機能
 
-## 言語サポート
-
-- **日本語**: 現在のドキュメント
-- **English**: [English version](implementation.md)

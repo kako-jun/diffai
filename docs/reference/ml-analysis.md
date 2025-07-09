@@ -317,7 +317,3 @@ diffai fp32.safetensors quantized.safetensors \
 - [Supported Formats](formats.md) - Supported file formats
 - [Output Formats](output-formats.md) - Output format specifications
 
-## Language Support
-
-- **English**: Current documentation
-- **日本語**: [Japanese version](ml-analysis_ja.md)

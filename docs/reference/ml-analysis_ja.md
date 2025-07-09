@@ -587,7 +587,3 @@ export DIFFAI_CONVERGENCE_PATIENCE=10
 - [対応形式](formats_ja.md) - サポートされるファイル形式
 - [出力形式](output-formats_ja.md) - 出力形式の詳細
 
-## 言語サポート
-
-- **日本語**: 現在のドキュメント
-- **English**: [English version](ml-analysis.md)

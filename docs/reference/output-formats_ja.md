@@ -365,7 +365,3 @@ diffai model1.safetensors model2.safetensors --output yaml --flow
 - [対応形式](formats_ja.md) - 入力ファイル形式
 - [ML分析機能](ml-analysis_ja.md) - 機械学習分析機能
 
-## 言語サポート
-
-- **日本語**: 現在のドキュメント
-- **English**: [English version](output-formats.md)

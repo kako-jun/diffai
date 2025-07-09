@@ -254,7 +254,3 @@ diffai data1.npy data2.npy --stats
 - [ML分析機能](ml-analysis_ja.md) - 機械学習特化機能
 - [出力形式](output-formats_ja.md) - 出力形式の詳細
 
-## 言語サポート
-
-- **日本語**: 現在のドキュメント
-- **English**: [English version](formats.md)

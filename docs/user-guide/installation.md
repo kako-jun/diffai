@@ -124,7 +124,3 @@ If issues persist, get support at:
 
 After installation, see [Basic Usage](basic-usage.md) to get started with diffai.
 
-## Language Support
-
-- **English**: Current documentation
-- **日本語**: [Japanese version](installation_ja.md)
