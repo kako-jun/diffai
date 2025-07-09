@@ -13,6 +13,9 @@ use quick_xml::de::from_str;
 use candle_core::pickle::read_all;
 use candle_core::Device;
 use safetensors::{tensor::TensorView, SafeTensors};
+// Scientific data dependencies
+use std::fs::File;
+use std::io::Read;
 // Cross-project integration
 
 #[derive(Debug, PartialEq, Serialize)]
@@ -74,6 +77,10 @@ pub enum DiffResult {
     HyperparameterComparison(String, HyperparameterComparisonInfo),
     LearningCurveAnalysis(String, LearningCurveInfo),
     StatisticalSignificance(String, StatisticalSignificanceInfo),
+    // Scientific data analysis
+    NumpyArrayChanged(String, NumpyArrayStats, NumpyArrayStats),
+    NumpyArrayAdded(String, NumpyArrayStats),
+    NumpyArrayRemoved(String, NumpyArrayStats),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -85,6 +92,18 @@ pub struct TensorStats {
     pub shape: Vec<usize>,
     pub dtype: String,
     pub total_params: usize,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct NumpyArrayStats {
+    pub mean: f64,
+    pub std: f64,
+    pub min: f64,
+    pub max: f64,
+    pub shape: Vec<usize>,
+    pub dtype: String,
+    pub total_elements: usize,
+    pub memory_size_bytes: usize,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -601,24 +620,24 @@ pub fn diff_arrays_with_id_enhanced(
     for (id, (_, item1)) in &map1 {
         if let Some((_, item2)) = map2.get(id) {
             // Items with same ID - use diffx-core for deep comparison
-            let _sub_path = format!("{}[{}]", path, id);
+            let id_path = format!("{}[{}={}]", path, array_id_key, id);
             let sub_diffs = diffx_core::diff(item1, item2);
             results.extend(sub_diffs.into_iter().map(|d| {
                 match d {
                     diffx_core::DiffResult::Added(sub_path, value) => 
-                        DiffResult::Added(format!("{}.{}", sub_path, sub_path), value),
+                        DiffResult::Added(format!("{}.{}", id_path, sub_path), value),
                     diffx_core::DiffResult::Removed(sub_path, value) => 
-                        DiffResult::Removed(format!("{}.{}", sub_path, sub_path), value),
+                        DiffResult::Removed(format!("{}.{}", id_path, sub_path), value),
                     diffx_core::DiffResult::Modified(sub_path, old_val, new_val) => 
-                        DiffResult::Modified(format!("{}.{}", sub_path, sub_path), old_val, new_val),
+                        DiffResult::Modified(format!("{}.{}", id_path, sub_path), old_val, new_val),
                     diffx_core::DiffResult::TypeChanged(sub_path, old_val, new_val) => 
-                        DiffResult::TypeChanged(format!("{}.{}", sub_path, sub_path), old_val, new_val),
+                        DiffResult::TypeChanged(format!("{}.{}", id_path, sub_path), old_val, new_val),
                 }
             }));
         } else {
             // Item removed
             results.push(DiffResult::Removed(
-                format!("{}[{}]", path, id),
+                format!("{}[{}={}]", path, array_id_key, id),
                 (*item1).clone()
             ));
         }
@@ -628,7 +647,7 @@ pub fn diff_arrays_with_id_enhanced(
     for (id, (_, item2)) in &map2 {
         if !map1.contains_key(id) {
             results.push(DiffResult::Added(
-                format!("{}[{}]", path, id),
+                format!("{}[{}={}]", path, array_id_key, id),
                 (*item2).clone()
             ));
         }
@@ -2867,4 +2886,263 @@ fn analyze_statistical_significance(
         test_type: "paired_t_test".to_string(),
         recommendation,
     }
+}
+
+/// Parse and analyze NumPy .npy files
+pub fn parse_numpy_file(path: &Path) -> Result<HashMap<String, NumpyArrayStats>> {
+    let mut file = File::open(path)?;
+    let mut buffer = Vec::new();
+    file.read_to_end(&mut buffer)?;
+    
+    // Parse NumPy file header
+    if buffer.len() < 10 {
+        return Err(anyhow!("File too small to be a valid NumPy file"));
+    }
+    
+    // Check magic number "\x93NUMPY"
+    if &buffer[0..6] != b"\x93NUMPY" {
+        return Err(anyhow!("Invalid NumPy file magic number"));
+    }
+    
+    let major_version = buffer[6];
+    let minor_version = buffer[7];
+    
+    if major_version != 1 {
+        return Err(anyhow!("Unsupported NumPy version: {}.{}", major_version, minor_version));
+    }
+    
+    // Parse header length
+    let header_len = u16::from_le_bytes([buffer[8], buffer[9]]) as usize;
+    
+    if buffer.len() < 10 + header_len {
+        return Err(anyhow!("Invalid header length"));
+    }
+    
+    // Parse header dictionary
+    let header_str = std::str::from_utf8(&buffer[10..10 + header_len])?;
+    
+    // Simple parsing of the header (in production, use a proper parser)
+    let shape = extract_shape_from_header(header_str)?;
+    let dtype = extract_dtype_from_header(header_str)?;
+    
+    // Calculate data offset
+    let data_offset = 10 + header_len;
+    let data = &buffer[data_offset..];
+    
+    // Calculate statistics based on dtype
+    let stats = calculate_numpy_stats(data, &shape, &dtype)?;
+    
+    let mut result = HashMap::new();
+    result.insert("array".to_string(), stats);
+    
+    Ok(result)
+}
+
+/// Parse and analyze NumPy .npz files (zip archive)
+pub fn parse_npz_file(path: &Path) -> Result<HashMap<String, NumpyArrayStats>> {
+    
+    let file = File::open(path)?;
+    let mut archive = zip::ZipArchive::new(file)
+        .map_err(|e| anyhow!("Failed to open NPZ file: {}", e))?;
+    
+    let mut result = HashMap::new();
+    
+    for i in 0..archive.len() {
+        let mut file = archive.by_index(i)
+            .map_err(|e| anyhow!("Failed to read archive entry: {}", e))?;
+        
+        let name = file.name().to_string();
+        if name.ends_with(".npy") {
+            let mut buffer = Vec::new();
+            std::io::copy(&mut file, &mut buffer)?;
+            
+            // Parse as individual .npy file
+            let stats = parse_npy_buffer(buffer)?;
+            
+            let array_name = name.trim_end_matches(".npy");
+            result.insert(array_name.to_string(), stats);
+        }
+    }
+    
+    Ok(result)
+}
+
+fn parse_npy_buffer(buffer: Vec<u8>) -> Result<NumpyArrayStats> {
+    
+    // Check magic number
+    if buffer.len() < 10 {
+        return Err(anyhow!("Buffer too small"));
+    }
+    
+    if &buffer[0..6] != b"\x93NUMPY" {
+        return Err(anyhow!("Invalid NumPy magic number"));
+    }
+    
+    let header_len = u16::from_le_bytes([buffer[8], buffer[9]]) as usize;
+    let header_str = std::str::from_utf8(&buffer[10..10 + header_len])?;
+    
+    let shape = extract_shape_from_header(header_str)?;
+    let dtype = extract_dtype_from_header(header_str)?;
+    
+    let data_offset = 10 + header_len;
+    let data = &buffer[data_offset..];
+    
+    calculate_numpy_stats(data, &shape, &dtype)
+}
+
+fn extract_shape_from_header(header: &str) -> Result<Vec<usize>> {
+    // Simple regex to extract shape tuple, e.g., (100, 50)
+    if let Some(start) = header.find("'shape': (") {
+        let start = start + "'shape': (".len();
+        if let Some(end) = header[start..].find(')') {
+            let shape_str = &header[start..start + end];
+            let shape: Result<Vec<usize>, _> = shape_str
+                .split(',')
+                .map(|s| s.trim().parse())
+                .collect();
+            return shape.map_err(|e| anyhow!("Failed to parse shape: {}", e));
+        }
+    }
+    Err(anyhow!("Could not extract shape from header"))
+}
+
+fn extract_dtype_from_header(header: &str) -> Result<String> {
+    // Extract dtype, e.g., 'float32', '<f4'
+    if let Some(start) = header.find("'descr': '") {
+        let start = start + "'descr': '".len();
+        if let Some(end) = header[start..].find('\'') {
+            let dtype_str = &header[start..start + end];
+            return Ok(normalize_numpy_dtype(dtype_str));
+        }
+    }
+    Err(anyhow!("Could not extract dtype from header"))
+}
+
+fn normalize_numpy_dtype(dtype: &str) -> String {
+    match dtype {
+        "<f4" | "float32" => "float32".to_string(),
+        "<f8" | "float64" => "float64".to_string(),
+        "<i4" | "int32" => "int32".to_string(),
+        "<i8" | "int64" => "int64".to_string(),
+        "<u4" | "uint32" => "uint32".to_string(),
+        "<u8" | "uint64" => "uint64".to_string(),
+        _ => dtype.to_string(),
+    }
+}
+
+fn calculate_numpy_stats(data: &[u8], shape: &[usize], dtype: &str) -> Result<NumpyArrayStats> {
+    let total_elements: usize = shape.iter().product();
+    let memory_size_bytes = data.len();
+    
+    let (mean, std, min, max) = match dtype {
+        "float32" => {
+            if data.len() < total_elements * 4 {
+                return Err(anyhow!("Insufficient data for float32 array"));
+            }
+            let float_data: Vec<f32> = data
+                .chunks_exact(4)
+                .take(total_elements)
+                .map(|chunk| f32::from_le_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]))
+                .collect();
+            calculate_f32_stats(&float_data)
+        },
+        "float64" => {
+            if data.len() < total_elements * 8 {
+                return Err(anyhow!("Insufficient data for float64 array"));
+            }
+            let float_data: Vec<f64> = data
+                .chunks_exact(8)
+                .take(total_elements)
+                .map(|chunk| {
+                    f64::from_le_bytes([
+                        chunk[0], chunk[1], chunk[2], chunk[3],
+                        chunk[4], chunk[5], chunk[6], chunk[7]
+                    ])
+                })
+                .collect();
+            calculate_f64_stats(&float_data)
+        },
+        "int32" => {
+            if data.len() < total_elements * 4 {
+                return Err(anyhow!("Insufficient data for int32 array"));
+            }
+            let int_data: Vec<i32> = data
+                .chunks_exact(4)
+                .take(total_elements)
+                .map(|chunk| i32::from_le_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]))
+                .collect();
+            calculate_i32_stats(&int_data)
+        },
+        "int64" => {
+            if data.len() < total_elements * 8 {
+                return Err(anyhow!("Insufficient data for int64 array"));
+            }
+            let int_data: Vec<i64> = data
+                .chunks_exact(8)
+                .take(total_elements)
+                .map(|chunk| {
+                    i64::from_le_bytes([
+                        chunk[0], chunk[1], chunk[2], chunk[3],
+                        chunk[4], chunk[5], chunk[6], chunk[7]
+                    ])
+                })
+                .collect();
+            calculate_i64_stats(&int_data)
+        },
+        _ => {
+            return Err(anyhow!("Unsupported dtype: {}", dtype));
+        }
+    };
+    
+    Ok(NumpyArrayStats {
+        mean,
+        std,
+        min,
+        max,
+        shape: shape.to_vec(),
+        dtype: dtype.to_string(),
+        total_elements,
+        memory_size_bytes,
+    })
+}
+
+/// Compare two NumPy files and return differences
+pub fn diff_numpy_files(path1: &Path, path2: &Path) -> Result<Vec<DiffResult>> {
+    let arrays1 = if path1.extension().and_then(|s| s.to_str()) == Some("npz") {
+        parse_npz_file(path1)?
+    } else {
+        parse_numpy_file(path1)?
+    };
+    
+    let arrays2 = if path2.extension().and_then(|s| s.to_str()) == Some("npz") {
+        parse_npz_file(path2)?
+    } else {
+        parse_numpy_file(path2)?
+    };
+    
+    let mut results = Vec::new();
+    
+    // Check for modified arrays
+    for (name, stats1) in &arrays1 {
+        if let Some(stats2) = arrays2.get(name) {
+            if stats1 != stats2 {
+                results.push(DiffResult::NumpyArrayChanged(
+                    name.clone(),
+                    stats1.clone(),
+                    stats2.clone(),
+                ));
+            }
+        } else {
+            results.push(DiffResult::NumpyArrayRemoved(name.clone(), stats1.clone()));
+        }
+    }
+    
+    // Check for added arrays
+    for (name, stats2) in &arrays2 {
+        if !arrays1.contains_key(name) {
+            results.push(DiffResult::NumpyArrayAdded(name.clone(), stats2.clone()));
+        }
+    }
+    
+    Ok(results)
 }

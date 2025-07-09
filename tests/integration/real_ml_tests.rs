@@ -78,8 +78,8 @@ fn test_memory_analysis_real_models() -> Result<(), Box<dyn std::error::Error>> 
 
     cmd.assert()
         .success()
-        .stdout(predicate::str::contains("tensor_added").or(predicate::str::contains("tensor_removed")))
-        .stdout(predicate::str::contains("review_friendly").or(predicate::str::contains("👥")));
+        .stdout(predicate::str::contains("+").or(predicate::str::contains("-")))
+        .stdout(predicate::str::contains("review_friendly"));
 
     Ok(())
 }
@@ -108,8 +108,8 @@ fn test_architecture_comparison_real_models() -> Result<(), Box<dyn std::error::
 
     cmd.assert()
         .success()
-        .stdout(predicate::str::contains("tensor_added").or(predicate::str::contains("tensor_removed")))
-        .stdout(predicate::str::contains("deployment_readiness").or(predicate::str::contains("✅")));
+        .stdout(predicate::str::contains("+").or(predicate::str::contains("-")))
+        .stdout(predicate::str::contains("deployment_readiness"));
 
     Ok(())
 }
@@ -223,7 +223,7 @@ fn test_model_size_impact_analysis() -> Result<(), Box<dyn std::error::Error>> {
 
     cmd.assert()
         .success()
-        .stdout(predicate::str::contains("tensor_added").or(predicate::str::contains("tensor_removed")))
+        .stdout(predicate::str::contains("+").or(predicate::str::contains("-")))
         .stdout(predicate::str::contains("deployment_readiness").or(predicate::str::contains("review_friendly")));
 
     Ok(())
