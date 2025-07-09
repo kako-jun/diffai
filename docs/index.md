@@ -1,55 +1,36 @@
 # diffai Documentation
 
-Comprehensive documentation for diffai - AI/ML specialized diff tool
+Documentation for diffai - AI/ML specialized diff tool for PyTorch, Safetensors, NumPy, and MATLAB files.
 
-## 📖 Table of Contents
+## Table of Contents
 
-### 🚀 User Guide
+### User Guide
 - [**Installation**](user-guide/installation.md) - Setup guide for various environments
 - [**Basic Usage**](user-guide/basic-usage.md) - Basic commands and operations
-- [**ML/AI Workflows**](user-guide/ml-workflows.md) - Integration with ML development
-- [**Configuration**](user-guide/configuration.md) - Configuration files and customization
+- [**ML Model Comparison**](user-guide/ml-model-comparison.md) - PyTorch and Safetensors model analysis
+- [**Scientific Data Analysis**](user-guide/scientific-data.md) - NumPy and MATLAB file comparison
+- [**ML Workflows**](user-guide/ml-workflows.md) - Integration with ML development workflows
 
-### 🤖 AI/ML Specialized Features
-- [**PyTorch Model Comparison**](examples/pytorch-models.md) - Model structure diff analysis
-- [**Safetensors Support**](examples/safetensors.md) - Safe tensor format support
-- [**Dataset Comparison**](examples/datasets.md) - Dataset format diff analysis
-- [**Experiment Management**](examples/experiments.md) - MLflow integration examples
+### Reference
+- [**CLI Reference**](reference/cli-reference.md) - Complete command-line options
+- [**Supported Formats**](reference/formats.md) - File format specifications
+- [**ML Analysis Functions**](reference/ml-analysis.md) - 28 specialized analysis functions
+- [**Output Formats**](reference/output-formats.md) - CLI, JSON, and YAML output specifications
 
-### 🏗️ Architecture
+### Architecture
 - [**Design Principles**](architecture/design-principles.md) - diffai design philosophy
-- [**Core Features**](architecture/core-features.md) - Main functionality details
-- [**Extensibility**](architecture/extensibility.md) - Plugin system and customization
+- [**Implementation Status**](architecture/implementation.md) - Current Phase 1-2 completion status
 
-### 📚 API Reference
-- [**CLI API**](api/cli.md) - Command-line interface
-- [**Rust API**](api/rust.md) - Using as Rust library
-- [**Configuration Options**](api/config.md) - Complete configuration reference
+## Quick Start
 
-## 🎯 Quick Start
+New to diffai? Start with:
 
-```bash
-# Compare PyTorch models
-diffai model1.pth model2.pth
+1. [Installation](user-guide/installation.md) - Get diffai running on your system
+2. [Basic Usage](user-guide/basic-usage.md) - Learn the fundamental commands
+3. [ML Model Comparison](user-guide/ml-model-comparison.md) - Compare PyTorch and Safetensors models
+4. [Scientific Data Analysis](user-guide/scientific-data.md) - Work with NumPy and MATLAB files
 
-# Compare Safetensors files
-diffai model1.safetensors model2.safetensors
-
-# Compare datasets
-diffai dataset1.csv dataset2.csv --format csv
-
-# Compare experiment results
-diffai experiment1/results experiment2/results --recursive
-```
-
-## 🌐 Language Support
+## Language Support
 
 - **English**: Current documentation
-- **日本語**: [Japanese documentation](index_ja.md)
-
-## 🔗 Related Links
-
-- [GitHub Repository](https://github.com/kako-jun/diffai)
-- [crates.io](https://crates.io/crates/diffai)
-- [Issues & Support](https://github.com/kako-jun/diffai/issues)
-- [Contributing Guide](../CONTRIBUTING.md)
+- **日本語**: [Japanese version](index_ja.md)

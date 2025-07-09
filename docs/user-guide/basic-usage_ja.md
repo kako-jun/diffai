@@ -1,234 +1,247 @@
 # 基本的な使い方
 
-diffai の基本的な操作方法について説明します。
+diffai - AI/ML特化差分ツールの基本操作を学習
 
-## 🚀 クイックスタート
+## クイックスタート
 
 ### 基本的なファイル比較
 
 ```bash
-# 2つのファイルを比較
-diffai file1.txt file2.txt
+# 2つのモデルファイルを比較
+diffai model1.safetensors model2.safetensors
 
-# 詳細な出力
-diffai file1.txt file2.txt --verbose
+# 詳細なテンソル統計を表示
+diffai model1.safetensors model2.safetensors --stats
 
-# 出力形式の指定
-diffai file1.txt file2.txt --format json
+# JSON形式で出力
+diffai model1.safetensors model2.safetensors --output json
 ```
 
 ### ディレクトリ比較
 
 ```bash
-# ディレクトリ全体を比較
+# ディレクトリ全体を再帰的に比較
 diffai dir1/ dir2/ --recursive
 
-# 特定の拡張子のみ
-diffai dir1/ dir2/ --include "*.py" --include "*.json"
+# 特定のファイル形式で比較
+diffai models_v1/ models_v2/ --format safetensors --recursive
 ```
 
-## 🤖 AI/ML特化機能
+## AI/ML特化機能
 
-### PyTorchモデルの比較
+### PyTorchモデル比較
 
 ```bash
-# PyTorchモデルファイルの比較
-diffai model1.pth model2.pth
+# PyTorchモデルファイルを比較
+diffai model1.pt model2.pt --stats
 
-# 詳細な構造情報を表示
-diffai model1.pth model2.pth --show-structure
+# 学習進捗分析付き
+diffai checkpoint_epoch_1.pt checkpoint_epoch_10.pt --learning-progress
 
-# 差分のみを表示
-diffai model1.pth model2.pth --diff-only
+# アーキテクチャ比較付き
+diffai baseline_model.pt improved_model.pt --architecture-comparison
 ```
 
-**出力例:**
+**出力例**:
 ```
-=== PyTorch Model Comparison ===
-
-📊 Model Structure:
-  ├─ model1.pth: ResNet-18 (11.7M params)
-  └─ model2.pth: ResNet-34 (21.8M params)
-
-🔍 Layer Differences:
-  + model2.pth: layer4.1.conv2 (512x512x3x3)
-  + model2.pth: layer4.1.bn2 (512 features)
-  - model1.pth: Only has 2 blocks in layer4
-
-📈 Parameter Count:
-  model1.pth: 11,689,512 parameters
-  model2.pth: 21,797,672 parameters
-  Difference: +10,108,160 parameters (+86.4%)
+  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
+  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
+  ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
+  learning_progress: trend=improving, magnitude=0.0234, speed=0.0156
 ```
 
-### Safetensorsファイルの比較
+### Safetensorsファイル比較
 
 ```bash
-# Safetensorsファイルの比較
-diffai model1.safetensors model2.safetensors
+# 統計付きSafetensorsファイル比較
+diffai model1.safetensors model2.safetensors --stats
 
-# テンソルの詳細情報
-diffai model1.safetensors model2.safetensors --tensor-details
+# デプロイ準備分析付き
+diffai baseline.safetensors candidate.safetensors --deployment-readiness
 ```
 
-### データセットの比較
+### 科学データ比較
 
 ```bash
-# CSVデータセットの比較
-diffai train.csv test.csv --format csv
+# NumPy配列比較
+diffai data_v1.npy data_v2.npy --stats
 
-# JSONデータセットの比較
-diffai dataset1.json dataset2.json --format json
+# MATLABファイル比較
+diffai simulation_v1.mat simulation_v2.mat --stats
 
-# 統計情報の表示
-diffai train.csv test.csv --stats
+# 圧縮NumPyアーカイブ比較
+diffai dataset_v1.npz dataset_v2.npz --stats
 ```
 
-## 📋 コマンドオプション
+## コマンドオプション
 
 ### 基本オプション
 
 | オプション | 説明 | 例 |
-|-----------|------|-----|
-| `--format` | 出力形式を指定 | `--format json` |
-| `--verbose` | 詳細出力 | `--verbose` |
-| `--quiet` | 最小出力 | `--quiet` |
-| `--color` | カラー出力の制御 | `--color always` |
+|-----------|-------------|---------|
+| `-f, --format` | 入力ファイル形式を指定 | `--format safetensors` |
+| `-o, --output` | 出力形式を選択 | `--output json` |
+| `-r, --recursive` | ディレクトリを再帰的に比較 | `--recursive` |
+| `--stats` | 詳細統計を表示 | `--stats` |
 
-### ファイル処理オプション
-
-| オプション | 説明 | 例 |
-|-----------|------|-----|
-| `--recursive` | ディレクトリを再帰的に処理 | `--recursive` |
-| `--include` | 含めるファイルパターン | `--include "*.py"` |
-| `--exclude` | 除外するファイルパターン | `--exclude "*.pyc"` |
-| `--follow-symlinks` | シンボリックリンクを追跡 | `--follow-symlinks` |
-
-### AI/ML専用オプション
+### 高度オプション
 
 | オプション | 説明 | 例 |
-|-----------|------|-----|
-| `--show-structure` | モデル構造を表示 | `--show-structure` |
-| `--tensor-details` | テンソル詳細情報 | `--tensor-details` |
-| `--diff-only` | 差分のみを表示 | `--diff-only` |
-| `--stats` | 統計情報を表示 | `--stats` |
+|-----------|-------------|---------|
+| `--path` | 特定のパスでフィルタ | `--path "config.model"` |
+| `--ignore-keys-regex` | 正規表現に一致するキーを無視 | `--ignore-keys-regex "^id$"` |
+| `--epsilon` | 浮動小数点比較の許容誤差 | `--epsilon 0.001` |
+| `--array-id-key` | 配列要素識別 | `--array-id-key "id"` |
+| `--sort-by-change-magnitude` | 変更量でソート | `--sort-by-change-magnitude` |
 
-## 🎨 出力形式
+### ML分析オプション
 
-### デフォルト形式
+| オプション | 説明 | 例 |
+|-----------|-------------|---------|
+| `--learning-progress` | 学習進捗追跡 | `--learning-progress` |
+| `--convergence-analysis` | 収束分析 | `--convergence-analysis` |
+| `--architecture-comparison` | アーキテクチャ比較 | `--architecture-comparison` |
+| `--deployment-readiness` | デプロイ準備評価 | `--deployment-readiness` |
+| `--quantization-analysis` | 量子化分析 | `--quantization-analysis` |
 
-標準的な diff 形式で出力：
+## 出力形式
 
-```
---- model1.pth
-+++ model2.pth
-@@ -1,3 +1,4 @@
- layer1.conv1: Conv2d(3, 64, kernel_size=(7, 7))
- layer1.bn1: BatchNorm2d(64, eps=1e-05)
-+layer1.relu: ReLU(inplace=True)
- layer1.maxpool: MaxPool2d(kernel_size=3, stride=2)
-```
+### CLI出力（デフォルト）
 
-### JSON形式
+記号付きの人間可読な色付き出力：
 
 ```bash
-diffai model1.pth model2.pth --format json
+$ diffai model_v1.safetensors model_v2.safetensors --stats
+  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
+  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
+  ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
+```
+
+### JSON出力
+
+```bash
+diffai model1.safetensors model2.safetensors --output json
 ```
 
 ```json
-{
-  "comparison": {
-    "file1": "model1.pth",
-    "file2": "model2.pth",
-    "type": "pytorch",
-    "differences": [
-      {
-        "type": "added",
-        "layer": "layer1.relu",
-        "details": "ReLU(inplace=True)"
-      }
+[
+  {
+    "TensorStatsChanged": [
+      "fc1.bias",
+      {"mean": 0.0018, "std": 0.0518, "shape": [64], "dtype": "f32"},
+      {"mean": 0.0017, "std": 0.0647, "shape": [64], "dtype": "f32"}
     ]
   }
-}
+]
 ```
 
-### カスタム形式
+### YAML出力
 
 ```bash
-# カスタムテンプレートを使用
-diffai model1.pth model2.pth --template custom.jinja2
+diffai model1.safetensors model2.safetensors --output yaml
 ```
 
-## 🔧 設定ファイル
+```yaml
+- TensorStatsChanged:
+  - fc1.bias
+  - mean: 0.0018
+    std: 0.0518
+    shape: [64]
+    dtype: f32
+  - mean: 0.0017
+    std: 0.0647
+    shape: [64]
+    dtype: f32
+```
+
+## 設定
 
 ### グローバル設定
 
-`~/.config/diffai/config.toml`:
+`~/.config/diffx/config.toml`:
 
 ```toml
-[defaults]
-format = "default"
-color = "auto"
-verbose = false
+[diffai]
+default_output = "cli"
+default_format = "auto"
+epsilon = 0.001
+sort_by_magnitude = false
 
-[pytorch]
-show_structure = true
-tensor_details = false
-
-[output]
-pager = "less"
-max_lines = 1000
+[ml_analysis]
+enable_all = false
+learning_progress = true
+convergence_analysis = true
+memory_analysis = true
 ```
 
-### プロジェクト設定
+### 環境変数
 
-`.diffai.toml`:
+```bash
+# 設定ファイルパス設定
+export DIFFAI_CONFIG="/path/to/config.toml"
 
-```toml
-[project]
-name = "my-ml-project"
+# ログレベル設定
+export DIFFAI_LOG_LEVEL="info"
 
-[include]
-patterns = ["*.py", "*.pth", "*.safetensors"]
-
-[exclude]
-patterns = ["*.pyc", "__pycache__/*"]
-
-[pytorch]
-show_structure = true
+# 最大メモリ使用量設定
+export DIFFAI_MAX_MEMORY="1024"
 ```
 
-## 🎯 実用的な例
+## 実用例
 
-### 実験の比較
+### 実験比較
 
 ```bash
 # 2つの実験結果を比較
-diffai experiment_v1/ experiment_v2/ --recursive --include "*.json"
+diffai experiment_v1/ experiment_v2/ --recursive
 
-# モデルチェックポイントの比較
-diffai checkpoints/epoch_10.pth checkpoints/epoch_20.pth --show-structure
+# 学習分析付きモデルチェックポイント比較
+diffai checkpoints/epoch_10.safetensors checkpoints/epoch_20.safetensors --learning-progress
 ```
 
-### CI/CDでの使用
+### CI/CD使用
 
 ```yaml
-- name: Compare models
+- name: モデル比較
   run: |
-    diffai baseline/model.pth new/model.pth --format json > model_diff.json
+    diffai baseline/model.safetensors new/model.safetensors --output json > model_diff.json
     
-- name: Check significant changes
+- name: デプロイ準備チェック
   run: |
-    if diffai baseline/model.pth new/model.pth --diff-only --quiet; then
-      echo "No significant model changes"
-    else
-      echo "Model has changed - review required"
-      exit 1
-    fi
+    diffai baseline/model.safetensors candidate/model.safetensors --deployment-readiness
 ```
 
-## 📚 次のステップ
+### 科学データ分析
 
-- [ML/AI ワークフロー](ml-workflows_ja.md) - ML開発での活用法
-- [設定](configuration_ja.md) - 詳細な設定方法
-- [API リファレンス](../api/cli_ja.md) - 全コマンドの詳細
+```bash
+# NumPy実験結果比較
+diffai baseline_results.npy new_results.npy --stats
+
+# MATLABシミュレーションデータ比較
+diffai simulation_v1.mat simulation_v2.mat --stats
+```
+
+## 対応ファイル形式
+
+### MLモデル形式
+- **Safetensors** (.safetensors) - HuggingFace標準形式
+- **PyTorch** (.pt, .pth) - PyTorchモデルファイル
+
+### 科学データ形式
+- **NumPy** (.npy, .npz) - 統計分析付きNumPy配列
+- **MATLAB** (.mat) - 複素数対応MATLAB行列
+
+### 構造化データ形式
+- **JSON** (.json), **YAML** (.yaml, .yml), **TOML** (.toml)
+- **XML** (.xml), **INI** (.ini), **CSV** (.csv)
+
+## 次のステップ
+
+- [MLモデル比較](ml-model-comparison_ja.md) - 高度MLモデル分析
+- [科学データ分析](scientific-data_ja.md) - NumPyとMATLABファイル比較
+- [CLIリファレンス](../reference/cli-reference_ja.md) - 完全なコマンドリファレンス
+
+## 言語サポート
+
+- **日本語**: 現在のドキュメント
+- **English**: [English version](basic-usage.md)

@@ -1,438 +1,417 @@
 # CLI Reference
 
-Complete command-line reference for diffai.
+Complete command-line reference for diffai v0.2.0 - AI/ML specialized diff tool.
 
-## 📋 Synopsis
+## Synopsis
 
 ```
 diffai [OPTIONS] <INPUT1> <INPUT2>
 ```
 
-## 📝 Description
+## Description
 
-diffai is a specialized diff tool for AI/ML workflows that understands model structures, tensor statistics, and experiment data. It compares structured data files and ML models, focusing on semantic changes rather than formatting differences.
+diffai is a specialized diff tool for AI/ML workflows that understands model structures, tensor statistics, and scientific data. It compares PyTorch models, Safetensors files, NumPy arrays, MATLAB matrices, and structured data files, focusing on semantic changes rather than formatting differences.
 
-## 🔧 Arguments
+## Arguments
 
 ### Required Arguments
 
-#### `<INPUT1>` 
+#### `<INPUT1>`
 First input file or directory to compare.
 
 - **Type**: File path or directory path
-- **Formats**: JSON, YAML, TOML, XML, INI, CSV, PyTorch (.pt/.pth), Safetensors (.safetensors)
+- **Formats**: PyTorch (.pt/.pth), Safetensors (.safetensors), NumPy (.npy/.npz), MATLAB (.mat), JSON, YAML, TOML, XML, INI, CSV
+- **Special**: Use `-` for stdin
+
+#### `<INPUT2>`
+Second input file or directory to compare.
+
+- **Type**: File path or directory path
+- **Formats**: Same as INPUT1
 - **Special**: Use `-` for stdin
 
 **Examples**:
 ```bash
 diffai model1.safetensors model2.safetensors
+diffai data_v1.npy data_v2.npy
+diffai experiment_v1.mat experiment_v2.mat
 diffai config.json config_new.json
 diffai - config.json < input.json
 ```
 
-#### `<INPUT2>`
-Second input file or directory to compare.
+## Options
 
-- **Type**: File path or directory path  
-- **Formats**: Same as INPUT1
-- **Special**: Use `-` for stdin (only one input can be stdin)
-
-## ⚙️ Options
-
-### Format Options
+### Basic Options
 
 #### `-f, --format <FORMAT>`
 Specify input file format explicitly.
 
-- **Type**: Enum
-- **Values**: `json`, `yaml`, `toml`, `ini`, `xml`, `csv`, `safetensors`, `pytorch`
+- **Possible values**: `json`, `yaml`, `toml`, `ini`, `xml`, `csv`, `safetensors`, `pytorch`, `numpy`, `npz`, `matlab`
 - **Default**: Auto-detected from file extension
+- **Example**: `--format safetensors`
 
-**Examples**:
-```bash
-# Explicit format specification
-diffai --format json file1 file2
+#### `-o, --output <OUTPUT>`
+Choose output format.
 
-# Useful when file extension is ambiguous
-diffai --format safetensors model.bin model_new.bin
-```
-
-**Auto-detection Rules**:
-| Extension | Detected Format |
-|-----------|----------------|
-| `.json` | JSON |
-| `.yaml`, `.yml` | YAML |
-| `.toml` | TOML |
-| `.ini` | INI |
-| `.xml` | XML |
-| `.csv` | CSV |
-| `.safetensors` | Safetensors |
-| `.pt`, `.pth` | PyTorch |
-
-### Output Options
-
-#### `-o, --output <FORMAT>`
-Specify output format.
-
-- **Type**: Enum  
-- **Values**: `cli`, `json`, `yaml`, `unified`
+- **Possible values**: `cli`, `json`, `yaml`, `unified`
 - **Default**: `cli`
-
-**Examples**:
-```bash
-# Human-readable CLI output (default)
-diffai model1.safetensors model2.safetensors
-
-# Machine-readable JSON
-diffai model1.safetensors model2.safetensors --output json
-
-# YAML format for configuration
-diffai config1.yaml config2.yaml --output yaml
-
-# Git-compatible unified diff
-diffai data1.json data2.json --output unified
-```
-
-**Output Format Details**:
-
-| Format | Use Case | Features |
-|--------|----------|----------|
-| `cli` | Human review | Colored output, ML symbols (📊⬚), hierarchical display |
-| `json` | Automation | Machine-readable, structured data, API integration |
-| `yaml` | Configuration | Human-readable structured format |
-| `unified` | Git integration | Traditional diff format, merge tool compatibility |
-
-### Comparison Options
-
-#### `--epsilon <VALUE>`
-Set tolerance for floating-point comparisons.
-
-- **Type**: Float
-- **Default**: Exact comparison (no tolerance)
-- **Range**: Any positive floating-point number
-
-**Examples**:
-```bash
-# Ignore tiny differences (numerical noise)
-diffai model1.safetensors model2.safetensors --epsilon 1e-6
-
-# Quantization analysis (larger tolerance)
-diffai fp32_model.safetensors int8_model.safetensors --epsilon 0.01
-
-# Training progress (medium tolerance)
-diffai checkpoint1.pt checkpoint2.pt --epsilon 1e-4
-```
-
-**Use Cases by Epsilon Value**:
-| Epsilon | Use Case | Description |
-|---------|----------|-------------|
-| None | Exact comparison | Detect all changes, including numerical noise |
-| `1e-8` | High precision | Scientific computing, minimal tolerance |
-| `1e-6` | Standard ML | Normal model training, ignore floating-point errors |
-| `1e-4` | Training progress | Focus on significant learning changes |
-| `0.01` | Quantization | Account for precision loss in quantized models |
-| `0.1` | Architecture focus | Ignore small weight changes, focus on structure |
-
-### Filtering Options
-
-#### `--path <PATH>`
-Filter differences by specific path.
-
-- **Type**: String
-- **Format**: Dot notation for nested objects, bracket notation for arrays
-- **Default**: Show all paths
-
-**Examples**:
-```bash
-# Focus on classifier layer only
-diffai model1.safetensors model2.safetensors --path "tensor.classifier"
-
-# Specific configuration section
-diffai config1.json config2.json --path "database.connection"
-
-# Array element with ID
-diffai users1.json users2.json --path "users[id=123]"
-```
-
-**Path Syntax**:
-```
-# Object properties
-config.database.host
-
-# Array indices  
-users[0].name
-
-# Array elements by ID (when using --array-id-key)
-users[id=123].email
-
-# Nested structures
-model.layers[0].weights.data
-
-# ML model tensors
-tensor.bert.encoder.layer.11.attention.self.query.weight
-```
-
-#### `--ignore-keys-regex <REGEX>`
-Ignore keys matching regular expression.
-
-- **Type**: Regular expression string
-- **Default**: None (compare all keys)
-
-**Examples**:
-```bash
-# Ignore timestamp fields
-diffai config1.json config2.json --ignore-keys-regex "^timestamp$"
-
-# Ignore multiple metadata fields
-diffai model1.safetensors model2.safetensors --ignore-keys-regex "^(_metadata|timestamp|run_id)$"
-
-# Ignore version info
-diffai package1.json package2.json --ignore-keys-regex "^version"
-
-# Ignore temporary or generated fields
-diffai data1.json data2.json --ignore-keys-regex "^(tmp_|generated_|_temp)"
-```
-
-**Common Regex Patterns**:
-| Pattern | Matches | Use Case |
-|---------|---------|----------|
-| `^timestamp$` | Exact "timestamp" key | Ignore timestamps |
-| `^_.*` | Keys starting with underscore | Ignore private fields |
-| `.*_temp$` | Keys ending with "_temp" | Ignore temporary data |
-| `^(id\|uuid)$` | "id" or "uuid" keys | Ignore identifiers |
-| `version` | Any key containing "version" | Ignore version fields |
-
-#### `--array-id-key <KEY>`
-Key to use for identifying array elements.
-
-- **Type**: String
-- **Default**: Index-based comparison
-- **Purpose**: Improved array element tracking
-
-**Examples**:
-```bash
-# Track users by ID field
-diffai users1.json users2.json --array-id-key "id"
-
-# Track tasks by UUID
-diffai tasks1.json tasks2.json --array-id-key "uuid" 
-
-# Track model layers by name
-diffai config1.json config2.json --array-id-key "layer_name"
-```
-
-**Without array-id-key (index-based)**:
-```json
-// Changes shown as index modifications
-[0].name: "Alice" -> "Bob"
-[1]: {"name": "Charlie", "age": 30} (added)
-```
-
-**With array-id-key="id" (ID-based)**:
-```json
-// Changes shown with semantic meaning
-[id=1].name: "Alice" -> "Bob"  
-[id=3]: {"id": 3, "name": "Charlie", "age": 30} (added)
-```
-
-### Directory Options
+- **Example**: `--output json`
 
 #### `-r, --recursive`
 Compare directories recursively.
 
-- **Type**: Boolean flag
-- **Default**: `false` (single file comparison)
+- **Example**: `diffai dir1/ dir2/ --recursive`
 
-**Examples**:
+#### `--stats`
+Show detailed statistics for ML models and scientific data.
+
+- **Example**: `diffai model.safetensors model2.safetensors --stats`
+
+### Advanced Options
+
+#### `--path <PATH>`
+Filter differences by a specific path.
+
+- **Example**: `--path "config.users[0].name"`
+- **Format**: JSONPath-like syntax
+
+#### `--ignore-keys-regex <REGEX>`
+Ignore keys matching a regular expression.
+
+- **Example**: `--ignore-keys-regex "^id$"`
+- **Format**: Standard regex pattern
+
+#### `--epsilon <FLOAT>`
+Set tolerance for float comparisons.
+
+- **Example**: `--epsilon 0.001`
+- **Default**: Machine epsilon
+
+#### `--array-id-key <KEY>`
+Specify key for identifying array elements.
+
+- **Example**: `--array-id-key "id"`
+- **Usage**: For structured array comparison
+
+#### `--sort-by-change-magnitude`
+Sort differences by change magnitude (ML models only).
+
+- **Example**: `diffai model1.pt model2.pt --sort-by-change-magnitude`
+
+## ML Analysis Functions
+
+### Learning & Convergence Analysis
+
+#### `--learning-progress`
+Track learning progress between training checkpoints.
+
+- **Output**: Learning trend, parameter update magnitude, convergence speed
+- **Example**: `diffai checkpoint_epoch_1.safetensors checkpoint_epoch_10.safetensors --learning-progress`
+
+#### `--convergence-analysis`
+Analyze convergence stability and patterns.
+
+- **Output**: Convergence status, parameter stability analysis
+- **Example**: `diffai baseline.safetensors converged.safetensors --convergence-analysis`
+
+#### `--anomaly-detection`
+Detect training anomalies (gradient explosion, vanishing gradients).
+
+- **Output**: Anomaly type, severity, affected layers, recommended actions
+- **Example**: `diffai normal_model.safetensors anomalous_model.safetensors --anomaly-detection`
+
+#### `--gradient-analysis`
+Analyze gradient characteristics and flow.
+
+- **Output**: Gradient flow health, norm estimation, problematic layers
+- **Example**: `diffai model_before.pt model_after.pt --gradient-analysis`
+
+### Architecture & Performance Analysis
+
+#### `--architecture-comparison`
+Compare model architectures and structural changes.
+
+- **Output**: Architecture type, depth changes, structural differences
+- **Example**: `diffai baseline_arch.safetensors improved_arch.safetensors --architecture-comparison`
+
+#### `--param-efficiency-analysis`
+Analyze parameter efficiency between models.
+
+- **Output**: Parameter efficiency metrics, optimization suggestions
+- **Example**: `diffai large_model.pt optimized_model.pt --param-efficiency-analysis`
+
+#### `--memory-analysis`
+Analyze memory usage and optimization opportunities.
+
+- **Output**: Memory delta, GPU estimation, efficiency score
+- **Example**: `diffai model_v1.safetensors model_v2.safetensors --memory-analysis`
+
+#### `--inference-speed-estimate`
+Estimate inference speed and performance characteristics.
+
+- **Output**: Speed ratio, FLOPS ratio, bottleneck analysis
+- **Example**: `diffai original.pt optimized.pt --inference-speed-estimate`
+
+### MLOps & Deployment Support
+
+#### `--deployment-readiness`
+Assess deployment readiness and compatibility.
+
+- **Output**: Readiness score, deployment strategy, risk assessment
+- **Example**: `diffai candidate_model.safetensors production_model.safetensors --deployment-readiness`
+
+#### `--regression-test`
+Perform automated regression testing.
+
+- **Output**: Test results, performance comparison, regression indicators
+- **Example**: `diffai baseline.pt new_version.pt --regression-test`
+
+#### `--risk-assessment`
+Evaluate deployment risks and stability.
+
+- **Output**: Risk level, stability metrics, mitigation recommendations
+- **Example**: `diffai stable_model.safetensors experimental_model.safetensors --risk-assessment`
+
+#### `--hyperparameter-impact`
+Analyze hyperparameter impact on model changes.
+
+- **Output**: Hyperparameter sensitivity, impact analysis
+- **Example**: `diffai config_v1.json config_v2.json --hyperparameter-impact`
+
+#### `--learning-rate-analysis`
+Analyze learning rate effects and optimization.
+
+- **Output**: Learning rate effectiveness, optimization patterns
+- **Example**: `diffai lr_001.safetensors lr_01.safetensors --learning-rate-analysis`
+
+#### `--alert-on-degradation`
+Alert on performance degradation beyond thresholds.
+
+- **Output**: Degradation alerts, threshold violations
+- **Example**: `diffai production.pt candidate.pt --alert-on-degradation`
+
+#### `--performance-impact-estimate`
+Estimate performance impact of model changes.
+
+- **Output**: Performance delta, impact estimation, optimization suggestions
+- **Example**: `diffai baseline.safetensors optimized.safetensors --performance-impact-estimate`
+
+### Experiment & Documentation Support
+
+#### `--generate-report`
+Generate comprehensive analysis reports.
+
+- **Output**: Detailed analysis report with multiple metrics
+- **Example**: `diffai experiment_baseline.safetensors experiment_result.safetensors --generate-report`
+
+#### `--markdown-output`
+Output results in markdown format for documentation.
+
+- **Output**: Markdown-formatted analysis results
+- **Example**: `diffai model_v1.pt model_v2.pt --markdown-output`
+
+#### `--include-charts`
+Include charts and visualizations in output.
+
+- **Output**: Chart analysis metadata (visualization coming soon)
+- **Example**: `diffai data_v1.npy data_v2.npy --include-charts`
+
+#### `--review-friendly`
+Generate review-friendly output for human reviewers.
+
+- **Output**: Human-readable analysis summaries
+- **Example**: `diffai pr_baseline.safetensors pr_changes.safetensors --review-friendly`
+
+### Advanced Analysis Functions
+
+#### `--embedding-analysis`
+Analyze embedding layer changes and semantic drift.
+
+- **Output**: Embedding drift analysis, semantic change detection
+- **Example**: `diffai embeddings_v1.safetensors embeddings_v2.safetensors --embedding-analysis`
+
+#### `--similarity-matrix`
+Generate similarity matrix for model comparison.
+
+- **Output**: Similarity matrix, correlation analysis
+- **Example**: `diffai model_a.pt model_b.pt --similarity-matrix`
+
+#### `--clustering-change`
+Analyze clustering changes in model representations.
+
+- **Output**: Clustering analysis, representation changes
+- **Example**: `diffai representation_v1.safetensors representation_v2.safetensors --clustering-change`
+
+#### `--attention-analysis`
+Analyze attention mechanism patterns (Transformer models).
+
+- **Output**: Attention pattern analysis, mechanism evaluation
+- **Example**: `diffai transformer_v1.safetensors transformer_v2.safetensors --attention-analysis`
+
+#### `--head-importance`
+Analyze attention head importance and specialization.
+
+- **Output**: Head importance ranking, specialization analysis
+- **Example**: `diffai attention_baseline.pt attention_pruned.pt --head-importance`
+
+#### `--attention-pattern-diff`
+Compare attention patterns between models.
+
+- **Output**: Attention pattern differences, behavioral changes
+- **Example**: `diffai pattern_v1.safetensors pattern_v2.safetensors --attention-pattern-diff`
+
+### Additional Analysis Functions
+
+#### `--quantization-analysis`
+Analyze quantization effects and efficiency.
+
+- **Output**: Compression ratio, speedup estimation, precision loss
+- **Example**: `diffai fp32_model.safetensors quantized_model.safetensors --quantization-analysis`
+
+#### `--sort-by-change-magnitude`
+Sort differences by magnitude for prioritization.
+
+- **Output**: Magnitude-sorted difference list
+- **Example**: `diffai model1.pt model2.pt --sort-by-change-magnitude`
+
+#### `--change-summary`
+Generate detailed change summaries.
+
+- **Output**: Comprehensive change analysis and summary
+- **Example**: `diffai version_a.safetensors version_b.safetensors --change-summary`
+
+## Output Examples
+
+### CLI Output (Default)
+
 ```bash
-# Compare all files in directories
-diffai config_dir1/ config_dir2/ --recursive
-
-# Combined with format specification
-diffai experiments_v1/ experiments_v2/ --recursive --format json
-
-# With filtering
-diffai models_old/ models_new/ --recursive --ignore-keys-regex "^timestamp$"
+$ diffai model_v1.safetensors model_v2.safetensors --stats
+  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
+  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
+  ~ fc2.bias: mean=-0.0076->-0.0257, std=0.0661->0.0973
+  ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
+  ~ fc3.bias: mean=-0.0074->-0.0130, std=0.1031->0.1093
+  ~ fc3.weight: mean=-0.0035->-0.0010, std=0.0990->0.1113
 ```
 
-**Directory Comparison Behavior**:
-- Compares files with same relative paths
-- Shows files unique to each directory
-- Auto-detects format for each file pair
-- Applies all filtering options to each comparison
-
-### Help and Version
-
-#### `-h, --help`
-Display help information.
+### Advanced Analysis Output
 
 ```bash
-diffai --help
-diffai -h
+$ diffai baseline.safetensors improved.safetensors --deployment-readiness --architecture-comparison
+deployment_readiness: readiness=0.92, strategy=blue_green, risk=low, timeline=ready_for_immediate_deployment
+architecture_comparison: type1=feedforward, type2=feedforward, depth=3->3, differences=0
+  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
+  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
 ```
 
-#### `-V, --version`
-Display version information.
+### Scientific Data Analysis
 
 ```bash
-diffai --version
-diffai -V
+$ diffai experiment_data_v1.npy experiment_data_v2.npy --stats
+  ~ data: shape=[1000, 256], mean=0.1234->0.1456, std=0.9876->0.9654, dtype=float64
 ```
 
-## 🔗 Combined Options
-
-### ML Model Analysis
+### MATLAB File Comparison
 
 ```bash
-# Comprehensive model comparison
-diffai model1.safetensors model2.safetensors \
-  --epsilon 1e-6 \
-  --output json \
-  --path "tensor.classifier" \
-  > analysis.json
-
-# Training progress analysis
-diffai checkpoint_epoch_10.pt checkpoint_epoch_50.pt \
-  --epsilon 1e-4 \
-  --ignore-keys-regex "^(optimizer_state|scheduler_state)" \
-  --output yaml
+$ diffai simulation_v1.mat simulation_v2.mat --stats
+  ~ results: var=results, shape=[500, 100], mean=2.3456->2.4567, std=1.2345->1.3456, dtype=double
+  + new_variable: var=new_variable, shape=[100], dtype=single, elements=100, size=0.39KB
 ```
 
-### Configuration Management
+### JSON Output
 
 ```bash
-# Environment config comparison
-diffai config_dev.json config_prod.json \
-  --ignore-keys-regex "^(timestamp|environment|debug)" \
-  --output yaml \
-  --path "database"
-
-# Recursive directory analysis
-diffai config_v1/ config_v2/ \
-  --recursive \
-  --format json \
-  --ignore-keys-regex "^_.*" \
-  --output json > config_diff.json
+$ diffai model_v1.safetensors model_v2.safetensors --output json
+[
+  {
+    "TensorStatsChanged": [
+      "fc1.bias",
+      {"mean": 0.0018, "std": 0.0518, "shape": [64], "dtype": "f32"},
+      {"mean": 0.0017, "std": 0.0647, "shape": [64], "dtype": "f32"}
+    ]
+  }
+]
 ```
 
-### MLOps Integration
+### YAML Output
 
 ```bash
-# CI/CD model validation
-diffai baseline_model.safetensors candidate_model.safetensors \
-  --epsilon 1e-5 \
-  --output json \
-  --ignore-keys-regex "^(training_metadata|timestamp)" | \
-  jq '.[] | select(.TensorShapeChanged)' > architecture_changes.json
-
-# Experiment tracking
-diffai experiment_run_123.json experiment_run_124.json \
-  --array-id-key "metric_name" \
-  --ignore-keys-regex "^(start_time|end_time|run_id)" \
-  --path "results.metrics"
+$ diffai model_v1.safetensors model_v2.safetensors --output yaml
+- TensorStatsChanged:
+  - fc1.bias
+  - mean: 0.0018
+    std: 0.0518
+    shape: [64]
+    dtype: f32
+  - mean: 0.0017
+    std: 0.0647
+    shape: [64]
+    dtype: f32
 ```
 
-## 📊 Exit Codes
+## Exit Codes
 
-| Code | Meaning | Description |
-|------|---------|-------------|
-| `0` | Success | Comparison completed successfully |
-| `1` | General error | Invalid arguments, file not found, etc. |
-| `2` | Parse error | Unable to parse input files |
-| `3` | I/O error | File read/write permissions issue |
+- **0**: Success - differences found or no differences
+- **1**: Error - invalid arguments or file access issues
+- **2**: Fatal error - internal processing failure
 
-## 🔍 Examples
+## Environment Variables
 
-### Basic Usage
+- **DIFFAI_CONFIG**: Path to configuration file
+- **DIFFAI_LOG_LEVEL**: Log level (error, warn, info, debug)
+- **DIFFAI_MAX_MEMORY**: Maximum memory usage (in MB)
 
+## Configuration File
+
+diffai supports configuration files in TOML format. Place configuration at:
+
+- Unix: `~/.config/diffx/config.toml`
+- Windows: `%APPDATA%/diffx/config.toml`
+- Current directory: `.diffx.toml`
+
+Example configuration:
+```toml
+[diffai]
+default_output = "cli"
+default_format = "auto"
+epsilon = 0.001
+sort_by_magnitude = false
+
+[ml_analysis]
+enable_all = false
+learning_progress = true
+convergence_analysis = true
+memory_analysis = true
+```
+
+## Performance Considerations
+
+- **Large Files**: diffai uses streaming processing for GB+ files
+- **Memory Usage**: Configurable memory limits with `DIFFAI_MAX_MEMORY`
+- **Parallel Processing**: Automatic parallelization for multi-file comparisons
+- **Caching**: Intelligent caching for repeated comparisons
+
+## Troubleshooting
+
+### Common Issues
+
+1. **"Binary files differ" message**: Use `--format` to specify file type
+2. **Out of memory**: Set `DIFFAI_MAX_MEMORY` environment variable
+3. **Slow processing**: Use `--stats` only when needed for large models
+4. **Missing dependencies**: Ensure Rust toolchain is properly installed
+
+### Debug Mode
+
+Enable debug output with:
 ```bash
-# Simple file comparison
-diffai config.json config_new.json
-
-# Model comparison with tolerance
-diffai model.safetensors model_v2.safetensors --epsilon 1e-6
-
-# Directory comparison
-diffai experiments_old/ experiments_new/ --recursive
+DIFFAI_LOG_LEVEL=debug diffai model1.safetensors model2.safetensors
 ```
 
-### Advanced Filtering
+## See Also
 
-```bash
-# Focus on specific model layers
-diffai transformer_v1.safetensors transformer_v2.safetensors \
-  --path "tensor.encoder.layer"
-
-# Ignore metadata and timestamps
-diffai config1.json config2.json \
-  --ignore-keys-regex "^(_meta|timestamp|created_at)$"
-
-# Track array elements by ID
-diffai users_before.json users_after.json \
-  --array-id-key "user_id"
-```
-
-### Output Formats
-
-```bash
-# JSON for automation
-diffai data1.json data2.json --output json | jq '.[] | .Added'
-
-# YAML for documentation  
-diffai config.yaml config_new.yaml --output yaml > changes.yaml
-
-# Unified diff for git
-diffai old.json new.json --output unified | git apply
-```
-
-### ML-Specific Workflows
-
-```bash
-# Fine-tuning analysis
-diffai pretrained.safetensors finetuned.safetensors \
-  --epsilon 1e-6 \
-  --output json | \
-  jq '[.[] | select(.TensorStatsChanged)] | length'
-
-# Quantization impact
-diffai fp32_model.safetensors int8_model.safetensors \
-  --epsilon 0.01 \
-  --path "tensor" \
-  --output yaml
-
-# Training checkpoint comparison
-diffai checkpoint_1.pt checkpoint_10.pt \
-  --epsilon 1e-4 \
-  --ignore-keys-regex "^optimizer" \
-  --output json > training_progress.json
-```
-
-## 🚨 Notes and Limitations
-
-### File Size Limits
-- **Recommended maximum**: 10GB per file
-- **Memory usage**: ~2x file size during processing
-- **Large files**: Consider using `--path` filtering
-
-### Format Support
-- **Binary formats**: PyTorch and Safetensors only
-- **Text formats**: All encoding types supported  
-- **Compressed files**: Not directly supported (decompress first)
-
-### Performance Considerations
-- **Large models**: Use appropriate epsilon values
-- **Deep structures**: May require significant memory
-- **Directory comparison**: Processes files sequentially
-
-### Regex Notes
-- Uses Rust regex syntax (similar to Perl)
-- Case-sensitive by default
-- Full Unicode support
-- Performance optimized for common patterns
-
----
-
-**See Also**: 
-- [API Reference](api-reference.md) - Rust library documentation
-- [ML Model Comparison](../user-guide/ml-model-comparison.md) - Detailed ML usage guide
-- [Examples](../user-guide/examples.md) - Real-world usage scenarios
+- [Basic Usage Guide](../user-guide/basic-usage.md)
+- [ML Model Comparison Guide](../user-guide/ml-model-comparison.md)
+- [Scientific Data Analysis Guide](../user-guide/scientific-data.md)
+- [Output Format Reference](output-formats.md)
+- [Supported Formats Reference](formats.md)
