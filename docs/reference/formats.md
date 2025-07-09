@@ -143,7 +143,3 @@ diffai detects formats in the following priority order:
 - [ML Analysis Functions](ml-analysis.md) - Machine learning specialized functions
 - [Output Formats](output-formats.md) - Output format specifications
 
-## Language Support
-
-- **English**: Current documentation
-- **日本語**: [Japanese version](formats_ja.md)

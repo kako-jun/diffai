@@ -333,7 +333,3 @@ def log_comparison_to_tensorboard(model1, model2, step):
 - [API Reference](../api/cli.md) - Complete command reference
 - [Examples](../examples/) - Practical usage examples
 
-## Language Support
-
-- **English**: Current documentation
-- **日本語**: [Japanese version](ml-workflows_ja.md)

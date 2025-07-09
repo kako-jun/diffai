@@ -30,7 +30,3 @@ New to diffai? Start with:
 3. [ML Model Comparison](user-guide/ml-model-comparison.md) - Compare PyTorch and Safetensors models
 4. [Scientific Data Analysis](user-guide/scientific-data.md) - Work with NumPy and MATLAB files
 
-## Language Support
-
-- **English**: Current documentation
-- **日本語**: [Japanese version](index_ja.md)

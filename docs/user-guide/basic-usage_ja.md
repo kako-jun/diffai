@@ -241,7 +241,3 @@ diffai simulation_v1.mat simulation_v2.mat --stats
 - [科学データ分析](scientific-data_ja.md) - NumPyとMATLABファイル比較
 - [CLIリファレンス](../reference/cli-reference_ja.md) - 完全なコマンドリファレンス
 
-## 言語サポート
-
-- **日本語**: 現在のドキュメント
-- **English**: [English version](basic-usage.md)

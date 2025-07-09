@@ -413,7 +413,3 @@ cargo bench
 - [CLI Reference](../reference/cli-reference.md) - Command-line specifications
 - [ML Analysis Functions](../reference/ml-analysis.md) - Machine learning analysis functions
 
-## Language Support
-
-- **English**: Current documentation
-- **日本語**: [Japanese version](implementation_ja.md)

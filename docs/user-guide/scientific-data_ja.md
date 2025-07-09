@@ -366,7 +366,3 @@ diffai data_v1.npy data_v2.npy --epsilon 1e-8
 - [MLモデル比較](ml-model-comparison_ja.md) - PyTorchとSafetensors分析
 - [CLIリファレンス](../reference/cli-reference_ja.md) - 完全なコマンドリファレンス
 
-## 言語サポート
-
-- **日本語**: 現在のドキュメント
-- **English**: [English version](scientific-data.md)

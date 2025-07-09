@@ -315,7 +315,3 @@ For detailed design documentation, see:
 
 These design principles position diffai as an essential tool for AI/ML development and ensure long-term success.
 
-## Language Support
-
-- **English**: Current documentation
-- **日本語**: [Japanese version](design-principles_ja.md)

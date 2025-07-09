@@ -281,7 +281,3 @@ export DIFFAI_YAML_FLOW="false"
 - [Supported Formats](formats.md) - Input file formats
 - [ML Analysis Functions](ml-analysis.md) - Machine learning analysis functions
 
-## Language Support
-
-- **English**: Current documentation
-- **日本語**: [Japanese version](output-formats_ja.md)
