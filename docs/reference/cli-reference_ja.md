@@ -1,73 +1,71 @@
-# CLI リファレンス
+# CLIリファレンス
 
-diffai の完全なコマンドライン リファレンスです。
+diffai v0.2.0のコマンドライン完全リファレンス - AI/ML特化差分ツール
 
-## 📋 概要
+## 概要
 
 ```
 diffai [OPTIONS] <INPUT1> <INPUT2>
 ```
 
-## 📝 説明
+## 説明
 
-diffaiは、モデル構造、テンソル統計、実験データを理解するAI/MLワークフロー特化の差分ツールです。構造化データファイルとMLモデルを比較し、フォーマットの違いではなく意味的な変更に焦点を当てます。
+diffaiは、AI/MLワークフローに特化した差分ツールで、モデル構造、テンソル統計、科学データを理解します。PyTorchモデル、Safetensorsファイル、NumPy配列、MATLAB行列、構造化データファイルを比較し、フォーマットの違いではなく意味的な変更に焦点を当てます。
 
-## 🔧 引数
+## 引数
 
 ### 必須引数
 
-#### `<INPUT1>` 
-比較する最初の入力ファイルまたはディレクトリ。
+#### `<INPUT1>`
+比較する最初の入力ファイルまたはディレクトリ
 
 - **型**: ファイルパスまたはディレクトリパス
-- **形式**: JSON, YAML, TOML, XML, INI, CSV, PyTorch (.pt/.pth), Safetensors (.safetensors)
-- **特殊**: 標準入力には `-` を使用
+- **形式**: PyTorch (.pt/.pth)、Safetensors (.safetensors)、NumPy (.npy/.npz)、MATLAB (.mat)、JSON、YAML、TOML、XML、INI、CSV
+- **特殊**: 標準入力には`-`を使用
+
+#### `<INPUT2>`
+比較する2番目の入力ファイルまたはディレクトリ
+
+- **型**: ファイルパスまたはディレクトリパス
+- **形式**: INPUT1と同じ
+- **特殊**: 標準入力には`-`を使用
 
 **例**:
 ```bash
 diffai model1.safetensors model2.safetensors
+diffai data_v1.npy data_v2.npy
+diffai experiment_v1.mat experiment_v2.mat
 diffai config.json config_new.json
 diffai - config.json < input.json
 ```
 
-#### `<INPUT2>`
-比較する2番目の入力ファイルまたはディレクトリ。
+## オプション
 
-- **型**: ファイルパスまたはディレクトリパス
-- **形式**: INPUT1と同じ
-- **特殊**: 標準入力には `-` を使用（一つの入力のみ標準入力可能）
-
-## ⚙️ オプション
-
-### フォーマット オプション
+### 基本オプション
 
 #### `-f, --format <FORMAT>`
-入力ファイルフォーマットを明示的に指定。
+入力ファイル形式を明示的に指定
 
-- **型**: 列挙型
-- **値**: `json`, `yaml`, `toml`, `ini`, `xml`, `csv`, `safetensors`, `pytorch`
+- **可能な値**: `json`, `yaml`, `toml`, `ini`, `xml`, `csv`, `safetensors`, `pytorch`, `numpy`, `npz`, `matlab`
 - **デフォルト**: ファイル拡張子から自動検出
+- **例**: `--format safetensors`
 
-**例**:
-```bash
-# 明示的なフォーマット指定
-diffai --format json file1 file2
+#### `-o, --output <OUTPUT>`
+出力形式を選択
 
-# ファイル拡張子が曖昧な場合に便利
-diffai --format safetensors model.bin model_new.bin
-```
+- **可能な値**: `cli`, `json`, `yaml`, `unified`
+- **デフォルト**: `cli`
+- **例**: `--output json`
 
-**自動検出ルール**:
-| 拡張子 | 検出される形式 |
-|-----------|----------------|
-| `.json` | JSON |
-| `.yaml`, `.yml` | YAML |
-| `.toml` | TOML |
-| `.ini` | INI |
-| `.xml` | XML |
-| `.csv` | CSV |
-| `.safetensors` | Safetensors |
-| `.pt`, `.pth` | PyTorch |
+#### `-r, --recursive`
+ディレクトリを再帰的に比較
+
+- **例**: `diffai dir1/ dir2/ --recursive`
+
+#### `--stats`
+MLモデルと科学データの詳細統計を表示
+
+- **例**: `diffai model.safetensors model2.safetensors --stats`
 
 ### 出力オプション
 

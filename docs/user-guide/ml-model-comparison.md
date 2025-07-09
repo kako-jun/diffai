@@ -2,25 +2,25 @@
 
 This guide covers diffai's specialized features for comparing machine learning models, including PyTorch and Safetensors files.
 
-## 🧠 Overview
+## Overview
 
 diffai provides native support for AI/ML model formats, allowing you to compare models at the tensor level rather than just as binary files. This enables meaningful analysis of model changes during training, fine-tuning, quantization, and deployment.
 
-## 📊 Supported ML Formats
+## Supported ML Formats
 
 ### PyTorch Models
-- **`.pt` files**: PyTorch model files (pickle format)
+- **`.pt` files**: PyTorch model files (pickle format with Candle integration)
 - **`.pth` files**: PyTorch model files (alternative extension)
 
 ### Safetensors Models
-- **`.safetensors` files**: Hugging Face Safetensors format (recommended)
+- **`.safetensors` files**: HuggingFace Safetensors format (recommended)
 
-### Future Support (Planned)
+### Future Support (Phase 3)
 - **`.onnx` files**: ONNX format
 - **`.h5` files**: Keras/TensorFlow HDF5 format
 - **`.pb` files**: TensorFlow Protocol Buffer format
 
-## 🔍 What diffai Analyzes
+## What diffai Analyzes
 
 ### Tensor Statistics
 For each tensor in the model, diffai calculates and compares:
@@ -38,42 +38,39 @@ For each tensor in the model, diffai calculates and compares:
 - **Layer additions/removals**: New or deleted layers
 - **Shape changes**: Modified layer dimensions
 
-## 🚀 Basic Model Comparison
+## Basic Model Comparison
 
 ### Simple Comparison
 
 ```bash
 # Compare two PyTorch models
-diffai model1.pt model2.pt
+diffai model1.pt model2.pt --stats
 
 # Compare Safetensors models (recommended)
-diffai model1.safetensors model2.safetensors
+diffai model1.safetensors model2.safetensors --stats
 
 # Automatic format detection
-diffai pretrained.safetensors finetuned.safetensors
+diffai pretrained.safetensors finetuned.safetensors --stats
 ```
 
 ### Example Output
 
-```
-📊 tensor.transformer.h.0.attn.weight: mean=0.0023→0.0156, std=0.0891→0.1234
-⬚ tensor.classifier.weight: [768, 1000] -> [768, 10]
-+ tensor.new_layer.weight: shape=[64, 64], dtype=f32, params=4096
-- tensor.old_layer.bias: shape=[256], dtype=f32, params=256
+```bash
+$ diffai model_v1.safetensors model_v2.safetensors --stats
+  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
+  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
+  ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
 ```
 
 ### Output Symbols
 
 | Symbol | Meaning | Description |
 |--------|---------|-------------|
-| `📊` | Statistics Changed | Tensor values changed but shape remained same |
-| `⬚` | Shape Changed | Tensor dimensions modified |
+| `~` | Statistics Changed | Tensor values changed but shape remained same |
 | `+` | Added | New tensor/layer added |
 | `-` | Removed | Tensor/layer removed |
-| `~` | Modified | General modification |
-| `!` | Type Changed | Data type changed |
 
-## ⚙️ Advanced Options
+## Advanced Options
 
 ### Epsilon Tolerance
 
@@ -104,24 +101,24 @@ diffai model1.pt model2.pt --output json > changes.json
 
 ```bash
 # Focus on specific layers
-diffai model1.safetensors model2.safetensors --path "tensor.classifier"
+diffai model1.safetensors model2.safetensors --path "classifier"
 
 # Ignore timestamp or metadata
 diffai model1.safetensors model2.safetensors --ignore-keys-regex "^(timestamp|_metadata)"
 ```
 
-## 🎯 Common Use Cases
+## Common Use Cases
 
 ### 1. Fine-tuning Analysis
 
 Compare a pre-trained model with its fine-tuned version:
 
 ```bash
-diffai pretrained_bert.safetensors finetuned_bert.safetensors
+diffai pretrained_bert.safetensors finetuned_bert.safetensors --stats
 
 # Expected output: Statistical changes in attention layers
-# 📊 tensor.bert.encoder.layer.11.attention.self.query.weight: mean=-0.0001→0.0023
-# 📊 tensor.classifier.weight: mean=0.0000→0.0145, std=0.0200→0.0890
+# ~ bert.encoder.layer.11.attention.self.query.weight: mean=-0.0001→0.0023
+# ~ classifier.weight: mean=0.0000→0.0145, std=0.0200→0.0890
 ```
 
 **Analysis**: 
@@ -136,7 +133,7 @@ Compare FP32 and quantized models:
 diffai model_fp32.safetensors model_int8.safetensors --epsilon 0.1
 
 # Expected output: Controlled precision loss
-# 📊 tensor.conv1.weight: mean=0.0045→0.0043, std=0.2341→0.2298
+# ~ conv1.weight: mean=0.0045→0.0043, std=0.2341→0.2298
 # No differences found (within epsilon tolerance)
 ```
 
@@ -149,11 +146,11 @@ diffai model_fp32.safetensors model_int8.safetensors --epsilon 0.1
 Compare checkpoints during training:
 
 ```bash
-diffai checkpoint_epoch_10.pt checkpoint_epoch_50.pt
+diffai checkpoint_epoch_10.pt checkpoint_epoch_50.pt --stats
 
 # Expected output: Convergence patterns
-# 📊 tensor.layers.0.weight: mean=-0.0012→0.0034, std=1.2341→0.8907
-# 📊 tensor.layers.1.bias: mean=0.1234→0.0567, std=0.4567→0.3210
+# ~ layers.0.weight: mean=-0.0012→0.0034, std=1.2341→0.8907
+# ~ layers.1.bias: mean=0.1234→0.0567, std=0.4567→0.3210
 ```
 
 **Analysis**:
@@ -165,12 +162,12 @@ diffai checkpoint_epoch_10.pt checkpoint_epoch_50.pt
 Compare different model architectures:
 
 ```bash
-diffai resnet50.safetensors efficientnet_b0.safetensors
+diffai resnet50.safetensors efficientnet_b0.safetensors --stats
 
 # Expected output: Structural differences
-# ⬚ tensor.features.conv1.weight: [64, 3, 7, 7] -> [32, 3, 3, 3]
-# + tensor.features.mbconv.expand_conv.weight: shape=[96, 32, 1, 1]
-# - tensor.features.layer4.2.downsample.0.weight: shape=[2048, 1024, 1, 1]
+# ~ features.conv1.weight: shape=[64, 3, 7, 7] -> [32, 3, 3, 3]
+# + features.mbconv.expand_conv.weight: shape=[96, 32, 1, 1]
+# - features.layer4.2.downsample.0.weight: shape=[2048, 1024, 1, 1]
 ```
 
 **Analysis**:
@@ -367,9 +364,9 @@ gunzip model.safetensors.gz
 - Set appropriate epsilon values to avoid noise
 - Consider model size when choosing comparison strategy
 
-## 🚀 Advanced ML Analysis Features
+## Advanced ML Analysis Features
 
-diffai provides 13 advanced machine learning analysis features designed for comprehensive model evaluation:
+diffai provides 28 advanced machine learning analysis features designed for comprehensive model evaluation:
 
 ### 1. Learning Progress Analysis (`--learning-progress`)
 
@@ -561,24 +558,50 @@ diffai fp32.safetensors quantized.safetensors \
   --quantization-analysis --memory-analysis --performance-impact-estimate
 ```
 
-## 📈 All 13 Advanced Features
+## All 28 Advanced Features
 
-| Feature | Flag | Purpose | Output Example |
-|---------|------|---------|----------------|
-| **Learning Progress** | `--learning-progress` | Training progression | `trend=improving, magnitude=0.0543` |
-| **Convergence Analysis** | `--convergence-analysis` | Training stability | `status=stable, stability=0.0234` |
-| **Anomaly Detection** | `--anomaly-detection` | Weight anomalies | `type=gradient_explosion, severity=critical` |
-| **Gradient Analysis** | `--gradient-analysis` | Gradient patterns | `gradient_norm=0.023, vanishing_risk=low` |
-| **Memory Analysis** | `--memory-analysis` | Memory usage | `delta=+2.7MB, efficiency=0.89` |
-| **Inference Speed** | `--inference-speed-estimate` | Performance est. | `latency_change=+15ms, throughput=-5%` |
-| **Regression Test** | `--regression-test` | Quality assurance | `passed=true, issues=0` |
-| **Alert Degradation** | `--alert-on-degradation` | Quality monitoring | `degradation_detected=false` |
-| **Review Friendly** | `--review-friendly` | Code review | `summary="5 layers modified"` |
-| **Architecture Comp** | `--architecture-comparison` | Structure analysis | `type1=cnn, differences=15` |
-| **Param Efficiency** | `--param-efficiency-analysis` | Efficiency metrics | `efficiency_ratio=1.23` |
-| **Hyperparameter** | `--hyperparameter-impact` | HP influence | `impact_score=0.67` |
-| **Deployment Ready** | `--deployment-readiness` | Production check | `ready=true, confidence=0.95` |
+### Learning & Convergence Analysis (4 features)
+- `--learning-progress` - Track learning progress between checkpoints
+- `--convergence-analysis` - Analyze convergence stability and patterns
+- `--anomaly-detection` - Detect training anomalies (gradient explosion, vanishing gradients)
+- `--gradient-analysis` - Analyze gradient characteristics and flow
 
----
+### Architecture & Performance Analysis (4 features)
+- `--architecture-comparison` - Compare model architectures and structural changes
+- `--param-efficiency-analysis` - Analyze parameter efficiency between models
+- `--memory-analysis` - Analyze memory usage and optimization opportunities
+- `--inference-speed-estimate` - Estimate inference speed and performance characteristics
 
-**Next**: [Examples](examples.md) - Explore real-world usage scenarios
+### MLOps & Deployment Support (7 features)
+- `--deployment-readiness` - Assess deployment readiness and compatibility
+- `--regression-test` - Perform automated regression testing
+- `--risk-assessment` - Evaluate deployment risks and stability
+- `--hyperparameter-impact` - Analyze hyperparameter impact on model changes
+- `--learning-rate-analysis` - Analyze learning rate effects and optimization
+- `--alert-on-degradation` - Alert on performance degradation beyond thresholds
+- `--performance-impact-estimate` - Estimate performance impact of changes
+
+### Experiment & Documentation Support (4 features)
+- `--generate-report` - Generate comprehensive analysis reports
+- `--markdown-output` - Output results in markdown format for documentation
+- `--include-charts` - Include charts and visualizations in output
+- `--review-friendly` - Generate review-friendly output for human reviewers
+
+### Advanced Analysis Functions (6 features)
+- `--embedding-analysis` - Analyze embedding layer changes and semantic drift
+- `--similarity-matrix` - Generate similarity matrix for model comparison
+- `--clustering-change` - Analyze clustering changes in model representations
+- `--attention-analysis` - Analyze attention mechanism patterns (Transformer models)
+- `--head-importance` - Analyze attention head importance and specialization
+- `--attention-pattern-diff` - Compare attention patterns between models
+
+### Additional Analysis Functions (3 features)
+- `--quantization-analysis` - Analyze quantization effects and efficiency
+- `--sort-by-change-magnitude` - Sort differences by magnitude for prioritization
+- `--change-summary` - Generate detailed change summaries
+
+## Next Steps
+
+- [Basic Usage](basic-usage.md) - Learn fundamental operations
+- [Scientific Data Analysis](scientific-data.md) - NumPy and MATLAB file comparison
+- [CLI Reference](../reference/cli-reference.md) - Complete command reference

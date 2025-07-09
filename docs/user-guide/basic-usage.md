@@ -1,213 +1,202 @@
 # Basic Usage
 
-Learn the fundamental operations of diffai.
+Learn the fundamental operations of diffai - AI/ML specialized diff tool.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Basic File Comparison
 
 ```bash
-# Compare two files
-diffai file1.txt file2.txt
+# Compare two model files
+diffai model1.safetensors model2.safetensors
 
-# Detailed output
-diffai file1.txt file2.txt --verbose
+# Show detailed tensor statistics
+diffai model1.safetensors model2.safetensors --stats
 
-# Specify output format
-diffai file1.txt file2.txt --format json
+# Output in JSON format
+diffai model1.safetensors model2.safetensors --output json
 ```
 
 ### Directory Comparison
 
 ```bash
-# Compare entire directories
+# Compare entire directories recursively
 diffai dir1/ dir2/ --recursive
 
-# Filter by file extensions
-diffai dir1/ dir2/ --include "*.py" --include "*.json"
+# Compare with specific file format
+diffai models_v1/ models_v2/ --format safetensors --recursive
 ```
 
-## 🤖 AI/ML Specialized Features
+## AI/ML Specialized Features
 
 ### PyTorch Model Comparison
 
 ```bash
 # Compare PyTorch model files
-diffai model1.pth model2.pth
+diffai model1.pt model2.pt --stats
 
-# Show detailed structure information
-diffai model1.pth model2.pth --show-structure
+# With learning progress analysis
+diffai checkpoint_epoch_1.pt checkpoint_epoch_10.pt --learning-progress
 
-# Show only differences
-diffai model1.pth model2.pth --diff-only
+# With architecture comparison
+diffai baseline_model.pt improved_model.pt --architecture-comparison
 ```
 
 **Example Output:**
 ```
-=== PyTorch Model Comparison ===
-
-📊 Model Structure:
-  ├─ model1.pth: ResNet-18 (11.7M params)
-  └─ model2.pth: ResNet-34 (21.8M params)
-
-🔍 Layer Differences:
-  + model2.pth: layer4.1.conv2 (512x512x3x3)
-  + model2.pth: layer4.1.bn2 (512 features)
-  - model1.pth: Only has 2 blocks in layer4
-
-📈 Parameter Count:
-  model1.pth: 11,689,512 parameters
-  model2.pth: 21,797,672 parameters
-  Difference: +10,108,160 parameters (+86.4%)
+  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
+  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
+  ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
+  learning_progress: trend=improving, magnitude=0.0234, speed=0.0156
 ```
 
 ### Safetensors File Comparison
 
 ```bash
-# Compare Safetensors files
-diffai model1.safetensors model2.safetensors
+# Compare Safetensors files with statistics
+diffai model1.safetensors model2.safetensors --stats
 
-# Show tensor details
-diffai model1.safetensors model2.safetensors --tensor-details
+# With deployment readiness analysis
+diffai baseline.safetensors candidate.safetensors --deployment-readiness
 ```
 
-### Dataset Comparison
+### Scientific Data Comparison
 
 ```bash
-# Compare CSV datasets
-diffai train.csv test.csv --format csv
+# Compare NumPy arrays
+diffai data_v1.npy data_v2.npy --stats
 
-# Compare JSON datasets
-diffai dataset1.json dataset2.json --format json
+# Compare MATLAB files
+diffai simulation_v1.mat simulation_v2.mat --stats
 
-# Show statistics
-diffai train.csv test.csv --stats
+# Compare compressed NumPy archives
+diffai dataset_v1.npz dataset_v2.npz --stats
 ```
 
-## 📋 Command Options
+## Command Options
 
 ### Basic Options
 
 | Option | Description | Example |
 |--------|-------------|---------|
-| `--format` | Specify output format | `--format json` |
-| `--verbose` | Detailed output | `--verbose` |
-| `--quiet` | Minimal output | `--quiet` |
-| `--color` | Control color output | `--color always` |
+| `-f, --format` | Specify input file format | `--format safetensors` |
+| `-o, --output` | Choose output format | `--output json` |
+| `-r, --recursive` | Compare directories recursively | `--recursive` |
+| `--stats` | Show detailed statistics | `--stats` |
 
-### File Processing Options
-
-| Option | Description | Example |
-|--------|-------------|---------|
-| `--recursive` | Process directories recursively | `--recursive` |
-| `--include` | Include file patterns | `--include "*.py"` |
-| `--exclude` | Exclude file patterns | `--exclude "*.pyc"` |
-| `--follow-symlinks` | Follow symbolic links | `--follow-symlinks` |
-
-### AI/ML Specific Options
+### Advanced Options
 
 | Option | Description | Example |
 |--------|-------------|---------|
-| `--show-structure` | Show model structure | `--show-structure` |
-| `--tensor-details` | Show tensor details | `--tensor-details` |
-| `--diff-only` | Show only differences | `--diff-only` |
-| `--stats` | Show statistics | `--stats` |
+| `--path` | Filter by specific path | `--path "config.model"` |
+| `--ignore-keys-regex` | Ignore keys matching regex | `--ignore-keys-regex "^id$"` |
+| `--epsilon` | Float comparison tolerance | `--epsilon 0.001` |
+| `--array-id-key` | Array element identification | `--array-id-key "id"` |
+| `--sort-by-change-magnitude` | Sort by change magnitude | `--sort-by-change-magnitude` |
 
-## 🎨 Output Formats
+### ML Analysis Options
 
-### Default Format
+| Option | Description | Example |
+|--------|-------------|---------|
+| `--learning-progress` | Track learning progress | `--learning-progress` |
+| `--convergence-analysis` | Analyze convergence | `--convergence-analysis` |
+| `--architecture-comparison` | Compare architectures | `--architecture-comparison` |
+| `--deployment-readiness` | Assess deployment readiness | `--deployment-readiness` |
+| `--quantization-analysis` | Analyze quantization effects | `--quantization-analysis` |
 
-Standard diff format output:
+## Output Formats
 
-```
---- model1.pth
-+++ model2.pth
-@@ -1,3 +1,4 @@
- layer1.conv1: Conv2d(3, 64, kernel_size=(7, 7))
- layer1.bn1: BatchNorm2d(64, eps=1e-05)
-+layer1.relu: ReLU(inplace=True)
- layer1.maxpool: MaxPool2d(kernel_size=3, stride=2)
-```
+### CLI Output (Default)
 
-### JSON Format
+Human-readable colored output with symbols:
 
 ```bash
-diffai model1.pth model2.pth --format json
+$ diffai model_v1.safetensors model_v2.safetensors --stats
+  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
+  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
+  ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
+```
+
+### JSON Output
+
+```bash
+diffai model1.safetensors model2.safetensors --output json
 ```
 
 ```json
-{
-  "comparison": {
-    "file1": "model1.pth",
-    "file2": "model2.pth",
-    "type": "pytorch",
-    "differences": [
-      {
-        "type": "added",
-        "layer": "layer1.relu",
-        "details": "ReLU(inplace=True)"
-      }
+[
+  {
+    "TensorStatsChanged": [
+      "fc1.bias",
+      {"mean": 0.0018, "std": 0.0518, "shape": [64], "dtype": "f32"},
+      {"mean": 0.0017, "std": 0.0647, "shape": [64], "dtype": "f32"}
     ]
   }
-}
+]
 ```
 
-### Custom Format
+### YAML Output
 
 ```bash
-# Use custom template
-diffai model1.pth model2.pth --template custom.jinja2
+diffai model1.safetensors model2.safetensors --output yaml
 ```
 
-## 🔧 Configuration
+```yaml
+- TensorStatsChanged:
+  - fc1.bias
+  - mean: 0.0018
+    std: 0.0518
+    shape: [64]
+    dtype: f32
+  - mean: 0.0017
+    std: 0.0647
+    shape: [64]
+    dtype: f32
+```
+
+## Configuration
 
 ### Global Configuration
 
-`~/.config/diffai/config.toml`:
+`~/.config/diffx/config.toml`:
 
 ```toml
-[defaults]
-format = "default"
-color = "auto"
-verbose = false
+[diffai]
+default_output = "cli"
+default_format = "auto"
+epsilon = 0.001
+sort_by_magnitude = false
 
-[pytorch]
-show_structure = true
-tensor_details = false
-
-[output]
-pager = "less"
-max_lines = 1000
+[ml_analysis]
+enable_all = false
+learning_progress = true
+convergence_analysis = true
+memory_analysis = true
 ```
 
-### Project Configuration
+### Environment Variables
 
-`.diffai.toml`:
+```bash
+# Set configuration file path
+export DIFFAI_CONFIG="/path/to/config.toml"
 
-```toml
-[project]
-name = "my-ml-project"
+# Set log level
+export DIFFAI_LOG_LEVEL="info"
 
-[include]
-patterns = ["*.py", "*.pth", "*.safetensors"]
-
-[exclude]
-patterns = ["*.pyc", "__pycache__/*"]
-
-[pytorch]
-show_structure = true
+# Set maximum memory usage
+export DIFFAI_MAX_MEMORY="1024"
 ```
 
-## 🎯 Practical Examples
+## Practical Examples
 
 ### Experiment Comparison
 
 ```bash
 # Compare two experiment results
-diffai experiment_v1/ experiment_v2/ --recursive --include "*.json"
+diffai experiment_v1/ experiment_v2/ --recursive
 
-# Compare model checkpoints
-diffai checkpoints/epoch_10.pth checkpoints/epoch_20.pth --show-structure
+# Compare model checkpoints with learning analysis
+diffai checkpoints/epoch_10.safetensors checkpoints/epoch_20.safetensors --learning-progress
 ```
 
 ### CI/CD Usage
@@ -215,25 +204,44 @@ diffai checkpoints/epoch_10.pth checkpoints/epoch_20.pth --show-structure
 ```yaml
 - name: Compare models
   run: |
-    diffai baseline/model.pth new/model.pth --format json > model_diff.json
+    diffai baseline/model.safetensors new/model.safetensors --output json > model_diff.json
     
-- name: Check significant changes
+- name: Check deployment readiness
   run: |
-    if diffai baseline/model.pth new/model.pth --diff-only --quiet; then
-      echo "No significant model changes"
-    else
-      echo "Model has changed - review required"
-      exit 1
-    fi
+    diffai baseline/model.safetensors candidate/model.safetensors --deployment-readiness
 ```
 
-## 📚 Next Steps
+### Scientific Data Analysis
 
-- [ML/AI Workflows](ml-workflows.md) - Integration with ML development
-- [Configuration](configuration.md) - Advanced configuration
-- [API Reference](../api/cli.md) - Complete command reference
+```bash
+# Compare NumPy experiment results
+diffai baseline_results.npy new_results.npy --stats
 
-## 🌐 Language Support
+# Compare MATLAB simulation data
+diffai simulation_v1.mat simulation_v2.mat --stats
+```
+
+## Supported File Formats
+
+### ML Model Formats
+- **Safetensors** (.safetensors) - HuggingFace standard format
+- **PyTorch** (.pt, .pth) - PyTorch model files
+
+### Scientific Data Formats
+- **NumPy** (.npy, .npz) - NumPy arrays with statistical analysis
+- **MATLAB** (.mat) - MATLAB matrices with complex number support
+
+### Structured Data Formats
+- **JSON** (.json), **YAML** (.yaml, .yml), **TOML** (.toml)
+- **XML** (.xml), **INI** (.ini), **CSV** (.csv)
+
+## Next Steps
+
+- [ML Model Comparison](ml-model-comparison.md) - Advanced ML model analysis
+- [Scientific Data Analysis](scientific-data.md) - NumPy and MATLAB file comparison
+- [CLI Reference](../reference/cli-reference.md) - Complete command reference
+
+## Language Support
 
 - **English**: Current documentation
 - **日本語**: [Japanese version](basic-usage_ja.md)
