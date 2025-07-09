@@ -44,6 +44,17 @@ Traditional diff tools are inadequate for AI/ML workflows:
 | **ML-specific formats** | No support | Native PyTorch/Safetensors/NumPy/MATLAB |
 | **Scientific workflows** | Text-only comparison | Numerical array analysis and visualization |
 
+### diffai vs MLOps Tools
+
+diffai complements existing MLOps tools by focusing on **structural comparison** rather than experiment management:
+
+| Aspect | diffai | MLflow / DVC / ModelDB |
+|--------|--------|------------------------|
+| **Focus** | "Making incomparable things comparable" | Systematization, reproducibility, CI/CD integration |
+| **Data Assumption** | Unknown origin files / black-box generated artifacts | Well-documented and tracked data |
+| **Operation** | Structural and visual comparison optimization | Version control and experiment tracking specialization |
+| **Scope** | Visualization of "ambiguous structures" including JSON/YAML/model files | Experiment metadata, version management, reproducibility |
+
 ## Installation
 
 ### From crates.io (Recommended)
