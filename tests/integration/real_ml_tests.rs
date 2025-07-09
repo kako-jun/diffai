@@ -224,7 +224,10 @@ fn test_model_size_impact_analysis() -> Result<(), Box<dyn std::error::Error>> {
     cmd.assert()
         .success()
         .stdout(predicate::str::contains("+").or(predicate::str::contains("-")))
-        .stdout(predicate::str::contains("deployment_readiness").or(predicate::str::contains("review_friendly")));
+        .stdout(
+            predicate::str::contains("deployment_readiness")
+                .or(predicate::str::contains("review_friendly")),
+        );
 
     Ok(())
 }

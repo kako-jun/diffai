@@ -244,11 +244,10 @@ fn test_pytorch_vs_safetensors_comparison() {
                 );
 
                 // Check that tensor names match
-                for (name, _) in &pytorch_tensors {
+                for name in pytorch_tensors.keys() {
                     assert!(
                         safetensors_tensors.contains_key(name),
-                        "Safetensors should contain tensor: {}",
-                        name
+                        "Safetensors should contain tensor: {name}"
                     );
                 }
             }
@@ -355,9 +354,9 @@ fn test_transfer_learning_info() {
     assert_eq!(transfer_info.domain_adaptation_strength, "moderate");
     assert_eq!(transfer_info.learning_strategy, "fine-tuning");
 
-    // Test that layer counts are non-negative
-    assert!(transfer_info.frozen_layers >= 0);
-    assert!(transfer_info.updated_layers >= 0);
+    // Test that layer counts are as expected
+    assert_eq!(transfer_info.frozen_layers, 8);
+    assert_eq!(transfer_info.updated_layers, 2);
 
     // Test that parameter update ratio is reasonable (0-1)
     assert!(
@@ -371,10 +370,7 @@ fn test_transfer_learning_info() {
     );
 
     // Test layer adaptation strength vector
-    assert_eq!(
-        transfer_info.layer_adaptation_strength.len(),
-        10
-    );
+    assert_eq!(transfer_info.layer_adaptation_strength.len(), 10);
 }
 
 #[test]
