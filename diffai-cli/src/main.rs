@@ -246,6 +246,7 @@ enum Format {
     Pytorch,
     Numpy,
     Npz,
+    Matlab,
 }
 
 fn infer_format_from_path(path: &Path) -> Option<Format> {
@@ -266,6 +267,7 @@ fn infer_format_from_path(path: &Path) -> Option<Format> {
                 "pt" | "pth" => Some(Format::Pytorch),
                 "npy" => Some(Format::Numpy),
                 "npz" => Some(Format::Npz),
+                "mat" => Some(Format::Matlab),
                 _ => None,
             })
     }
@@ -292,7 +294,7 @@ fn parse_content(content: &str, format: Format) -> Result<Value> {
         Format::Ini => parse_ini(content).context("Failed to parse INI"),
         Format::Xml => parse_xml(content).context("Failed to parse XML"),
         Format::Csv => parse_csv(content).context("Failed to parse CSV"),
-        Format::Safetensors | Format::Pytorch | Format::Numpy | Format::Npz => {
+        Format::Safetensors | Format::Pytorch | Format::Numpy | Format::Npz | Format::Matlab => {
             bail!("ML/Scientific data formats (safetensors, pytorch, numpy, npz) cannot be parsed as text. Use the model/array comparison feature instead.")
         }
     }
@@ -587,6 +589,24 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
                 format!("- {}: shape={:?}, dtype={}, elements={}, size={}MB",
                     k, stats.shape, stats.dtype, stats.total_elements,
                     stats.memory_size_bytes as f64 / 1024.0 / 1024.0).red()
+            }
+            DiffResult::MatlabArrayChanged(k, stats1, stats2) => {
+                let complex_info = if stats1.is_complex || stats2.is_complex { " (complex)" } else { "" };
+                format!("~ {}: var={}, shape={:?}, mean={:.4}->{:.4}, std={:.4}->{:.4}, dtype={}{}",
+                    k, stats1.variable_name, stats1.shape, stats1.mean, stats2.mean, 
+                    stats1.std, stats2.std, stats1.dtype, complex_info).cyan()
+            }
+            DiffResult::MatlabArrayAdded(k, stats) => {
+                let complex_info = if stats.is_complex { " (complex)" } else { "" };
+                format!("+ {}: var={}, shape={:?}, dtype={}, elements={}, size={}MB{}",
+                    k, stats.variable_name, stats.shape, stats.dtype, stats.total_elements, 
+                    stats.memory_size_bytes as f64 / 1024.0 / 1024.0, complex_info).green()
+            }
+            DiffResult::MatlabArrayRemoved(k, stats) => {
+                let complex_info = if stats.is_complex { " (complex)" } else { "" };
+                format!("- {}: var={}, shape={:?}, dtype={}, elements={}, size={}MB{}",
+                    k, stats.variable_name, stats.shape, stats.dtype, stats.total_elements,
+                    stats.memory_size_bytes as f64 / 1024.0 / 1024.0, complex_info).red()
             }
             DiffResult::ModelArchitectureChanged(k, info1, info2) => {
                 format!("! {}: params={}->{}, layers={}->{} (architecture)",
@@ -952,6 +972,15 @@ fn print_yaml_output(differences: Vec<DiffResult>) -> Result<()> {
             DiffResult::NumpyArrayRemoved(key, stats) => serde_json::json!({
                 "NumpyArrayRemoved": [key, stats]
             }),
+            DiffResult::MatlabArrayChanged(key, stats1, stats2) => serde_json::json!({
+                "MatlabArrayChanged": [key, stats1, stats2]
+            }),
+            DiffResult::MatlabArrayAdded(key, stats) => serde_json::json!({
+                "MatlabArrayAdded": [key, stats]
+            }),
+            DiffResult::MatlabArrayRemoved(key, stats) => serde_json::json!({
+                "MatlabArrayRemoved": [key, stats]
+            }),
             DiffResult::ModelArchitectureChanged(key, info1, info2) => serde_json::json!({
                 "ModelArchitectureChanged": [key, info1, info2]
             }),
@@ -1134,6 +1163,10 @@ fn main() -> Result<()> {
             // Handle NumPy scientific array comparison
             diffai_core::diff_numpy_files(&args.input1, &args.input2)?
         }
+        Format::Matlab => {
+            // Handle MATLAB .mat file comparison
+            diffai_core::diff_matlab_files(&args.input1, &args.input2)?
+        }
         Format::Safetensors | Format::Pytorch => {
             // Check if any ML-specific options are enabled
             if args.show_layer_impact
@@ -1280,7 +1313,7 @@ fn main() -> Result<()> {
         OutputFormat::Json => print_json_output(differences)?,
         OutputFormat::Yaml => print_yaml_output(differences)?,
         OutputFormat::Unified => match input_format {
-            Format::Safetensors | Format::Pytorch | Format::Numpy | Format::Npz => {
+            Format::Safetensors | Format::Pytorch | Format::Numpy | Format::Npz | Format::Matlab => {
                 bail!("Unified output format is not supported for ML/Scientific data files")
             }
             _ => {
@@ -1406,6 +1439,9 @@ fn compare_directories(
                             DiffResult::NumpyArrayChanged(k, _, _) => k,
                             DiffResult::NumpyArrayAdded(k, _) => k,
                             DiffResult::NumpyArrayRemoved(k, _) => k,
+                            DiffResult::MatlabArrayChanged(k, _, _) => k,
+                            DiffResult::MatlabArrayAdded(k, _) => k,
+                            DiffResult::MatlabArrayRemoved(k, _) => k,
                         };
                         key.starts_with(filter_path_str)
                     });
