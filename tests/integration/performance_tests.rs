@@ -21,15 +21,14 @@ fn test_large_model_performance() {
     let memory_used = peak_memory - initial_memory;
 
     println!("Performance Test Results:");
-    println!("  Duration: {:?}", duration);
+    println!("  Duration: {duration:?}");
     println!("  Memory Used: {} MB", memory_used / 1024 / 1024);
     println!("  Differences Found: {}", result.unwrap_or_default().len());
 
     // パフォーマンス基準チェック
     assert!(
         duration.as_secs() < 10,
-        "処理時間が10秒を超えています: {:?}",
-        duration
+        "処理時間が10秒を超えています: {duration:?}"
     );
     assert!(
         memory_used < 500 * 1024 * 1024,
@@ -73,15 +72,14 @@ fn test_multiple_models_batch_performance() {
     let memory_used = peak_memory - initial_memory;
 
     println!("Batch Performance Test Results:");
-    println!("  Total Duration: {:?}", duration);
+    println!("  Total Duration: {duration:?}");
     println!("  Memory Used: {} MB", memory_used / 1024 / 1024);
-    println!("  Total Differences: {}", total_differences);
+    println!("  Total Differences: {total_differences}");
 
     // バッチ処理パフォーマンス基準
     assert!(
         duration.as_secs() < 15,
-        "バッチ処理時間が15秒を超えています: {:?}",
-        duration
+        "バッチ処理時間が15秒を超えています: {duration:?}"
     );
     assert!(
         memory_used < 1000 * 1024 * 1024,
@@ -165,15 +163,14 @@ fn test_concurrent_analysis_performance() {
     let memory_used = peak_memory - initial_memory;
 
     println!("Concurrent Analysis Performance Test Results:");
-    println!("  Duration: {:?}", duration);
+    println!("  Duration: {duration:?}");
     println!("  Memory Used: {} MB", memory_used / 1024 / 1024);
-    println!("  Total Differences: {}", total_differences);
+    println!("  Total Differences: {total_differences}");
 
     // 並行処理パフォーマンス基準
     assert!(
         duration.as_secs() < 20,
-        "並行処理時間が20秒を超えています: {:?}",
-        duration
+        "並行処理時間が20秒を超えています: {duration:?}"
     );
     assert!(
         memory_used < 1500 * 1024 * 1024,
@@ -189,7 +186,7 @@ fn get_memory_usage() -> usize {
     if cfg!(target_os = "linux") {
         // Linux でのメモリ使用量取得
         if let Ok(output) = Command::new("ps")
-            .args(&["-o", "rss=", "-p"])
+            .args(["-o", "rss=", "-p"])
             .arg(std::process::id().to_string())
             .output()
         {
@@ -209,6 +206,7 @@ fn get_memory_usage() -> usize {
 mod benchmark_utils {
     use super::*;
 
+    #[allow(dead_code)]
     pub fn run_performance_benchmark(
         name: &str,
         iterations: usize,
@@ -234,9 +232,9 @@ mod benchmark_utils {
         let avg_duration = durations.iter().sum::<std::time::Duration>() / iterations as u32;
         let avg_memory = memory_usages.iter().sum::<usize>() / iterations;
 
-        println!("Benchmark Results for {}:", name);
-        println!("  Average Duration: {:?}", avg_duration);
+        println!("Benchmark Results for {name}:");
+        println!("  Average Duration: {avg_duration:?}");
         println!("  Average Memory: {} MB", avg_memory / 1024 / 1024);
-        println!("  Iterations: {}", iterations);
+        println!("  Iterations: {iterations}");
     }
 }
