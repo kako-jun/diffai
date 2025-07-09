@@ -34,6 +34,7 @@ ndarray = { workspace = true }
 numpy = { workspace = true }
 # hdf5 = { workspace = true }  # Requires system HDF5 libraries
 zip = { workspace = true }
+matfile = { workspace = true }
 # Cross-project integration
 diffx-core = { workspace = true }
 

@@ -52,6 +52,7 @@ ndarray = "0.16"
 numpy = "0.21"
 # hdf5 = "0.8"  # Requires system HDF5 libraries
 zip = "2.2"
+matfile = "0.1"  # MATLAB .mat file support
 # Cross-project integration  
 diffx-core = "0.1"
 

@@ -16,6 +16,8 @@ use safetensors::{tensor::TensorView, SafeTensors};
 // Scientific data dependencies
 use std::fs::File;
 use std::io::Read;
+// MATLAB .mat file dependencies
+use matfile::{MatFile, Array as MatArray};
 // Cross-project integration
 
 #[derive(Debug, PartialEq, Serialize)]
@@ -81,6 +83,10 @@ pub enum DiffResult {
     NumpyArrayChanged(String, NumpyArrayStats, NumpyArrayStats),
     NumpyArrayAdded(String, NumpyArrayStats),
     NumpyArrayRemoved(String, NumpyArrayStats),
+    // MATLAB .mat file analysis
+    MatlabArrayChanged(String, MatlabArrayStats, MatlabArrayStats),
+    MatlabArrayAdded(String, MatlabArrayStats),
+    MatlabArrayRemoved(String, MatlabArrayStats),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -104,6 +110,34 @@ pub struct NumpyArrayStats {
     pub dtype: String,
     pub total_elements: usize,
     pub memory_size_bytes: usize,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct Hdf5DatasetStats {
+    pub mean: f64,
+    pub std: f64,
+    pub min: f64,
+    pub max: f64,
+    pub shape: Vec<usize>,
+    pub dtype: String,
+    pub total_elements: usize,
+    pub memory_size_bytes: usize,
+    pub dataset_name: String,
+    pub group_path: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct MatlabArrayStats {
+    pub mean: f64,
+    pub std: f64,
+    pub min: f64,
+    pub max: f64,
+    pub shape: Vec<usize>,
+    pub dtype: String,
+    pub total_elements: usize,
+    pub memory_size_bytes: usize,
+    pub variable_name: String,
+    pub is_complex: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -3141,6 +3175,204 @@ pub fn diff_numpy_files(path1: &Path, path2: &Path) -> Result<Vec<DiffResult>> {
     for (name, stats2) in &arrays2 {
         if !arrays1.contains_key(name) {
             results.push(DiffResult::NumpyArrayAdded(name.clone(), stats2.clone()));
+        }
+    }
+    
+    Ok(results)
+}
+
+// MATLAB .mat file support functions
+
+/// Parse a MATLAB .mat file and extract array statistics
+pub fn parse_matlab_file(path: &Path) -> Result<HashMap<String, MatlabArrayStats>> {
+    let file = File::open(path)?;
+    let mat_file = MatFile::parse(file)
+        .map_err(|e| anyhow!("Failed to parse MATLAB file: {:?}", e))?;
+    
+    let mut stats_map = HashMap::new();
+    
+    for array in &mat_file.arrays {
+        let variable_name = array.name().to_string();
+        
+        // Only process numeric arrays
+        if let Some(stats) = calculate_matlab_array_stats(&array.data(), &variable_name) {
+            stats_map.insert(variable_name, stats);
+        }
+    }
+    
+    Ok(stats_map)
+}
+
+/// Calculate statistics for a MATLAB array
+fn calculate_matlab_array_stats(array: &MatArray, variable_name: &str) -> Option<MatlabArrayStats> {
+    match array {
+        MatArray::Numeric { dims, data } => {
+            match data {
+                matfile::NumericData::Double { real, imag } => {
+                    let (mean, std, min, max) = calculate_f64_stats(real);
+                    let is_complex = imag.is_some();
+                    
+                    Some(MatlabArrayStats {
+                        mean,
+                        std,
+                        min,
+                        max,
+                        shape: dims.clone(),
+                        dtype: if is_complex { "complex128".to_string() } else { "double".to_string() },
+                        total_elements: real.len(),
+                        memory_size_bytes: real.len() * 8 + imag.as_ref().map_or(0, |i| i.len() * 8),
+                        variable_name: variable_name.to_string(),
+                        is_complex,
+                    })
+                }
+                matfile::NumericData::Single { real, imag } => {
+                    let real_f64: Vec<f64> = real.iter().map(|&x| x as f64).collect();
+                    let (mean, std, min, max) = calculate_f64_stats(&real_f64);
+                    let is_complex = imag.is_some();
+                    
+                    Some(MatlabArrayStats {
+                        mean,
+                        std,
+                        min,
+                        max,
+                        shape: dims.clone(),
+                        dtype: if is_complex { "complex64".to_string() } else { "single".to_string() },
+                        total_elements: real.len(),
+                        memory_size_bytes: real.len() * 4 + imag.as_ref().map_or(0, |i| i.len() * 4),
+                        variable_name: variable_name.to_string(),
+                        is_complex,
+                    })
+                }
+                matfile::NumericData::Int32 { real, imag: _ } => {
+                    let real_f64: Vec<f64> = real.iter().map(|&x| x as f64).collect();
+                    let (mean, std, min, max) = calculate_f64_stats(&real_f64);
+                    
+                    Some(MatlabArrayStats {
+                        mean,
+                        std,
+                        min,
+                        max,
+                        shape: dims.clone(),
+                        dtype: "int32".to_string(),
+                        total_elements: real.len(),
+                        memory_size_bytes: real.len() * 4,
+                        variable_name: variable_name.to_string(),
+                        is_complex: false,
+                    })
+                }
+                matfile::NumericData::UInt32 { real, imag: _ } => {
+                    let real_f64: Vec<f64> = real.iter().map(|&x| x as f64).collect();
+                    let (mean, std, min, max) = calculate_f64_stats(&real_f64);
+                    
+                    Some(MatlabArrayStats {
+                        mean,
+                        std,
+                        min,
+                        max,
+                        shape: dims.clone(),
+                        dtype: "uint32".to_string(),
+                        total_elements: real.len(),
+                        memory_size_bytes: real.len() * 4,
+                        variable_name: variable_name.to_string(),
+                        is_complex: false,
+                    })
+                }
+                matfile::NumericData::Int16 { real, imag: _ } => {
+                    let real_f64: Vec<f64> = real.iter().map(|&x| x as f64).collect();
+                    let (mean, std, min, max) = calculate_f64_stats(&real_f64);
+                    
+                    Some(MatlabArrayStats {
+                        mean,
+                        std,
+                        min,
+                        max,
+                        shape: dims.clone(),
+                        dtype: "int16".to_string(),
+                        total_elements: real.len(),
+                        memory_size_bytes: real.len() * 2,
+                        variable_name: variable_name.to_string(),
+                        is_complex: false,
+                    })
+                }
+                matfile::NumericData::UInt16 { real, imag: _ } => {
+                    let real_f64: Vec<f64> = real.iter().map(|&x| x as f64).collect();
+                    let (mean, std, min, max) = calculate_f64_stats(&real_f64);
+                    
+                    Some(MatlabArrayStats {
+                        mean,
+                        std,
+                        min,
+                        max,
+                        shape: dims.clone(),
+                        dtype: "uint16".to_string(),
+                        total_elements: real.len(),
+                        memory_size_bytes: real.len() * 2,
+                        variable_name: variable_name.to_string(),
+                        is_complex: false,
+                    })
+                }
+                matfile::NumericData::Int8 { real, imag: _ } => {
+                    let real_f64: Vec<f64> = real.iter().map(|&x| x as f64).collect();
+                    let (mean, std, min, max) = calculate_f64_stats(&real_f64);
+                    
+                    Some(MatlabArrayStats {
+                        mean,
+                        std,
+                        min,
+                        max,
+                        shape: dims.clone(),
+                        dtype: "int8".to_string(),
+                        total_elements: real.len(),
+                        memory_size_bytes: real.len(),
+                        variable_name: variable_name.to_string(),
+                        is_complex: false,
+                    })
+                }
+                matfile::NumericData::UInt8 { real, imag: _ } => {
+                    let real_f64: Vec<f64> = real.iter().map(|&x| x as f64).collect();
+                    let (mean, std, min, max) = calculate_f64_stats(&real_f64);
+                    
+                    Some(MatlabArrayStats {
+                        mean,
+                        std,
+                        min,
+                        max,
+                        shape: dims.clone(),
+                        dtype: "uint8".to_string(),
+                        total_elements: real.len(),
+                        memory_size_bytes: real.len(),
+                        variable_name: variable_name.to_string(),
+                        is_complex: false,
+                    })
+                }
+            }
+        }
+        _ => None, // Skip non-numeric arrays for now
+    }
+}
+
+/// Compare two MATLAB .mat files and return differences
+pub fn diff_matlab_files(path1: &Path, path2: &Path) -> Result<Vec<DiffResult>> {
+    let arrays1 = parse_matlab_file(path1)?;
+    let arrays2 = parse_matlab_file(path2)?;
+    
+    let mut results = Vec::new();
+    
+    // Check for changed and removed arrays
+    for (name, stats1) in &arrays1 {
+        if let Some(stats2) = arrays2.get(name) {
+            if stats1 != stats2 {
+                results.push(DiffResult::MatlabArrayChanged(name.clone(), stats1.clone(), stats2.clone()));
+            }
+        } else {
+            results.push(DiffResult::MatlabArrayRemoved(name.clone(), stats1.clone()));
+        }
+    }
+    
+    // Check for added arrays
+    for (name, stats2) in &arrays2 {
+        if !arrays1.contains_key(name) {
+            results.push(DiffResult::MatlabArrayAdded(name.clone(), stats2.clone()));
         }
     }
     
