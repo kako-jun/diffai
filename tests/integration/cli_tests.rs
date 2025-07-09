@@ -839,7 +839,12 @@ fn test_combined_advanced_features() -> Result<(), Box<dyn std::error::Error>> {
 
     // Check that multiple analyses were performed (based on actual output format)
     assert!(stdout.contains("mean=") || stdout.contains("std="));
-    assert!(stdout.contains("memory_analysis") || stdout.contains("inference_speed") || stdout.contains("🧠") || stdout.contains("⚡"));
+    assert!(
+        stdout.contains("memory_analysis")
+            || stdout.contains("inference_speed")
+            || stdout.contains("🧠")
+            || stdout.contains("⚡")
+    );
     assert!(stdout.contains("fc1.") || stdout.contains("fc2.") || stdout.contains("fc3."));
 
     Ok(())
