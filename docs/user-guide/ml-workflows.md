@@ -2,7 +2,7 @@
 
 Integration guide for machine learning and AI development with diffai.
 
-## 🎯 ML Development Use Cases
+## ML Development Use Cases
 
 ### 1. Model Development & Improvement
 
@@ -34,7 +34,7 @@ diffai original/model.pth quantized/model.pth --show-structure
 diffai full/model.pth pruned/model.pth --diff-only
 ```
 
-## 🔬 Typical Workflow
+## Typical Workflow
 
 ### Experiment Cycle
 
@@ -62,7 +62,7 @@ diffai baseline/model.pth experiment/model.pth --format json > comparison.json
 python scripts/visualize_comparison.py comparison.json
 ```
 
-## 🛠️ Practical Examples
+## Practical Examples
 
 ### PyTorch Model Evolution Tracking
 
@@ -77,16 +77,16 @@ done
 **Example Output:**
 ```
 === Epoch 5 ===
-📊 Model Changes:
-  ✅ No structural changes
-  📈 Parameters: 11,689,512 → 11,689,512 (0% change)
-  🔄 Weight updates: 94.3% of parameters modified
+Model Changes:
+  No structural changes
+  Parameters: 11,689,512 -> 11,689,512 (0% change)
+  Weight updates: 94.3% of parameters modified
 
 === Epoch 10 ===
-📊 Model Changes:
-  ✅ No structural changes  
-  📈 Parameters: 11,689,512 → 11,689,512 (0% change)
-  🔄 Weight updates: 87.1% of parameters modified
+Model Changes:
+  No structural changes  
+  Parameters: 11,689,512 -> 11,689,512 (0% change)
+  Weight updates: 87.1% of parameters modified
 ```
 
 ### Safetensors Format Comparison
@@ -109,7 +109,7 @@ diffai dataset_v1.csv dataset_v2.csv --stats --format json
 diffai train.csv val.csv --stats --show-distribution
 ```
 
-## 🔄 Continuous Integration
+## Continuous Integration
 
 ### GitHub Actions Integration
 
@@ -147,14 +147,14 @@ jobs:
           const fs = require('fs');
           const diff = JSON.parse(fs.readFileSync('model_diff.json', 'utf8'));
           
-          const comment = `## 🤖 Model Comparison Report
+          const comment = `## Model Comparison Report
           
           **Parameter Count:** ${diff.comparison.param_diff}
           **Structure Changes:** ${diff.comparison.structure_changes}
           **Significant Changes:** ${diff.comparison.significant_changes}
           
           <details>
-          <summary>📊 Detailed Comparison</summary>
+          <summary>Detailed Comparison</summary>
           
           \`\`\`json
           ${JSON.stringify(diff, null, 2)}
@@ -203,7 +203,7 @@ def compare_models_with_mlflow(run_id1, run_id2):
     return comparison
 ```
 
-## 📈 Performance Analysis
+## Performance Analysis
 
 ### Model Size Tracking
 
@@ -229,7 +229,7 @@ diffai full_precision/model.pth quantized/model.pth --quantization-analysis
 diffai full_precision/results.json quantized/results.json --metric-comparison
 ```
 
-## 🎯 Best Practices
+## Best Practices
 
 ### 1. Comparison Automation
 
@@ -246,9 +246,9 @@ diffai $BASELINE $EXPERIMENT --format json > $REPORT
 
 # Check for structural changes
 if diffai $BASELINE $EXPERIMENT --diff-only --quiet; then
-    echo "✅ No structural changes detected"
+    echo "No structural changes detected"
 else
-    echo "⚠️ Structural changes found - review required"
+    echo "WARNING: Structural changes found - review required"
     diffai $BASELINE $EXPERIMENT --show-structure
 fi
 
@@ -283,11 +283,11 @@ diffai model1.pth model2.pth --template team_report.jinja2 > team_comparison.htm
 
 # Notify team via Slack
 curl -X POST -H 'Content-type: application/json' \
-  --data '{"text":"🤖 Model comparison completed: see attached report"}' \
+  --data '{"text":"Model comparison completed: see attached report"}' \
   $SLACK_WEBHOOK_URL
 ```
 
-## 🔗 Integration with ML Tools
+## Integration with ML Tools
 
 ### Weights & Biases
 
@@ -327,13 +327,13 @@ def log_comparison_to_tensorboard(model1, model2, step):
     writer.close()
 ```
 
-## 📚 Next Steps
+## Next Steps
 
 - [Configuration](configuration.md) - Advanced configuration
 - [API Reference](../api/cli.md) - Complete command reference
 - [Examples](../examples/) - Practical usage examples
 
-## 🌐 Language Support
+## Language Support
 
 - **English**: Current documentation
 - **日本語**: [Japanese version](ml-workflows_ja.md)

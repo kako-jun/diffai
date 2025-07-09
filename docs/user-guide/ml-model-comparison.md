@@ -174,7 +174,7 @@ diffai resnet50.safetensors efficientnet_b0.safetensors --stats
 - Shape changes indicate different layer sizes
 - Added/removed tensors show architectural innovations
 
-## 📈 Performance Optimization
+## Performance Optimization
 
 ### Memory Considerations
 
@@ -201,7 +201,7 @@ diffai --threads 8 model1.safetensors model2.safetensors
 diffai --shape-only model1.safetensors model2.safetensors
 ```
 
-## 🔧 Integration Examples
+## Integration Examples
 
 ### MLflow Integration
 
@@ -254,14 +254,14 @@ jobs:
         run: |
           # Fail if critical layers changed
           if jq -e '.[] | select(.TensorShapeChanged and (.TensorShapeChanged[0] | contains("classifier")))' model_diff.json; then
-            echo "❌ Critical layer shape changes detected"
+            echo "CRITICAL: Critical layer shape changes detected"
             exit 1
           fi
           
           # Warn if many parameters changed
           changes=$(jq length model_diff.json)
           if [ "$changes" -gt 10 ]; then
-            echo "⚠️ Many parameter changes detected: $changes"
+            echo "WARNING: Many parameter changes detected: $changes"
           fi
 ```
 
@@ -275,7 +275,7 @@ model_files=$(git diff --cached --name-only | grep -E '\.(pt|pth|safetensors)$')
 
 for file in $model_files; do
     if [ -f "$file" ]; then
-        echo "🔍 Analyzing model changes in $file"
+        echo "Analyzing model changes in $file"
         
         # Compare with previous version
         git show HEAD:"$file" > /tmp/old_model
@@ -286,7 +286,7 @@ for file in $model_files; do
         shape_changes=$(jq '[.[] | select(.TensorShapeChanged)] | length' /tmp/model_diff.json)
         
         if [ "$shape_changes" -gt 0 ]; then
-            echo "⚠️ Architecture changes detected in $file"
+            echo "WARNING: Architecture changes detected in $file"
             diffai /tmp/old_model "$file"
             
             read -p "Continue with commit? (y/N) " -n 1 -r
@@ -301,7 +301,7 @@ for file in $model_files; do
 done
 ```
 
-## 🚨 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -341,7 +341,7 @@ file model.safetensors
 gunzip model.safetensors.gz
 ```
 
-## 📊 Best Practices
+## Best Practices
 
 ### 1. Choosing Epsilon Values
 
@@ -421,7 +421,7 @@ Detects abnormal patterns in model weights:
 diffai normal_model.safetensors anomalous_model.safetensors --anomaly-detection
 
 # Output example:
-# 🚨 anomaly_detection: type=gradient_explosion, severity=critical, affected=2 layers
+# anomaly_detection: type=gradient_explosion, severity=critical, affected=2 layers
 ```
 
 **Detected Anomalies:**
@@ -444,7 +444,7 @@ Analyzes memory usage and model efficiency:
 diffai small_model.safetensors large_model.safetensors --memory-analysis
 
 # Output example:
-# 🧠 memory_analysis: delta=+2.7MB, gpu_est=4.5MB, efficiency=0.25
+# memory_analysis: delta=+2.7MB, gpu_est=4.5MB, efficiency=0.25
 ```
 
 **Analysis Information:**
@@ -466,7 +466,7 @@ Compares model architectures and structures:
 diffai resnet.safetensors transformer.safetensors --architecture-comparison
 
 # Output example:
-# 🏗️ architecture_comparison: type1=cnn, type2=transformer, differences=15
+# architecture_comparison: type1=cnn, type2=transformer, differences=15
 ```
 
 **Analysis Information:**
@@ -495,8 +495,8 @@ diffai checkpoint_v1.safetensors checkpoint_v2.safetensors \
 # Output example:
 # + learning_progress: trend=improving, magnitude=0.0432, speed=0.75
 # + convergence_analysis: status=stable, stability=0.0156
-# 🧠 memory_analysis: delta=+0.1MB, efficiency=0.89
-# 📊 Tensor statistics and detailed analysis...
+# memory_analysis: delta=+0.1MB, efficiency=0.89
+# Tensor statistics and detailed analysis...
 ```
 
 ### 7. Production Deployment Features
@@ -532,7 +532,7 @@ diffai efficient_model.safetensors baseline_model.safetensors \
   --architecture-comparison
 ```
 
-## 🎯 Feature Selection Guide
+## Feature Selection Guide
 
 **For Training Monitoring:**
 ```bash

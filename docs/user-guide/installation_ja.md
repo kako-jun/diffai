@@ -2,13 +2,13 @@
 
 This guide covers different ways to install diffai on various platforms.
 
-## 📋 Prerequisites
+## Prerequisites
 
 - **Rust 1.75+**: Install from [rustup.rs](https://rustup.rs/)
 - **Operating System**: Linux, macOS, or Windows
 - **Memory**: 4GB+ recommended for large model files
 
-## 🚀 Installation Methods
+## Installation Methods
 
 ### Method 1: From crates.io (Recommended)
 
@@ -47,7 +47,7 @@ tar -xzf diffai-linux-x86_64.tar.gz
 sudo mv diffai /usr/local/bin/
 ```
 
-## 🔧 Platform-Specific Instructions
+## Platform-Specific Instructions
 
 ### Linux
 
@@ -115,7 +115,7 @@ cargo install diffai
 scoop install diffai
 ```
 
-## 🐳 Container Installation
+## Container Installation
 
 ### Docker
 
@@ -142,7 +142,7 @@ docker run --rm -v $(pwd):/workspace diffai \
   model1.safetensors model2.safetensors
 ```
 
-## ✅ Verification
+## Verification
 
 After installation, verify that diffai is working correctly:
 
@@ -165,7 +165,7 @@ diffai test1.json test2.json
 rm test1.json test2.json
 ```
 
-## 🔧 Development Installation
+## Development Installation
 
 For development work, you'll need additional tools:
 
@@ -191,7 +191,7 @@ cargo bench
 cargo install --path diffai-cli
 ```
 
-## 🚨 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -234,7 +234,7 @@ vm_stat  # macOS
 diffai --stream large_model1.safetensors large_model2.safetensors
 ```
 
-## 📊 Performance Considerations
+## Performance Considerations
 
 ### Memory Requirements
 
@@ -252,7 +252,7 @@ diffai --stream large_model1.safetensors large_model2.safetensors
 3. **Use epsilon tolerance** to ignore minor floating-point differences
 4. **Filter results** using `--path` or `--ignore-keys-regex` for focused analysis
 
-## 🔄 Updating
+## Updating
 
 ### From crates.io
 ```bash
@@ -266,7 +266,7 @@ git pull origin main
 cargo install --path diffai-cli --force
 ```
 
-## 🗑️ Uninstallation
+## Uninstallation
 
 ```bash
 # Remove binary
@@ -276,7 +276,7 @@ cargo uninstall diffai
 rm $(which diffai)
 ```
 
-## 📞 Getting Help
+## Getting Help
 
 If you encounter installation issues:
 

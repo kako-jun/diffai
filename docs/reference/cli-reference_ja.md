@@ -95,7 +95,7 @@ diffai data1.json data2.json --output unified
 
 | フォーマット | 用途 | 機能 |
 |--------|----------|----------|
-| `cli` | 人間によるレビュー | 色付き出力、ML記号（📊⬚）、階層表示 |
+| `cli` | 人間によるレビュー | 色付き出力、ML記号、階層表示 |
 | `json` | 自動化 | 機械可読、構造化データ、API統合 |
 | `yaml` | 設定 | 人間が読みやすい構造化フォーマット |
 | `unified` | Git統合 | 従来のdiff形式、マージツール対応 |
@@ -277,7 +277,7 @@ diffai --version
 diffai -V
 ```
 
-## 🔗 オプションの組み合わせ
+## オプションの組み合わせ
 
 ### MLモデル解析
 
@@ -330,7 +330,7 @@ diffai experiment_run_123.json experiment_run_124.json \
   --path "results.metrics"
 ```
 
-## 📊 終了コード
+## 終了コード
 
 | コード | 意味 | 説明 |
 |------|---------|-------------|
@@ -339,7 +339,7 @@ diffai experiment_run_123.json experiment_run_124.json \
 | `2` | 解析エラー | 入力ファイルの解析不可 |
 | `3` | I/Oエラー | ファイル読み取り/書き込み権限の問題 |
 
-## 🔍 例
+## 例
 
 ### 基本的な使用法
 
@@ -405,7 +405,7 @@ diffai checkpoint_1.pt checkpoint_10.pt \
   --output json > training_progress.json
 ```
 
-## 🚨 注意事項と制限
+## 注意事項と制限
 
 ### ファイルサイズ制限
 - **推奨最大値**: ファイル1つあたり10GB
