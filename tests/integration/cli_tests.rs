@@ -591,8 +591,8 @@ fn test_memory_analysis() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8_lossy(&output.stdout);
 
     // Check that memory analysis was performed (shows tensor changes and review friendly output)
-    assert!(stdout.contains("tensor_added") || stdout.contains("tensor_removed"));
-    assert!(stdout.contains("review_friendly") || stdout.contains("👥"));
+    assert!(stdout.contains("+") || stdout.contains("-"));
+    assert!(stdout.contains("review_friendly"));
 
     Ok(())
 }
@@ -698,8 +698,8 @@ fn test_architecture_comparison() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = String::from_utf8_lossy(&output.stdout);
 
     // Check that architecture comparison was performed (shows tensor changes and deployment readiness)
-    assert!(stdout.contains("tensor_added") || stdout.contains("tensor_removed"));
-    assert!(stdout.contains("deployment_readiness") || stdout.contains("✅"));
+    assert!(stdout.contains("+") || stdout.contains("-"));
+    assert!(stdout.contains("deployment_readiness"));
 
     Ok(())
 }

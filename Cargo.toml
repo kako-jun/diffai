@@ -47,6 +47,11 @@ candle-core = "0.8"
 candle-nn = "0.8"
 safetensors = "0.4"
 bytemuck = "1.14"
+# Scientific data dependencies
+ndarray = "0.16"
+numpy = "0.21"
+# hdf5 = "0.8"  # Requires system HDF5 libraries
+zip = "2.2"
 # Cross-project integration  
 diffx-core = "0.1"
 

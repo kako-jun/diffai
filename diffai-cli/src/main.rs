@@ -244,6 +244,8 @@ enum Format {
     Csv,
     Safetensors,
     Pytorch,
+    Numpy,
+    Npz,
 }
 
 fn infer_format_from_path(path: &Path) -> Option<Format> {
@@ -262,6 +264,8 @@ fn infer_format_from_path(path: &Path) -> Option<Format> {
                 "csv" => Some(Format::Csv),
                 "safetensors" => Some(Format::Safetensors),
                 "pt" | "pth" => Some(Format::Pytorch),
+                "npy" => Some(Format::Numpy),
+                "npz" => Some(Format::Npz),
                 _ => None,
             })
     }
@@ -288,8 +292,8 @@ fn parse_content(content: &str, format: Format) -> Result<Value> {
         Format::Ini => parse_ini(content).context("Failed to parse INI"),
         Format::Xml => parse_xml(content).context("Failed to parse XML"),
         Format::Csv => parse_csv(content).context("Failed to parse CSV"),
-        Format::Safetensors | Format::Pytorch => {
-            bail!("ML model formats (safetensors, pytorch) cannot be parsed as text. Use the model comparison feature instead.")
+        Format::Safetensors | Format::Pytorch | Format::Numpy | Format::Npz => {
+            bail!("ML/Scientific data formats (safetensors, pytorch, numpy, npz) cannot be parsed as text. Use the model/array comparison feature instead.")
         }
     }
 }
@@ -344,6 +348,9 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
             DiffResult::HyperparameterComparison(k, _) => k.clone(),
             DiffResult::LearningCurveAnalysis(k, _) => k.clone(),
             DiffResult::StatisticalSignificance(k, _) => k.clone(),
+            DiffResult::NumpyArrayChanged(k, _, _) => k.clone(),
+            DiffResult::NumpyArrayAdded(k, _) => k.clone(),
+            DiffResult::NumpyArrayRemoved(k, _) => k.clone(),
         }
     };
 
@@ -351,6 +358,12 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
         match d {
             DiffResult::TensorStatsChanged(_, stats1, stats2) => {
                 // Calculate magnitude of change in tensor statistics
+                let mean_change = (stats1.mean - stats2.mean).abs();
+                let std_change = (stats1.std - stats2.std).abs();
+                mean_change + std_change
+            }
+            DiffResult::NumpyArrayChanged(_, stats1, stats2) => {
+                // Calculate magnitude of change in NumPy array statistics
                 let mean_change = (stats1.mean - stats2.mean).abs();
                 let std_change = (stats1.std - stats2.std).abs();
                 mean_change + std_change
@@ -560,6 +573,20 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
             DiffResult::TensorStatsChanged(k, stats1, stats2) => {
                 format!("~ {}: mean={:.4}->{:.4}, std={:.4}->{:.4}",
                     k, stats1.mean, stats2.mean, stats1.std, stats2.std).cyan()
+            }
+            DiffResult::NumpyArrayChanged(k, stats1, stats2) => {
+                format!("~ {}: shape={:?}, mean={:.4}->{:.4}, std={:.4}->{:.4}, dtype={}",
+                    k, stats1.shape, stats1.mean, stats2.mean, stats1.std, stats2.std, stats1.dtype).cyan()
+            }
+            DiffResult::NumpyArrayAdded(k, stats) => {
+                format!("+ {}: shape={:?}, dtype={}, elements={}, size={}MB",
+                    k, stats.shape, stats.dtype, stats.total_elements, 
+                    stats.memory_size_bytes as f64 / 1024.0 / 1024.0).green()
+            }
+            DiffResult::NumpyArrayRemoved(k, stats) => {
+                format!("- {}: shape={:?}, dtype={}, elements={}, size={}MB",
+                    k, stats.shape, stats.dtype, stats.total_elements,
+                    stats.memory_size_bytes as f64 / 1024.0 / 1024.0).red()
             }
             DiffResult::ModelArchitectureChanged(k, info1, info2) => {
                 format!("! {}: params={}->{}, layers={}->{} (architecture)",
@@ -910,6 +937,21 @@ fn print_yaml_output(differences: Vec<DiffResult>) -> Result<()> {
             DiffResult::TensorStatsChanged(key, stats1, stats2) => serde_json::json!({
                 "TensorStatsChanged": [key, stats1, stats2]
             }),
+            DiffResult::TensorAdded(key, stats) => serde_json::json!({
+                "TensorAdded": [key, stats]
+            }),
+            DiffResult::TensorRemoved(key, stats) => serde_json::json!({
+                "TensorRemoved": [key, stats]
+            }),
+            DiffResult::NumpyArrayChanged(key, stats1, stats2) => serde_json::json!({
+                "NumpyArrayChanged": [key, stats1, stats2]
+            }),
+            DiffResult::NumpyArrayAdded(key, stats) => serde_json::json!({
+                "NumpyArrayAdded": [key, stats]
+            }),
+            DiffResult::NumpyArrayRemoved(key, stats) => serde_json::json!({
+                "NumpyArrayRemoved": [key, stats]
+            }),
             DiffResult::ModelArchitectureChanged(key, info1, info2) => serde_json::json!({
                 "ModelArchitectureChanged": [key, info1, info2]
             }),
@@ -1088,6 +1130,10 @@ fn main() -> Result<()> {
     };
 
     let mut differences = match input_format {
+        Format::Numpy | Format::Npz => {
+            // Handle NumPy scientific array comparison
+            diffai_core::diff_numpy_files(&args.input1, &args.input2)?
+        }
         Format::Safetensors | Format::Pytorch => {
             // Check if any ML-specific options are enabled
             if args.show_layer_impact
@@ -1221,6 +1267,9 @@ fn main() -> Result<()> {
                 DiffResult::HyperparameterComparison(k, _) => k,
                 DiffResult::LearningCurveAnalysis(k, _) => k,
                 DiffResult::StatisticalSignificance(k, _) => k,
+                DiffResult::NumpyArrayChanged(k, _, _) => k,
+                DiffResult::NumpyArrayAdded(k, _) => k,
+                DiffResult::NumpyArrayRemoved(k, _) => k,
             };
             key.starts_with(&filter_path)
         });
@@ -1231,8 +1280,8 @@ fn main() -> Result<()> {
         OutputFormat::Json => print_json_output(differences)?,
         OutputFormat::Yaml => print_yaml_output(differences)?,
         OutputFormat::Unified => match input_format {
-            Format::Safetensors | Format::Pytorch => {
-                bail!("Unified output format is not supported for ML model files")
+            Format::Safetensors | Format::Pytorch | Format::Numpy | Format::Npz => {
+                bail!("Unified output format is not supported for ML/Scientific data files")
             }
             _ => {
                 let content1 = read_input(&args.input1)?;
@@ -1354,6 +1403,9 @@ fn compare_directories(
                             DiffResult::HyperparameterComparison(k, _) => k,
                             DiffResult::LearningCurveAnalysis(k, _) => k,
                             DiffResult::StatisticalSignificance(k, _) => k,
+                            DiffResult::NumpyArrayChanged(k, _, _) => k,
+                            DiffResult::NumpyArrayAdded(k, _) => k,
+                            DiffResult::NumpyArrayRemoved(k, _) => k,
                         };
                         key.starts_with(filter_path_str)
                     });
