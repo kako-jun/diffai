@@ -1,0 +1,48 @@
+{
+  "name": "diffai",
+  "version": "0.2.6",
+  "description": "AI/ML specialized diff tool for deep tensor comparison and analysis",
+  "main": "index.js",
+  "bin": {
+    "diffai": "./index.js"
+  },
+  "scripts": {
+    "test": "node test.js",
+    "postinstall": "node scripts/download-binary.js"
+  },
+  "keywords": [
+    "ai",
+    "ml",
+    "machine-learning",
+    "diff",
+    "tensor",
+    "pytorch",
+    "safetensors",
+    "numpy",
+    "matlab",
+    "model-comparison",
+    "diffai",
+    "artificial-intelligence"
+  ],
+  "author": "diffai team",
+  "license": "MIT",
+  "homepage": "https://github.com/diffai-team/diffai",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/diffai-team/diffai.git"
+  },
+  "bugs": {
+    "url": "https://github.com/diffai-team/diffai/issues"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "os": ["linux", "darwin", "win32"],
+  "cpu": ["x64", "arm64"],
+  "files": [
+    "index.js",
+    "scripts/",
+    "bin/",
+    "README.md"
+  ]
+}
