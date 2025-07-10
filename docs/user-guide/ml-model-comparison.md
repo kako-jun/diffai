@@ -492,21 +492,153 @@ diffai fp32.safetensors quantized.safetensors \
   --quantization-analysis --stats
 ```
 
-## Future Features (Phase 3)
+## Phase 3 Features (Now Available)
 
-### Coming in Phase 3A (Core Features)
-- `--architecture-comparison` - Compare model architectures and structural changes
-- `--memory-analysis` - Analyze memory usage and optimization opportunities  
-- `--anomaly-detection` - Detect numerical anomalies in model parameters
-- `--change-summary` - Generate detailed change summaries
+### Phase 3A: Core Analysis Features
 
-### Coming in Phase 3B (Advanced Analysis)
-- `--convergence-analysis` - Analyze convergence patterns in model parameters
-- `--gradient-analysis` - Analyze gradient information when available
-- `--similarity-matrix` - Generate similarity matrix for model comparison
+#### Architecture Comparison (`--architecture-comparison`)
+Compare model architectures and detect structural changes:
+
+```bash
+diffai model1.safetensors model2.safetensors --architecture-comparison
+
+# Output example:
+# architecture_comparison: transformer->transformer, complexity=similar_complexity, migration=easy
+```
+
+**Analysis Information:**
+- **Architecture type detection**: Transformer, CNN, RNN, or feedforward
+- **Layer depth comparison**: Number of layers and structural changes
+- **Parameter count analysis**: Size ratios and complexity assessment
+- **Migration difficulty**: Assessment of upgrade complexity
+- **Compatibility evaluation**: Cross-architecture compatibility
+
+#### Memory Analysis (`--memory-analysis`) 
+Analyze memory usage and optimization opportunities:
+
+```bash
+diffai model1.safetensors model2.safetensors --memory-analysis
+
+# Output example:
+# memory_analysis: delta=+12.5MB, peak=156.3MB, efficiency=0.85, recommendation=optimal
+```
+
+**Analysis Information:**
+- **Memory delta**: Exact memory change between models
+- **Peak usage estimation**: Including gradients and activations
+- **GPU utilization**: Estimated GPU memory usage
+- **Optimization opportunities**: Gradient checkpointing, mixed precision
+- **Memory leak detection**: Unusually large tensors identification
+
+#### Anomaly Detection (`--anomaly-detection`)
+Detect numerical anomalies in model parameters:
+
+```bash
+diffai model1.safetensors model2.safetensors --anomaly-detection
+
+# Output example:
+# anomaly_detection: type=none, severity=none, affected_layers=[], confidence=0.95
+```
+
+**Analysis Information:**
+- **NaN/Inf detection**: Numerical instability identification
+- **Gradient explosion/vanishing**: Parameter change magnitude analysis
+- **Dead neurons**: Zero variance detection
+- **Root cause analysis**: Suggested causes and solutions
+- **Recovery probability**: Likelihood of training recovery
+
+#### Change Summary (`--change-summary`)
+Generate detailed change summaries:
+
+```bash
+diffai model1.safetensors model2.safetensors --change-summary
+
+# Output example:
+# change_summary: layers_changed=6, magnitude=0.15, patterns=[weight_updates, bias_adjustments]
+```
+
+**Analysis Information:**
+- **Change magnitude**: Overall parameter change intensity
+- **Change patterns**: Types of modifications detected
+- **Most changed layers**: Ranking by modification intensity
+- **Structural vs parameter changes**: Classification of change types
+- **Change distribution**: By layer type and function
+
+### Phase 3B: Advanced Analysis Features
+
+#### Convergence Analysis (`--convergence-analysis`)
+Analyze convergence patterns in model parameters:
+
+```bash
+diffai model1.safetensors model2.safetensors --convergence-analysis
+
+# Output example:
+# convergence_analysis: status=converging, stability=0.92, early_stopping=continue
+```
+
+**Analysis Information:**
+- **Convergence status**: Converged, converging, plateaued, or diverging
+- **Parameter stability**: How stable parameters are between iterations
+- **Plateau detection**: Identification of training plateaus
+- **Early stopping recommendation**: When to stop training
+- **Remaining iterations**: Estimated iterations to convergence
+
+#### Gradient Analysis (`--gradient-analysis`)
+Analyze gradient information estimated from parameter changes:
+
+```bash
+diffai model1.safetensors model2.safetensors --gradient-analysis
+
+# Output example:
+# gradient_analysis: flow_health=healthy, norm=0.021, ratio=2.11, clipping=none
+```
+
+**Analysis Information:**
+- **Gradient flow health**: Overall gradient quality assessment
+- **Gradient norm estimation**: Magnitude of parameter updates
+- **Problematic layers**: Layers with gradient issues
+- **Clipping recommendation**: Suggested gradient clipping values
+- **Learning rate suggestions**: Adaptive LR recommendations
+
+#### Similarity Matrix (`--similarity-matrix`)
+Generate similarity matrix for model comparison:
+
+```bash
+diffai model1.safetensors model2.safetensors --similarity-matrix
+
+# Output example:
+# similarity_matrix: dimensions=(6,6), mean_similarity=0.65, clustering=0.73
+```
+
+**Analysis Information:**
+- **Layer-to-layer similarities**: Cosine similarity matrix
+- **Clustering coefficient**: How clustered the similarities are
+- **Outlier detection**: Layers with unusual similarity patterns
+- **Matrix quality score**: Overall similarity matrix quality
+- **Correlation patterns**: Block diagonal, hierarchical structures
+
+### Combined Analysis Examples
+
+```bash
+# Comprehensive Phase 3 analysis
+diffai baseline.safetensors experiment.safetensors \
+  --architecture-comparison \
+  --memory-analysis \
+  --anomaly-detection \
+  --change-summary \
+  --convergence-analysis \
+  --gradient-analysis \
+  --similarity-matrix
+
+# JSON output for MLOps integration
+diffai model1.safetensors model2.safetensors \
+  --architecture-comparison \
+  --memory-analysis \
+  --output json
+```
 
 ### Design Philosophy
-diffai follows UNIX philosophy: simple, composable tools that do one thing well. Features are orthogonal and can be combined for powerful analysis workflows.
+diffai follows UNIX philosophy: simple, composable tools that do one thing well. Phase 3 features are orthogonal and can be combined for powerful analysis workflows.
 
 ## Next Steps
 

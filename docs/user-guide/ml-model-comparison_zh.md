@@ -492,21 +492,153 @@ diffai fp32.safetensors quantized.safetensors \
   --quantization-analysis --stats
 ```
 
-## 未来功能（第3阶段）
+## 第3阶段功能（现已可用）
 
-### 第3A阶段（核心功能）
-- `--architecture-comparison` - 比较模型架构和结构变化
-- `--memory-analysis` - 分析内存使用和优化机会
-- `--anomaly-detection` - 检测模型参数中的数值异常
-- `--change-summary` - 生成详细的变化摘要
+### 第3A阶段：核心分析功能
 
-### 第3B阶段（高级分析）
-- `--convergence-analysis` - 分析模型参数中的收敛模式
-- `--gradient-analysis` - 分析可用时的梯度信息
-- `--similarity-matrix` - 生成模型比较的相似度矩阵
+#### 架构比较（`--architecture-comparison`）
+比较模型架构并检测结构变化：
+
+```bash
+diffai model1.safetensors model2.safetensors --architecture-comparison
+
+# 输出示例：
+# architecture_comparison: transformer->transformer, complexity=similar_complexity, migration=easy
+```
+
+**分析信息：**
+- **架构类型检测**：Transformer、CNN、RNN或前馈网络
+- **层深度比较**：层数和结构变化
+- **参数计数分析**：大小比率和复杂性评估
+- **迁移难度**：升级复杂性评估
+- **兼容性评估**：跨架构兼容性
+
+#### 内存分析（`--memory-analysis`）
+分析内存使用和优化机会：
+
+```bash
+diffai model1.safetensors model2.safetensors --memory-analysis
+
+# 输出示例：
+# memory_analysis: delta=+12.5MB, peak=156.3MB, efficiency=0.85, recommendation=optimal
+```
+
+**分析信息：**
+- **内存增量**：模型间的确切内存变化
+- **峰值使用估算**：包括梯度和激活
+- **GPU利用率**：估算GPU内存使用
+- **优化机会**：梯度检查点、混合精度
+- **内存泄漏检测**：识别异常大的张量
+
+#### 异常检测（`--anomaly-detection`）
+检测模型参数中的数值异常：
+
+```bash
+diffai model1.safetensors model2.safetensors --anomaly-detection
+
+# 输出示例：
+# anomaly_detection: type=none, severity=none, affected_layers=[], confidence=0.95
+```
+
+**分析信息：**
+- **NaN/Inf检测**：数值不稳定性识别
+- **梯度爆炸/消失**：参数变化幅度分析
+- **死神经元**：零方差检测
+- **根因分析**：建议的原因和解决方案
+- **恢复概率**：训练恢复的可能性
+
+#### 变化摘要（`--change-summary`）
+生成详细的变化摘要：
+
+```bash
+diffai model1.safetensors model2.safetensors --change-summary
+
+# 输出示例：
+# change_summary: layers_changed=6, magnitude=0.15, patterns=[weight_updates, bias_adjustments]
+```
+
+**分析信息：**
+- **变化幅度**：总体参数变化强度
+- **变化模式**：检测到的修改类型
+- **最大变化层**：按修改强度排名
+- **结构vs参数变化**：变化类型分类
+- **变化分布**：按层类型和功能
+
+### 第3B阶段：高级分析功能
+
+#### 收敛分析（`--convergence-analysis`）
+分析模型参数中的收敛模式：
+
+```bash
+diffai model1.safetensors model2.safetensors --convergence-analysis
+
+# 输出示例：
+# convergence_analysis: status=converging, stability=0.92, early_stopping=continue
+```
+
+**分析信息：**
+- **收敛状态**：已收敛、收敛中、停滞或发散
+- **参数稳定性**：迭代间参数的稳定程度
+- **停滞检测**：训练停滞的识别
+- **早停建议**：何时停止训练
+- **剩余迭代**：收敛所需的估计迭代数
+
+#### 梯度分析（`--gradient-analysis`）
+分析从参数变化估算的梯度信息：
+
+```bash
+diffai model1.safetensors model2.safetensors --gradient-analysis
+
+# 输出示例：
+# gradient_analysis: flow_health=healthy, norm=0.021, ratio=2.11, clipping=none
+```
+
+**分析信息：**
+- **梯度流健康度**：总体梯度质量评估
+- **梯度范数估算**：参数更新的幅度
+- **问题层**：有梯度问题的层
+- **裁剪建议**：建议的梯度裁剪值
+- **学习率建议**：自适应LR推荐
+
+#### 相似度矩阵（`--similarity-matrix`）
+为模型比较生成相似度矩阵：
+
+```bash
+diffai model1.safetensors model2.safetensors --similarity-matrix
+
+# 输出示例：
+# similarity_matrix: dimensions=(6,6), mean_similarity=0.65, clustering=0.73
+```
+
+**分析信息：**
+- **层间相似度**：余弦相似度矩阵
+- **聚类系数**：相似度的聚类程度
+- **异常值检测**：具有异常相似模式的层
+- **矩阵质量评分**：总体相似度矩阵质量
+- **相关模式**：块对角、层次结构
+
+### 组合分析示例
+
+```bash
+# 综合第3阶段分析
+diffai baseline.safetensors experiment.safetensors \
+  --architecture-comparison \
+  --memory-analysis \
+  --anomaly-detection \
+  --change-summary \
+  --convergence-analysis \
+  --gradient-analysis \
+  --similarity-matrix
+
+# MLOps集成的JSON输出
+diffai model1.safetensors model2.safetensors \
+  --architecture-comparison \
+  --memory-analysis \
+  --output json
+```
 
 ### 设计理念
-diffai遵循UNIX理念：简单、可组合的工具，专注做好一件事。功能是正交的，可以组合使用以形成强大的分析工作流。
+diffai遵循UNIX理念：简单、可组合的工具，专注做好一件事。第3阶段功能是正交的，可以组合使用以形成强大的分析工作流。
 
 ## 下一步
 

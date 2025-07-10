@@ -128,20 +128,53 @@ diffai - config.json < input.json
 - **输出**: 每层变化分析
 - **示例**: `diffai baseline.safetensors modified.safetensors --show-layer-impact`
 
-### 未来功能（第3阶段）
-
-第3阶段计划实现：
+### 第3阶段功能（现已可用）
 
 #### 架构与性能分析
-- `--architecture-comparison` - 比较模型架构和结构变化
-- `--memory-analysis` - 分析内存使用和优化机会
-- `--anomaly-detection` - 检测模型参数中的数值异常
-- `--change-summary` - 生成详细的变化摘要
+
+##### `--architecture-comparison`
+比较模型架构和检测结构变化
+
+- **输出**: 架构类型检测、层深度比较、迁移难度评估
+- **示例**: `diffai model1.safetensors model2.safetensors --architecture-comparison`
+
+##### `--memory-analysis`
+分析内存使用和优化机会
+
+- **输出**: 内存增量、峰值使用估算、GPU利用率、优化建议
+- **示例**: `diffai model1.safetensors model2.safetensors --memory-analysis`
+
+##### `--anomaly-detection`
+检测模型参数中的数值异常
+
+- **输出**: NaN/Inf检测、梯度爆炸/消失分析、死神经元检测
+- **示例**: `diffai model1.safetensors model2.safetensors --anomaly-detection`
+
+##### `--change-summary`
+生成详细的变化摘要
+
+- **输出**: 变化幅度、模式、层排名、结构vs参数变化
+- **示例**: `diffai model1.safetensors model2.safetensors --change-summary`
 
 #### 高级分析
-- `--convergence-analysis` - 分析模型参数中的收敛模式
-- `--gradient-analysis` - 分析可用时的梯度信息
-- `--similarity-matrix` - 生成模型比较的相似度矩阵
+
+##### `--convergence-analysis`
+分析模型参数中的收敛模式
+
+- **输出**: 收敛状态、参数稳定性、早停建议
+- **示例**: `diffai model1.safetensors model2.safetensors --convergence-analysis`
+
+##### `--gradient-analysis`
+分析从参数变化估算的梯度信息
+
+- **输出**: 梯度流健康度、范数估算、问题层、裁剪建议
+- **示例**: `diffai model1.safetensors model2.safetensors --gradient-analysis`
+
+##### `--similarity-matrix`
+生成模型比较的相似度矩阵
+
+- **输出**: 层间相似度、聚类系数、异常值检测
+- **示例**: `diffai model1.safetensors model2.safetensors --similarity-matrix`
 
 ## 输出示例
 

@@ -128,20 +128,53 @@ MLモデルと科学データの詳細統計を表示
 - **出力**: レイヤー別変更分析
 - **例**: `diffai baseline.safetensors modified.safetensors --show-layer-impact`
 
-### 将来機能（Phase 3）
-
-Phase 3で実装予定：
+### Phase 3機能（現在利用可能）
 
 #### アーキテクチャ・パフォーマンス分析
-- `--architecture-comparison` - モデルアーキテクチャと構造変化の比較
-- `--memory-analysis` - メモリ使用量と最適化機会の分析
-- `--anomaly-detection` - モデルパラメータの数値異常検出
-- `--change-summary` - 詳細な変更サマリの生成
+
+##### `--architecture-comparison`
+モデルアーキテクチャと構造変化の比較
+
+- **出力**: アーキテクチャタイプ検出、レイヤー深度比較、移行難易度評価
+- **例**: `diffai model1.safetensors model2.safetensors --architecture-comparison`
+
+##### `--memory-analysis`
+メモリ使用量と最適化機会の分析
+
+- **出力**: メモリデルタ、ピーク使用量推定、GPU利用率、最適化推奨
+- **例**: `diffai model1.safetensors model2.safetensors --memory-analysis`
+
+##### `--anomaly-detection`
+モデルパラメータの数値異常検出
+
+- **出力**: NaN/Inf検出、勾配爆発・消失分析、死んだニューロン検出
+- **例**: `diffai model1.safetensors model2.safetensors --anomaly-detection`
+
+##### `--change-summary`
+詳細な変更サマリの生成
+
+- **出力**: 変更幅度、パターン、レイヤーランキング、構造vs パラメータ変更
+- **例**: `diffai model1.safetensors model2.safetensors --change-summary`
 
 #### 高度分析
-- `--convergence-analysis` - モデルパラメータの収束パターン分析
-- `--gradient-analysis` - 利用可能時の勾配情報分析
-- `--similarity-matrix` - モデル比較用類似度行列の生成
+
+##### `--convergence-analysis`
+モデルパラメータの収束パターン分析
+
+- **出力**: 収束状態、パラメータ安定性、早期停止推奨
+- **例**: `diffai model1.safetensors model2.safetensors --convergence-analysis`
+
+##### `--gradient-analysis`
+パラメータ変更から推定される勾配情報の分析
+
+- **出力**: 勾配フロー健全性、ノルム推定、問題レイヤー、クリッピング推奨
+- **例**: `diffai model1.safetensors model2.safetensors --gradient-analysis`
+
+##### `--similarity-matrix`
+モデル比較用類似度行列の生成
+
+- **出力**: レイヤー間類似度、クラスタリング係数、外れ値検出
+- **例**: `diffai model1.safetensors model2.safetensors --similarity-matrix`
 
 ## 出力例
 

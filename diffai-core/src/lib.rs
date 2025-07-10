@@ -1920,61 +1920,410 @@ fn analyze_learning_progress(
 }
 
 fn analyze_convergence(
-    _model1: &HashMap<String, TensorStats>,
-    _model2: &HashMap<String, TensorStats>,
+    model1: &HashMap<String, TensorStats>,
+    model2: &HashMap<String, TensorStats>,
 ) -> ConvergenceInfo {
+    // Calculate parameter stability by analyzing changes across layers
+    let mut stability_scores = Vec::new();
+    let mut volatility_measures = Vec::new();
+
+    for (name, stats1) in model1 {
+        if let Some(stats2) = model2.get(name) {
+            // Parameter stability: how much parameters are changing
+            let mean_stability =
+                1.0 - ((stats2.mean - stats1.mean).abs() / (stats1.mean.abs() + 1e-8)).min(1.0);
+            let std_stability =
+                1.0 - ((stats2.std - stats1.std).abs() / (stats1.std + 1e-8)).min(1.0);
+            let layer_stability = (mean_stability + std_stability) / 2.0;
+            stability_scores.push(layer_stability);
+
+            // Volatility: measure of parameter variance changes
+            let variance_change = ((stats2.std - stats1.std) / (stats1.std + 1e-8)).abs();
+            volatility_measures.push(variance_change);
+        }
+    }
+
+    let parameter_stability = if !stability_scores.is_empty() {
+        stability_scores.iter().sum::<f64>() / stability_scores.len() as f64
+    } else {
+        1.0
+    };
+
+    let loss_volatility = if !volatility_measures.is_empty() {
+        volatility_measures.iter().sum::<f64>() / volatility_measures.len() as f64
+    } else {
+        0.0
+    };
+
+    // Gradient consistency estimation (based on parameter update patterns)
+    let gradient_consistency = if parameter_stability > 0.8 && loss_volatility < 0.3 {
+        0.95
+    } else if parameter_stability > 0.6 && loss_volatility < 0.5 {
+        0.8
+    } else if parameter_stability > 0.4 {
+        0.6
+    } else {
+        0.3
+    };
+
+    // Plateau detection: very stable parameters with low volatility might indicate plateau
+    let plateau_detection = parameter_stability > 0.98 && loss_volatility < 0.01;
+
+    // Convergence status based on stability and volatility
+    let convergence_status = if plateau_detection {
+        "plateaued".to_string()
+    } else if parameter_stability > 0.9 && loss_volatility < 0.2 {
+        "converged".to_string()
+    } else if parameter_stability > 0.7 && loss_volatility < 0.4 {
+        "converging".to_string()
+    } else if parameter_stability > 0.4 {
+        "slow_convergence".to_string()
+    } else {
+        "diverging".to_string()
+    };
+
+    // Overfitting risk assessment
+    let overfitting_risk = if convergence_status == "plateaued" && gradient_consistency < 0.5 {
+        "high".to_string()
+    } else if parameter_stability > 0.95 && loss_volatility > 0.5 {
+        "medium".to_string()
+    } else {
+        "low".to_string()
+    };
+
+    // Early stopping recommendation
+    let early_stopping_recommendation = match convergence_status.as_str() {
+        "converged" => "consider_stopping".to_string(),
+        "plateaued" => "stop_recommended".to_string(),
+        "diverging" => "adjust_hyperparameters".to_string(),
+        "slow_convergence" => "monitor_closely".to_string(),
+        _ => "continue".to_string(),
+    };
+
+    // Convergence speed estimate (based on parameter change rate)
+    let convergence_speed_estimate = if convergence_status == "converged" {
+        1.0
+    } else if convergence_status == "converging" {
+        parameter_stability
+    } else if convergence_status == "slow_convergence" {
+        parameter_stability * 0.5
+    } else {
+        0.1
+    };
+
+    // Estimate remaining iterations (heuristic)
+    let remaining_iterations =
+        if convergence_status == "converged" || convergence_status == "plateaued" {
+            0
+        } else if convergence_status == "converging" {
+            ((1.0 - parameter_stability) * 500.0) as u32
+        } else {
+            1000 // High uncertainty
+        };
+
+    // Confidence interval based on stability
+    let confidence_width = (1.0 - parameter_stability) * 0.2;
+    let confidence_interval = (
+        (parameter_stability - confidence_width).max(0.0),
+        (parameter_stability + confidence_width).min(1.0),
+    );
+
     ConvergenceInfo {
-        convergence_status: "converging".to_string(),
-        parameter_stability: 0.92,
-        loss_volatility: 0.15,
-        gradient_consistency: 0.88,
-        plateau_detection: false,
-        overfitting_risk: "low".to_string(),
-        early_stopping_recommendation: "continue".to_string(),
-        convergence_speed_estimate: 0.75,
-        remaining_iterations: 250,
-        confidence_interval: (0.82, 0.94),
+        convergence_status,
+        parameter_stability,
+        loss_volatility,
+        gradient_consistency,
+        plateau_detection,
+        overfitting_risk,
+        early_stopping_recommendation,
+        convergence_speed_estimate,
+        remaining_iterations: remaining_iterations as i32,
+        confidence_interval,
     }
 }
 
 fn analyze_anomalies(
-    _model1: &HashMap<String, TensorStats>,
-    _model2: &HashMap<String, TensorStats>,
+    model1: &HashMap<String, TensorStats>,
+    model2: &HashMap<String, TensorStats>,
 ) -> AnomalyInfo {
+    let mut anomalies = Vec::new();
+    let mut affected_layers = Vec::new();
+    let mut max_severity: f64 = 0.0;
+
+    // Check for NaN/Inf values
+    for (name, stats) in model2 {
+        if stats.mean.is_nan() || stats.mean.is_infinite() {
+            anomalies.push("nan_inf_detected".to_string());
+            affected_layers.push(name.clone());
+            max_severity = max_severity.max(1.0);
+        }
+
+        // Check for exploding gradients (large value changes)
+        if let Some(stats1) = model1.get(name) {
+            let mean_change = (stats.mean - stats1.mean).abs();
+            let std_change = (stats.std - stats1.std).abs();
+
+            // Exploding values detection
+            if mean_change > stats1.std * 10.0 || std_change > stats1.std * 5.0 {
+                anomalies.push("exploding_values".to_string());
+                affected_layers.push(name.clone());
+                max_severity = max_severity.max(0.8);
+            }
+
+            // Vanishing values detection
+            if stats.std < 1e-6 && stats1.std > 1e-4 {
+                anomalies.push("vanishing_values".to_string());
+                affected_layers.push(name.clone());
+                max_severity = max_severity.max(0.7);
+            }
+        }
+
+        // Check for dead neurons (zero variance)
+        if stats.std < 1e-8 {
+            anomalies.push("dead_neurons".to_string());
+            affected_layers.push(name.clone());
+            max_severity = max_severity.max(0.6);
+        }
+
+        // Check for extreme values
+        if stats.max.abs() > 1000.0 || stats.min.abs() > 1000.0 {
+            anomalies.push("extreme_values".to_string());
+            affected_layers.push(name.clone());
+            max_severity = max_severity.max(0.9);
+        }
+    }
+
+    // Check for missing layers (potential corruption)
+    for name in model1.keys() {
+        if !model2.contains_key(name) {
+            anomalies.push("missing_layer".to_string());
+            affected_layers.push(name.clone());
+            max_severity = max_severity.max(0.5);
+        }
+    }
+
+    // Deduplicate
+    anomalies.sort();
+    anomalies.dedup();
+    affected_layers.sort();
+    affected_layers.dedup();
+
+    // Determine anomaly type and severity
+    let (anomaly_type, severity) = if anomalies.is_empty() {
+        ("none".to_string(), "none".to_string())
+    } else if max_severity >= 0.9 {
+        (anomalies.join(", "), "critical".to_string())
+    } else if max_severity >= 0.7 {
+        (anomalies.join(", "), "high".to_string())
+    } else if max_severity >= 0.5 {
+        (anomalies.join(", "), "medium".to_string())
+    } else {
+        (anomalies.join(", "), "low".to_string())
+    };
+
+    // Root cause analysis
+    let root_cause_analysis = if anomalies.contains(&"nan_inf_detected".to_string()) {
+        "numerical_instability_check_learning_rate".to_string()
+    } else if anomalies.contains(&"exploding_values".to_string()) {
+        "gradient_explosion_reduce_learning_rate".to_string()
+    } else if anomalies.contains(&"vanishing_values".to_string()) {
+        "gradient_vanishing_check_architecture".to_string()
+    } else if anomalies.contains(&"dead_neurons".to_string()) {
+        "activation_saturation_adjust_initialization".to_string()
+    } else {
+        "normal_training_progression".to_string()
+    };
+
+    // Recommended action
+    let recommended_action = match severity.as_str() {
+        "critical" => "stop_training_immediately".to_string(),
+        "high" => "reduce_learning_rate_significantly".to_string(),
+        "medium" => "monitor_closely_adjust_hyperparameters".to_string(),
+        "low" => "continue_with_caution".to_string(),
+        _ => "continue_training".to_string(),
+    };
+
+    // Recovery probability
+    let recovery_probability = match severity.as_str() {
+        "critical" => 0.2,
+        "high" => 0.5,
+        "medium" => 0.8,
+        "low" => 0.95,
+        _ => 0.99,
+    };
+
+    // Prevention suggestions
+    let mut prevention_suggestions = Vec::new();
+    if anomalies.contains(&"exploding_values".to_string()) {
+        prevention_suggestions.push("gradient_clipping".to_string());
+        prevention_suggestions.push("reduce_learning_rate".to_string());
+    }
+    if anomalies.contains(&"vanishing_values".to_string()) {
+        prevention_suggestions.push("residual_connections".to_string());
+        prevention_suggestions.push("batch_normalization".to_string());
+    }
+    if anomalies.contains(&"nan_inf_detected".to_string()) {
+        prevention_suggestions.push("numerical_stability_checks".to_string());
+        prevention_suggestions.push("mixed_precision_training".to_string());
+    }
+    if prevention_suggestions.is_empty() {
+        prevention_suggestions.push("maintain_current_hyperparameters".to_string());
+    }
+
     AnomalyInfo {
-        anomaly_type: "none".to_string(),
-        severity: "low".to_string(),
-        affected_layers: vec![],
+        anomaly_type,
+        severity,
+        affected_layers,
         detection_confidence: 0.95,
-        anomaly_magnitude: 0.02,
-        temporal_pattern: "stable".to_string(),
-        root_cause_analysis: "normal_training_progression".to_string(),
-        recommended_action: "continue_training".to_string(),
-        recovery_probability: 0.98,
-        prevention_suggestions: vec!["maintain_current_hyperparameters".to_string()],
+        anomaly_magnitude: max_severity,
+        temporal_pattern: if anomalies.is_empty() {
+            "stable".to_string()
+        } else {
+            "degrading".to_string()
+        },
+        root_cause_analysis,
+        recommended_action,
+        recovery_probability,
+        prevention_suggestions,
     }
 }
 
 fn analyze_gradients(
-    _model1: &HashMap<String, TensorStats>,
-    _model2: &HashMap<String, TensorStats>,
+    model1: &HashMap<String, TensorStats>,
+    model2: &HashMap<String, TensorStats>,
 ) -> GradientInfo {
+    // Estimate gradient information from parameter changes between models
+    // In practice, this would use actual gradient information from training
+
+    let mut gradient_norms = Vec::new();
+    let mut gradient_variances = Vec::new();
+    let mut layer_gradient_distribution = HashMap::new();
+    let mut problematic_layers = Vec::new();
+
+    for (name, stats1) in model1 {
+        if let Some(stats2) = model2.get(name) {
+            // Estimate gradient norm from parameter changes
+            let param_change = (stats2.mean - stats1.mean).abs();
+            let variance_change = (stats2.std - stats1.std).abs();
+
+            // Gradient norm estimation (parameter change magnitude)
+            let estimated_grad_norm = param_change + variance_change;
+            gradient_norms.push(estimated_grad_norm);
+
+            // Gradient variance estimation
+            let grad_variance = variance_change / (stats1.std + 1e-8);
+            gradient_variances.push(grad_variance);
+
+            // Store per-layer gradient information
+            layer_gradient_distribution.insert(name.clone(), estimated_grad_norm);
+
+            // Detect problematic layers
+            if estimated_grad_norm > 10.0 {
+                problematic_layers.push(format!("exploding_gradients: {}", name));
+            } else if estimated_grad_norm < 1e-8 {
+                problematic_layers.push(format!("vanishing_gradients: {}", name));
+            }
+
+            // Check for NaN or infinite gradients (from parameter changes)
+            if param_change.is_nan()
+                || param_change.is_infinite()
+                || variance_change.is_nan()
+                || variance_change.is_infinite()
+            {
+                problematic_layers.push(format!("nan_infinite_gradients: {}", name));
+            }
+        }
+    }
+
+    // Calculate overall gradient statistics
+    let gradient_norm_estimate = if !gradient_norms.is_empty() {
+        gradient_norms.iter().sum::<f64>() / gradient_norms.len() as f64
+    } else {
+        0.0
+    };
+
+    let gradient_variance = if !gradient_variances.is_empty() {
+        gradient_variances.iter().sum::<f64>() / gradient_variances.len() as f64
+    } else {
+        0.0
+    };
+
+    // Gradient ratio (current vs expected)
+    let gradient_ratio = if gradient_norm_estimate > 0.0 {
+        // Compare with "expected" gradient norm (heuristic: 0.01 for healthy training)
+        gradient_norm_estimate / 0.01
+    } else {
+        1.0
+    };
+
+    // Assess gradient flow health
+    let gradient_flow_health = if problematic_layers
+        .iter()
+        .any(|l| l.contains("nan_infinite"))
+    {
+        "critical_nan_inf".to_string()
+    } else if gradient_norm_estimate > 1.0 {
+        "exploding".to_string()
+    } else if gradient_norm_estimate < 1e-6 {
+        "vanishing".to_string()
+    } else if gradient_norm_estimate > 0.1 {
+        "high_but_stable".to_string()
+    } else if gradient_norm_estimate > 1e-4 {
+        "healthy".to_string()
+    } else {
+        "low_but_learning".to_string()
+    };
+
+    // Backpropagation efficiency estimate
+    let backpropagation_efficiency = if gradient_flow_health == "healthy" {
+        0.95
+    } else if gradient_flow_health.contains("stable") {
+        0.8
+    } else if gradient_flow_health.contains("low") {
+        0.6
+    } else {
+        0.3
+    };
+
+    // Gradient clipping recommendation
+    let gradient_clipping_recommendation = if gradient_norm_estimate > 1.0 {
+        Some(1.0) // Recommend clipping at 1.0
+    } else if gradient_norm_estimate > 0.5 {
+        Some(0.5)
+    } else {
+        None
+    };
+
+    // Gradient accumulation suggestion
+    let gradient_accumulation_suggestion = if gradient_norm_estimate < 1e-4 {
+        4 // Accumulate more gradients for small updates
+    } else if gradient_norm_estimate < 1e-3 {
+        2
+    } else {
+        1
+    };
+
+    // Adaptive learning rate recommendation
+    let adaptive_lr_recommendation = match gradient_flow_health.as_str() {
+        "exploding" => "reduce_significantly".to_string(),
+        "vanishing" => "increase_or_use_adaptive".to_string(),
+        "critical_nan_inf" => "restart_with_lower_lr".to_string(),
+        "high_but_stable" => "slight_reduction".to_string(),
+        "low_but_learning" => "slight_increase".to_string(),
+        _ => "maintain_current".to_string(),
+    };
+
     GradientInfo {
-        gradient_flow_health: "healthy".to_string(),
-        gradient_norm_estimate: 0.015,
-        gradient_ratio: 1.05,
-        gradient_variance: 0.008,
-        backpropagation_efficiency: 0.93,
-        layer_gradient_distribution: {
-            let mut map = HashMap::new();
-            map.insert("layer1".to_string(), 0.012);
-            map.insert("layer2".to_string(), 0.018);
-            map
-        },
-        gradient_clipping_recommendation: None,
-        problematic_layers: vec![],
-        gradient_accumulation_suggestion: 1,
-        adaptive_lr_recommendation: "maintain_current".to_string(),
+        gradient_flow_health,
+        gradient_norm_estimate,
+        gradient_ratio,
+        gradient_variance,
+        backpropagation_efficiency,
+        layer_gradient_distribution,
+        gradient_clipping_recommendation,
+        problematic_layers,
+        gradient_accumulation_suggestion,
+        adaptive_lr_recommendation,
     }
 }
 
@@ -1982,23 +2331,111 @@ fn analyze_memory_usage(
     model1: &HashMap<String, TensorStats>,
     model2: &HashMap<String, TensorStats>,
 ) -> MemoryAnalysisInfo {
-    let model1_params: usize = model1.values().map(|stats| stats.total_params).sum();
-    let model2_params: usize = model2.values().map(|stats| stats.total_params).sum();
+    // Calculate memory usage for each model
+    let calculate_memory_bytes = |model: &HashMap<String, TensorStats>| -> u64 {
+        model
+            .values()
+            .map(|stats| {
+                let bytes_per_element = match stats.dtype.as_str() {
+                    "f64" => 8,
+                    "f32" => 4,
+                    "f16" => 2,
+                    "i64" | "u64" => 8,
+                    "i32" | "u32" => 4,
+                    "i16" | "u16" => 2,
+                    "i8" | "u8" => 1,
+                    _ => 4, // Default to f32
+                };
+                stats.total_params as u64 * bytes_per_element
+            })
+            .sum()
+    };
 
-    let memory_delta = (model2_params as i64 - model1_params as i64) * 4; // Assuming f32
-    let estimated_gpu_memory = model2_params as f64 * 4.0 / (1024.0 * 1024.0); // MB
+    let model1_bytes = calculate_memory_bytes(model1);
+    let model2_bytes = calculate_memory_bytes(model2);
+    let memory_delta = model2_bytes as i64 - model1_bytes as i64;
+
+    // Convert to MB for readability
+    let _model1_mb = model1_bytes as f64 / (1024.0 * 1024.0);
+    let model2_mb = model2_bytes as f64 / (1024.0 * 1024.0);
+
+    // Peak memory includes gradients and activations (estimate 3x model size)
+    let peak_memory_usage = model2_bytes * 3;
+    let peak_memory_mb = peak_memory_usage as f64 / (1024.0 * 1024.0);
+
+    // Memory efficiency analysis
+    let memory_efficiency_ratio = if model1_bytes > 0 {
+        let param_ratio = model2.len() as f64 / model1.len() as f64;
+        let memory_ratio = model2_bytes as f64 / model1_bytes as f64;
+        param_ratio / memory_ratio // Higher is better
+    } else {
+        1.0
+    };
+
+    // GPU memory utilization (based on typical GPU memory sizes)
+    let typical_gpu_memory_mb = 8192.0; // 8GB GPU
+    let gpu_memory_utilization = peak_memory_mb / typical_gpu_memory_mb;
+
+    // Detect potential memory issues
+    let mut memory_leak_indicators = Vec::new();
+    let mut optimization_opportunities = Vec::new();
+
+    // Check for unusually large tensors
+    for (name, stats) in model2 {
+        let tensor_mb = (stats.total_params as f64 * 4.0) / (1024.0 * 1024.0);
+        if tensor_mb > model2_mb * 0.2 {
+            // Single tensor uses >20% of total memory
+            memory_leak_indicators.push(format!("large_tensor: {} ({:.1}MB)", name, tensor_mb));
+        }
+    }
+
+    // Memory optimization suggestions
+    if gpu_memory_utilization > 0.9 {
+        optimization_opportunities.push("gradient_checkpointing_critical".to_string());
+        optimization_opportunities.push("mixed_precision_training".to_string());
+    } else if gpu_memory_utilization > 0.7 {
+        optimization_opportunities.push("gradient_checkpointing_recommended".to_string());
+    }
+
+    if memory_efficiency_ratio < 0.8 {
+        optimization_opportunities.push("parameter_sharing".to_string());
+        optimization_opportunities.push("model_pruning".to_string());
+    }
+
+    // Memory fragmentation estimation (heuristic)
+    let unique_shapes: std::collections::HashSet<_> = model2.values().map(|s| &s.shape).collect();
+    let memory_fragmentation_level =
+        (unique_shapes.len() as f64 / model2.len() as f64).min(1.0) * 0.1;
+
+    // Cache efficiency (based on tensor locality)
+    let cache_efficiency = if unique_shapes.len() < model2.len() / 2 {
+        0.9 // Good tensor reuse
+    } else {
+        0.7 // Poor tensor reuse
+    };
+
+    // Memory recommendation
+    let memory_recommendation = if gpu_memory_utilization > 0.95 {
+        "critical_optimize_immediately".to_string()
+    } else if gpu_memory_utilization > 0.8 {
+        "high_consider_optimization".to_string()
+    } else if gpu_memory_utilization > 0.6 {
+        "moderate_monitor_usage".to_string()
+    } else {
+        "optimal_no_action_needed".to_string()
+    };
 
     MemoryAnalysisInfo {
         memory_delta_bytes: memory_delta,
-        peak_memory_usage: model2_params as u64 * 4,
-        memory_efficiency_ratio: 0.85,
-        gpu_memory_utilization: 0.72,
-        memory_fragmentation_level: 0.05,
-        cache_efficiency: 0.88,
-        memory_leak_indicators: vec![],
-        optimization_opportunities: vec!["gradient_checkpointing".to_string()],
-        estimated_gpu_memory_mb: estimated_gpu_memory,
-        memory_recommendation: "optimal".to_string(),
+        peak_memory_usage,
+        memory_efficiency_ratio,
+        gpu_memory_utilization,
+        memory_fragmentation_level,
+        cache_efficiency,
+        memory_leak_indicators,
+        optimization_opportunities,
+        estimated_gpu_memory_mb: peak_memory_mb,
+        memory_recommendation,
     }
 }
 
@@ -2113,34 +2550,161 @@ fn analyze_change_summary(
 ) -> ChangeSummaryInfo {
     let total_layers_1 = model1.len();
     let total_layers_2 = model2.len();
-    let changed_layers = model1
-        .keys()
-        .filter(|key| {
-            if let Some(stats2) = model2.get(*key) {
-                let stats1 = &model1[*key];
-                stats1.mean != stats2.mean || stats1.std != stats2.std
-            } else {
-                true
+
+    // Detailed change analysis
+    let mut changed_layers = Vec::new();
+    let mut change_magnitudes = Vec::new();
+    let mut change_patterns = std::collections::HashSet::new();
+    let mut layer_change_map = HashMap::new();
+
+    // Analyze each layer
+    for (name, stats1) in model1 {
+        if let Some(stats2) = model2.get(name) {
+            // Calculate change magnitude
+            let mean_change = ((stats2.mean - stats1.mean) / (stats1.mean.abs() + 1e-8)).abs();
+            let std_change = ((stats2.std - stats1.std) / (stats1.std + 1e-8)).abs();
+            let shape_changed = stats1.shape != stats2.shape;
+
+            let total_change = mean_change + std_change + if shape_changed { 1.0 } else { 0.0 };
+
+            if total_change > 0.001 {
+                // Threshold for considering a change
+                changed_layers.push(name.clone());
+                change_magnitudes.push(total_change);
+                layer_change_map.insert(name.clone(), total_change);
+
+                // Identify change patterns
+                if mean_change > std_change * 2.0 {
+                    change_patterns.insert("mean_shift");
+                } else if std_change > mean_change * 2.0 {
+                    change_patterns.insert("variance_change");
+                } else {
+                    change_patterns.insert("balanced_change");
+                }
+
+                if shape_changed {
+                    change_patterns.insert("structural_modification");
+                }
+
+                // Pattern detection based on layer type
+                if name.contains("weight") {
+                    change_patterns.insert("weight_updates");
+                } else if name.contains("bias") {
+                    change_patterns.insert("bias_adjustments");
+                } else if name.contains("norm") {
+                    change_patterns.insert("normalization_changes");
+                }
             }
-        })
-        .count();
+        } else {
+            changed_layers.push(name.clone());
+            change_magnitudes.push(2.0); // High magnitude for removed layers
+            layer_change_map.insert(name.clone(), 2.0);
+            change_patterns.insert("layer_removal");
+        }
+    }
+
+    // Check for new layers
+    for name in model2.keys() {
+        if !model1.contains_key(name) {
+            changed_layers.push(name.clone());
+            change_magnitudes.push(2.0); // High magnitude for new layers
+            layer_change_map.insert(name.clone(), 2.0);
+            change_patterns.insert("layer_addition");
+        }
+    }
+
+    // Calculate overall change magnitude
+    let overall_change_magnitude = if !change_magnitudes.is_empty() {
+        change_magnitudes.iter().sum::<f64>() / change_magnitudes.len() as f64
+    } else {
+        0.0
+    };
+
+    // Find most changed layers
+    let mut layer_changes: Vec<_> = layer_change_map.iter().collect();
+    layer_changes.sort_by(|a, b| b.1.partial_cmp(a.1).unwrap_or(std::cmp::Ordering::Equal));
+    let most_changed_layers: Vec<String> = layer_changes
+        .iter()
+        .take(5)
+        .map(|(name, _)| (*name).clone())
+        .collect();
+
+    // Create change distribution by layer type
+    let mut change_distribution = HashMap::new();
+    for (name, magnitude) in &layer_change_map {
+        let layer_type = if name.contains("attention") {
+            "attention"
+        } else if name.contains("conv") {
+            "convolution"
+        } else if name.contains("fc") || name.contains("linear") {
+            "linear"
+        } else if name.contains("norm") {
+            "normalization"
+        } else {
+            "other"
+        };
+
+        *change_distribution
+            .entry(layer_type.to_string())
+            .or_insert(0.0) += magnitude;
+    }
+
+    // Normalize distribution
+    let total_magnitude: f64 = change_distribution.values().sum();
+    if total_magnitude > 0.0 {
+        for value in change_distribution.values_mut() {
+            *value /= total_magnitude;
+        }
+    }
+
+    // Determine change types
+    let structural_changes = total_layers_1 != total_layers_2
+        || change_patterns.contains("layer_removal")
+        || change_patterns.contains("layer_addition")
+        || change_patterns.contains("structural_modification");
+
+    let parameter_changes = !changed_layers.is_empty() && !structural_changes;
+
+    let architectural_changes = change_patterns.contains("layer_removal")
+        || change_patterns.contains("layer_addition")
+        || (total_layers_2 as f64 / total_layers_1 as f64).abs() > 1.2;
+
+    // Generate summary
+    let change_summary = if changed_layers.is_empty() {
+        "No changes detected".to_string()
+    } else if overall_change_magnitude > 1.0 {
+        format!(
+            "Major model modifications: {} layers significantly changed",
+            changed_layers.len()
+        )
+    } else if overall_change_magnitude > 0.5 {
+        format!(
+            "Moderate model updates: {} layers modified",
+            changed_layers.len()
+        )
+    } else if overall_change_magnitude > 0.1 {
+        format!(
+            "Minor parameter adjustments: {} layers fine-tuned",
+            changed_layers.len()
+        )
+    } else {
+        format!(
+            "Minimal changes: {} layers with tiny adjustments",
+            changed_layers.len()
+        )
+    };
 
     ChangeSummaryInfo {
-        total_layers_changed: changed_layers,
-        overall_change_magnitude: 0.15,
-        change_patterns: vec!["weight_updates".to_string(), "bias_adjustments".to_string()],
-        most_changed_layers: vec!["output_layer".to_string(), "attention_heads".to_string()],
-        change_distribution: {
-            let mut map = HashMap::new();
-            map.insert("linear".to_string(), 0.12);
-            map.insert("attention".to_string(), 0.18);
-            map
-        },
-        structural_changes: total_layers_1 != total_layers_2,
-        parameter_changes: true,
-        hyperparameter_changes: false,
-        architectural_changes: false,
-        change_summary: "Incremental model improvements with optimized weights".to_string(),
+        total_layers_changed: changed_layers.len(),
+        overall_change_magnitude,
+        change_patterns: change_patterns.into_iter().map(|s| s.to_string()).collect(),
+        most_changed_layers,
+        change_distribution,
+        structural_changes,
+        parameter_changes,
+        hyperparameter_changes: false, // Would need training metadata
+        architectural_changes,
+        change_summary,
     }
 }
 
@@ -2180,27 +2744,113 @@ fn analyze_architecture_comparison(
         1.0
     };
 
+    // Analyze layer types based on tensor names
+    let detect_architecture_type = |tensors: &HashMap<String, TensorStats>| -> String {
+        let keys: Vec<&String> = tensors.keys().collect();
+        if keys
+            .iter()
+            .any(|k| k.contains("attention") || k.contains("transformer"))
+        {
+            "transformer".to_string()
+        } else if keys.iter().any(|k| k.contains("conv") || k.contains("bn")) {
+            "convolutional".to_string()
+        } else if keys.iter().any(|k| k.contains("lstm") || k.contains("gru")) {
+            "recurrent".to_string()
+        } else {
+            "feedforward".to_string()
+        }
+    };
+
+    let arch_type_1 = detect_architecture_type(model1);
+    let arch_type_2 = detect_architecture_type(model2);
+
+    // Analyze architectural differences
+    let mut architectural_differences = Vec::new();
+    if depth1 != depth2 {
+        architectural_differences.push(format!("layer_count_change: {} -> {}", depth1, depth2));
+    }
+    if params1 != params2 {
+        let param_change = ((params2 as f64 - params1 as f64) / params1 as f64 * 100.0).abs();
+        architectural_differences.push(format!("parameter_change: {:.1}%", param_change));
+    }
+    if arch_type_1 != arch_type_2 {
+        architectural_differences.push(format!(
+            "architecture_type_change: {} -> {}",
+            arch_type_1, arch_type_2
+        ));
+    }
+
+    // Layer shape analysis
+    for (name, stats1) in model1 {
+        if let Some(stats2) = model2.get(name) {
+            if stats1.shape != stats2.shape {
+                architectural_differences.push(format!("layer_shape_change: {}", name));
+            }
+        }
+    }
+    for name in model2.keys() {
+        if !model1.contains_key(name) {
+            architectural_differences.push(format!("new_layer: {}", name));
+        }
+    }
+    for name in model1.keys() {
+        if !model2.contains_key(name) {
+            architectural_differences.push(format!("removed_layer: {}", name));
+        }
+    }
+
+    // Complexity comparison
+    let complexity_comparison = if param_ratio > 1.5 {
+        "significantly_more_complex".to_string()
+    } else if param_ratio > 1.1 {
+        "moderately_more_complex".to_string()
+    } else if param_ratio < 0.67 {
+        "significantly_simpler".to_string()
+    } else if param_ratio < 0.9 {
+        "moderately_simpler".to_string()
+    } else {
+        "similar_complexity".to_string()
+    };
+
+    // Migration assessment
+    let migration_difficulty = if architectural_differences.len() > 5 {
+        "hard".to_string()
+    } else if architectural_differences.len() > 2 {
+        "moderate".to_string()
+    } else {
+        "easy".to_string()
+    };
+
     ArchitectureComparisonInfo {
-        architecture_type_1: "transformer".to_string(),
-        architecture_type_2: "transformer".to_string(),
+        architecture_type_1: arch_type_1.clone(),
+        architecture_type_2: arch_type_2.clone(),
         layer_depth_comparison: (depth1, depth2),
         parameter_count_ratio: param_ratio,
-        architectural_differences: if depth1 != depth2 {
-            vec!["layer_count_change".to_string()]
+        architectural_differences: architectural_differences.clone(),
+        complexity_comparison,
+        compatibility_assessment: if arch_type_1 == arch_type_2 {
+            "fully_compatible".to_string()
         } else {
-            vec![]
+            "partially_compatible".to_string()
         },
-        complexity_comparison: if param_ratio > 1.1 {
-            "model2_complex".to_string()
-        } else if param_ratio < 0.9 {
-            "model1_complex".to_string()
+        migration_difficulty,
+        performance_trade_offs: if param_ratio > 1.0 {
+            "increased_accuracy_reduced_speed".to_string()
+        } else if param_ratio < 1.0 {
+            "reduced_accuracy_increased_speed".to_string()
         } else {
-            "similar".to_string()
+            "balanced".to_string()
         },
-        compatibility_assessment: "compatible".to_string(),
-        migration_difficulty: "easy".to_string(),
-        performance_trade_offs: "improved_accuracy_vs_speed".to_string(),
-        recommendation: "upgrade_recommended".to_string(),
+        recommendation: if param_ratio > 0.9
+            && param_ratio < 1.1
+            && architectural_differences.len() < 3
+        {
+            "safe_to_upgrade".to_string()
+        } else if param_ratio > 1.5 || architectural_differences.len() > 5 {
+            "thorough_testing_required".to_string()
+        } else {
+            "moderate_testing_recommended".to_string()
+        },
     }
 }
 
@@ -2481,32 +3131,156 @@ fn analyze_embeddings(
 }
 
 fn analyze_similarity_matrix(
-    _model1: &HashMap<String, TensorStats>,
-    _model2: &HashMap<String, TensorStats>,
+    model1: &HashMap<String, TensorStats>,
+    model2: &HashMap<String, TensorStats>,
 ) -> SimilarityMatrixInfo {
+    // Calculate pairwise similarities between layers of both models
+    let layers1: Vec<_> = model1.keys().collect();
+    let layers2: Vec<_> = model2.keys().collect();
+
+    let matrix_size = layers1.len().max(layers2.len());
+    let matrix_dimensions = (matrix_size, matrix_size);
+
+    // Calculate similarities using cosine similarity of statistics
+    let mut similarities = Vec::new();
+    let mut similarity_matrix = Vec::new();
+
+    for layer1 in &layers1 {
+        let mut row = Vec::new();
+        for layer2 in &layers2 {
+            let similarity =
+                if let (Some(stats1), Some(stats2)) = (model1.get(*layer1), model2.get(*layer2)) {
+                    // Cosine similarity between statistical vectors
+                    let vec1 = [stats1.mean, stats1.std, stats1.min, stats1.max];
+                    let vec2 = [stats2.mean, stats2.std, stats2.min, stats2.max];
+
+                    let dot_product: f64 = vec1.iter().zip(vec2.iter()).map(|(a, b)| a * b).sum();
+                    let norm1: f64 = vec1.iter().map(|x| x * x).sum::<f64>().sqrt();
+                    let norm2: f64 = vec2.iter().map(|x| x * x).sum::<f64>().sqrt();
+
+                    if norm1 > 0.0 && norm2 > 0.0 {
+                        (dot_product / (norm1 * norm2)).clamp(-1.0, 1.0)
+                    } else {
+                        0.0
+                    }
+                } else {
+                    0.0 // No similarity if layer doesn't exist in one model
+                };
+
+            similarities.push(similarity);
+            row.push(similarity);
+        }
+        similarity_matrix.push(row);
+    }
+
+    // Calculate similarity distribution statistics
+    let similarity_distribution = if !similarities.is_empty() {
+        let mean = similarities.iter().sum::<f64>() / similarities.len() as f64;
+        let variance = similarities.iter().map(|x| (x - mean).powi(2)).sum::<f64>()
+            / similarities.len() as f64;
+        let std = variance.sqrt();
+        let min = similarities.iter().fold(f64::INFINITY, |a, &b| a.min(b));
+        let max = similarities
+            .iter()
+            .fold(f64::NEG_INFINITY, |a, &b| a.max(b));
+
+        let mut map = HashMap::new();
+        map.insert("mean".to_string(), mean);
+        map.insert("std".to_string(), std);
+        map.insert("min".to_string(), min);
+        map.insert("max".to_string(), max);
+        map
+    } else {
+        HashMap::new()
+    };
+
+    // Calculate clustering coefficient (average local clustering)
+    let clustering_coefficient = if similarities.len() > 4 {
+        // Simple approximation: high values indicate clustered structure
+        let high_similarity_count = similarities.iter().filter(|&&x| x > 0.7).count();
+        high_similarity_count as f64 / similarities.len() as f64
+    } else {
+        0.0
+    };
+
+    // Matrix sparsity (proportion of low similarities)
+    let matrix_sparsity = if !similarities.is_empty() {
+        let sparse_count = similarities.iter().filter(|&&x| x < 0.1).count();
+        sparse_count as f64 / similarities.len() as f64
+    } else {
+        1.0
+    };
+
+    // Detect correlation patterns
+    let mut correlation_patterns = Vec::new();
+
+    // Check for block diagonal pattern (high similarity within blocks)
+    let has_block_diagonal = similarity_matrix
+        .iter()
+        .enumerate()
+        .any(|(i, row)| row.iter().enumerate().any(|(j, &sim)| i == j && sim > 0.8));
+    if has_block_diagonal {
+        correlation_patterns.push("block_diagonal".to_string());
+    }
+
+    // Check for hierarchical patterns
+    let mean_similarity = similarity_distribution.get("mean").unwrap_or(&0.0);
+    if *mean_similarity > 0.6 && clustering_coefficient > 0.5 {
+        correlation_patterns.push("hierarchical".to_string());
+    }
+
+    if similarities.iter().any(|&x| x > 0.95) {
+        correlation_patterns.push("highly_correlated_layers".to_string());
+    }
+
+    // Outlier detection (layers with very low similarity to all others)
+    let mut outlier_detection = Vec::new();
+    for (i, layer) in layers1.iter().enumerate() {
+        if i < similarity_matrix.len() {
+            let row_mean =
+                similarity_matrix[i].iter().sum::<f64>() / similarity_matrix[i].len() as f64;
+            if row_mean < 0.2 {
+                outlier_detection.push(format!("outlier_layer: {}", layer));
+            }
+        }
+    }
+
+    // Similarity threshold recommendations
+    let mut similarity_threshold_recommendations = HashMap::new();
+    let mean_sim = similarity_distribution.get("mean").unwrap_or(&0.5);
+    let std_sim = similarity_distribution.get("std").unwrap_or(&0.2);
+
+    similarity_threshold_recommendations.insert("high_similarity".to_string(), mean_sim + std_sim);
+    similarity_threshold_recommendations.insert("moderate_similarity".to_string(), *mean_sim);
+    similarity_threshold_recommendations.insert("low_similarity".to_string(), mean_sim - std_sim);
+
+    // Matrix stability (consistency of similarity patterns)
+    let matrix_stability = if std_sim < &0.3 {
+        0.9
+    } else if std_sim < &0.5 {
+        0.7
+    } else {
+        0.5
+    };
+
+    // Matrix quality score (overall assessment)
+    let matrix_quality_score = ((1.0 - matrix_sparsity) * 0.3
+        + clustering_coefficient * 0.3
+        + matrix_stability * 0.2
+        + mean_similarity * 0.2)
+        .min(1.0);
+
     SimilarityMatrixInfo {
-        matrix_dimensions: (768, 768),
-        similarity_distribution: {
-            let mut map = HashMap::new();
-            map.insert("mean".to_string(), 0.65);
-            map.insert("std".to_string(), 0.18);
-            map.insert("min".to_string(), 0.12);
-            map.insert("max".to_string(), 0.99);
-            map
-        },
-        clustering_coefficient: 0.73,
-        matrix_sparsity: 0.35,
-        correlation_patterns: vec!["block_diagonal".to_string(), "hierarchical".to_string()],
-        outlier_detection: vec!["anomalous_cluster_3".to_string()],
-        similarity_threshold_recommendations: {
-            let mut map = HashMap::new();
-            map.insert("high_similarity".to_string(), 0.8);
-            map.insert("moderate_similarity".to_string(), 0.6);
-            map
-        },
-        matrix_stability: 0.91,
+        matrix_dimensions,
+        similarity_distribution,
+        clustering_coefficient,
+        matrix_sparsity,
+        correlation_patterns,
+        outlier_detection,
+        similarity_threshold_recommendations,
+        matrix_stability,
         distance_metric: "cosine".to_string(),
-        matrix_quality_score: 0.87,
+        matrix_quality_score,
     }
 }
 
