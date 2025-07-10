@@ -366,170 +366,106 @@ gunzip model.safetensors.gz
 
 ## 高度なML分析機能
 
-diffai は包括的なモデル評価のために設計された28の高度な機械学習分析機能を提供します：
+diffai は現在以下の機械学習分析機能を提供します（v0.2.0）：
 
-### 1. 学習進捗分析（`--learning-progress`）
+### 現在利用可能な機能（v0.2.0）
 
-モデルチェックポイント間の訓練進捗を分析：
+diffai は現在以下の実装済み分析機能を提供します：
+
+### 1. 統計分析（`--stats`）
+
+モデル比較のための詳細なテンソル統計を提供：
 
 ```bash
-# 訓練チェックポイントを比較
-diffai checkpoint_epoch_10.safetensors checkpoint_epoch_20.safetensors --learning-progress
+# 詳細統計付きで訓練チェックポイントを比較
+diffai checkpoint_epoch_10.safetensors checkpoint_epoch_20.safetensors --stats
 
 # 出力例:
-# + learning_progress: trend=improving, magnitude=0.0543, speed=0.80
+# ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
+# ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
 ```
 
 **分析情報:**
-- **trend**: `improving`、`degrading`、または `stable`
-- **magnitude**: 変化の量（0.0-1.0）
-- **speed**: 収束速度（0.0-1.0）
+- **mean**: パラメータの平均値
+- **std**: パラメータの標準偏差
+- **min/max**: パラメータ値の範囲
+- **shape**: テンソルの次元
+- **dtype**: データ型の精度
 
 **使用例:**
-- 訓練進捗の監視
-- 学習停滞の検出
-- 訓練スケジュールの最適化
+- 訓練中のパラメータ変化の監視
+- モデル重みの統計的変化の検出
+- モデル一貫性の検証
 
-### 2. 収束分析（`--convergence-analysis`）
+### 2. 量子化分析（`--quantization-analysis`）
 
-モデルの安定性と収束状態を評価：
+量子化効果と効率を分析：
 
 ```bash
-# チェックポイント間の収束を分析
-diffai model_before.safetensors model_after.safetensors --convergence-analysis
+# 量子化モデルと全精度モデルを比較
+diffai fp32_model.safetensors quantized_model.safetensors --quantization-analysis
 
 # 出力例:
-# + convergence_analysis: status=stable, stability=0.0234, action="Continue training"
+# quantization_analysis: compression=0.25, precision_loss=minimal
 ```
 
 **分析情報:**
-- **status**: `converged`、`diverging`、`oscillating`、`stable`
-- **stability**: パラメータ変化の分散（低い = より安定）
-- **action**: 推奨される次のステップ
+- **compression**: モデルサイズ削減比率
+- **precision_loss**: 精度への影響評価
+- **efficiency**: パフォーマンス対品質のトレードオフ
 
 **使用例:**
-- 訓練を停止するタイミングの決定
-- 訓練不安定性の検出
-- ハイパーパラメータの最適化
+- 量子化品質の検証
+- デプロイサイズの最適化
+- 圧縮技術の比較
 
-### 3. 異常検知（`--anomaly-detection`）
+### 3. 変更量ソート（`--sort-by-change-magnitude`）
 
-モデル重みの異常なパターンを検出：
+優先順位付けのため差異を変更量でソート：
 
 ```bash
-# 訓練異常を検出
-diffai normal_model.safetensors anomalous_model.safetensors --anomaly-detection
+# 重要度順で変更をソート
+diffai model1.safetensors model2.safetensors --sort-by-change-magnitude --stats
 
-# 出力例:
-# anomaly_detection: type=gradient_explosion, severity=critical, affected=2 layers
+# 出力は最大の変化から順に表示
 ```
 
-**検出される異常:**
-- **勾配爆発**: 極端に大きな重み値
-- **勾配消失**: ゼロに近い勾配
-- **重み分布シフト**: 異常な統計パターン
-- **NaN/Inf値**: 無効な数値
-
 **使用例:**
-- 訓練問題のデバッグ
-- モデルの健全性検証
-- 破損したモデルのデプロイ防止
+- 最も重要な変更に焦点を当てる
+- デバッグ作業の優先順位付け
+- 重要なパラメータ変化の特定
 
-### 4. メモリ分析（`--memory-analysis`）
+### 4. レイヤー影響分析（`--show-layer-impact`）
 
-メモリ使用量とモデル効率を分析：
+レイヤー別の変更影響を分析：
 
 ```bash
-# モデルのメモリフットプリントを比較
-diffai small_model.safetensors large_model.safetensors --memory-analysis
+# モデルレイヤー全体の影響を分析
+diffai baseline.safetensors modified.safetensors --show-layer-impact
 
-# 出力例:
-# memory_analysis: delta=+2.7MB, gpu_est=4.5MB, efficiency=0.25
+# レイヤー別変更分析の出力
 ```
 
-**分析情報:**
-- **delta**: モデル間のメモリ差
-- **gpu_est**: 推定GPU メモリ要件
-- **efficiency**: MB あたりのパラメータ比
-
 **使用例:**
-- デプロイ制約の最適化
-- アーキテクチャ効率の比較
-- ハードウェア要件の計画
+- どのレイヤーが最も変化したかを理解
+- ファインチューニング戦略のガイド
+- アーキテクチャ変更の分析
 
-### 5. アーキテクチャ比較（`--architecture-comparison`）
-
-モデルアーキテクチャと構造を比較：
-
-```bash
-# 異なるアーキテクチャを比較
-diffai resnet.safetensors transformer.safetensors --architecture-comparison
-
-# 出力例:
-# architecture_comparison: type1=cnn, type2=transformer, differences=15
-```
-
-**分析情報:**
-- **アーキテクチャタイプ**: CNN、RNN、Transformer、MLP など
-- **レイヤー差**: 追加、削除、または変更されたレイヤー
-- **パラメータ分布**: パラメータの配分方法
-
-**使用例:**
-- アーキテクチャ変更の評価
-- モデルファミリーの比較
-- 設計決定の検証
-
-### 6. 複数機能分析
+### 5. 複合分析
 
 包括的分析のため複数機能を組み合わせ：
 
 ```bash
-# 包括的な訓練分析
+# 包括的なモデル分析
 diffai checkpoint_v1.safetensors checkpoint_v2.safetensors \
-  --learning-progress \
-  --convergence-analysis \
-  --anomaly-detection \
-  --memory-analysis \
-  --stats
+  --stats \
+  --quantization-analysis \
+  --sort-by-change-magnitude \
+  --show-layer-impact
 
-# 出力例:
-# + learning_progress: trend=improving, magnitude=0.0432, speed=0.75
-# + convergence_analysis: status=stable, stability=0.0156
-# memory_analysis: delta=+0.1MB, efficiency=0.89
-# テンソル統計と詳細分析...
-```
-
-### 7. 本番デプロイ機能
-
-本番環境に不可欠な機能：
-
-```bash
-# 本番準備チェック
-diffai production.safetensors candidate.safetensors \
-  --anomaly-detection \
-  --memory-analysis \
-  --deployment-readiness
-
-# 回帰テスト
-diffai baseline.safetensors new_version.safetensors \
-  --regression-test \
-  --alert-on-degradation
-```
-
-### 8. 研究開発機能
-
-研究ワークフロー向けの高度分析：
-
-```bash
-# ハイパーパラメータ影響分析
-diffai model_lr_001.safetensors model_lr_0001.safetensors \
-  --hyperparameter-impact \
-  --learning-rate-analysis
-
-# アーキテクチャ効率分析
-diffai efficient_model.safetensors baseline_model.safetensors \
-  --param-efficiency-analysis \
-  --architecture-comparison
+# 自動化用のJSON出力
+diffai model1.safetensors model2.safetensors \
+  --stats --output json
 ```
 
 ## 機能選択ガイド
@@ -537,68 +473,42 @@ diffai efficient_model.safetensors baseline_model.safetensors \
 **訓練監視用:**
 ```bash
 diffai checkpoint_old.safetensors checkpoint_new.safetensors \
-  --learning-progress --convergence-analysis --anomaly-detection
+  --stats --sort-by-change-magnitude
 ```
 
 **本番デプロイ用:**
 ```bash
 diffai current_prod.safetensors candidate.safetensors \
-  --anomaly-detection --memory-analysis --deployment-readiness
+  --stats --quantization-analysis
 ```
 
 **研究分析用:**
 ```bash
 diffai baseline.safetensors experiment.safetensors \
-  --architecture-comparison --hyperparameter-impact --stats
+  --stats --show-layer-impact
 ```
 
 **量子化検証用:**
 ```bash
 diffai fp32.safetensors quantized.safetensors \
-  --quantization-analysis --memory-analysis --performance-impact-estimate
+  --quantization-analysis --stats
 ```
 
-## 全28の高度機能
+## 将来機能（Phase 3）
 
-### 学習・収束分析（4機能）
-- `--learning-progress` - チェックポイント間の学習進捗を追跡
-- `--convergence-analysis` - 収束の安定性とパターンを分析
-- `--anomaly-detection` - 訓練異常を検出（勾配爆発、消失勾配）
-- `--gradient-analysis` - 勾配の特性と流れを分析
+### Phase 3A（コア機能）
+- `--architecture-comparison` - モデルアーキテクチャと構造変化の比較
+- `--memory-analysis` - メモリ使用量と最適化機会の分析
+- `--anomaly-detection` - モデルパラメータの数値異常検出
+- `--change-summary` - 詳細な変更要約の生成
 
-### アーキテクチャ・パフォーマンス分析（4機能）
-- `--architecture-comparison` - モデルアーキテクチャと構造変化を比較
-- `--param-efficiency-analysis` - モデル間のパラメータ効率を分析
-- `--memory-analysis` - メモリ使用量と最適化機会を分析
-- `--inference-speed-estimate` - 推論速度とパフォーマンス特性を推定
+### Phase 3B（高度分析）
+- `--convergence-analysis` - モデルパラメータの収束パターン分析
+- `--gradient-analysis` - 利用可能時の勾配情報分析
+- `--similarity-matrix` - モデル比較用類似度行列の生成
 
-### MLOps・デプロイ支援（7機能）
-- `--deployment-readiness` - デプロイ準備と互換性を評価
-- `--regression-test` - 自動回帰テストを実行
-- `--risk-assessment` - デプロイリスクと安定性を評価
-- `--hyperparameter-impact` - モデル変更へのハイパーパラメータ影響を分析
-- `--learning-rate-analysis` - 学習率の効果と最適化を分析
-- `--alert-on-degradation` - 閾値を超えた性能劣化でアラート
-- `--performance-impact-estimate` - 変更の性能影響を推定
-
-### 実験・文書化支援（4機能）
-- `--generate-report` - 包括的な分析レポートを生成
-- `--markdown-output` - ドキュメント用のMarkdown形式で結果を出力
-- `--include-charts` - 出力にチャートと視覚化を含める
-- `--review-friendly` - 人間のレビュー担当者向けの出力を生成
-
-### 高度分析機能（6機能）
-- `--embedding-analysis` - 埋め込み層の変化と意味的ドリフトを分析
-- `--similarity-matrix` - モデル比較用の類似度行列を生成
-- `--clustering-change` - モデル表現のクラスタリング変化を分析
-- `--attention-analysis` - アテンション機構パターンを分析（Transformerモデル）
-- `--head-importance` - アテンションヘッドの重要度と特化を分析
-- `--attention-pattern-diff` - モデル間のアテンションパターンを比較
-
-### 追加分析機能（3機能）
-- `--quantization-analysis` - 量子化効果と効率を分析
-- `--sort-by-change-magnitude` - 優先順位付けのため変化の大きさでソート
-- `--change-summary` - 詳細な変更要約を生成
+### 設計哲学
+diffai はUNIX哲学に従います：シンプルで組み合わせ可能な、一つのことを適切に行うツール。機能は直交的で、強力な分析ワークフローのために組み合わせることができます。
 
 ## 次のステップ
 

@@ -26,7 +26,7 @@ $ diffai model_v1.safetensors model_v2.safetensors --stats
 
 - **AI/MLネイティブ**: PyTorch (.pt/.pth)、Safetensors (.safetensors)、NumPy (.npy/.npz)、MATLAB (.mat) ファイルを直接サポート
 - **テンソル分析**: テンソル統計の自動計算（平均、標準偏差、最小値、最大値、形状、メモリ使用量）
-- **28のML分析機能**: 学習進捗、収束分析、アーキテクチャ比較、デプロイ準備など
+- **ML分析機能**: 統計分析、量子化分析、アーキテクチャ比較など
 - **科学データサポート**: 複素数対応のNumPy配列とMATLAB行列
 - **純粋Rust実装**: システム依存なし、Windows/Linux/macOSで追加インストール不要
 - **複数出力形式**: 色付きCLI、MLOps統合用JSON、人間可読YAML
@@ -79,8 +79,8 @@ cargo build --release
 # PyTorchモデル比較
 diffai model_old.pt model_new.pt --stats
 
-# 詳細分析付きSafetensors比較
-diffai checkpoint_v1.safetensors checkpoint_v2.safetensors --learning-progress
+# 統計分析付きSafetensors比較
+diffai checkpoint_v1.safetensors checkpoint_v2.safetensors --stats
 
 # NumPy配列比較
 diffai data_v1.npy data_v2.npy --stats
@@ -92,11 +92,17 @@ diffai experiment_v1.mat experiment_v2.mat --stats
 ### 高度なML分析
 
 ```bash
-# 学習進捗分析
-diffai baseline.safetensors finetuned.safetensors --learning-progress --convergence-analysis
+# 現在利用可能な分析機能
+diffai baseline.safetensors finetuned.safetensors --stats --quantization-analysis
 
-# アーキテクチャ・デプロイ分析
-diffai model_v1.safetensors model_v2.safetensors --architecture-comparison --deployment-readiness
+# 組み合わせ分析とソート
+diffai original.pt optimized.pt --stats --quantization-analysis --sort-by-change-magnitude
+
+# 自動化用JSON出力
+diffai model_v1.safetensors model_v2.safetensors --stats --output json
+
+# Phase 3機能（近日公開）
+diffai model_v1.safetensors model_v2.safetensors --architecture-comparison --memory-analysis
 
 # 性能影響評価
 diffai original.pt optimized.pt --quantization-analysis --memory-analysis

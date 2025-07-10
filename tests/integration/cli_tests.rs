@@ -481,12 +481,12 @@ fn create_test_pytorch_file(path: &str) -> Result<(), Box<dyn std::error::Error>
 // These tests verify that the CLI arguments are accepted and processed without errors
 
 #[test]
-fn test_learning_progress_analysis() -> Result<(), Box<dyn std::error::Error>> {
-    // Use real ML model files for testing learning progress analysis
+fn test_stats_analysis() -> Result<(), Box<dyn std::error::Error>> {
+    // Use real ML model files for testing statistical analysis
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/checkpoint_epoch_0.safetensors")
         .arg("../tests/fixtures/ml_models/checkpoint_epoch_10.safetensors")
-        .arg("--learning-progress");
+        .arg("--stats");
 
     let output = cmd.output()?;
 
@@ -495,10 +495,8 @@ fn test_learning_progress_analysis() -> Result<(), Box<dyn std::error::Error>> {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Check that analysis was performed (based on actual implementation)
-    // The output shows statistical changes and memory analysis
+    // Check that statistical analysis was performed
     assert!(stdout.contains("mean=") || stdout.contains("std="));
-    assert!(stdout.contains("memory_analysis") || stdout.contains("🧠"));
 
     Ok(())
 }

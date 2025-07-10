@@ -35,10 +35,10 @@ diffai models_v1/ models_v2/ --format safetensors --recursive
 # Compare PyTorch model files
 diffai model1.pt model2.pt --stats
 
-# With learning progress analysis
-diffai checkpoint_epoch_1.pt checkpoint_epoch_10.pt --learning-progress
+# With quantization analysis
+diffai checkpoint_epoch_1.pt checkpoint_epoch_10.pt --quantization-analysis
 
-# With architecture comparison
+# With combined analysis (coming in Phase 3)
 diffai baseline_model.pt improved_model.pt --architecture-comparison
 ```
 
@@ -47,7 +47,7 @@ diffai baseline_model.pt improved_model.pt --architecture-comparison
   ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
   ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
-  learning_progress: trend=improving, magnitude=0.0234, speed=0.0156
+  quantization_analysis: compression=0.25, precision_loss=minimal
 ```
 
 ### Safetensors File Comparison

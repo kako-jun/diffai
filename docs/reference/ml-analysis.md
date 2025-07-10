@@ -1,319 +1,193 @@
 # ML Analysis Functions
 
-Comprehensive guide to diffai's 28 advanced machine learning analysis functions.
+Comprehensive guide to diffai's machine learning analysis functions for model comparison and analysis.
 
 ## Overview
 
-diffai provides 28 specialized analysis functions designed specifically for machine learning model comparison and analysis. These functions cover everything from research and development to MLOps and deployment.
+diffai provides specialized analysis functions designed specifically for machine learning model comparison and analysis. These functions help with research and development, MLOps, and deployment workflows.
 
-## Learning & Convergence Analysis (4 functions)
+## Currently Available Functions (v0.2.0)
 
-### 1. `--learning-progress` Learning Progress Tracking
-Track and analyze learning progress between model checkpoints.
+### 1. `--stats` Statistical Analysis
+Provides detailed tensor statistics for model comparison.
 
 **Usage**:
 ```bash
-diffai checkpoint_epoch_10.safetensors checkpoint_epoch_20.safetensors --learning-progress
+diffai model1.safetensors model2.safetensors --stats
 ```
 
 **Output**:
 ```
-+ learning_progress: trend=improving, magnitude=0.0543, speed=0.80
+  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
+  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
 ```
 
 **Analysis Fields**:
-- **trend**: `improving`, `degrading`, `stable`
-- **magnitude**: Change magnitude (0.0-1.0)
-- **speed**: Convergence speed (0.0-1.0)
+- **mean**: Average parameter values
+- **std**: Standard deviation of parameters
+- **min/max**: Parameter value ranges
+- **shape**: Tensor dimensions
+- **dtype**: Data type precision
 
-### 2. `--convergence-analysis` Convergence Analysis
-Evaluate model stability and convergence status.
+**Use Cases**:
+- Monitor parameter changes during training
+- Detect statistical shifts in model weights
+- Validate model consistency
+
+### 2. `--quantization-analysis` Quantization Analysis
+Analyzes quantization effects and efficiency.
 
 **Usage**:
 ```bash
-diffai model_before.safetensors model_after.safetensors --convergence-analysis
+diffai fp32_model.safetensors quantized_model.safetensors --quantization-analysis
 ```
 
 **Output**:
 ```
-+ convergence_analysis: status=stable, stability=0.0234, action="Continue training"
+quantization_analysis: compression=0.25, precision_loss=minimal
 ```
 
-### 3. `--anomaly-detection` Anomaly Detection
-Detect abnormal patterns during training.
+**Analysis Fields**:
+- **compression**: Model size reduction ratio
+- **precision_loss**: Accuracy impact assessment
+- **efficiency**: Performance vs quality trade-offs
+
+**Use Cases**:
+- Validate quantization quality
+- Optimize deployment size
+- Compare compression techniques
+
+### 3. `--sort-by-change-magnitude` Change Magnitude Sorting
+Sorts differences by magnitude for prioritization.
 
 **Usage**:
 ```bash
-diffai normal_model.safetensors anomalous_model.safetensors --anomaly-detection
+diffai model1.safetensors model2.safetensors --sort-by-change-magnitude --stats
 ```
 
-**Output**:
-```
-[CRITICAL] anomaly_detection: type=gradient_explosion, severity=critical, affected=2 layers
-```
+**Output**: Results are sorted with largest changes first
 
-### 4. `--gradient-analysis` Gradient Analysis
-Analyze gradient characteristics and flow.
+**Use Cases**:
+- Focus on most significant changes
+- Prioritize debugging efforts
+- Identify critical parameter shifts
+
+### 4. `--show-layer-impact` Layer Impact Analysis
+Analyzes layer-by-layer impact of changes.
 
 **Usage**:
 ```bash
-diffai model1.safetensors model2.safetensors --gradient-analysis
+diffai baseline.safetensors modified.safetensors --show-layer-impact
 ```
 
-## Architecture & Performance Analysis (4 functions)
+**Output**: Per-layer change analysis
 
-### 5. `--architecture-comparison` Architecture Comparison
-Compare model structures and designs.
+**Use Cases**:
+- Understand which layers changed most
+- Guide fine-tuning strategies
+- Analyze architectural modifications
 
-**Usage**:
+## Combined Analysis
+
+Combine multiple features for comprehensive analysis:
+
 ```bash
-diffai resnet.safetensors transformer.safetensors --architecture-comparison
+# Comprehensive model analysis
+diffai checkpoint_v1.safetensors checkpoint_v2.safetensors \
+  --stats \
+  --quantization-analysis \
+  --sort-by-change-magnitude \
+  --show-layer-impact
+
+# JSON output for automation
+diffai model1.safetensors model2.safetensors \
+  --stats --output json
 ```
 
-**Output**:
-```
-architecture_comparison: type1=cnn, type2=transformer, depth=50→24, differences=15
-```
+## Feature Selection Guide
 
-### 6. `--param-efficiency-analysis` Parameter Efficiency Analysis
-Analyze parameter efficiency between models.
-
-**Usage**:
-```bash
-diffai baseline.safetensors optimized.safetensors --param-efficiency-analysis
-```
-
-### 7. `--memory-analysis` Memory Analysis
-Analyze memory usage and optimization opportunities.
-
-**Usage**:
-```bash
-diffai small_model.safetensors large_model.safetensors --memory-analysis
-```
-
-### 8. `--inference-speed-estimate` Inference Speed Estimation
-Estimate inference speed and performance characteristics.
-
-**Usage**:
-```bash
-diffai model1.safetensors model2.safetensors --inference-speed-estimate
-```
-
-## MLOps & Deployment Support (7 functions)
-
-### 9. `--deployment-readiness` Deployment Readiness Assessment
-Evaluate deployment readiness and compatibility.
-
-**Usage**:
-```bash
-diffai production.safetensors candidate.safetensors --deployment-readiness
-```
-
-**Output**:
-```
-[GRADUAL] deployment_readiness: readiness=0.75, strategy=gradual, risk=medium
-```
-
-### 10. `--regression-test` Regression Testing
-Perform automated regression testing.
-
-**Usage**:
-```bash
-diffai baseline.safetensors new_version.safetensors --regression-test
-```
-
-### 11. `--risk-assessment` Risk Assessment
-Evaluate deployment risks and stability.
-
-**Usage**:
-```bash
-diffai current.safetensors candidate.safetensors --risk-assessment
-```
-
-### 12. `--hyperparameter-impact` Hyperparameter Impact Analysis
-Analyze the impact of hyperparameter changes.
-
-**Usage**:
-```bash
-diffai model_lr_001.safetensors model_lr_0001.safetensors --hyperparameter-impact
-```
-
-### 13. `--learning-rate-analysis` Learning Rate Analysis
-Analyze learning rate effects and optimization.
-
-**Usage**:
-```bash
-diffai model1.safetensors model2.safetensors --learning-rate-analysis
-```
-
-### 14. `--alert-on-degradation` Performance Degradation Alerts
-Alert on performance degradation beyond thresholds.
-
-**Usage**:
-```bash
-diffai baseline.safetensors new_model.safetensors --alert-on-degradation
-```
-
-### 15. `--performance-impact-estimate` Performance Impact Estimation
-Estimate performance impact of changes.
-
-**Usage**:
-```bash
-diffai model1.safetensors model2.safetensors --performance-impact-estimate
-```
-
-## Experiment & Documentation Support (4 functions)
-
-### 16. `--generate-report` Generate Comprehensive Reports
-Generate comprehensive analysis reports automatically.
-
-**Usage**:
-```bash
-diffai model1.safetensors model2.safetensors --generate-report
-```
-
-### 17. `--markdown-output` Markdown Output
-Generate reports in markdown format.
-
-**Usage**:
-```bash
-diffai model1.safetensors model2.safetensors --markdown-output
-```
-
-### 18. `--include-charts` Include Charts and Visualizations
-Include visualization charts in output.
-
-**Usage**:
-```bash
-diffai model1.safetensors model2.safetensors --include-charts
-```
-
-### 19. `--review-friendly` Review-Friendly Output
-Generate output optimized for human review.
-
-**Usage**:
-```bash
-diffai model1.safetensors model2.safetensors --review-friendly
-```
-
-## Advanced Analysis Functions (6 functions)
-
-### 20. `--embedding-analysis` Embedding Analysis
-Analyze embedding layer changes and semantic drift.
-
-**Usage**:
-```bash
-diffai model1.safetensors model2.safetensors --embedding-analysis
-```
-
-### 21. `--similarity-matrix` Similarity Matrix
-Generate similarity matrix for model comparison.
-
-**Usage**:
-```bash
-diffai model1.safetensors model2.safetensors --similarity-matrix
-```
-
-### 22. `--clustering-change` Clustering Change Analysis
-Analyze clustering changes in model representations.
-
-**Usage**:
-```bash
-diffai model1.safetensors model2.safetensors --clustering-change
-```
-
-### 23. `--attention-analysis` Attention Analysis
-Analyze attention mechanism patterns (Transformer models).
-
-**Usage**:
-```bash
-diffai transformer1.safetensors transformer2.safetensors --attention-analysis
-```
-
-### 24. `--head-importance` Attention Head Importance
-Analyze attention head importance and specialization.
-
-**Usage**:
-```bash
-diffai model1.safetensors model2.safetensors --head-importance
-```
-
-### 25. `--attention-pattern-diff` Attention Pattern Differences
-Compare attention patterns between models.
-
-**Usage**:
-```bash
-diffai model1.safetensors model2.safetensors --attention-pattern-diff
-```
-
-## Additional Analysis Functions (3 functions)
-
-### 26. `--quantization-analysis` Quantization Analysis
-Analyze quantization effects and efficiency.
-
-**Usage**:
-```bash
-diffai fp32.safetensors quantized.safetensors --quantization-analysis
-```
-
-**Output**:
-```
-quantization_analysis: compression=75.0%, speedup=2.5x, precision_loss=2.0%, suitability=good
-```
-
-### 27. `--sort-by-change-magnitude` Sort by Change Magnitude
-Sort differences by magnitude for prioritization.
-
-**Usage**:
-```bash
-diffai model1.safetensors model2.safetensors --sort-by-change-magnitude
-```
-
-### 28. `--change-summary` Change Summary
-Generate detailed summaries of changes.
-
-**Usage**:
-```bash
-diffai model1.safetensors model2.safetensors --change-summary
-```
-
-## Function Combinations
-
-### For Training Monitoring
+**For Training Monitoring**:
 ```bash
 diffai checkpoint_old.safetensors checkpoint_new.safetensors \
-  --learning-progress \
-  --convergence-analysis \
-  --anomaly-detection
+  --stats --sort-by-change-magnitude
 ```
 
-### For Production Deployment
+**For Production Deployment**:
 ```bash
 diffai current_prod.safetensors candidate.safetensors \
-  --deployment-readiness \
-  --risk-assessment \
-  --regression-test
+  --stats --quantization-analysis
 ```
 
-### For Research Analysis
+**For Research Analysis**:
 ```bash
 diffai baseline.safetensors experiment.safetensors \
-  --architecture-comparison \
-  --embedding-analysis \
-  --generate-report
+  --stats --show-layer-impact
 ```
 
-### For Quantization Validation
+**For Quantization Validation**:
 ```bash
 diffai fp32.safetensors quantized.safetensors \
-  --quantization-analysis \
-  --memory-analysis \
-  --performance-impact-estimate
+  --quantization-analysis --stats
 ```
 
-## Related Documentation
+## Future Features (Phase 3)
 
-- [CLI Reference](cli-reference.md) - Complete command-line options
-- [Supported Formats](formats.md) - Supported file formats
-- [Output Formats](output-formats.md) - Output format specifications
+### Coming in Phase 3A (Core Features)
+- `--architecture-comparison` - Compare model architectures and structural changes
+- `--memory-analysis` - Analyze memory usage and optimization opportunities
+- `--anomaly-detection` - Detect numerical anomalies in model parameters
+- `--change-summary` - Generate detailed change summaries
 
+### Coming in Phase 3B (Advanced Analysis)
+- `--convergence-analysis` - Analyze convergence patterns in model parameters
+- `--gradient-analysis` - Analyze gradient information when available
+- `--similarity-matrix` - Generate similarity matrix for model comparison
+
+## Design Philosophy
+
+diffai follows UNIX philosophy: simple, composable tools that do one thing well. Features are orthogonal and can be combined for powerful analysis workflows.
+
+## Integration Examples
+
+### MLflow Integration
+```python
+import subprocess
+import json
+import mlflow
+
+def log_model_diff(model1_path, model2_path):
+    result = subprocess.run([
+        'diffai', model1_path, model2_path, '--stats', '--output', 'json'
+    ], capture_output=True, text=True)
+    
+    diff_data = json.loads(result.stdout)
+    
+    with mlflow.start_run():
+        mlflow.log_dict(diff_data, "model_comparison.json")
+        mlflow.log_metric("total_changes", len(diff_data))
+```
+
+### CI/CD Pipeline
+```yaml
+name: Model Validation
+on: [push, pull_request]
+
+jobs:
+  model-diff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install diffai
+        run: cargo install diffai
+        
+      - name: Compare models
+        run: |
+          diffai models/baseline.safetensors models/candidate.safetensors \
+            --stats --output json > model_diff.json
+```
+
+## See Also
+
+- [CLI Reference](cli-reference.md) - Complete command reference
+- [Basic Usage Guide](../user-guide/basic-usage.md) - Get started with diffai
+- [ML Model Comparison Guide](../user-guide/ml-model-comparison.md) - Advanced model comparison techniques

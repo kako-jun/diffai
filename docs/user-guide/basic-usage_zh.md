@@ -133,7 +133,7 @@ $ diffai model_v1.safetensors model_v2.safetensors --stats
 diffai checkpoint_epoch_10.pt checkpoint_epoch_20.pt --stats
 
 # 查看学习进度
-diffai checkpoint_old.pt checkpoint_new.pt --learning-progress
+diffai checkpoint_old.pt checkpoint_new.pt --stats
 ```
 
 ### 模型验证
@@ -235,13 +235,13 @@ diffai model1.pt model2.pt --output json | jq '.[] | select(.TensorStatsChanged)
 diffai --version
 
 # 2. 训练后比较检查点
-diffai checkpoint_before.pt checkpoint_after.pt --learning-progress
+diffai checkpoint_before.pt checkpoint_after.pt --stats
 
 # 3. 验证模型导出
 diffai model.pt exported_model.pt --stats
 
 # 4. 部署前最终检查
-diffai staging_model.pt production_model.pt --deployment-readiness
+diffai staging_model.pt production_model.pt --stats
 ```
 
 ### 实验工作流程
