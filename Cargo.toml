@@ -6,9 +6,9 @@ members = [
 ]
 
 [workspace.package]
-version = "0.2.0"
+version = "0.2.6"
 edition = "2021"
-authors = ["kako-jun <kako.jun.42@gmail.com>"]
+authors = ["kako-jun"]
 license = "MIT"
 description = "🤖 AI/ML specialized diff tool for deep learning models - PyTorch, Safetensors, tensor analysis, model comparison, experiment tracking"
 homepage = "https://github.com/kako-jun/diffai"
