@@ -100,172 +100,20 @@ Sort differences by change magnitude (ML models only).
 
 ## ML Analysis Functions
 
-### Learning & Convergence Analysis
+### Currently Available (v0.2.0)
 
-#### `--learning-progress`
-Track learning progress between training checkpoints.
+The following ML analysis functions are currently implemented:
 
-- **Output**: Learning trend, parameter update magnitude, convergence speed
-- **Example**: `diffai checkpoint_epoch_1.safetensors checkpoint_epoch_10.safetensors --learning-progress`
+#### `--stats`
+Show detailed statistics for ML models and scientific data.
 
-#### `--convergence-analysis`
-Analyze convergence stability and patterns.
-
-- **Output**: Convergence status, parameter stability analysis
-- **Example**: `diffai baseline.safetensors converged.safetensors --convergence-analysis`
-
-#### `--anomaly-detection`
-Detect training anomalies (gradient explosion, vanishing gradients).
-
-- **Output**: Anomaly type, severity, affected layers, recommended actions
-- **Example**: `diffai normal_model.safetensors anomalous_model.safetensors --anomaly-detection`
-
-#### `--gradient-analysis`
-Analyze gradient characteristics and flow.
-
-- **Output**: Gradient flow health, norm estimation, problematic layers
-- **Example**: `diffai model_before.pt model_after.pt --gradient-analysis`
-
-### Architecture & Performance Analysis
-
-#### `--architecture-comparison`
-Compare model architectures and structural changes.
-
-- **Output**: Architecture type, depth changes, structural differences
-- **Example**: `diffai baseline_arch.safetensors improved_arch.safetensors --architecture-comparison`
-
-#### `--param-efficiency-analysis`
-Analyze parameter efficiency between models.
-
-- **Output**: Parameter efficiency metrics, optimization suggestions
-- **Example**: `diffai large_model.pt optimized_model.pt --param-efficiency-analysis`
-
-#### `--memory-analysis`
-Analyze memory usage and optimization opportunities.
-
-- **Output**: Memory delta, GPU estimation, efficiency score
-- **Example**: `diffai model_v1.safetensors model_v2.safetensors --memory-analysis`
-
-#### `--inference-speed-estimate`
-Estimate inference speed and performance characteristics.
-
-- **Output**: Speed ratio, FLOPS ratio, bottleneck analysis
-- **Example**: `diffai original.pt optimized.pt --inference-speed-estimate`
-
-### MLOps & Deployment Support
-
-#### `--deployment-readiness`
-Assess deployment readiness and compatibility.
-
-- **Output**: Readiness score, deployment strategy, risk assessment
-- **Example**: `diffai candidate_model.safetensors production_model.safetensors --deployment-readiness`
-
-#### `--regression-test`
-Perform automated regression testing.
-
-- **Output**: Test results, performance comparison, regression indicators
-- **Example**: `diffai baseline.pt new_version.pt --regression-test`
-
-#### `--risk-assessment`
-Evaluate deployment risks and stability.
-
-- **Output**: Risk level, stability metrics, mitigation recommendations
-- **Example**: `diffai stable_model.safetensors experimental_model.safetensors --risk-assessment`
-
-#### `--hyperparameter-impact`
-Analyze hyperparameter impact on model changes.
-
-- **Output**: Hyperparameter sensitivity, impact analysis
-- **Example**: `diffai config_v1.json config_v2.json --hyperparameter-impact`
-
-#### `--learning-rate-analysis`
-Analyze learning rate effects and optimization.
-
-- **Output**: Learning rate effectiveness, optimization patterns
-- **Example**: `diffai lr_001.safetensors lr_01.safetensors --learning-rate-analysis`
-
-#### `--alert-on-degradation`
-Alert on performance degradation beyond thresholds.
-
-- **Output**: Degradation alerts, threshold violations
-- **Example**: `diffai production.pt candidate.pt --alert-on-degradation`
-
-#### `--performance-impact-estimate`
-Estimate performance impact of model changes.
-
-- **Output**: Performance delta, impact estimation, optimization suggestions
-- **Example**: `diffai baseline.safetensors optimized.safetensors --performance-impact-estimate`
-
-### Experiment & Documentation Support
-
-#### `--generate-report`
-Generate comprehensive analysis reports.
-
-- **Output**: Detailed analysis report with multiple metrics
-- **Example**: `diffai experiment_baseline.safetensors experiment_result.safetensors --generate-report`
-
-#### `--markdown-output`
-Output results in markdown format for documentation.
-
-- **Output**: Markdown-formatted analysis results
-- **Example**: `diffai model_v1.pt model_v2.pt --markdown-output`
-
-#### `--include-charts`
-Include charts and visualizations in output.
-
-- **Output**: Chart analysis metadata (visualization coming soon)
-- **Example**: `diffai data_v1.npy data_v2.npy --include-charts`
-
-#### `--review-friendly`
-Generate review-friendly output for human reviewers.
-
-- **Output**: Human-readable analysis summaries
-- **Example**: `diffai pr_baseline.safetensors pr_changes.safetensors --review-friendly`
-
-### Advanced Analysis Functions
-
-#### `--embedding-analysis`
-Analyze embedding layer changes and semantic drift.
-
-- **Output**: Embedding drift analysis, semantic change detection
-- **Example**: `diffai embeddings_v1.safetensors embeddings_v2.safetensors --embedding-analysis`
-
-#### `--similarity-matrix`
-Generate similarity matrix for model comparison.
-
-- **Output**: Similarity matrix, correlation analysis
-- **Example**: `diffai model_a.pt model_b.pt --similarity-matrix`
-
-#### `--clustering-change`
-Analyze clustering changes in model representations.
-
-- **Output**: Clustering analysis, representation changes
-- **Example**: `diffai representation_v1.safetensors representation_v2.safetensors --clustering-change`
-
-#### `--attention-analysis`
-Analyze attention mechanism patterns (Transformer models).
-
-- **Output**: Attention pattern analysis, mechanism evaluation
-- **Example**: `diffai transformer_v1.safetensors transformer_v2.safetensors --attention-analysis`
-
-#### `--head-importance`
-Analyze attention head importance and specialization.
-
-- **Output**: Head importance ranking, specialization analysis
-- **Example**: `diffai attention_baseline.pt attention_pruned.pt --head-importance`
-
-#### `--attention-pattern-diff`
-Compare attention patterns between models.
-
-- **Output**: Attention pattern differences, behavioral changes
-- **Example**: `diffai pattern_v1.safetensors pattern_v2.safetensors --attention-pattern-diff`
-
-### Additional Analysis Functions
+- **Output**: Mean, standard deviation, min/max, shape, dtype for each tensor
+- **Example**: `diffai model.safetensors model2.safetensors --stats`
 
 #### `--quantization-analysis`
 Analyze quantization effects and efficiency.
 
-- **Output**: Compression ratio, speedup estimation, precision loss
+- **Output**: Compression ratio, precision loss analysis
 - **Example**: `diffai fp32_model.safetensors quantized_model.safetensors --quantization-analysis`
 
 #### `--sort-by-change-magnitude`
@@ -274,11 +122,26 @@ Sort differences by magnitude for prioritization.
 - **Output**: Magnitude-sorted difference list
 - **Example**: `diffai model1.pt model2.pt --sort-by-change-magnitude`
 
-#### `--change-summary`
-Generate detailed change summaries.
+#### `--show-layer-impact`
+Analyze layer-by-layer impact of changes.
 
-- **Output**: Comprehensive change analysis and summary
-- **Example**: `diffai version_a.safetensors version_b.safetensors --change-summary`
+- **Output**: Per-layer change analysis
+- **Example**: `diffai baseline.safetensors modified.safetensors --show-layer-impact`
+
+### Future Features (Phase 3)
+
+Planned for Phase 3 implementation:
+
+#### Architecture & Performance Analysis
+- `--architecture-comparison` - Compare model architectures and structural changes
+- `--memory-analysis` - Analyze memory usage and optimization opportunities
+- `--anomaly-detection` - Detect numerical anomalies in model parameters
+- `--change-summary` - Generate detailed change summaries
+
+#### Advanced Analysis
+- `--convergence-analysis` - Analyze convergence patterns in model parameters
+- `--gradient-analysis` - Analyze gradient information when available
+- `--similarity-matrix` - Generate similarity matrix for model comparison
 
 ## Output Examples
 
@@ -294,14 +157,14 @@ $ diffai model_v1.safetensors model_v2.safetensors --stats
   ~ fc3.weight: mean=-0.0035->-0.0010, std=0.0990->0.1113
 ```
 
-### Advanced Analysis Output
+### Combined Analysis Output
 
 ```bash
-$ diffai baseline.safetensors improved.safetensors --deployment-readiness --architecture-comparison
-deployment_readiness: readiness=0.92, strategy=blue_green, risk=low, timeline=ready_for_immediate_deployment
-architecture_comparison: type1=feedforward, type2=feedforward, depth=3->3, differences=0
-  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
+$ diffai baseline.safetensors improved.safetensors --stats --quantization-analysis --sort-by-change-magnitude
+quantization_analysis: compression=0.25, precision_loss=minimal
+  ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
+  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
 ```
 
 ### Scientific Data Analysis

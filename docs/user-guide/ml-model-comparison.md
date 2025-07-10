@@ -364,172 +364,106 @@ gunzip model.safetensors.gz
 - Set appropriate epsilon values to avoid noise
 - Consider model size when choosing comparison strategy
 
-## Advanced ML Analysis Features
+## ML Analysis Features
 
-diffai provides 28 advanced machine learning analysis features designed for comprehensive model evaluation:
+### Currently Available (v0.2.0)
 
-### 1. Learning Progress Analysis (`--learning-progress`)
+diffai provides the following implemented analysis features:
 
-Analyzes training progression between model checkpoints:
+### 1. Statistical Analysis (`--stats`)
+
+Provides detailed tensor statistics for model comparison:
 
 ```bash
-# Compare training checkpoints
-diffai checkpoint_epoch_10.safetensors checkpoint_epoch_20.safetensors --learning-progress
+# Compare training checkpoints with detailed statistics
+diffai checkpoint_epoch_10.safetensors checkpoint_epoch_20.safetensors --stats
 
 # Output example:
-# + learning_progress: trend=improving, magnitude=0.0543, speed=0.80
+# ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
+# ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
 ```
 
 **Analysis Information:**
-- **trend**: `improving`, `degrading`, or `stable`
-- **magnitude**: Amount of change (0.0-1.0)
-- **speed**: Rate of convergence (0.0-1.0)
+- **mean**: Average parameter values
+- **std**: Standard deviation of parameters  
+- **min/max**: Parameter value ranges
+- **shape**: Tensor dimensions
+- **dtype**: Data type precision
 
 **Use Cases:**
-- Monitor training progress
-- Detect learning plateaus
-- Optimize training schedules
+- Monitor parameter changes during training
+- Detect statistical shifts in model weights
+- Validate model consistency
 
-### 2. Convergence Analysis (`--convergence-analysis`)
+### 2. Quantization Analysis (`--quantization-analysis`)
 
-Evaluates model stability and convergence status:
+Analyzes quantization effects and efficiency:
 
 ```bash
-# Analyze convergence between checkpoints
-diffai model_before.safetensors model_after.safetensors --convergence-analysis
+# Compare quantized vs full-precision models
+diffai fp32_model.safetensors quantized_model.safetensors --quantization-analysis
 
 # Output example:
-# + convergence_analysis: status=stable, stability=0.0234, action="Continue training"
+# quantization_analysis: compression=0.25, precision_loss=minimal
 ```
 
 **Analysis Information:**
-- **status**: `converged`, `diverging`, `oscillating`, `stable`
-- **stability**: Variance in parameter changes (lower = more stable)
-- **action**: Recommended next steps
+- **compression**: Model size reduction ratio
+- **precision_loss**: Accuracy impact assessment
+- **efficiency**: Performance vs quality trade-offs
 
 **Use Cases:**
-- Determine when to stop training
-- Detect training instability
-- Optimize hyperparameters
+- Validate quantization quality
+- Optimize deployment size
+- Compare compression techniques
 
-### 3. Anomaly Detection (`--anomaly-detection`)
+### 3. Change Magnitude Sorting (`--sort-by-change-magnitude`)
 
-Detects abnormal patterns in model weights:
+Sorts differences by magnitude for prioritization:
 
 ```bash
-# Detect training anomalies
-diffai normal_model.safetensors anomalous_model.safetensors --anomaly-detection
+# Sort changes by importance
+diffai model1.safetensors model2.safetensors --sort-by-change-magnitude --stats
 
-# Output example:
-# anomaly_detection: type=gradient_explosion, severity=critical, affected=2 layers
+# Output shows largest changes first
 ```
 
-**Detected Anomalies:**
-- **Gradient explosion**: Extremely large weight values
-- **Gradient vanishing**: Near-zero gradients
-- **Weight distribution shift**: Unusual statistical patterns
-- **NaN/Inf values**: Invalid numerical values
-
 **Use Cases:**
-- Debug training problems
-- Validate model health
-- Prevent deployment of corrupted models
+- Focus on most significant changes
+- Prioritize debugging efforts
+- Identify critical parameter shifts
 
-### 4. Memory Analysis (`--memory-analysis`)
+### 4. Layer Impact Analysis (`--show-layer-impact`)
 
-Analyzes memory usage and model efficiency:
+Analyzes layer-by-layer impact of changes:
 
 ```bash
-# Compare model memory footprints
-diffai small_model.safetensors large_model.safetensors --memory-analysis
+# Analyze impact across model layers
+diffai baseline.safetensors modified.safetensors --show-layer-impact
 
-# Output example:
-# memory_analysis: delta=+2.7MB, gpu_est=4.5MB, efficiency=0.25
+# Output shows per-layer change analysis
 ```
 
-**Analysis Information:**
-- **delta**: Memory difference between models
-- **gpu_est**: Estimated GPU memory requirements
-- **efficiency**: Parameters per MB ratio
-
 **Use Cases:**
-- Optimize for deployment constraints
-- Compare architecture efficiency
-- Plan hardware requirements
+- Understand which layers changed most
+- Guide fine-tuning strategies
+- Analyze architectural modifications
 
-### 5. Architecture Comparison (`--architecture-comparison`)
-
-Compares model architectures and structures:
-
-```bash
-# Compare different architectures
-diffai resnet.safetensors transformer.safetensors --architecture-comparison
-
-# Output example:
-# architecture_comparison: type1=cnn, type2=transformer, differences=15
-```
-
-**Analysis Information:**
-- **Architecture types**: CNN, RNN, Transformer, MLP, etc.
-- **Layer differences**: Added, removed, or modified layers
-- **Parameter distribution**: How parameters are allocated
-
-**Use Cases:**
-- Evaluate architecture changes
-- Compare model families
-- Design decision validation
-
-### 6. Multi-Feature Analysis
+### 5. Combined Analysis
 
 Combine multiple features for comprehensive analysis:
 
 ```bash
-# Comprehensive training analysis
+# Comprehensive model analysis
 diffai checkpoint_v1.safetensors checkpoint_v2.safetensors \
-  --learning-progress \
-  --convergence-analysis \
-  --anomaly-detection \
-  --memory-analysis \
-  --stats
+  --stats \
+  --quantization-analysis \
+  --sort-by-change-magnitude \
+  --show-layer-impact
 
-# Output example:
-# + learning_progress: trend=improving, magnitude=0.0432, speed=0.75
-# + convergence_analysis: status=stable, stability=0.0156
-# memory_analysis: delta=+0.1MB, efficiency=0.89
-# Tensor statistics and detailed analysis...
-```
-
-### 7. Production Deployment Features
-
-Essential features for production environments:
-
-```bash
-# Production readiness check
-diffai production.safetensors candidate.safetensors \
-  --anomaly-detection \
-  --memory-analysis \
-  --deployment-readiness
-
-# Regression testing
-diffai baseline.safetensors new_version.safetensors \
-  --regression-test \
-  --alert-on-degradation
-```
-
-### 8. Research and Development Features
-
-Advanced analysis for research workflows:
-
-```bash
-# Hyperparameter impact analysis
-diffai model_lr_001.safetensors model_lr_0001.safetensors \
-  --hyperparameter-impact \
-  --learning-rate-analysis
-
-# Architecture efficiency analysis
-diffai efficient_model.safetensors baseline_model.safetensors \
-  --param-efficiency-analysis \
-  --architecture-comparison
+# JSON output for automation
+diffai model1.safetensors model2.safetensors \
+  --stats --output json
 ```
 
 ## Feature Selection Guide
@@ -537,68 +471,42 @@ diffai efficient_model.safetensors baseline_model.safetensors \
 **For Training Monitoring:**
 ```bash
 diffai checkpoint_old.safetensors checkpoint_new.safetensors \
-  --learning-progress --convergence-analysis --anomaly-detection
+  --stats --sort-by-change-magnitude
 ```
 
 **For Production Deployment:**
 ```bash
 diffai current_prod.safetensors candidate.safetensors \
-  --anomaly-detection --memory-analysis --deployment-readiness
+  --stats --quantization-analysis
 ```
 
 **For Research Analysis:**
 ```bash
 diffai baseline.safetensors experiment.safetensors \
-  --architecture-comparison --hyperparameter-impact --stats
+  --stats --show-layer-impact
 ```
 
 **For Quantization Validation:**
 ```bash
 diffai fp32.safetensors quantized.safetensors \
-  --quantization-analysis --memory-analysis --performance-impact-estimate
+  --quantization-analysis --stats
 ```
 
-## All 28 Advanced Features
+## Future Features (Phase 3)
 
-### Learning & Convergence Analysis (4 features)
-- `--learning-progress` - Track learning progress between checkpoints
-- `--convergence-analysis` - Analyze convergence stability and patterns
-- `--anomaly-detection` - Detect training anomalies (gradient explosion, vanishing gradients)
-- `--gradient-analysis` - Analyze gradient characteristics and flow
-
-### Architecture & Performance Analysis (4 features)
+### Coming in Phase 3A (Core Features)
 - `--architecture-comparison` - Compare model architectures and structural changes
-- `--param-efficiency-analysis` - Analyze parameter efficiency between models
-- `--memory-analysis` - Analyze memory usage and optimization opportunities
-- `--inference-speed-estimate` - Estimate inference speed and performance characteristics
-
-### MLOps & Deployment Support (7 features)
-- `--deployment-readiness` - Assess deployment readiness and compatibility
-- `--regression-test` - Perform automated regression testing
-- `--risk-assessment` - Evaluate deployment risks and stability
-- `--hyperparameter-impact` - Analyze hyperparameter impact on model changes
-- `--learning-rate-analysis` - Analyze learning rate effects and optimization
-- `--alert-on-degradation` - Alert on performance degradation beyond thresholds
-- `--performance-impact-estimate` - Estimate performance impact of changes
-
-### Experiment & Documentation Support (4 features)
-- `--generate-report` - Generate comprehensive analysis reports
-- `--markdown-output` - Output results in markdown format for documentation
-- `--include-charts` - Include charts and visualizations in output
-- `--review-friendly` - Generate review-friendly output for human reviewers
-
-### Advanced Analysis Functions (6 features)
-- `--embedding-analysis` - Analyze embedding layer changes and semantic drift
-- `--similarity-matrix` - Generate similarity matrix for model comparison
-- `--clustering-change` - Analyze clustering changes in model representations
-- `--attention-analysis` - Analyze attention mechanism patterns (Transformer models)
-- `--head-importance` - Analyze attention head importance and specialization
-- `--attention-pattern-diff` - Compare attention patterns between models
-
-### Additional Analysis Functions (3 features)
-- `--quantization-analysis` - Analyze quantization effects and efficiency
-- `--sort-by-change-magnitude` - Sort differences by magnitude for prioritization
+- `--memory-analysis` - Analyze memory usage and optimization opportunities  
+- `--anomaly-detection` - Detect numerical anomalies in model parameters
 - `--change-summary` - Generate detailed change summaries
+
+### Coming in Phase 3B (Advanced Analysis)
+- `--convergence-analysis` - Analyze convergence patterns in model parameters
+- `--gradient-analysis` - Analyze gradient information when available
+- `--similarity-matrix` - Generate similarity matrix for model comparison
+
+### Design Philosophy
+diffai follows UNIX philosophy: simple, composable tools that do one thing well. Features are orthogonal and can be combined for powerful analysis workflows.
 
 ## Next Steps
 

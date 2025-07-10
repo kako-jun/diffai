@@ -35,10 +35,10 @@ diffai models_v1/ models_v2/ --format safetensors --recursive
 # PyTorchモデルファイルを比較
 diffai model1.pt model2.pt --stats
 
-# 学習進捗分析付き
-diffai checkpoint_epoch_1.pt checkpoint_epoch_10.pt --learning-progress
+# 量子化分析付き
+diffai checkpoint_epoch_1.pt checkpoint_epoch_10.pt --quantization-analysis
 
-# アーキテクチャ比較付き
+# 組み合わせ分析（Phase 3で実装予定）
 diffai baseline_model.pt improved_model.pt --architecture-comparison
 ```
 
@@ -57,7 +57,7 @@ diffai baseline_model.pt improved_model.pt --architecture-comparison
 diffai model1.safetensors model2.safetensors --stats
 
 # デプロイ準備分析付き
-diffai baseline.safetensors candidate.safetensors --deployment-readiness
+diffai baseline.safetensors candidate.safetensors --stats
 ```
 
 ### 科学データ比較
@@ -98,11 +98,10 @@ diffai dataset_v1.npz dataset_v2.npz --stats
 
 | オプション | 説明 | 例 |
 |-----------|-------------|---------|
-| `--learning-progress` | 学習進捗追跡 | `--learning-progress` |
-| `--convergence-analysis` | 収束分析 | `--convergence-analysis` |
-| `--architecture-comparison` | アーキテクチャ比較 | `--architecture-comparison` |
-| `--deployment-readiness` | デプロイ準備評価 | `--deployment-readiness` |
+| `--stats` | 詳細統計表示 | `--stats` |
 | `--quantization-analysis` | 量子化分析 | `--quantization-analysis` |
+| `--sort-by-change-magnitude` | 変更量でソート | `--sort-by-change-magnitude` |
+| `--show-layer-impact` | レイヤー影響分析 | `--show-layer-impact` |
 
 ## 出力形式
 
@@ -196,7 +195,7 @@ export DIFFAI_MAX_MEMORY="1024"
 diffai experiment_v1/ experiment_v2/ --recursive
 
 # 学習分析付きモデルチェックポイント比較
-diffai checkpoints/epoch_10.safetensors checkpoints/epoch_20.safetensors --learning-progress
+diffai checkpoints/epoch_10.safetensors checkpoints/epoch_20.safetensors --stats
 ```
 
 ### CI/CD使用
@@ -208,7 +207,7 @@ diffai checkpoints/epoch_10.safetensors checkpoints/epoch_20.safetensors --learn
     
 - name: デプロイ準備チェック
   run: |
-    diffai baseline/model.safetensors candidate/model.safetensors --deployment-readiness
+    diffai baseline/model.safetensors candidate/model.safetensors --stats
 ```
 
 ### 科学データ分析

@@ -26,7 +26,7 @@ $ diffai model_v1.safetensors model_v2.safetensors --stats
 
 - **AI/ML 原生支持**: 直接支持 PyTorch (.pt/.pth)、Safetensors (.safetensors)、NumPy (.npy/.npz) 和 MATLAB (.mat) 文件
 - **张量分析**: 自动计算张量统计（均值、标准差、最小值、最大值、形状、内存使用）
-- **28 个 ML 分析功能**: 学习进度、收敛分析、架构比较、部署准备度等
+- **ML 分析功能**: 统计分析、量化分析、架构比较等
 - **科学数据支持**: 支持复数的 NumPy 数组和 MATLAB 矩阵
 - **纯 Rust 实现**: 无系统依赖，在 Windows/Linux/macOS 上无需额外安装即可运行
 - **多种输出格式**: 彩色 CLI、用于 MLOps 集成的 JSON、人类可读的 YAML 报告
@@ -79,8 +79,8 @@ cargo build --release
 # 比较 PyTorch 模型
 diffai model_old.pt model_new.pt --stats
 
-# 比较 Safetensors 并进行详细分析
-diffai checkpoint_v1.safetensors checkpoint_v2.safetensors --learning-progress
+# 比较 Safetensors 并进行统计分析
+diffai checkpoint_v1.safetensors checkpoint_v2.safetensors --stats
 
 # 比较 NumPy 数组
 diffai data_v1.npy data_v2.npy --stats
@@ -92,11 +92,17 @@ diffai experiment_v1.mat experiment_v2.mat --stats
 ### 高级 ML 分析
 
 ```bash
-# 学习进度分析
-diffai baseline.safetensors finetuned.safetensors --learning-progress --convergence-analysis
+# 当前可用的分析功能
+diffai baseline.safetensors finetuned.safetensors --stats --quantization-analysis
 
-# 架构和部署分析
-diffai model_v1.safetensors model_v2.safetensors --architecture-comparison --deployment-readiness
+# 组合分析并排序
+diffai original.pt optimized.pt --stats --quantization-analysis --sort-by-change-magnitude
+
+# JSON 输出用于自动化
+diffai model_v1.safetensors model_v2.safetensors --stats --output json
+
+# 第 3 阶段功能（即将推出）
+diffai model_v1.safetensors model_v2.safetensors --architecture-comparison --memory-analysis
 
 # 性能影响评估
 diffai original.pt optimized.pt --quantization-analysis --memory-analysis

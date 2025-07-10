@@ -364,172 +364,106 @@ gunzip model.safetensors.gz
 - 设置适当的epsilon值以避免噪声
 - 选择比较策略时考虑模型大小
 
-## 高级ML分析功能
+## ML分析功能
 
-diffai提供28个高级机器学习分析功能，用于全面的模型评估：
+### 当前可用功能（v0.2.0）
 
-### 1. 学习进度分析（`--learning-progress`）
+diffai提供以下已实现的分析功能：
 
-分析模型检查点之间的训练进展：
+### 1. 统计分析（`--stats`）
+
+为模型比较提供详细的张量统计：
 
 ```bash
-# 比较训练检查点
-diffai checkpoint_epoch_10.safetensors checkpoint_epoch_20.safetensors --learning-progress
+# 使用详细统计比较训练检查点
+diffai checkpoint_epoch_10.safetensors checkpoint_epoch_20.safetensors --stats
 
 # 输出示例：
-# + learning_progress: trend=improving, magnitude=0.0543, speed=0.80
+# ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
+# ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
 ```
 
 **分析信息：**
-- **trend**：`improving`、`degrading`或`stable`
-- **magnitude**：变化幅度（0.0-1.0）
-- **speed**：收敛速度（0.0-1.0）
+- **mean**：参数平均值
+- **std**：参数标准差
+- **min/max**：参数值范围
+- **shape**：张量维度
+- **dtype**：数据类型精度
 
 **用例：**
-- 监控训练进度
-- 检测学习平台期
-- 优化训练计划
+- 监控训练期间的参数变化
+- 检测模型权重的统计变化
+- 验证模型一致性
 
-### 2. 收敛分析（`--convergence-analysis`）
+### 2. 量化分析（`--quantization-analysis`）
 
-评估模型稳定性和收敛状态：
+分析量化效果和效率：
 
 ```bash
-# 分析检查点之间的收敛
-diffai model_before.safetensors model_after.safetensors --convergence-analysis
+# 比较量化与全精度模型
+diffai fp32_model.safetensors quantized_model.safetensors --quantization-analysis
 
 # 输出示例：
-# + convergence_analysis: status=stable, stability=0.0234, action="Continue training"
+# quantization_analysis: compression=0.25, precision_loss=minimal
 ```
 
 **分析信息：**
-- **status**：`converged`、`diverging`、`oscillating`、`stable`
-- **stability**：参数变化的方差（较低=更稳定）
-- **action**：推荐的下一步
+- **compression**：模型尺寸缩减比例
+- **precision_loss**：精度影响评估
+- **efficiency**：性能与质量权衡
 
 **用例：**
-- 确定何时停止训练
-- 检测训练不稳定性
-- 优化超参数
+- 验证量化质量
+- 优化部署大小
+- 比较压缩技术
 
-### 3. 异常检测（`--anomaly-detection`）
+### 3. 变化幅度排序（`--sort-by-change-magnitude`）
 
-检测模型权重中的异常模式：
+按幅度排序差异以便确定优先级：
 
 ```bash
-# 检测训练异常
-diffai normal_model.safetensors anomalous_model.safetensors --anomaly-detection
+# 按重要性排序变化
+diffai model1.safetensors model2.safetensors --sort-by-change-magnitude --stats
 
-# 输出示例：
-# anomaly_detection: type=gradient_explosion, severity=critical, affected=2 layers
+# 输出显示最大变化在前
 ```
 
-**检测到的异常：**
-- **梯度爆炸**：极大的权重值
-- **梯度消失**：接近零的梯度
-- **权重分布偏移**：异常的统计模式
-- **NaN/Inf值**：无效的数值
-
 **用例：**
-- 调试训练问题
-- 验证模型健康
-- 防止部署损坏的模型
+- 专注于最重要的变化
+- 优先安排调试工作
+- 识别关键参数变化
 
-### 4. 内存分析（`--memory-analysis`）
+### 4. 层影响分析（`--show-layer-impact`）
 
-分析内存使用和模型效率：
+分析变化的逐层影响：
 
 ```bash
-# 比较模型内存占用
-diffai small_model.safetensors large_model.safetensors --memory-analysis
+# 分析模型层间的影响
+diffai baseline.safetensors modified.safetensors --show-layer-impact
 
-# 输出示例：
-# memory_analysis: delta=+2.7MB, gpu_est=4.5MB, efficiency=0.25
+# 输出显示每层变化分析
 ```
 
-**分析信息：**
-- **delta**：模型间的内存差异
-- **gpu_est**：估计的GPU内存需求
-- **efficiency**：每MB参数比率
-
 **用例：**
-- 为部署约束优化
-- 比较架构效率
-- 规划硬件需求
+- 了解哪些层变化最大
+- 指导微调策略
+- 分析架构修改
 
-### 5. 架构比较（`--architecture-comparison`）
-
-比较模型架构和结构：
-
-```bash
-# 比较不同架构
-diffai resnet.safetensors transformer.safetensors --architecture-comparison
-
-# 输出示例：
-# architecture_comparison: type1=cnn, type2=transformer, differences=15
-```
-
-**分析信息：**
-- **架构类型**：CNN、RNN、Transformer、MLP等
-- **层差异**：添加、删除或修改的层
-- **参数分布**：参数如何分配
-
-**用例：**
-- 评估架构变化
-- 比较模型族
-- 设计决策验证
-
-### 6. 多功能分析
+### 5. 组合分析
 
 结合多个功能进行全面分析：
 
 ```bash
-# 全面训练分析
+# 全面模型分析
 diffai checkpoint_v1.safetensors checkpoint_v2.safetensors \
-  --learning-progress \
-  --convergence-analysis \
-  --anomaly-detection \
-  --memory-analysis \
-  --stats
+  --stats \
+  --quantization-analysis \
+  --sort-by-change-magnitude \
+  --show-layer-impact
 
-# 输出示例：
-# + learning_progress: trend=improving, magnitude=0.0432, speed=0.75
-# + convergence_analysis: status=stable, stability=0.0156
-# memory_analysis: delta=+0.1MB, efficiency=0.89
-# 张量统计和详细分析...
-```
-
-### 7. 生产部署功能
-
-生产环境的基本功能：
-
-```bash
-# 生产就绪检查
-diffai production.safetensors candidate.safetensors \
-  --anomaly-detection \
-  --memory-analysis \
-  --deployment-readiness
-
-# 回归测试
-diffai baseline.safetensors new_version.safetensors \
-  --regression-test \
-  --alert-on-degradation
-```
-
-### 8. 研发功能
-
-研究工作流的高级分析：
-
-```bash
-# 超参数影响分析
-diffai model_lr_001.safetensors model_lr_0001.safetensors \
-  --hyperparameter-impact \
-  --learning-rate-analysis
-
-# 架构效率分析
-diffai efficient_model.safetensors baseline_model.safetensors \
-  --param-efficiency-analysis \
-  --architecture-comparison
+# 自动化的JSON输出
+diffai model1.safetensors model2.safetensors \
+  --stats --output json
 ```
 
 ## 功能选择指南
@@ -537,71 +471,45 @@ diffai efficient_model.safetensors baseline_model.safetensors \
 **用于训练监控：**
 ```bash
 diffai checkpoint_old.safetensors checkpoint_new.safetensors \
-  --learning-progress --convergence-analysis --anomaly-detection
+  --stats --sort-by-change-magnitude
 ```
 
 **用于生产部署：**
 ```bash
 diffai current_prod.safetensors candidate.safetensors \
-  --anomaly-detection --memory-analysis --deployment-readiness
+  --stats --quantization-analysis
 ```
 
 **用于研究分析：**
 ```bash
 diffai baseline.safetensors experiment.safetensors \
-  --architecture-comparison --hyperparameter-impact --stats
+  --stats --show-layer-impact
 ```
 
 **用于量化验证：**
 ```bash
 diffai fp32.safetensors quantized.safetensors \
-  --quantization-analysis --memory-analysis --performance-impact-estimate
+  --quantization-analysis --stats
 ```
 
-## 全部28个高级功能
+## 未来功能（第3阶段）
 
-### 学习与收敛分析（4功能）
-- `--learning-progress` - 跟踪检查点间的学习进度
-- `--convergence-analysis` - 分析收敛稳定性和模式
-- `--anomaly-detection` - 检测训练异常（梯度爆炸、梯度消失）
-- `--gradient-analysis` - 分析梯度特征和流动
-
-### 架构与性能分析（4功能）
+### 第3A阶段（核心功能）
 - `--architecture-comparison` - 比较模型架构和结构变化
-- `--param-efficiency-analysis` - 分析模型间的参数效率
 - `--memory-analysis` - 分析内存使用和优化机会
-- `--inference-speed-estimate` - 估计推理速度和性能特征
-
-### MLOps与部署支持（7功能）
-- `--deployment-readiness` - 评估部署就绪性和兼容性
-- `--regression-test` - 执行自动回归测试
-- `--risk-assessment` - 评估部署风险和稳定性
-- `--hyperparameter-impact` - 分析超参数对模型变化的影响
-- `--learning-rate-analysis` - 分析学习率效果和优化
-- `--alert-on-degradation` - 对超过阈值的性能退化发出警报
-- `--performance-impact-estimate` - 估计变化的性能影响
-
-### 实验与文档支持（4功能）
-- `--generate-report` - 生成全面的分析报告
-- `--markdown-output` - 以markdown格式输出结果用于文档
-- `--include-charts` - 在输出中包含图表和可视化
-- `--review-friendly` - 为人工审查者生成便于审查的输出
-
-### 高级分析功能（6功能）
-- `--embedding-analysis` - 分析嵌入层变化和语义漂移
-- `--similarity-matrix` - 生成模型比较的相似度矩阵
-- `--clustering-change` - 分析模型表示中的聚类变化
-- `--attention-analysis` - 分析注意力机制模式（Transformer模型）
-- `--head-importance` - 分析注意力头重要性和专门化
-- `--attention-pattern-diff` - 比较模型间的注意力模式
-
-### 其他分析功能（3功能）
-- `--quantization-analysis` - 分析量化效果和效率
-- `--sort-by-change-magnitude` - 按变化幅度排序差异以确定优先级
+- `--anomaly-detection` - 检测模型参数中的数值异常
 - `--change-summary` - 生成详细的变化摘要
+
+### 第3B阶段（高级分析）
+- `--convergence-analysis` - 分析模型参数中的收敛模式
+- `--gradient-analysis` - 分析可用时的梯度信息
+- `--similarity-matrix` - 生成模型比较的相似度矩阵
+
+### 设计理念
+diffai遵循UNIX理念：简单、可组合的工具，专注做好一件事。功能是正交的，可以组合使用以形成强大的分析工作流。
 
 ## 下一步
 
-- [基本用法](basic-usage.md) - 学习基本操作
-- [科学数据分析](scientific-data.md) - NumPy和MATLAB文件比较
-- [CLI参考](../reference/cli-reference.md) - 完整命令参考
+- [基本用法](basic-usage_zh.md) - 学习基本操作
+- [科学数据分析](scientific-data_zh.md) - NumPy和MATLAB文件比较
+- [CLI参考](../reference/cli-reference_zh.md) - 完整命令参考

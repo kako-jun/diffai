@@ -100,179 +100,48 @@ MLモデルと科学データの詳細統計を表示
 
 ## ML分析機能
 
-### 学習・収束分析
+### 現在利用可能（v0.2.0）
 
-#### `--learning-progress`
-学習進捗の追跡
-- **説明**: チェックポイント間の学習進捗を分析
-- **出力**: 改善トレンド、変化の大きさ、収束速度
-- **例**: `diffai checkpoint_10.pt checkpoint_20.pt --learning-progress`
+以下のML分析機能が現在実装されています：
 
-#### `--convergence-analysis`
-収束分析
-- **説明**: モデルの安定性と収束状態を評価
-- **出力**: 収束ステータス、安定性指標、推奨アクション
-- **例**: `diffai model_before.pt model_after.pt --convergence-analysis`
+#### `--stats`
+MLモデルと科学データの詳細統計を表示
 
-#### `--anomaly-detection`
-異常検知
-- **説明**: 訓練異常（勾配爆発・消失）を検出
-- **出力**: 異常タイプ、重要度、影響層数
-- **例**: `diffai normal.pt anomalous.pt --anomaly-detection`
-
-#### `--gradient-analysis`
-勾配分析
-- **説明**: 勾配の特性とフローを分析
-- **出力**: 勾配統計、フロー方向、安定性
-- **例**: `diffai model1.pt model2.pt --gradient-analysis`
-
-### アーキテクチャ・パフォーマンス分析
-
-#### `--architecture-comparison`
-アーキテクチャ比較
-- **説明**: モデル構造と設計を比較
-- **出力**: アーキテクチャタイプ、深度、違いの数
-- **例**: `diffai resnet.pt transformer.pt --architecture-comparison`
-
-#### `--param-efficiency-analysis`
-パラメータ効率分析
-- **説明**: モデル間のパラメータ効率を分析
-- **出力**: 効率スコア、パラメータ密度、最適化提案
-- **例**: `diffai baseline.pt optimized.pt --param-efficiency-analysis`
-
-#### `--memory-analysis`
-メモリ分析
-- **説明**: メモリ使用量と最適化機会を分析
-- **出力**: メモリ差分、GPU推定、効率比
-- **例**: `diffai small.pt large.pt --memory-analysis`
-
-#### `--inference-speed-estimate`
-推論速度推定
-- **説明**: 推論速度とパフォーマンス特性を推定
-- **出力**: 速度推定、レイテンシ、スループット
-- **例**: `diffai model1.pt model2.pt --inference-speed-estimate`
-
-### MLOps・デプロイ支援
-
-#### `--deployment-readiness`
-デプロイ準備評価
-- **説明**: デプロイ準備と互換性を評価
-- **出力**: 準備スコア、戦略、リスクレベル
-- **例**: `diffai production.pt candidate.pt --deployment-readiness`
-
-#### `--regression-test`
-回帰テスト
-- **説明**: 自動回帰テストを実行
-- **出力**: テスト結果、劣化検出、推奨アクション
-- **例**: `diffai baseline.pt new_version.pt --regression-test`
-
-#### `--risk-assessment`
-リスク評価
-- **説明**: デプロイリスクと安定性を評価
-- **出力**: リスクレベル、要因、緩和策
-- **例**: `diffai current.pt candidate.pt --risk-assessment`
-
-#### `--hyperparameter-impact`
-ハイパーパラメータ影響分析
-- **説明**: ハイパーパラメータ変更の影響を分析
-- **出力**: 影響度、最適化提案、感度分析
-- **例**: `diffai model_lr001.pt model_lr0001.pt --hyperparameter-impact`
-
-#### `--learning-rate-analysis`
-学習率分析
-- **説明**: 学習率の効果と最適化を分析
-- **出力**: 最適学習率、収束パターン、調整提案
-- **例**: `diffai model1.pt model2.pt --learning-rate-analysis`
-
-#### `--alert-on-degradation`
-劣化アラート
-- **説明**: 閾値を超えた性能劣化でアラート
-- **出力**: アラート状態、劣化率、推奨アクション
-- **例**: `diffai baseline.pt new_model.pt --alert-on-degradation`
-
-#### `--performance-impact-estimate`
-性能影響推定
-- **説明**: 変更の性能影響を推定
-- **出力**: 影響推定、性能変化、最適化提案
-- **例**: `diffai model1.pt model2.pt --performance-impact-estimate`
-
-### 実験・文書化支援
-
-#### `--generate-report`
-レポート生成
-- **説明**: 包括的な分析レポートを生成
-- **出力**: 詳細レポート、統計、推奨事項
-- **例**: `diffai model1.pt model2.pt --generate-report`
-
-#### `--markdown-output`
-Markdown出力
-- **説明**: Markdown形式でレポートを出力
-- **出力**: 構造化Markdown、テーブル、グラフ
-- **例**: `diffai model1.pt model2.pt --markdown-output`
-
-#### `--include-charts`
-チャート生成
-- **説明**: 出力にチャートと視覚化を含める
-- **出力**: チャート、グラフ、視覚化
-- **例**: `diffai model1.pt model2.pt --include-charts`
-
-#### `--review-friendly`
-レビュー向け出力
-- **説明**: 人間のレビュー向けに最適化された出力
-- **出力**: 読みやすい形式、ハイライト、要約
-- **例**: `diffai model1.pt model2.pt --review-friendly`
-
-### 高度分析機能
-
-#### `--embedding-analysis`
-埋め込み分析
-- **説明**: 埋め込み層の変化と意味的ドリフトを分析
-- **出力**: 埋め込み変化、意味的距離、ドリフト検出
-- **例**: `diffai model1.pt model2.pt --embedding-analysis`
-
-#### `--similarity-matrix`
-類似度行列
-- **説明**: モデル比較用の類似度行列を生成
-- **出力**: 類似度行列、相関、クラスタリング
-- **例**: `diffai model1.pt model2.pt --similarity-matrix`
-
-#### `--clustering-change`
-クラスタリング変化
-- **説明**: モデル表現のクラスタリング変化を分析
-- **出力**: クラスタ変化、分離度、構造変化
-- **例**: `diffai model1.pt model2.pt --clustering-change`
-
-#### `--attention-analysis`
-アテンション分析
-- **説明**: アテンション機構パターンを分析（Transformer）
-- **出力**: アテンションパターン、重要度、特化度
-- **例**: `diffai transformer1.pt transformer2.pt --attention-analysis`
-
-#### `--head-importance`
-ヘッド重要度
-- **説明**: アテンションヘッドの重要度と特化を分析
-- **出力**: ヘッド重要度、特化パターン、最適化提案
-- **例**: `diffai model1.pt model2.pt --head-importance`
-
-#### `--attention-pattern-diff`
-アテンションパターン差分
-- **説明**: モデル間のアテンションパターンを比較
-- **出力**: パターン差分、変化検出、影響分析
-- **例**: `diffai model1.pt model2.pt --attention-pattern-diff`
-
-### 追加分析機能
+- **出力**: 各テンソルの平均、標準偏差、最小/最大、形状、データ型
+- **例**: `diffai model.safetensors model2.safetensors --stats`
 
 #### `--quantization-analysis`
-量子化分析
-- **説明**: 量子化効果と効率を分析
-- **出力**: 圧縮率、速度向上、精度損失、適合性
-- **例**: `diffai fp32.pt quantized.pt --quantization-analysis`
+量子化効果と効率を分析
 
-#### `--change-summary`
-変更要約
-- **説明**: 変更の詳細要約を生成
-- **出力**: 変更要約、統計、影響分析
-- **例**: `diffai model1.pt model2.pt --change-summary`
+- **出力**: 圧縮率、精度損失分析
+- **例**: `diffai fp32_model.safetensors quantized_model.safetensors --quantization-analysis`
+
+#### `--sort-by-change-magnitude`
+優先順位付けのため変更量でソート
+
+- **出力**: 変更量ソートされた差分リスト
+- **例**: `diffai model1.pt model2.pt --sort-by-change-magnitude`
+
+#### `--show-layer-impact`
+レイヤー別の変更影響を分析
+
+- **出力**: レイヤー別変更分析
+- **例**: `diffai baseline.safetensors modified.safetensors --show-layer-impact`
+
+### 将来機能（Phase 3）
+
+Phase 3で実装予定：
+
+#### アーキテクチャ・パフォーマンス分析
+- `--architecture-comparison` - モデルアーキテクチャと構造変化の比較
+- `--memory-analysis` - メモリ使用量と最適化機会の分析
+- `--anomaly-detection` - モデルパラメータの数値異常検出
+- `--change-summary` - 詳細な変更サマリの生成
+
+#### 高度分析
+- `--convergence-analysis` - モデルパラメータの収束パターン分析
+- `--gradient-analysis` - 利用可能時の勾配情報分析
+- `--similarity-matrix` - モデル比較用類似度行列の生成
 
 ## 出力例
 
@@ -280,29 +149,46 @@ Markdown出力
 
 ```bash
 $ diffai model_v1.safetensors model_v2.safetensors --stats
-  ~ fc1.bias: mean=0.0018→0.0017, std=0.0518→0.0647
-  ~ fc1.weight: mean=-0.0002→-0.0001, std=0.0514→0.0716
-  + new_layer.weight: shape=[64, 64], dtype=f32, params=4096
-  - old_layer.bias: shape=[256], dtype=f32, params=256
-[CRITICAL] anomaly_detection: type=gradient_explosion, severity=critical, affected=2 layers
+  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
+  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
+  ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
+```
+
+### 組み合わせ分析出力
+
+```bash
+$ diffai baseline.safetensors improved.safetensors --stats --quantization-analysis --sort-by-change-magnitude
+quantization_analysis: compression=0.25, precision_loss=minimal
+  ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
+  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
+  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
+```
+
+### 科学データ分析
+
+```bash
+$ diffai experiment_data_v1.npy experiment_data_v2.npy --stats
+  ~ data: shape=[1000, 256], mean=0.1234->0.1456, std=0.9876->0.9654, dtype=float64
+```
+
+### MATLABファイル比較
+
+```bash
+$ diffai simulation_v1.mat simulation_v2.mat --stats
+  ~ results: var=results, shape=[500, 100], mean=2.3456->2.4567, std=1.2345->1.3456, dtype=double
+  + new_variable: var=new_variable, shape=[100], dtype=single, elements=100, size=0.39KB
 ```
 
 ### JSON出力
 
 ```bash
-$ diffai model1.pt model2.pt --output json --learning-progress
+$ diffai model_v1.safetensors model_v2.safetensors --output json
 [
   {
     "TensorStatsChanged": [
       "fc1.bias",
-      {"mean": 0.0018, "std": 0.0518},
-      {"mean": 0.0017, "std": 0.0647}
-    ]
-  },
-  {
-    "LearningProgress": [
-      "learning_progress",
-      {"trend": "improving", "magnitude": 0.0543, "speed": 0.80}
+      {"mean": 0.0018, "std": 0.0518, "shape": [64], "dtype": "f32"},
+      {"mean": 0.0017, "std": 0.0647, "shape": [64], "dtype": "f32"}
     ]
   }
 ]
@@ -311,121 +197,81 @@ $ diffai model1.pt model2.pt --output json --learning-progress
 ### YAML出力
 
 ```bash
-$ diffai config1.yaml config2.yaml --output yaml
+$ diffai model_v1.safetensors model_v2.safetensors --output yaml
 - TensorStatsChanged:
   - fc1.bias
   - mean: 0.0018
     std: 0.0518
+    shape: [64]
+    dtype: f32
   - mean: 0.0017
     std: 0.0647
-```
-
-## 環境変数
-
-### `DIFFAI_CONFIG_PATH`
-設定ファイルのパスを指定
-
-- **デフォルト**: `~/.config/diffai/config.toml`
-- **例**: `export DIFFAI_CONFIG_PATH=/path/to/config.toml`
-
-### `DIFFAI_OUTPUT_FORMAT`
-デフォルト出力形式を設定
-
-- **可能な値**: `cli`, `json`, `yaml`, `unified`
-- **例**: `export DIFFAI_OUTPUT_FORMAT=json`
-
-### `DIFFAI_STATS_DEFAULT`
-デフォルトで統計を表示
-
-- **可能な値**: `true`, `false`
-- **例**: `export DIFFAI_STATS_DEFAULT=true`
-
-## 設定ファイル
-
-### 場所
-- **ユーザー設定**: `~/.config/diffai/config.toml`
-- **プロジェクト設定**: `./diffai.toml`
-
-### 形式
-
-```toml
-[default]
-output = "cli"
-stats = true
-epsilon = 1e-6
-
-[ml_analysis]
-learning_progress = false
-convergence_analysis = false
-anomaly_detection = true
-
-[output]
-cli_colors = true
-json_pretty = true
-yaml_flow = false
+    shape: [64]
+    dtype: f32
 ```
 
 ## 終了コード
 
-| コード | 意味 |
-|--------|------|
-| 0 | 成功（違いが見つかった場合も含む） |
-| 1 | エラー（ファイルが見つからない、解析エラーなど） |
-| 2 | 無効な引数またはオプション |
-| 3 | 設定ファイルエラー |
+- **0**: 成功 - 差分が見つかったまたは差分なし
+- **1**: エラー - 無効な引数またはファイルアクセス問題
+- **2**: 致命的エラー - 内部処理失敗
+
+## 環境変数
+
+- **DIFFAI_CONFIG**: 設定ファイルのパス
+- **DIFFAI_LOG_LEVEL**: ログレベル (error, warn, info, debug)
+- **DIFFAI_MAX_MEMORY**: 最大メモリ使用量 (MB単位)
+
+## 設定ファイル
+
+diffaiはTOML形式の設定ファイルに対応しています。設定の場所：
+
+- Unix: `~/.config/diffx/config.toml`
+- Windows: `%APPDATA%/diffx/config.toml`
+- カレントディレクトリ: `.diffx.toml`
+
+設定例:
+```toml
+[diffai]
+default_output = "cli"
+default_format = "auto"
+epsilon = 0.001
+sort_by_magnitude = false
+
+[ml_analysis]
+enable_all = false
+learning_progress = true
+convergence_analysis = true
+memory_analysis = true
+```
 
 ## パフォーマンス考慮事項
 
-### 大容量ファイル
-
-```bash
-# 大容量モデルでのメモリ使用量を削減
-diffai large1.safetensors large2.safetensors --epsilon 1e-3
-
-# 特定パスに分析を限定
-diffai model1.pt model2.pt --path "classifier"
-```
-
-### 高速化のヒント
-
-1. **イプシロン使用**: 小さな差分を無視して処理を高速化
-2. **パスフィルタ**: 必要な部分のみを比較
-3. **適切な出力形式**: 用途に応じた最適な形式を選択
+- **大容量ファイル**: diffaiはGB+ファイルにストリーミング処理を使用
+- **メモリ使用量**: `DIFFAI_MAX_MEMORY`で設定可能なメモリ制限
+- **並列処理**: 複数ファイル比較の自動並列化
+- **キャッシュ**: 繰り返し比較のためのインテリジェントキャッシュ
 
 ## トラブルシューティング
 
 ### 一般的な問題
 
-#### "Failed to parse" エラー
+1. **"Binary files differ"メッセージ**: `--format`でファイル型を指定
+2. **メモリ不足**: `DIFFAI_MAX_MEMORY`環境変数を設定
+3. **処理が遅い**: 大きなモデルでは必要時のみ`--stats`を使用
+4. **依存関係不足**: Rustツールチェーンが適切にインストールされていることを確認
+
+### デバッグモード
+
+デバッグ出力を有効にする：
 ```bash
-# ファイル形式を明示的に指定
-diffai --format safetensors model1.safetensors model2.safetensors
-
-# ファイルの整合性を確認
-file model.safetensors
-```
-
-#### メモリ不足エラー
-```bash
-# より大きなイプシロンを使用
-diffai --epsilon 1e-3 large1.pt large2.pt
-
-# 特定レイヤーのみ分析
-diffai --path "classifier" model1.pt model2.pt
-```
-
-#### 権限エラー
-```bash
-# 読み取り権限を確認
-ls -la model.safetensors
-
-# 必要に応じて権限を変更
-chmod 644 model.safetensors
+DIFFAI_LOG_LEVEL=debug diffai model1.safetensors model2.safetensors
 ```
 
 ## 関連項目
 
-- [ML モデル比較ガイド](../user-guide/ml-model-comparison_ja.md)
-- [科学データ分析](../user-guide/scientific-data_ja.md)
-- [出力フォーマット](output-formats_ja.md)
-- [サポート形式](formats_ja.md)
+- [基本使用ガイド](../user-guide/basic-usage_ja.md)
+- [MLモデル比較ガイド](../user-guide/ml-model-comparison_ja.md)
+- [科学データ分析ガイド](../user-guide/scientific-data_ja.md)
+- [出力フォーマットリファレンス](output-formats_ja.md)
+- [サポートフォーマットリファレンス](formats_ja.md)

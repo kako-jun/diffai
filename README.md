@@ -26,7 +26,7 @@ $ diffai model_v1.safetensors model_v2.safetensors --stats
 
 - **AI/ML Native**: Direct support for PyTorch (.pt/.pth), Safetensors (.safetensors), NumPy (.npy/.npz), and MATLAB (.mat) files
 - **Tensor Analysis**: Automatic calculation of tensor statistics (mean, std, min, max, shape, memory usage)
-- **28 ML Analysis Functions**: Learning progress, convergence analysis, architecture comparison, deployment readiness, and more
+- **ML Analysis Functions**: Statistical analysis, quantization analysis, architecture comparison, and more
 - **Scientific Data Support**: NumPy arrays and MATLAB matrices with complex number support
 - **Pure Rust Implementation**: No system dependencies, works on Windows/Linux/macOS without additional installations
 - **Multiple Output Formats**: Colored CLI, JSON for MLOps integration, YAML for human-readable reports
@@ -79,8 +79,8 @@ cargo build --release
 # Compare PyTorch models
 diffai model_old.pt model_new.pt --stats
 
-# Compare Safetensors with detailed analysis
-diffai checkpoint_v1.safetensors checkpoint_v2.safetensors --learning-progress
+# Compare Safetensors with statistical analysis
+diffai checkpoint_v1.safetensors checkpoint_v2.safetensors --stats
 
 # Compare NumPy arrays
 diffai data_v1.npy data_v2.npy --stats
@@ -92,17 +92,17 @@ diffai experiment_v1.mat experiment_v2.mat --stats
 ### Advanced ML Analysis
 
 ```bash
-# Learning progress analysis
-diffai baseline.safetensors finetuned.safetensors --learning-progress --convergence-analysis
+# Current available analysis
+diffai baseline.safetensors finetuned.safetensors --stats --quantization-analysis
 
-# Architecture and deployment analysis
-diffai model_v1.safetensors model_v2.safetensors --architecture-comparison --deployment-readiness
+# Combined analysis with sorting
+diffai original.pt optimized.pt --stats --quantization-analysis --sort-by-change-magnitude
 
-# Performance impact assessment
-diffai original.pt optimized.pt --quantization-analysis --memory-analysis
+# JSON output for automation
+diffai model_v1.safetensors model_v2.safetensors --stats --output json
 
-# Generate detailed report in JSON
-diffai model_v1.safetensors model_v2.safetensors --generate-report --output json
+# Future Phase 3 features (coming soon)
+diffai model_v1.safetensors model_v2.safetensors --architecture-comparison --memory-analysis
 ```
 
 ## Supported File Formats
@@ -125,47 +125,25 @@ diffai model_v1.safetensors model_v2.safetensors --generate-report --output json
 
 ## ML Analysis Functions
 
-diffai provides 28 specialized analysis functions for comprehensive model evaluation:
-
-### Learning & Convergence Analysis
-- `--learning-progress` - Track learning progress between checkpoints
-- `--convergence-analysis` - Analyze convergence stability and patterns
-- `--anomaly-detection` - Detect training anomalies (gradient explosion, vanishing gradients)
-- `--gradient-analysis` - Analyze gradient characteristics and flow
-
-### Architecture & Performance Analysis
-- `--architecture-comparison` - Compare model architectures and structural changes
-- `--param-efficiency-analysis` - Analyze parameter efficiency between models
-- `--memory-analysis` - Analyze memory usage and optimization opportunities
-- `--inference-speed-estimate` - Estimate inference speed and performance characteristics
-
-### MLOps & Deployment Support
-- `--deployment-readiness` - Assess deployment readiness and compatibility
-- `--regression-test` - Perform automated regression testing
-- `--risk-assessment` - Evaluate deployment risks and stability
-- `--hyperparameter-impact` - Analyze hyperparameter impact on model changes
-- `--learning-rate-analysis` - Analyze learning rate effects and optimization
-- `--alert-on-degradation` - Alert on performance degradation beyond thresholds
-- `--performance-impact-estimate` - Estimate performance impact of changes
-
-### Experiment & Documentation Support
-- `--generate-report` - Generate comprehensive analysis reports
-- `--markdown-output` - Output results in markdown format for documentation
-- `--include-charts` - Include charts and visualizations in output (planned)
-- `--review-friendly` - Generate review-friendly output for human reviewers
-
-### Advanced Analysis Functions
-- `--embedding-analysis` - Analyze embedding layer changes and semantic drift
-- `--similarity-matrix` - Generate similarity matrix for model comparison
-- `--clustering-change` - Analyze clustering changes in model representations
-- `--attention-analysis` - Analyze attention mechanism patterns (Transformer models)
-- `--head-importance` - Analyze attention head importance and specialization
-- `--attention-pattern-diff` - Compare attention patterns between models
-
-### Additional Analysis Functions
+### Currently Available (v0.2.0)
+- `--stats` - Detailed tensor statistics (mean, std, min, max, shape, memory)
 - `--quantization-analysis` - Analyze quantization effects and efficiency
 - `--sort-by-change-magnitude` - Sort differences by magnitude for prioritization
+- `--show-layer-impact` - Layer-by-layer impact analysis
+
+### Coming in Phase 3A (Core Features)
+- `--architecture-comparison` - Compare model architectures and structural changes
+- `--memory-analysis` - Analyze memory usage and optimization opportunities
+- `--anomaly-detection` - Detect numerical anomalies in model parameters
 - `--change-summary` - Generate detailed change summaries
+
+### Coming in Phase 3B (Advanced Analysis)
+- `--convergence-analysis` - Analyze convergence patterns in model parameters
+- `--gradient-analysis` - Analyze gradient information when available
+- `--similarity-matrix` - Generate similarity matrix for model comparison
+
+### Design Philosophy
+diffai follows UNIX philosophy: simple, composable tools that do one thing well. Features are orthogonal and can be combined for powerful analysis workflows.
 
 ## Output Formats
 
