@@ -132,12 +132,16 @@ fn test_unimplemented_feature_error() -> Result<(), Box<dyn std::error::Error>> 
         .arg("--learning-progress"); // This should not exist
 
     let output = cmd.output()?;
-    
+
     // If the command succeeds, it means the feature is silently ignored (which is also acceptable)
     // If it fails, it should be due to an unrecognized argument
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        assert!(stderr.contains("unrecognized") || stderr.contains("unexpected") || stderr.contains("invalid"));
+        assert!(
+            stderr.contains("unrecognized")
+                || stderr.contains("unexpected")
+                || stderr.contains("invalid")
+        );
     }
     // If it succeeds, the feature is being silently ignored, which is acceptable behavior
 

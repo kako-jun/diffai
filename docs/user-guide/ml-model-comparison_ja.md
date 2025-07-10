@@ -494,21 +494,153 @@ diffai fp32.safetensors quantized.safetensors \
   --quantization-analysis --stats
 ```
 
-## 将来機能（Phase 3）
+## Phase 3機能（利用可能）
 
-### Phase 3A（コア機能）
-- `--architecture-comparison` - モデルアーキテクチャと構造変化の比較
-- `--memory-analysis` - メモリ使用量と最適化機会の分析
-- `--anomaly-detection` - モデルパラメータの数値異常検出
-- `--change-summary` - 詳細な変更要約の生成
+### Phase 3A：コア分析機能
 
-### Phase 3B（高度分析）
-- `--convergence-analysis` - モデルパラメータの収束パターン分析
-- `--gradient-analysis` - 利用可能時の勾配情報分析
-- `--similarity-matrix` - モデル比較用類似度行列の生成
+#### アーキテクチャ比較（`--architecture-comparison`）
+モデルアーキテクチャの比較と構造変化の検出：
+
+```bash
+diffai model1.safetensors model2.safetensors --architecture-comparison
+
+# 出力例：
+# architecture_comparison: transformer->transformer, complexity=similar_complexity, migration=easy
+```
+
+**分析情報：**
+- **アーキテクチャ型検出**: Transformer、CNN、RNN、フィードフォワード
+- **レイヤー深度比較**: レイヤー数と構造変化
+- **パラメータ数分析**: サイズ比率と複雑性評価
+- **移行難易度**: アップグレード複雑性の評価
+- **互換性評価**: クロスアーキテクチャ互換性
+
+#### メモリ分析（`--memory-analysis`）
+メモリ使用量と最適化機会の分析：
+
+```bash
+diffai model1.safetensors model2.safetensors --memory-analysis
+
+# 出力例：
+# memory_analysis: delta=+12.5MB, peak=156.3MB, efficiency=0.85, recommendation=optimal
+```
+
+**分析情報：**
+- **メモリデルタ**: モデル間の正確なメモリ変化
+- **ピーク使用量推定**: 勾配とアクティベーションを含む
+- **GPU利用率**: GPU メモリ使用量推定
+- **最適化機会**: 勾配チェックポイント、混合精度
+- **メモリリーク検出**: 異常に大きなテンソルの特定
+
+#### 異常検出（`--anomaly-detection`）
+モデルパラメータの数値異常検出：
+
+```bash
+diffai model1.safetensors model2.safetensors --anomaly-detection
+
+# 出力例：
+# anomaly_detection: type=none, severity=none, affected_layers=[], confidence=0.95
+```
+
+**分析情報：**
+- **NaN/Inf検出**: 数値不安定性の特定
+- **勾配爆発/消失**: パラメータ変化量分析
+- **死んだニューロン**: 分散ゼロ検出
+- **根本原因分析**: 推定原因と解決策
+- **回復確率**: 訓練回復の可能性
+
+#### 変更サマリー（`--change-summary`）
+詳細な変更要約の生成：
+
+```bash
+diffai model1.safetensors model2.safetensors --change-summary
+
+# 出力例：
+# change_summary: layers_changed=6, magnitude=0.15, patterns=[weight_updates, bias_adjustments]
+```
+
+**分析情報：**
+- **変更量**: 全体的なパラメータ変化強度
+- **変更パターン**: 検出された変更タイプ
+- **最大変更レイヤー**: 変更強度によるランキング
+- **構造vs パラメータ変更**: 変更タイプの分類
+- **変更分布**: レイヤータイプと機能別
+
+### Phase 3B：高度分析機能
+
+#### 収束分析（`--convergence-analysis`）
+モデルパラメータの収束パターン分析：
+
+```bash
+diffai model1.safetensors model2.safetensors --convergence-analysis
+
+# 出力例：
+# convergence_analysis: status=converging, stability=0.92, early_stopping=continue
+```
+
+**分析情報：**
+- **収束状態**: 収束済み、収束中、停滞中、発散中
+- **パラメータ安定性**: イテレーション間でのパラメータ安定度
+- **停滞検出**: 訓練停滞の特定
+- **早期停止推奨**: 訓練停止タイミング
+- **残りイテレーション**: 収束までの推定イテレーション数
+
+#### 勾配分析（`--gradient-analysis`）
+パラメータ変化から推定された勾配情報の分析：
+
+```bash
+diffai model1.safetensors model2.safetensors --gradient-analysis
+
+# 出力例：
+# gradient_analysis: flow_health=healthy, norm=0.021, ratio=2.11, clipping=none
+```
+
+**分析情報：**
+- **勾配フロー健全性**: 全体的な勾配品質評価
+- **勾配ノルム推定**: パラメータ更新の大きさ
+- **問題レイヤー**: 勾配問題のあるレイヤー
+- **クリッピング推奨**: 推奨勾配クリッピング値
+- **学習率提案**: 適応的LR推奨
+
+#### 類似度行列（`--similarity-matrix`）
+モデル比較用類似度行列の生成：
+
+```bash
+diffai model1.safetensors model2.safetensors --similarity-matrix
+
+# 出力例：
+# similarity_matrix: dimensions=(6,6), mean_similarity=0.65, clustering=0.73
+```
+
+**分析情報：**
+- **レイヤー間類似度**: コサイン類似度行列
+- **クラスタリング係数**: 類似度のクラスター度
+- **外れ値検出**: 異常な類似パターンのレイヤー
+- **行列品質スコア**: 類似度行列全体の品質
+- **相関パターン**: ブロック対角、階層構造
+
+### 複合分析例
+
+```bash
+# 包括的Phase 3分析
+diffai baseline.safetensors experiment.safetensors \
+  --architecture-comparison \
+  --memory-analysis \
+  --anomaly-detection \
+  --change-summary \
+  --convergence-analysis \
+  --gradient-analysis \
+  --similarity-matrix
+
+# MLOps統合用JSON出力
+diffai model1.safetensors model2.safetensors \
+  --architecture-comparison \
+  --memory-analysis \
+  --output json
+```
 
 ### 設計哲学
-diffai はUNIX哲学に従います：シンプルで組み合わせ可能な、一つのことを適切に行うツール。機能は直交的で、強力な分析ワークフローのために組み合わせることができます。
+diffai はUNIX哲学に従います：シンプルで組み合わせ可能な、一つのことを適切に行うツール。Phase 3機能は直交的で、強力な分析ワークフローのために組み合わせることができます。
 
 ## 次のステップ
 

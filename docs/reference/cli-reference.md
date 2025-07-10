@@ -128,20 +128,53 @@ Analyze layer-by-layer impact of changes.
 - **Output**: Per-layer change analysis
 - **Example**: `diffai baseline.safetensors modified.safetensors --show-layer-impact`
 
-### Future Features (Phase 3)
-
-Planned for Phase 3 implementation:
+### Phase 3 Features (Now Available)
 
 #### Architecture & Performance Analysis
-- `--architecture-comparison` - Compare model architectures and structural changes
-- `--memory-analysis` - Analyze memory usage and optimization opportunities
-- `--anomaly-detection` - Detect numerical anomalies in model parameters
-- `--change-summary` - Generate detailed change summaries
+
+##### `--architecture-comparison`
+Compare model architectures and detect structural changes.
+
+- **Output**: Architecture type detection, layer depth comparison, migration difficulty assessment
+- **Example**: `diffai model1.safetensors model2.safetensors --architecture-comparison`
+
+##### `--memory-analysis`
+Analyze memory usage and optimization opportunities.
+
+- **Output**: Memory delta, peak usage estimation, GPU utilization, optimization recommendations
+- **Example**: `diffai model1.safetensors model2.safetensors --memory-analysis`
+
+##### `--anomaly-detection`
+Detect numerical anomalies in model parameters.
+
+- **Output**: NaN/Inf detection, gradient explosion/vanishing analysis, dead neuron detection
+- **Example**: `diffai model1.safetensors model2.safetensors --anomaly-detection`
+
+##### `--change-summary`
+Generate detailed change summaries.
+
+- **Output**: Change magnitude, patterns, layer rankings, structural vs parameter changes
+- **Example**: `diffai model1.safetensors model2.safetensors --change-summary`
 
 #### Advanced Analysis
-- `--convergence-analysis` - Analyze convergence patterns in model parameters
-- `--gradient-analysis` - Analyze gradient information when available
-- `--similarity-matrix` - Generate similarity matrix for model comparison
+
+##### `--convergence-analysis`
+Analyze convergence patterns in model parameters.
+
+- **Output**: Convergence status, parameter stability, early stopping recommendations
+- **Example**: `diffai model1.safetensors model2.safetensors --convergence-analysis`
+
+##### `--gradient-analysis`
+Analyze gradient information estimated from parameter changes.
+
+- **Output**: Gradient flow health, norm estimation, problematic layers, clipping recommendations
+- **Example**: `diffai model1.safetensors model2.safetensors --gradient-analysis`
+
+##### `--similarity-matrix`
+Generate similarity matrix for model comparison.
+
+- **Output**: Layer-to-layer similarities, clustering coefficient, outlier detection
+- **Example**: `diffai model1.safetensors model2.safetensors --similarity-matrix`
 
 ## Output Examples
 

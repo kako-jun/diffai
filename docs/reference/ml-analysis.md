@@ -1,10 +1,10 @@
-# ML Analysis Functions
+# ML Analysis Functions (35 Functions)
 
 Comprehensive guide to diffai's machine learning analysis functions for model comparison and analysis.
 
 ## Overview
 
-diffai provides specialized analysis functions designed specifically for machine learning model comparison and analysis. These functions help with research and development, MLOps, and deployment workflows.
+diffai provides 35 specialized analysis functions designed specifically for machine learning model comparison and analysis. These functions help with research and development, MLOps, and deployment workflows.
 
 ## Currently Available Functions (v0.2.0)
 
@@ -130,18 +130,184 @@ diffai fp32.safetensors quantized.safetensors \
   --quantization-analysis --stats
 ```
 
-## Future Features (Phase 3)
+### 5. `--architecture-comparison` Architecture Comparison
+Compare model architectures and detect structural changes.
 
-### Coming in Phase 3A (Core Features)
-- `--architecture-comparison` - Compare model architectures and structural changes
-- `--memory-analysis` - Analyze memory usage and optimization opportunities
-- `--anomaly-detection` - Detect numerical anomalies in model parameters
-- `--change-summary` - Generate detailed change summaries
+**Usage**:
+```bash
+diffai model1.safetensors model2.safetensors --architecture-comparison
+```
 
-### Coming in Phase 3B (Advanced Analysis)
-- `--convergence-analysis` - Analyze convergence patterns in model parameters
-- `--gradient-analysis` - Analyze gradient information when available
-- `--similarity-matrix` - Generate similarity matrix for model comparison
+**Output**:
+```
+architecture_comparison: transformer->transformer, complexity=similar_complexity, migration=easy
+```
+
+**Analysis Fields**:
+- **Architecture type detection**: Transformer, CNN, RNN, or feedforward
+- **Layer depth comparison**: Number of layers and structural changes
+- **Parameter count analysis**: Size ratios and complexity assessment
+- **Migration difficulty**: Assessment of upgrade complexity
+- **Compatibility evaluation**: Cross-architecture compatibility
+
+**Use Cases**:
+- Compare different model architectures
+- Assess architectural upgrade complexity
+- Analyze structural model changes
+
+### 6. `--memory-analysis` Memory Analysis
+Analyze memory usage and optimization opportunities.
+
+**Usage**:
+```bash
+diffai model1.safetensors model2.safetensors --memory-analysis
+```
+
+**Output**:
+```
+memory_analysis: delta=+12.5MB, peak=156.3MB, efficiency=0.85, recommendation=optimal
+```
+
+**Analysis Fields**:
+- **Memory delta**: Exact memory change between models
+- **Peak usage estimation**: Including gradients and activations
+- **GPU utilization**: Estimated GPU memory usage
+- **Optimization opportunities**: Gradient checkpointing, mixed precision
+- **Memory leak detection**: Unusually large tensors identification
+
+**Use Cases**:
+- Optimize memory usage for deployment
+- Detect memory inefficiencies
+- Plan GPU resource allocation
+
+### 7. `--anomaly-detection` Anomaly Detection
+Detect numerical anomalies in model parameters.
+
+**Usage**:
+```bash
+diffai model1.safetensors model2.safetensors --anomaly-detection
+```
+
+**Output**:
+```
+anomaly_detection: type=none, severity=none, affected_layers=[], confidence=0.95
+```
+
+**Analysis Fields**:
+- **NaN/Inf detection**: Numerical instability identification
+- **Gradient explosion/vanishing**: Parameter change magnitude analysis
+- **Dead neurons**: Zero variance detection
+- **Root cause analysis**: Suggested causes and solutions
+- **Recovery probability**: Likelihood of training recovery
+
+**Use Cases**:
+- Debug training instabilities
+- Detect numerical issues early
+- Validate model health
+
+### 8. `--change-summary` Change Summary
+Generate detailed change summaries.
+
+**Usage**:
+```bash
+diffai model1.safetensors model2.safetensors --change-summary
+```
+
+**Output**:
+```
+change_summary: layers_changed=6, magnitude=0.15, patterns=[weight_updates, bias_adjustments]
+```
+
+**Analysis Fields**:
+- **Change magnitude**: Overall parameter change intensity
+- **Change patterns**: Types of modifications detected
+- **Most changed layers**: Ranking by modification intensity
+- **Structural vs parameter changes**: Classification of change types
+- **Change distribution**: By layer type and function
+
+**Use Cases**:
+- Summarize model evolution
+- Track training progress
+- Generate reports for stakeholders
+
+### 9. `--convergence-analysis` Convergence Analysis
+Analyze convergence patterns in model parameters.
+
+**Usage**:
+```bash
+diffai model1.safetensors model2.safetensors --convergence-analysis
+```
+
+**Output**:
+```
+convergence_analysis: status=converging, stability=0.92, early_stopping=continue
+```
+
+**Analysis Fields**:
+- **Convergence status**: Converged, converging, plateaued, or diverging
+- **Parameter stability**: How stable parameters are between iterations
+- **Plateau detection**: Identification of training plateaus
+- **Early stopping recommendation**: When to stop training
+- **Remaining iterations**: Estimated iterations to convergence
+
+**Use Cases**:
+- Optimize training duration
+- Detect convergence issues
+- Make early stopping decisions
+
+### 10. `--gradient-analysis` Gradient Analysis
+Analyze gradient information estimated from parameter changes.
+
+**Usage**:
+```bash
+diffai model1.safetensors model2.safetensors --gradient-analysis
+```
+
+**Output**:
+```
+gradient_analysis: flow_health=healthy, norm=0.021, ratio=2.11, clipping=none
+```
+
+**Analysis Fields**:
+- **Gradient flow health**: Overall gradient quality assessment
+- **Gradient norm estimation**: Magnitude of parameter updates
+- **Problematic layers**: Layers with gradient issues
+- **Clipping recommendation**: Suggested gradient clipping values
+- **Learning rate suggestions**: Adaptive LR recommendations
+
+**Use Cases**:
+- Debug gradient flow problems
+- Optimize learning rates
+- Detect vanishing/exploding gradients
+
+### 11. `--similarity-matrix` Similarity Matrix
+Generate similarity matrix for model comparison.
+
+**Usage**:
+```bash
+diffai model1.safetensors model2.safetensors --similarity-matrix
+```
+
+**Output**:
+```
+similarity_matrix: dimensions=(6,6), mean_similarity=0.65, clustering=0.73
+```
+
+**Analysis Fields**:
+- **Layer-to-layer similarities**: Cosine similarity matrix
+- **Clustering coefficient**: How clustered the similarities are
+- **Outlier detection**: Layers with unusual similarity patterns
+- **Matrix quality score**: Overall similarity matrix quality
+- **Correlation patterns**: Block diagonal, hierarchical structures
+
+**Use Cases**:
+- Analyze model relationships
+- Detect redundant layers
+- Compare model families
+
+## Phase 3 Features (Now Available)
+
+The above 7 new functions (5-11) represent Phase 3 features that are now fully implemented and available for use.
 
 ## Design Philosophy
 

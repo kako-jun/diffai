@@ -1203,10 +1203,6 @@ fn main() -> Result<()> {
                 diff_ml_models_enhanced(
                     &args.input1,
                     &args.input2,
-                    epsilon.is_some(),
-                    args.show_layer_impact,
-                    args.quantization_analysis,
-                    args.stats,
                     args.learning_progress,
                     args.convergence_analysis,
                     args.anomaly_detection,
@@ -1236,6 +1232,10 @@ fn main() -> Result<()> {
                     args.hyperparameter_comparison,
                     args.learning_curve_analysis,
                     args.statistical_significance,
+                    args.quantization_analysis,
+                    false, // transfer_learning_analysis
+                    false, // experiment_reproducibility
+                    false, // ensemble_analysis
                 )?
             } else {
                 // Use basic ML comparison for backward compatibility
