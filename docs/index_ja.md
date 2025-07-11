@@ -14,7 +14,7 @@ PyTorch、Safetensors、NumPy、MATLABファイル対応のAI/ML特化差分ツ�
 ### リファレンス
 - [**CLIリファレンス**](reference/cli-reference_ja.md) - 完全なコマンドラインオプション
 - [**対応形式**](reference/formats_ja.md) - ファイル形式の仕様
-- [**ML分析機能**](reference/ml-analysis_ja.md) - 28の専門分析機能
+- [**ML分析機能**](reference/ml-analysis_ja.md) - 31の専門分析機能
 - [**出力形式**](reference/output-formats_ja.md) - CLI、JSON、YAML出力の仕様
 
 ### アーキテクチャ

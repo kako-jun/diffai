@@ -389,25 +389,6 @@ ls -la model.safetensors
 chmod 644 model.safetensors
 ```
 
-## 开发路线图
-
-### 当前状态（Phase 1-2 完成）
-- ✅ **完整的 AI/ML 支持**: 28 个分析功能
-- ✅ **多格式支持**: PyTorch、Safetensors、NumPy、MATLAB
-- ✅ **科学数据分析**: 统计计算和数值比较
-- ✅ **生产就绪**: 全面测试和文档
-
-### 即将推出（Phase 3）
-- 🔄 **TensorFlow 支持**: .pb、.h5、SavedModel 格式
-- 🔄 **ONNX 支持**: .onnx 格式
-- 🔄 **HDF5 支持**: .h5、.hdf5 格式
-- 🔄 **性能优化**: 更好的大文件处理
-
-### 未来计划（Phase 4+）
-- 🔮 **MLOps 集成**: MLflow、DVC、Kubeflow
-- 🔮 **云集成**: AWS S3、Google Cloud Storage
-- 🔮 **Web 界面**: 基于浏览器的可视化
-- 🔮 **Python 绑定**: 原生 Python 库
 
 ## 贡献
 

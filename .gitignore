@@ -13,6 +13,9 @@ thumbs.db
 # diffx symbolic link
 diffx/
 
+# Internal development documentation
+CLAUDE.md
+
 # Downloaded ML models (large files)
 real_models_test/distilbert_base/
 real_models_test/dialogpt_small/

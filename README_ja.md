@@ -334,15 +334,3 @@ cargo test --test ml_analysis
 - **[PyTorch](https://pytorch.org/)** - 機械学習フレームワーク
 - **[NumPy](https://numpy.org/)** - Pythonでの科学計算のための基盤パッケージ
 
-## ロードマップ
-
-### Phase 3: MLフレームワーク拡張
-- TensorFlowサポート（.pb, .h5, SavedModel）
-- ONNX形式サポート
-- 高度可視化・チャート機能
-
-### Phase 4: MLOps統合
-- 実験追跡のためのMLflow統合
-- Weights & Biases統合
-- データ・モデルバージョニングのためのDVC互換性
-- CI/CDパイプラインテンプレート

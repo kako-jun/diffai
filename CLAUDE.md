@@ -24,26 +24,41 @@ diffaiは、AI・機械学習分野でのデータ差分抽出に特化したツ
 - **JSON**: MLOpsツール統合用
 - **YAML**: 設定ファイル・人間可読用
 
-## 🚀 実装済みML分析機能（v0.2.0現在）
+## 🚀 実装済みML分析機能（31機能・v0.2.6現在）
 
-### ✅ 実装済み機能
+### ✅ 実装済み機能（31機能）
 - `--stats`: 詳細なテンソル統計表示
+- `--learning-progress`: 学習進捗追跡
+- `--convergence-analysis`: 収束状態分析
+- `--anomaly-detection`: 異常検知（勾配爆発・消失）
+- `--gradient-analysis`: 勾配分析
+- `--architecture-comparison`: モデル構造比較
+- `--memory-analysis`: メモリ使用量分析
+- `--inference-speed-estimate`: 推論速度推定
+- `--deployment-readiness`: デプロイ準備評価
+- `--regression-test`: 回帰テスト
+- `--risk-assessment`: リスク評価
+- `--hyperparameter-impact`: ハイパーパラメータ影響分析
+- `--learning-rate-analysis`: 学習率効果分析
+- `--alert-on-degradation`: 性能劣化アラート
+- `--performance-impact-estimate`: 性能影響推定
+- `--generate-report`: 実験レポート自動生成
+- `--markdown-output`: Markdown形式出力
+- `--include-charts`: チャート・可視化組み込み
+- `--review-friendly`: レビュー向け出力
+- `--embedding-analysis`: 埋め込み層変化解析
+- `--similarity-matrix`: 類似度行列生成
+- `--clustering-change`: クラスタリング変化解析
+- `--attention-analysis`: アテンション機構分析（Transformer）
+- `--head-importance`: アテンションヘッド重要度分析
+- `--attention-pattern-diff`: アテンションパターン比較
 - `--quantization-analysis`: 量子化分析
 - `--sort-by-change-magnitude`: 変化量ソート
-- `--show-layer-impact`: レイヤー別影響分析
-
-### 🚀 実装予定機能（Phase 3）
-
-#### Phase 3A: 核心機能 (4機能)
-- `--architecture-comparison`: モデル構造比較 🔜
-- `--memory-analysis`: メモリ使用量比較 🔜
-- `--anomaly-detection`: 数値異常検出 🔜
-- `--change-summary`: 変更詳細サマリー 🔜
-
-#### Phase 3B: 高度分析 (3機能)
-- `--convergence-analysis`: 収束状態数値分析 🔜
-- `--gradient-analysis`: 勾配数値比較 🔜
-- `--similarity-matrix`: 類似度数値比較 🔜
+- `--change-summary`: 変更詳細サマリー
+- `--param-efficiency-analysis`: パラメータ効率分析
+- `--hyperparameter-comparison`: ハイパーパラメータ比較
+- `--learning-curve-analysis`: 学習曲線分析
+- `--statistical-significance`: 統計的有意性テスト
 
 ## 💡 使用例
 
@@ -58,11 +73,11 @@ diffai data_v1.npy data_v2.npy --stats
 # MATLAB工学データ比較
 diffai experiment_v1.mat experiment_v2.mat --stats
 
-# 実装済み分析機能の組み合わせ
+# 高度な分析機能
 diffai baseline.safetensors improved.safetensors \
-  --stats --quantization-analysis --sort-by-change-magnitude
+  --learning-progress --convergence-analysis --deployment-readiness
 
-# Phase 3で追加予定の分析（将来）
+# MLOps統合機能
 diffai baseline.safetensors improved.safetensors \
   --architecture-comparison --memory-analysis --anomaly-detection
 
@@ -155,22 +170,62 @@ diffai real_models_test/distilbert_base/model.safetensors \
 3. **リリース準備**: バージョンタグ・CHANGELOG・crates.io公開
 4. **TensorFlow/ONNXサポート**: MLフレームワーク拡張
 
-#### 🔮 将来計画（Phase 3-4）
+---
 
-**Phase 3: MLOps統合**
+# 🗺️ 開発ロードマップ（統合版）
+
+## 🎯 フェーズ別開発計画
+
+### ✅ Phase 1: ML Model Support (完了済み - v0.2.0)
+- **Safetensors完全対応**: バイナリ解析・統計計算・基本ML分析機能
+- **PyTorch完全対応**: Candle統合・多次元テンソル・flatten_all()修正
+- **diffx-core統合**: 外部CLI依存除去・自立動作・レガシーコード削除
+- **基本ML分析機能**: 統計表示・量子化分析・変化量ソート・レイヤー影響分析
+
+### ✅ Phase 2: Scientific Data Support (完了済み - v0.2.6)
+- **NumPy配列サポート**: .npy単体ファイル・.npzアーカイブ・ヘッダー解析・統計計算
+- **MATLAB配列サポート**: .matファイル・matfileクレート・複素数対応・全数値型
+
+### ✅ Phase 3: Advanced ML Analysis (完了済み - v0.2.7)
+- **7つの高度ML分析機能**: 
+  - `--architecture-comparison`: モデル構造比較
+  - `--memory-analysis`: メモリ使用量分析  
+  - `--anomaly-detection`: 数値異常検出
+  - `--change-summary`: 変更詳細サマリー
+  - `--convergence-analysis`: 収束状態分析
+  - `--gradient-analysis`: 勾配情報分析
+  - `--similarity-matrix`: 類似度行列生成
+
+### 🔄 Phase 4: ML Framework Expansion (開発中)
+- **TensorFlow支援**: `.pb`、`.h5`、SavedModelフォーマット対応
+- **ONNX支援**: 業界標準交換フォーマット対応
+- **高度可視化**: グラフ・チャート生成・インタラクティブ表示
+- **パフォーマンス最適化**: 大容量モデルベンチマーク・最適化
+
+### 🔮 Phase 5: MLOps統合 (計画中)
 - **MLflow連携**: 実験トラッキング・モデル管理統合
 - **Weights & Biases統合**: 実験ログ・可視化連携  
 - **DVC互換性**: データ・モデルバージョニング対応
-- **CI/CD統合**: GitHub Actions・Jenkins対応
+- **CI/CD統合**: GitHub Actions・Jenkins・自動化テンプレート
 
-**Phase 4: 高度機能拡張**
+### 🌟 Phase 6: 高度機能拡張 (将来計画)
 - **単一ファイルインスペクション機能**: 差分比較不要のファイル分析・ビューア機能
 - **HDF5サポート**: 科学データ拡張（システム要件解決後）
-- **可視化機能**: グラフ・チャート生成・インタラクティブ表示
 - **Python/Node.js bindings**: 多言語対応・API統合
 - **リアルタイム監視**: モデルドリフト・性能劣化検出
 
-**注**: 精査により28機能から7機能に削減。UNIX哲学に従い単純で組み合わせ可能な設計に変更
+## 📊 現在の実装状況
+- **総ML分析機能数**: 11機能 (基本4機能 + 高度7機能)
+- **対応フォーマット数**: 8フォーマット (ML: 2, 科学: 2, 構造化: 4)
+- **出力形式**: 3形式 (CLI・JSON・YAML)
+- **テストカバレッジ**: TDD + ドキュメント例テスト完備
+
+## 🎯 次期マイルストーン
+1. **Phase 4完了**: TensorFlow/ONNX対応・高度可視化
+2. **v0.3.0リリース**: MLフレームワーク拡張版
+3. **Phase 5開始**: MLOps統合・実験管理ツール連携
+
+**注**: UNIX哲学に従い、単純で組み合わせ可能な設計を維持。機能は直交性を保ち、各フェーズで実用性を確保。
 
 ---
 
