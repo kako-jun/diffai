@@ -3,13 +3,17 @@
 /**
  * diffai npm package examples
  * Demonstrates various usage patterns for AI/ML model comparison
+ * Includes both CLI and JavaScript API usage examples
  */
 
 const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-// Helper function to run diffai commands
+// Import the JavaScript API
+const { diff, diffString, inspect, isDiffaiAvailable, getVersion, DiffaiError } = require('./lib.js');
+
+// Helper function to run diffai commands (CLI)
 function runDiffai(args) {
   return new Promise((resolve, reject) => {
     const child = spawn('diffai', args, { stdio: 'inherit' });
@@ -31,11 +35,16 @@ function runDiffai(args) {
 async function runExamples() {
   console.log('=== diffai npm package examples ===\n');
   
-  // Check if diffai is available
+  // Check if diffai is available using JavaScript API
   try {
-    console.log('1. Checking diffai installation...');
-    await runDiffai(['--version']);
-    console.log('✓ diffai is installed and working\n');
+    console.log('1. Checking diffai installation using JavaScript API...');
+    const available = await isDiffaiAvailable();
+    if (available) {
+      const version = await getVersion();
+      console.log(`✓ diffai is installed and working: ${version}\n`);
+    } else {
+      throw new Error('diffai not available');
+    }
   } catch (error) {
     console.error('✗ diffai is not available. Please install first: npm install -g diffai');
     process.exit(1);
@@ -175,10 +184,67 @@ parameters:
   ]);
   console.log('');
   
+  // JavaScript API Examples
+  console.log('8. JavaScript API Examples:');
+  console.log('---');
+  
+  try {
+    // Basic comparison using JavaScript API
+    console.log('8.1 Basic comparison using JavaScript API:');
+    const basicResult = await diff(
+      path.join(sampleDir, 'bert_base_config.json'),
+      path.join(sampleDir, 'bert_large_config.json'),
+      { output: 'json' }
+    );
+    console.log('Number of differences found:', basicResult.length);
+    console.log('First difference:', basicResult[0]);
+    console.log('');
+    
+    // String comparison
+    console.log('8.2 String comparison using JavaScript API:');
+    const json1 = JSON.stringify(config1, null, 2);
+    const json2 = JSON.stringify(config2, null, 2);
+    const stringResult = await diffString(json1, json2, 'json', { output: 'json' });
+    console.log('String comparison result:', stringResult.length, 'differences');
+    console.log('');
+    
+    // Advanced options
+    console.log('8.3 Advanced comparison with ML analysis options:');
+    const advancedResult = await diff(
+      path.join(sampleDir, 'bert_base_config.json'),
+      path.join(sampleDir, 'bert_large_config.json'),
+      {
+        output: 'json',
+        stats: true,
+        quiet: false
+      }
+    );
+    console.log('Advanced analysis completed with', advancedResult.length, 'results');
+    console.log('');
+    
+    // Error handling example
+    console.log('8.4 Error handling example:');
+    try {
+      await diff('nonexistent1.json', 'nonexistent2.json');
+    } catch (error) {
+      if (error instanceof DiffaiError) {
+        console.log('Caught DiffaiError:', error.message);
+        console.log('Exit code:', error.exitCode);
+      }
+    }
+    console.log('');
+    
+  } catch (error) {
+    console.error('JavaScript API example failed:', error.message);
+  }
+  
   // Clean up sample files
   fs.rmSync(sampleDir, { recursive: true, force: true });
   
   console.log('Examples completed successfully!');
+  console.log('\nJavaScript API Usage:');
+  console.log('const { diff, diffString, inspect } = require("diffai");');
+  console.log('const result = await diff("model1.safetensors", "model2.safetensors", { output: "json", stats: true });');
   console.log('\nFor more examples and ML model comparison features, see:');
   console.log('- https://github.com/kako-jun/diffai/blob/main/README.md');
   console.log('- https://github.com/kako-jun/diffai/blob/main/docs/');
