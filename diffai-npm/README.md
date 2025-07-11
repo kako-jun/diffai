@@ -130,7 +130,54 @@ diffai dataset_v1.npz dataset_v2.npz --stats --sort-by-change-magnitude
 
 ## 🔧 Integration Examples
 
-### Node.js Integration
+### JavaScript API (Recommended)
+```javascript
+const { diff, diffString, inspect, isDiffaiAvailable, getVersion, DiffaiError } = require('diffai');
+
+// Basic model comparison
+async function compareModels() {
+  try {
+    const result = await diff('model1.safetensors', 'model2.safetensors', {
+      output: 'json',
+      stats: true,
+      architectureComparison: true
+    });
+    
+    console.log(`Found ${result.length} differences`);
+    result.forEach(diff => {
+      console.log(`${diff.type}: ${diff.path}`);
+    });
+  } catch (error) {
+    if (error instanceof DiffaiError) {
+      console.error(`diffai failed: ${error.message}`);
+    }
+  }
+}
+
+// String comparison
+async function compareStrings() {
+  const model1Data = JSON.stringify({name: "bert-base", layers: 12});
+  const model2Data = JSON.stringify({name: "bert-large", layers: 24});
+  
+  const result = await diffString(model1Data, model2Data, 'json', {
+    output: 'json'
+  });
+  
+  return result;
+}
+
+// Check availability
+async function checkDiffai() {
+  if (await isDiffaiAvailable()) {
+    const version = await getVersion();
+    console.log(`diffai ${version} is available`);
+  } else {
+    console.error('diffai is not available');
+  }
+}
+```
+
+### Node.js CLI Integration (Legacy)
 ```javascript
 const { spawn } = require('child_process');
 
@@ -157,18 +204,27 @@ compareTensors('model1.safetensors', 'model2.safetensors', ['--stats', '--output
 ### MLflow Integration
 ```javascript
 const fs = require('fs');
-const { execSync } = require('child_process');
+const { diff } = require('diffai');
 
-function logModelDiff(model1Path, model2Path, runId) {
-  const output = execSync(`diffai "${model1Path}" "${model2Path}" --stats --output json`, 
-                          { encoding: 'utf8' });
-  const diffData = JSON.parse(output);
-  
-  // Save comparison results
-  fs.writeFileSync(`mlruns/${runId}/artifacts/model_comparison.json`, 
-                   JSON.stringify(diffData, null, 2));
-  
-  console.log(`Model comparison logged for run ${runId}`);
+async function logModelDiff(model1Path, model2Path, runId) {
+  try {
+    const diffData = await diff(model1Path, model2Path, {
+      stats: true,
+      output: 'json',
+      architectureComparison: true,
+      memoryAnalysis: true
+    });
+    
+    // Save comparison results
+    fs.writeFileSync(`mlruns/${runId}/artifacts/model_comparison.json`, 
+                     JSON.stringify(diffData, null, 2));
+    
+    console.log(`Model comparison logged for run ${runId}`);
+    return diffData;
+  } catch (error) {
+    console.error(`MLflow integration failed: ${error.message}`);
+    throw error;
+  }
 }
 ```
 

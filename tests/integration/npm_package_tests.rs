@@ -30,7 +30,7 @@ fn create_test_files(dir: &Path) -> std::io::Result<()> {
 
 #[test]
 fn test_npm_package_structure() {
-    let npm_dir = Path::new("diffai-npm");
+    let npm_dir = Path::new("../diffai-npm");
 
     // Check that npm package files exist
     assert!(npm_dir.exists(), "diffai-npm directory should exist");
@@ -39,6 +39,7 @@ fn test_npm_package_structure() {
         "package.json should exist"
     );
     assert!(npm_dir.join("index.js").exists(), "index.js should exist");
+    assert!(npm_dir.join("lib.js").exists(), "lib.js should exist");
     assert!(
         npm_dir.join("scripts/download-binary.js").exists(),
         "download-binary.js should exist"
@@ -48,7 +49,7 @@ fn test_npm_package_structure() {
 
 #[test]
 fn test_npm_package_json_validity() {
-    let package_json_path = Path::new("diffai-npm/package.json");
+    let package_json_path = Path::new("../diffai-npm/package.json");
 
     if package_json_path.exists() {
         let content = std::fs::read_to_string(package_json_path)
@@ -66,6 +67,10 @@ fn test_npm_package_json_validity() {
         );
         assert!(json["bin"].is_object(), "Should have bin field");
         assert!(json["keywords"].is_array(), "Should have keywords field");
+        
+        // Check main field points to lib.js
+        assert!(json["main"].is_string(), "Should have main field");
+        assert_eq!(json["main"].as_str().unwrap(), "lib.js", "Main should point to lib.js");
 
         // Check version matches Cargo.toml
         let version = json["version"].as_str().unwrap();
@@ -75,7 +80,7 @@ fn test_npm_package_json_validity() {
 
 #[test]
 fn test_npm_index_js_executable() {
-    let index_js_path = Path::new("diffai-npm/index.js");
+    let index_js_path = Path::new("../diffai-npm/index.js");
 
     if index_js_path.exists() {
         let content =
@@ -97,8 +102,62 @@ fn test_npm_index_js_executable() {
 }
 
 #[test]
+fn test_npm_lib_js_structure() {
+    let lib_js_path = Path::new("../diffai-npm/lib.js");
+
+    if lib_js_path.exists() {
+        let content =
+            std::fs::read_to_string(lib_js_path).expect("Should be able to read lib.js");
+
+        // Check for JavaScript API components
+        assert!(
+            content.contains("module.exports"),
+            "Should export JavaScript API"
+        );
+        assert!(content.contains("function diff("), "Should have diff function");
+        assert!(
+            content.contains("function diffString("),
+            "Should have diffString function"
+        );
+        assert!(
+            content.contains("function isDiffaiAvailable("),
+            "Should have isDiffaiAvailable function"
+        );
+        assert!(
+            content.contains("function getVersion("),
+            "Should have getVersion function"
+        );
+        assert!(
+            content.contains("class DiffaiError"),
+            "Should have DiffaiError class"
+        );
+        assert!(
+            content.contains("spawn"),
+            "Should use child_process.spawn"
+        );
+        assert!(content.contains("@typedef"), "Should have JSDoc types");
+        assert!(
+            content.contains("DiffaiOptions"),
+            "Should have options type definition"
+        );
+        assert!(
+            content.contains("output: 'json'"),
+            "Should support JSON output"
+        );
+        assert!(
+            content.contains("stats"),
+            "Should support stats option"
+        );
+        assert!(
+            content.contains("architectureComparison"),
+            "Should support ML analysis options"
+        );
+    }
+}
+
+#[test]
 fn test_npm_download_script_structure() {
-    let download_script_path = Path::new("diffai-npm/scripts/download-binary.js");
+    let download_script_path = Path::new("../diffai-npm/scripts/download-binary.js");
 
     if download_script_path.exists() {
         let content = std::fs::read_to_string(download_script_path)
@@ -129,7 +188,7 @@ fn test_npm_package_installation() {
     // and should be run in CI/CD with Node.js installed
 
     // For now, just verify the npm package structure exists
-    let npm_src = Path::new("diffai-npm");
+    let npm_src = Path::new("../diffai-npm");
 
     if npm_src.exists() {
         assert!(npm_src.join("package.json").exists());
@@ -145,7 +204,7 @@ fn test_npm_package_usage() {
     // Would test: node diffai-npm/index.js test1.json test2.json
     // This requires Node.js to be available in the test environment
 
-    let npm_index = Path::new("diffai-npm/index.js");
+    let npm_index = Path::new("../diffai-npm/index.js");
     if npm_index.exists() {
         // For now, just verify the file is executable-like
         let content = std::fs::read_to_string(npm_index).expect("Should read index.js");
@@ -155,7 +214,7 @@ fn test_npm_package_usage() {
 
 #[test]
 fn test_npm_test_script_exists() {
-    let test_script_path = Path::new("diffai-npm/test.js");
+    let test_script_path = Path::new("../diffai-npm/test.js");
 
     if test_script_path.exists() {
         let content =
@@ -166,12 +225,18 @@ fn test_npm_test_script_exists() {
         assert!(content.contains("--version"), "Should test version command");
         assert!(content.contains("--help"), "Should test help command");
         assert!(content.contains("spawn"), "Should use child_process");
+        
+        // Check for JavaScript API tests
+        assert!(content.contains("require('./lib.js')"), "Should import lib.js");
+        assert!(content.contains("isDiffaiAvailable"), "Should test JavaScript API");
+        assert!(content.contains("diffString"), "Should test diffString function");
+        assert!(content.contains("DiffaiError"), "Should test error handling");
     }
 }
 
 #[test]
 fn test_npm_readme_completeness() {
-    let readme_path = Path::new("diffai-npm/README.md");
+    let readme_path = Path::new("../diffai-npm/README.md");
 
     if readme_path.exists() {
         let content =
@@ -199,17 +264,17 @@ fn test_npm_readme_completeness() {
             "Should mention supported formats"
         );
         assert!(
-            content.contains("pytorch"),
+            content.contains("pytorch") || content.contains("PyTorch"),
             "Should mention PyTorch support"
         );
-        assert!(content.contains("numpy"), "Should mention NumPy support");
+        assert!(content.contains("numpy") || content.contains("NumPy"), "Should mention NumPy support");
         assert!(content.contains("LICENSE"), "Should mention license");
     }
 }
 
 #[test]
 fn test_npm_package_dependencies() {
-    let package_json_path = Path::new("diffai-npm/package.json");
+    let package_json_path = Path::new("../diffai-npm/package.json");
 
     if package_json_path.exists() {
         let content = std::fs::read_to_string(package_json_path)
@@ -239,7 +304,7 @@ fn test_npm_package_dependencies() {
 
 #[test]
 fn test_npm_platform_support_metadata() {
-    let package_json_path = Path::new("diffai-npm/package.json");
+    let package_json_path = Path::new("../diffai-npm/package.json");
 
     if package_json_path.exists() {
         let content = std::fs::read_to_string(package_json_path)
