@@ -153,32 +153,9 @@ diffai model1.safetensors model2.safetensors --output yaml
     dtype: f32
 ```
 
-## 設定
-
-### グローバル設定
-
-`~/.config/diffx/config.toml`:
-
-```toml
-[diffai]
-default_output = "cli"
-default_format = "auto"
-epsilon = 0.001
-sort_by_magnitude = false
-
-[ml_analysis]
-enable_all = false
-learning_progress = true
-convergence_analysis = true
-memory_analysis = true
-```
-
-### 環境変数
+## 環境変数
 
 ```bash
-# 設定ファイルパス設定
-export DIFFAI_CONFIG="/path/to/config.toml"
-
 # ログレベル設定
 export DIFFAI_LOG_LEVEL="info"
 

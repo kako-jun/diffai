@@ -251,32 +251,8 @@ $ diffai model_v1.safetensors model_v2.safetensors --output yaml
 
 ## 环境变量
 
-- **DIFFAI_CONFIG**: 配置文件路径
 - **DIFFAI_LOG_LEVEL**: 日志级别 (error, warn, info, debug)
 - **DIFFAI_MAX_MEMORY**: 最大内存使用量 (MB为单位)
-
-## 配置文件
-
-diffai支持TOML格式的配置文件。配置位置：
-
-- Unix: `~/.config/diffx/config.toml`
-- Windows: `%APPDATA%/diffx/config.toml`
-- 当前目录: `.diffx.toml`
-
-配置示例:
-```toml
-[diffai]
-default_output = "cli"
-default_format = "auto"
-epsilon = 0.001
-sort_by_magnitude = false
-
-[ml_analysis]
-enable_all = false
-learning_progress = true
-convergence_analysis = true
-memory_analysis = true
-```
 
 ## 性能考虑
 

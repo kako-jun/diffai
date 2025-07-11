@@ -16,43 +16,6 @@ use std::io::{self, Read};
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
-#[derive(Debug, Deserialize, Default)]
-struct Config {
-    #[serde(default)]
-    output: Option<OutputFormat>,
-    #[serde(default)]
-    format: Option<Format>,
-}
-
-fn load_config() -> Config {
-    let config_path = dirs::config_dir()
-        .map(|p| p.join("diffx").join("config.toml"))
-        .or_else(|| {
-            // Fallback for systems without a standard config directory
-            Some(PathBuf::from(".diffx.toml"))
-        });
-
-    if let Some(path) = config_path {
-        if path.exists() {
-            match fs::read_to_string(&path) {
-                Ok(content) => match toml::from_str(&content) {
-                    Ok(config) => return config,
-                    Err(e) => eprintln!(
-                        "Warning: Could not parse config file {}: {}",
-                        path.display(),
-                        e
-                    ),
-                },
-                Err(e) => eprintln!(
-                    "Warning: Could not read config file {}: {}",
-                    path.display(),
-                    e
-                ),
-            }
-        }
-    }
-    Config::default()
-}
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -1112,10 +1075,9 @@ fn print_unified_output(v1: &Value, v2: &Value) -> Result<()> {
 
 fn main() -> Result<()> {
     let args = Args::parse();
-    let config = load_config();
 
-    let output_format = args.output.or(config.output).unwrap_or(OutputFormat::Cli);
-    let input_format_from_config = config.format;
+    let output_format = args.output.unwrap_or(OutputFormat::Cli);
+    let input_format_from_config = None;
 
     let ignore_keys_regex = if let Some(regex_str) = &args.ignore_keys_regex {
         Some(Regex::new(regex_str).context("Invalid regex for --ignore-keys-regex")?)

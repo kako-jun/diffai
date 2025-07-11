@@ -154,38 +154,6 @@ diffai model1.safetensors model2.safetensors --output yaml
     dtype: f32
 ```
 
-## Configuration
-
-### Global Configuration
-
-`~/.config/diffx/config.toml`:
-
-```toml
-[diffai]
-default_output = "cli"
-default_format = "auto"
-epsilon = 0.001
-sort_by_magnitude = false
-
-[ml_analysis]
-enable_all = false
-learning_progress = true
-convergence_analysis = true
-memory_analysis = true
-```
-
-### Environment Variables
-
-```bash
-# Set configuration file path
-export DIFFAI_CONFIG="/path/to/config.toml"
-
-# Set log level
-export DIFFAI_LOG_LEVEL="info"
-
-# Set maximum memory usage
-export DIFFAI_MAX_MEMORY="1024"
-```
 
 ## Practical Examples
 
