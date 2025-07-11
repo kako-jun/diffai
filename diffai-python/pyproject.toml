@@ -10,7 +10,7 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.8"
 authors = [
-    { name = "diffai team", email = "team@diffai.dev" },
+    { name = "kako-jun" },
 ]
 keywords = [
     "ai",
@@ -57,11 +57,11 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/diffai-team/diffai"
-Documentation = "https://github.com/diffai-team/diffai/blob/main/docs/"
-Repository = "https://github.com/diffai-team/diffai.git"
-Issues = "https://github.com/diffai-team/diffai/issues"
-Changelog = "https://github.com/diffai-team/diffai/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/kako-jun/diffai"
+Documentation = "https://github.com/kako-jun/diffai/blob/main/docs/"
+Repository = "https://github.com/kako-jun/diffai.git"
+Issues = "https://github.com/kako-jun/diffai/issues"
+Changelog = "https://github.com/kako-jun/diffai/blob/main/CHANGELOG.md"
 
 [project.scripts]
 diffai-download-binary = "diffai.installer:main"

@@ -125,22 +125,23 @@ diffai model_v1.safetensors model_v2.safetensors --architecture-comparison --mem
 
 ## ML Analysis Functions
 
-### Currently Available (v0.2.0)
+### Currently Available (v0.2.7)
 - `--stats` - Detailed tensor statistics (mean, std, min, max, shape, memory)
 - `--quantization-analysis` - Analyze quantization effects and efficiency
 - `--sort-by-change-magnitude` - Sort differences by magnitude for prioritization
 - `--show-layer-impact` - Layer-by-layer impact analysis
-
-### Coming in Phase 3A (Core Features)
 - `--architecture-comparison` - Compare model architectures and structural changes
 - `--memory-analysis` - Analyze memory usage and optimization opportunities
 - `--anomaly-detection` - Detect numerical anomalies in model parameters
 - `--change-summary` - Generate detailed change summaries
-
-### Coming in Phase 3B (Advanced Analysis)
 - `--convergence-analysis` - Analyze convergence patterns in model parameters
 - `--gradient-analysis` - Analyze gradient information when available
 - `--similarity-matrix` - Generate similarity matrix for model comparison
+
+### Coming in Phase 4 (ML Framework Expansion)
+- TensorFlow format support (.pb, .h5, SavedModel)
+- ONNX format support
+- Advanced visualization and charting features
 
 ### Design Philosophy
 diffai follows UNIX philosophy: simple, composable tools that do one thing well. Features are orthogonal and can be combined for powerful analysis workflows.
@@ -306,15 +307,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **[PyTorch](https://pytorch.org/)** - Machine learning framework
 - **[NumPy](https://numpy.org/)** - Fundamental package for scientific computing with Python
 
-## Roadmap
-
-### Phase 3: ML Framework Expansion
-- TensorFlow support (.pb, .h5, SavedModel)
-- ONNX format support
-- Advanced visualization and charting
-
-### Phase 4: MLOps Integration
-- MLflow integration for experiment tracking
-- Weights & Biases integration
-- DVC compatibility for data/model versioning
-- CI/CD pipeline templates

@@ -14,7 +14,7 @@ Documentation for diffai - AI/ML specialized diff tool for PyTorch, Safetensors,
 ### Reference
 - [**CLI Reference**](reference/cli-reference.md) - Complete command-line options
 - [**Supported Formats**](reference/formats.md) - File format specifications
-- [**ML Analysis Functions**](reference/ml-analysis.md) - 28 specialized analysis functions
+- [**ML Analysis Functions**](reference/ml-analysis.md) - 31 specialized analysis functions
 - [**Output Formats**](reference/output-formats.md) - CLI, JSON, and YAML output specifications
 
 ### Architecture

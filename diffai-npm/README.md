@@ -186,13 +186,13 @@ The binary is downloaded during `npm install` and cached locally. If download fa
 
 - **[diffx](https://www.npmjs.com/package/diffx-js)** - General-purpose structured data diff tool
 - **[diffai (PyPI)](https://pypi.org/project/diffai-python/)** - Python package for diffai
-- **[diffai (GitHub)](https://github.com/diffai-team/diffai)** - Main repository
+- **[diffai (GitHub)](https://github.com/kako-jun/diffai)** - Main repository
 
 ## 📚 Documentation
 
-- [CLI Reference](https://github.com/diffai-team/diffai/blob/main/docs/reference/cli-reference.md)
-- [ML Analysis Guide](https://github.com/diffai-team/diffai/blob/main/docs/reference/ml-analysis.md)
-- [User Guide](https://github.com/diffai-team/diffai/blob/main/docs/user-guide/)
+- [CLI Reference](https://github.com/kako-jun/diffai/blob/main/docs/reference/cli-reference.md)
+- [ML Analysis Guide](https://github.com/kako-jun/diffai/blob/main/docs/reference/ml-analysis.md)
+- [User Guide](https://github.com/kako-jun/diffai/blob/main/docs/user-guide/)
 
 ## 📄 License
 
