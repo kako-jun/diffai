@@ -11,7 +11,7 @@ const { execSync } = require('child_process');
  */
 
 const PACKAGE_VERSION = require('../package.json').version;
-const GITHUB_REPO = 'diffai-team/diffai';
+const GITHUB_REPO = 'kako-jun/diffai';
 const RELEASES_URL = `https://github.com/${GITHUB_REPO}/releases/download/v${PACKAGE_VERSION}`;
 
 // Platform and architecture detection
@@ -152,7 +152,7 @@ async function downloadAndExtractBinary() {
     
   } catch (error) {
     console.warn('Failed to download diffai binary:', error.message);
-    console.warn('You can install diffai manually from: https://github.com/diffai-team/diffai/releases');
+    console.warn('You can install diffai manually from: https://github.com/kako-jun/diffai/releases');
     console.warn('The package will still work if diffai is available in your system PATH.');
     
     // Create empty bin directory to avoid errors

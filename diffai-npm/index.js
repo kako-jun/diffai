@@ -20,7 +20,7 @@ const binaryPath = path.join(__dirname, 'bin', binaryName);
 // Check if binary exists
 if (!fs.existsSync(binaryPath)) {
   console.error('diffai binary not found. Please run "npm install diffai" to download the binary.');
-  console.error('Manual installation: https://github.com/diffai-team/diffai/releases');
+  console.error('Manual installation: https://github.com/kako-jun/diffai/releases');
   process.exit(1);
 }
 

@@ -2,14 +2,6 @@
   "name": "diffai",
   "version": "0.2.6",
   "description": "AI/ML specialized diff tool for deep tensor comparison and analysis",
-  "main": "index.js",
-  "bin": {
-    "diffai": "./index.js"
-  },
-  "scripts": {
-    "test": "node test.js",
-    "postinstall": "node scripts/download-binary.js"
-  },
   "keywords": [
     "ai",
     "ml",
@@ -22,8 +14,42 @@
     "matlab",
     "model-comparison",
     "diffai",
-    "artificial-intelligence"
+    "artificial-intelligence",
+    "cli",
+    "deep-learning",
+    "data-science",
+    "mlops",
+    "devops",
+    "ci-cd",
+    "automation",
+    "scientific-computing",
+    "huggingface",
+    "model-analysis"
   ],
+  "main": "index.js",
+  "bin": {
+    "diffai": "./index.js"
+  },
+  "scripts": {
+    "postinstall": "node scripts/download-binary.js",
+    "test": "node test.js",
+    "examples": "node examples.js",
+    "verify": "node index.js --help",
+    "prepublish": "npm run verify"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "files": [
+    "index.js",
+    "scripts/download-binary.js",
+    "bin/",
+    "README.md",
+    "examples.js",
+    "test.js"
+  ],
+  "os": ["linux", "darwin", "win32"],
+  "cpu": ["x64", "arm64"],
   "author": "kako-jun",
   "license": "MIT",
   "homepage": "https://github.com/kako-jun/diffai",
@@ -34,15 +60,8 @@
   "bugs": {
     "url": "https://github.com/kako-jun/diffai/issues"
   },
-  "engines": {
-    "node": ">=12.0.0"
-  },
-  "os": ["linux", "darwin", "win32"],
-  "cpu": ["x64", "arm64"],
-  "files": [
-    "index.js",
-    "scripts/",
-    "bin/",
-    "README.md"
-  ]
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/kako-jun"
+  }
 }
