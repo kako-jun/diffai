@@ -254,32 +254,8 @@ $ diffai model_v1.safetensors model_v2.safetensors --output yaml
 
 ## Environment Variables
 
-- **DIFFAI_CONFIG**: Path to configuration file
 - **DIFFAI_LOG_LEVEL**: Log level (error, warn, info, debug)
 - **DIFFAI_MAX_MEMORY**: Maximum memory usage (in MB)
-
-## Configuration File
-
-diffai supports configuration files in TOML format. Place configuration at:
-
-- Unix: `~/.config/diffx/config.toml`
-- Windows: `%APPDATA%/diffx/config.toml`
-- Current directory: `.diffx.toml`
-
-Example configuration:
-```toml
-[diffai]
-default_output = "cli"
-default_format = "auto"
-epsilon = 0.001
-sort_by_magnitude = false
-
-[ml_analysis]
-enable_all = false
-learning_progress = true
-convergence_analysis = true
-memory_analysis = true
-```
 
 ## Performance Considerations
 
