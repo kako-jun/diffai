@@ -49,7 +49,7 @@ safetensors = "0.4"
 bytemuck = "1.14"
 # Scientific data dependencies
 ndarray = "0.16"
-numpy = "0.21"
+# numpy = "0.21"  # Removed: only needed for Python bindings, causes PyO3 issues
 # hdf5 = "0.8"  # Requires system HDF5 libraries
 zip = "2.2"
 matfile = "0.1"  # MATLAB .mat file support
