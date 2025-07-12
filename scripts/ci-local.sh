@@ -70,6 +70,15 @@ if ! grep -q 'name = "diffai"' diffai-cli/Cargo.toml; then
     exit 1
 fi
 
+# Check workflow files for incorrect package names
+print_info "Checking workflow files for package name consistency..."
+if grep -q "diffai-cli" .github/workflows/*.yml 2>/dev/null; then
+    print_error "Found 'diffai-cli' in workflow files!"
+    print_error "Should be 'diffai' (actual package name)"
+    print_info "Check: .github/workflows/*.yml files"
+    exit 1
+fi
+
 # Clear trap
 trap - ERR
 
