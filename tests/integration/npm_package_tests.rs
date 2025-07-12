@@ -67,10 +67,14 @@ fn test_npm_package_json_validity() {
         );
         assert!(json["bin"].is_object(), "Should have bin field");
         assert!(json["keywords"].is_array(), "Should have keywords field");
-        
+
         // Check main field points to lib.js
         assert!(json["main"].is_string(), "Should have main field");
-        assert_eq!(json["main"].as_str().unwrap(), "lib.js", "Main should point to lib.js");
+        assert_eq!(
+            json["main"].as_str().unwrap(),
+            "lib.js",
+            "Main should point to lib.js"
+        );
 
         // Check version matches Cargo.toml
         let version = json["version"].as_str().unwrap();
@@ -106,15 +110,17 @@ fn test_npm_lib_js_structure() {
     let lib_js_path = Path::new("../diffai-npm/lib.js");
 
     if lib_js_path.exists() {
-        let content =
-            std::fs::read_to_string(lib_js_path).expect("Should be able to read lib.js");
+        let content = std::fs::read_to_string(lib_js_path).expect("Should be able to read lib.js");
 
         // Check for JavaScript API components
         assert!(
             content.contains("module.exports"),
             "Should export JavaScript API"
         );
-        assert!(content.contains("function diff("), "Should have diff function");
+        assert!(
+            content.contains("function diff("),
+            "Should have diff function"
+        );
         assert!(
             content.contains("function diffString("),
             "Should have diffString function"
@@ -131,10 +137,7 @@ fn test_npm_lib_js_structure() {
             content.contains("class DiffaiError"),
             "Should have DiffaiError class"
         );
-        assert!(
-            content.contains("spawn"),
-            "Should use child_process.spawn"
-        );
+        assert!(content.contains("spawn"), "Should use child_process.spawn");
         assert!(content.contains("@typedef"), "Should have JSDoc types");
         assert!(
             content.contains("DiffaiOptions"),
@@ -144,10 +147,7 @@ fn test_npm_lib_js_structure() {
             content.contains("output: 'json'"),
             "Should support JSON output"
         );
-        assert!(
-            content.contains("stats"),
-            "Should support stats option"
-        );
+        assert!(content.contains("stats"), "Should support stats option");
         assert!(
             content.contains("architectureComparison"),
             "Should support ML analysis options"
@@ -225,12 +225,24 @@ fn test_npm_test_script_exists() {
         assert!(content.contains("--version"), "Should test version command");
         assert!(content.contains("--help"), "Should test help command");
         assert!(content.contains("spawn"), "Should use child_process");
-        
+
         // Check for JavaScript API tests
-        assert!(content.contains("require('./lib.js')"), "Should import lib.js");
-        assert!(content.contains("isDiffaiAvailable"), "Should test JavaScript API");
-        assert!(content.contains("diffString"), "Should test diffString function");
-        assert!(content.contains("DiffaiError"), "Should test error handling");
+        assert!(
+            content.contains("require('./lib.js')"),
+            "Should import lib.js"
+        );
+        assert!(
+            content.contains("isDiffaiAvailable"),
+            "Should test JavaScript API"
+        );
+        assert!(
+            content.contains("diffString"),
+            "Should test diffString function"
+        );
+        assert!(
+            content.contains("DiffaiError"),
+            "Should test error handling"
+        );
     }
 }
 
@@ -267,7 +279,10 @@ fn test_npm_readme_completeness() {
             content.contains("pytorch") || content.contains("PyTorch"),
             "Should mention PyTorch support"
         );
-        assert!(content.contains("numpy") || content.contains("NumPy"), "Should mention NumPy support");
+        assert!(
+            content.contains("numpy") || content.contains("NumPy"),
+            "Should mention NumPy support"
+        );
         assert!(content.contains("LICENSE"), "Should mention license");
     }
 }

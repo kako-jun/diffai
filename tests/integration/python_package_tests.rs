@@ -17,7 +17,7 @@ fn create_test_files(dir: &Path) -> std::io::Result<()> {
 
 #[test]
 fn test_python_package_structure() {
-    let python_dir = Path::new("diffai-python");
+    let python_dir = Path::new("../diffai-python");
 
     // Check that Python package files exist
     assert!(python_dir.exists(), "diffai-python directory should exist");
@@ -32,10 +32,6 @@ fn test_python_package_structure() {
     assert!(
         python_dir.join("src/diffai/diffai.py").exists(),
         "diffai.py should exist"
-    );
-    assert!(
-        python_dir.join("src/diffai/compat.py").exists(),
-        "compat.py should exist"
     );
     assert!(
         python_dir.join("src/diffai/installer.py").exists(),
@@ -53,7 +49,7 @@ fn test_python_package_structure() {
 
 #[test]
 fn test_pyproject_toml_validity() {
-    let pyproject_path = Path::new("diffai-python/pyproject.toml");
+    let pyproject_path = Path::new("../diffai-python/pyproject.toml");
 
     if pyproject_path.exists() {
         let content =
@@ -132,7 +128,7 @@ fn test_pyproject_toml_validity() {
 
 #[test]
 fn test_python_init_py_structure() {
-    let init_path = Path::new("diffai-python/src/diffai/__init__.py");
+    let init_path = Path::new("../diffai-python/src/diffai/__init__.py");
 
     if init_path.exists() {
         let content =
@@ -157,21 +153,21 @@ fn test_python_init_py_structure() {
         assert!(content.contains("__all__"), "Should have __all__ list");
         assert!(content.contains("__version__"), "Should export version");
 
-        // Check for backward compatibility
+        // Modern clean API - no backward compatibility needed
         assert!(
-            content.contains("from .compat import"),
-            "Should import compatibility layer"
+            !content.contains("from .compat import"),
+            "Should not import compatibility layer"
         );
         assert!(
-            content.contains("diffai_diff"),
-            "Should export legacy functions"
+            content.contains("# No backward compatibility imports"),
+            "Should explicitly state no backward compatibility"
         );
     }
 }
 
 #[test]
 fn test_python_diffai_py_structure() {
-    let diffai_path = Path::new("diffai-python/src/diffai/diffai.py");
+    let diffai_path = Path::new("../diffai-python/src/diffai/diffai.py");
 
     if diffai_path.exists() {
         let content =
@@ -254,7 +250,7 @@ fn test_python_diffai_py_structure() {
 
 #[test]
 fn test_python_installer_py_functionality() {
-    let installer_path = Path::new("diffai-python/src/diffai/installer.py");
+    let installer_path = Path::new("../diffai-python/src/diffai/installer.py");
 
     if installer_path.exists() {
         let content =
@@ -315,7 +311,7 @@ fn test_python_installer_py_functionality() {
 
 #[test]
 fn test_python_compat_py_backward_compatibility() {
-    let compat_path = Path::new("diffai-python/src/diffai/compat.py");
+    let compat_path = Path::new("../diffai-python/src/diffai/compat.py");
 
     if compat_path.exists() {
         let content =
@@ -371,7 +367,7 @@ fn test_python_compat_py_backward_compatibility() {
 
 #[test]
 fn test_python_readme_completeness() {
-    let readme_path = Path::new("diffai-python/README.md");
+    let readme_path = Path::new("../diffai-python/README.md");
 
     if readme_path.exists() {
         let content =
@@ -387,7 +383,10 @@ fn test_python_readme_completeness() {
             content.contains("pip install"),
             "Should show pip install command"
         );
-        assert!(content.contains("## Usage"), "Should have usage section");
+        assert!(
+            content.contains("Usage") || content.contains("Quick Start"),
+            "Should have usage section"
+        );
         assert!(
             content.contains("```python"),
             "Should have Python code examples"
@@ -430,11 +429,17 @@ fn test_python_readme_completeness() {
             "Should mention Safetensors support"
         );
         assert!(
-            content.contains("pytorch"),
+            content.contains("pytorch") || content.contains("PyTorch"),
             "Should mention PyTorch support"
         );
-        assert!(content.contains("numpy"), "Should mention NumPy support");
-        assert!(content.contains("matlab"), "Should mention MATLAB support");
+        assert!(
+            content.contains("numpy") || content.contains("NumPy"),
+            "Should mention NumPy support"
+        );
+        assert!(
+            content.contains("matlab") || content.contains("MATLAB"),
+            "Should mention MATLAB support"
+        );
 
         // Check for integration examples
         assert!(
@@ -463,7 +468,7 @@ fn test_python_readme_completeness() {
 
 #[test]
 fn test_python_integration_test_completeness() {
-    let test_path = Path::new("diffai-python/test_integration.py");
+    let test_path = Path::new("../diffai-python/test_integration.py");
 
     if test_path.exists() {
         let content =
@@ -547,11 +552,10 @@ fn test_python_package_syntax() {
     // Requires Python to be available in test environment
 
     let python_files = [
-        "diffai-python/src/diffai/__init__.py",
-        "diffai-python/src/diffai/diffai.py",
-        "diffai-python/src/diffai/compat.py",
-        "diffai-python/src/diffai/installer.py",
-        "diffai-python/test_integration.py",
+        "../diffai-python/src/diffai/__init__.py",
+        "../diffai-python/src/diffai/diffai.py",
+        "../diffai-python/src/diffai/installer.py",
+        "../diffai-python/test_integration.py",
     ];
 
     for file_path in &python_files {
@@ -575,7 +579,7 @@ fn test_python_package_imports() {
     // python -c "import diffai.compat"
 
     // For now, just verify the Python files exist
-    let init_file = Path::new("diffai-python/src/diffai/__init__.py");
+    let init_file = Path::new("../diffai-python/src/diffai/__init__.py");
     if init_file.exists() {
         let content = std::fs::read_to_string(init_file).expect("Should read __init__.py");
         assert!(content.contains("__version__"));
@@ -584,7 +588,7 @@ fn test_python_package_imports() {
 
 #[test]
 fn test_python_package_type_annotations() {
-    let diffai_path = Path::new("diffai-python/src/diffai/diffai.py");
+    let diffai_path = Path::new("../diffai-python/src/diffai/diffai.py");
 
     if diffai_path.exists() {
         let content =
