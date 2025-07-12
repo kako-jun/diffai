@@ -101,6 +101,9 @@ diffai original.pt optimized.pt --stats --quantization-analysis --sort-by-change
 # JSON output for automation
 diffai model_v1.safetensors model_v2.safetensors --stats --output json
 
+# Detailed diagnostic information with verbose mode
+diffai model_v1.safetensors model_v2.safetensors --verbose --stats --architecture-comparison
+
 # Future Phase 3 features (coming soon)
 diffai model_v1.safetensors model_v2.safetensors --architecture-comparison --memory-analysis
 ```
@@ -145,6 +148,49 @@ diffai model_v1.safetensors model_v2.safetensors --architecture-comparison --mem
 
 ### Design Philosophy
 diffai follows UNIX philosophy: simple, composable tools that do one thing well. Features are orthogonal and can be combined for powerful analysis workflows.
+
+## Debugging and Diagnostics
+
+### Verbose Mode (`--verbose` / `-v`)
+Get comprehensive diagnostic information for debugging and performance analysis:
+
+```bash
+# Basic verbose output
+diffai model1.safetensors model2.safetensors --verbose
+
+# Verbose with ML analysis features
+diffai data1.json data2.json --verbose --stats --epsilon 0.001 --ignore-keys-regex "^id$"
+```
+
+**Verbose output includes:**
+- **Configuration diagnostics**: Active ML features, format settings, filters
+- **File analysis**: Paths, sizes, detected formats, processing context
+- **Performance metrics**: Processing time, difference counts, optimization status
+- **Directory statistics**: File counts, comparison summaries (with `--recursive`)
+
+**Example verbose output:**
+```
+=== diffai verbose mode enabled ===
+Configuration:
+  Input format: None
+  Output format: Cli
+  ML analysis features: statistics, architecture_comparison
+  Epsilon tolerance: 0.001
+
+File analysis:
+  Input 1: model1.safetensors
+  Input 2: model2.safetensors
+  Detected format: Safetensors
+  File 1 size: 1048576 bytes
+  File 2 size: 1048576 bytes
+
+Processing results:
+  Total processing time: 1.234ms
+  Differences found: 15
+  ML/Scientific data analysis completed
+```
+
+📚 **See [Verbose Output Guide](docs/user-guide/verbose-output.md) for detailed usage**
 
 ## Output Formats
 

@@ -77,8 +77,15 @@ fn test_npm_package_json_validity() {
         );
 
         // Check version matches Cargo.toml
+        let cargo_toml_content = std::fs::read_to_string("../Cargo.toml").unwrap();
+        let cargo_toml: toml::Value = toml::from_str(&cargo_toml_content).unwrap();
+        let expected_version = cargo_toml["workspace"]["package"]["version"]
+            .as_str()
+            .or_else(|| cargo_toml["package"]["version"].as_str())
+            .unwrap();
+
         let version = json["version"].as_str().unwrap();
-        assert_eq!(version, "0.2.7", "Version should match Cargo.toml");
+        assert_eq!(version, expected_version, "Version should match Cargo.toml");
     }
 }
 

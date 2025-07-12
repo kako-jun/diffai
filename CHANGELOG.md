@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.8] - 2025-07-12
+### 🚀 Features
+- **Verbose mode (`--verbose`/`-v`)**: Comprehensive diagnostic output with configuration, file analysis, and performance metrics
+- **Fixed recursive directory behavior**: Now matches standard diff behavior - auto-detect directories, `--recursive` controls depth
+- **Multi-language verbose documentation**: Complete guides in English, Japanese, and Chinese
+
+### 🔧 Improvements  
+- **Package updates**: Added `--verbose` and `--recursive` options to Python and npm packages
+- **Documentation fixes**: Replaced non-existent CLI options (`--stream`, `--threads`, `--shape-only`, `--check`) with working alternatives
+- **CLI behavior standardization**: Directory comparison now works like standard diff (without flags for basic, `--recursive` for deep)
+- **Binary distribution**: Added diffai binaries to both Python and npm packages
+
+### 🛠️ Technical Changes
+- Enhanced Python package with verbose mode support
+- Updated npm package with recursive and verbose options, removed non-existent `--quiet`
+- Complete documentation consistency across all languages
+- Improved error handling and user experience
+
 ## [0.2.7] - 2025-01-11
 ### 🚀 Features
 - Phase 3 TDD test suite completion: 16 test functions covering 7 ML analysis features
