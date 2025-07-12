@@ -21,8 +21,14 @@ import zipfile
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 
+import importlib.metadata
 
-PACKAGE_VERSION = "0.2.8"
+try:
+    PACKAGE_VERSION = importlib.metadata.version("diffai-python")
+except importlib.metadata.PackageNotFoundError:
+    # Fallback for development
+    PACKAGE_VERSION = "0.2.8"
+
 GITHUB_REPO = "kako-jun/diffai"
 RELEASES_URL = f"https://github.com/{GITHUB_REPO}/releases/download/v{PACKAGE_VERSION}"
 

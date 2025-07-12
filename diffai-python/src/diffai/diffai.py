@@ -15,7 +15,13 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-__version__ = "0.2.7"
+import importlib.metadata
+
+try:
+    __version__ = importlib.metadata.version("diffai-python")
+except importlib.metadata.PackageNotFoundError:
+    # Fallback for development
+    __version__ = "0.2.8"
 
 
 class OutputFormat(Enum):
@@ -292,7 +298,7 @@ def verify_installation() -> Dict[str, Any]:
     except FileNotFoundError:
         raise BinaryNotFoundError(
             "diffai binary not found. Please install diffai or ensure it's in your PATH. "
-            "See: https://github.com/diffai-team/diffai/releases"
+            "See: https://github.com/kako-jun/diffai/releases"
         )
     except Exception as e:
         raise BinaryNotFoundError(f"Failed to verify diffai installation: {e}")
