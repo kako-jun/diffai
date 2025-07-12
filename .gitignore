@@ -17,10 +17,10 @@ diffx/
 CLAUDE.md
 
 # Downloaded ML models (large files)
-real_models_test/distilbert_base/
-real_models_test/dialogpt_small/
-real_models_test/gpt2_small/
-real_models_test/distilgpt2/
-real_models_test/tiny_gpt2/
-real_models_test/.venv/
-real_models_test/uv.lock
+test-models/distilbert_base/
+test-models/dialogpt_small/
+test-models/gpt2_small/
+test-models/distilgpt2/
+test-models/tiny_gpt2/
+test-models/.venv/
+test-models/uv.lock
