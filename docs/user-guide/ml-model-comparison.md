@@ -181,8 +181,8 @@ diffai resnet50.safetensors efficientnet_b0.safetensors --stats
 For large models (>1GB), consider:
 
 ```bash
-# Use streaming mode (future feature)
-diffai --stream huge_model1.safetensors huge_model2.safetensors
+# Use recursive mode for directory comparison
+diffai --recursive model_dir1/ model_dir2/
 
 # Focus analysis on specific parts
 diffai model1.safetensors model2.safetensors --path "tensor.classifier"
@@ -194,11 +194,11 @@ diffai model1.safetensors model2.safetensors --epsilon 1e-3
 ### Speed Optimization
 
 ```bash
-# Parallel processing (future feature)
-diffai --threads 8 model1.safetensors model2.safetensors
+# Use verbose mode for detailed processing info
+diffai --verbose model1.safetensors model2.safetensors
 
-# Skip statistical calculation for shape-only analysis
-diffai --shape-only model1.safetensors model2.safetensors
+# Focus on architecture differences only
+diffai --architecture-comparison model1.safetensors model2.safetensors
 ```
 
 ## Integration Examples
@@ -311,8 +311,8 @@ done
 # Check file format
 file model.safetensors
 
-# Verify file integrity
-diffai --check model.safetensors
+# Show detailed statistics for single model analysis
+diffai model.safetensors model.safetensors --stats
 
 # Try with explicit format
 diffai --format safetensors model1.safetensors model2.safetensors

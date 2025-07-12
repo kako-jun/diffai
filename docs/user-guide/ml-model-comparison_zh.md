@@ -181,8 +181,8 @@ diffai resnet50.safetensors efficientnet_b0.safetensors --stats
 对于大型模型（>1GB），考虑：
 
 ```bash
-# 使用流模式（未来功能）
-diffai --stream huge_model1.safetensors huge_model2.safetensors
+# 使用递归模式进行目录比较
+diffai --recursive model_dir1/ model_dir2/
 
 # 专注分析特定部分
 diffai model1.safetensors model2.safetensors --path "tensor.classifier"
@@ -194,11 +194,11 @@ diffai model1.safetensors model2.safetensors --epsilon 1e-3
 ### 速度优化
 
 ```bash
-# 并行处理（未来功能）
-diffai --threads 8 model1.safetensors model2.safetensors
+# 使用详细模式获取详细处理信息
+diffai --verbose model1.safetensors model2.safetensors
 
-# 跳过统计计算，仅进行形状分析
-diffai --shape-only model1.safetensors model2.safetensors
+# 专注于架构差异分析
+diffai --architecture-comparison model1.safetensors model2.safetensors
 ```
 
 ## 集成示例
@@ -311,8 +311,8 @@ done
 # 检查文件格式
 file model.safetensors
 
-# 验证文件完整性
-diffai --check model.safetensors
+# 显示单一模型分析的详细统计
+diffai model.safetensors model.safetensors --stats
 
 # 尝试明确格式
 diffai --format safetensors model1.safetensors model2.safetensors

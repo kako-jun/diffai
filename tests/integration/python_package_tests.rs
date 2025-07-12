@@ -75,8 +75,15 @@ fn test_pyproject_toml_validity() {
         );
 
         // Check version matches Cargo.toml
+        let cargo_toml_content = std::fs::read_to_string("../Cargo.toml").unwrap();
+        let cargo_toml: toml::Value = toml::from_str(&cargo_toml_content).unwrap();
+        let expected_version = cargo_toml["workspace"]["package"]["version"]
+            .as_str()
+            .or_else(|| cargo_toml["package"]["version"].as_str())
+            .unwrap();
+
         let version = project["version"].as_str().unwrap();
-        assert_eq!(version, "0.2.7", "Version should match Cargo.toml");
+        assert_eq!(version, expected_version, "Version should match Cargo.toml");
 
         // Check build system
         let build_system = &toml["build-system"];
@@ -240,10 +247,11 @@ fn test_python_diffai_py_structure() {
             "Should define input error"
         );
 
-        // Check version
+        // Check version - should use dynamic version from importlib.metadata
         assert!(
-            content.contains("__version__ = \"0.2.7\""),
-            "Should have correct version"
+            content.contains("importlib.metadata.version(\"diffai-python\")")
+                || content.contains("__version__ = \"0.2.8\""),
+            "Should have correct dynamic version or fallback version"
         );
     }
 }

@@ -101,14 +101,11 @@ diffai original.pt optimized.pt --stats --quantization-analysis --sort-by-change
 # JSON 输出用于自动化
 diffai model_v1.safetensors model_v2.safetensors --stats --output json
 
+# 带详细诊断信息的verbose模式
+diffai model_v1.safetensors model_v2.safetensors --verbose --stats --architecture-comparison
+
 # 第 3 阶段功能（即将推出）
 diffai model_v1.safetensors model_v2.safetensors --architecture-comparison --memory-analysis
-
-# 性能影响评估
-diffai original.pt optimized.pt --quantization-analysis --memory-analysis
-
-# 生成 JSON 格式的详细报告
-diffai model_v1.safetensors model_v2.safetensors --generate-report --output json
 ```
 
 ## 支持的文件格式
@@ -126,6 +123,49 @@ diffai model_v1.safetensors model_v2.safetensors --generate-report --output json
 - **XML** (.xml) - 用于数据交换
 - **INI** (.ini) - 用于传统配置文件
 - **CSV** (.csv) - 用于表格数据
+
+## 调试和诊断
+
+### 详细模式（`--verbose` / `-v`）
+获取用于调试和性能分析的综合诊断信息：
+
+```bash
+# 基本详细输出
+diffai model1.safetensors model2.safetensors --verbose
+
+# 带ML分析功能的详细输出
+diffai data1.json data2.json --verbose --stats --epsilon 0.001 --ignore-keys-regex "^id$"
+```
+
+**详细输出包含信息：**
+- **配置诊断**: 活动的ML功能、格式设置、过滤器
+- **文件分析**: 路径、大小、检测的格式、处理上下文
+- **性能指标**: 处理时间、差异计数、优化状态
+- **目录统计**: 文件计数、比较摘要（使用`--recursive`时）
+
+**详细输出示例：**
+```
+=== diffai verbose mode enabled ===
+Configuration:
+  Input format: None
+  Output format: Cli
+  ML analysis features: statistics, architecture_comparison
+  Epsilon tolerance: 0.001
+
+File analysis:
+  Input 1: model1.safetensors
+  Input 2: model2.safetensors
+  Detected format: Safetensors
+  File 1 size: 1048576 bytes
+  File 2 size: 1048576 bytes
+
+Processing results:
+  Total processing time: 1.234ms
+  Differences found: 15
+  ML/Scientific data analysis completed
+```
+
+📚 **详细信息请参见[详细输出指南](docs/user-guide/verbose-output_zh.md)**
 
 ## 28 个高级 ML 分析功能
 

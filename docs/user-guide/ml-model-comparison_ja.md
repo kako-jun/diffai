@@ -181,8 +181,8 @@ diffai resnet50.safetensors efficientnet_b0.safetensors --stats
 大きなモデル（>1GB）の場合：
 
 ```bash
-# ストリーミングモード使用（将来機能）
-diffai --stream huge_model1.safetensors huge_model2.safetensors
+# ディレクトリ比較用の再帰モードを使用
+diffai --recursive model_dir1/ model_dir2/
 
 # 特定部分に分析を集中
 diffai model1.safetensors model2.safetensors --path "tensor.classifier"
@@ -194,11 +194,11 @@ diffai model1.safetensors model2.safetensors --epsilon 1e-3
 ### 速度最適化
 
 ```bash
-# 並列処理（将来機能）
-diffai --threads 8 model1.safetensors model2.safetensors
+# 詳細な処理情報用のverboseモードを使用
+diffai --verbose model1.safetensors model2.safetensors
 
-# 形状のみの分析で統計計算をスキップ
-diffai --shape-only model1.safetensors model2.safetensors
+# アーキテクチャの違いのみに焦点を当てる
+diffai --architecture-comparison model1.safetensors model2.safetensors
 ```
 
 ## 統合例
@@ -311,8 +311,8 @@ done
 # ファイル形式をチェック
 file model.safetensors
 
-# ファイルの整合性を確認
-diffai --check model.safetensors
+# 単一モデル分析の詳細統計を表示
+diffai model.safetensors model.safetensors --stats
 
 # 明示的な形式指定で試行
 diffai --format safetensors model1.safetensors model2.safetensors
