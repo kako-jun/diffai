@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.2.6] - 2025-01-11
+## [0.2.7] - 2025-01-11
 ### 🚀 Features
 - Phase 3 TDD test suite completion: 16 test functions covering 7 ML analysis features
 - 7 new ML analysis functions: architecture comparison, memory analysis, anomaly detection, change summary, convergence analysis, gradient analysis, similarity matrix
@@ -15,12 +15,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive implementation logic for all 7 new features
 - Multi-language documentation updates: complete consistency across English, Japanese, and Chinese
 - Documentation example testing: 20 test cases ensuring all usage examples work
+- Complete diffx improvements sync: GitHub Actions modernization, act1/act2 release workflow
+- CI optimization: Added --release flag to prevent timeouts in development
 
 ### 🔧 Improvements
 - Code quality improvements: Clippy warning fixes, format compliance
 - Total ML analysis functions: 31 features implemented
 - TDD + documentation example test coverage
 - Cross-platform pure Rust implementation without system dependencies
+- Package naming aligned with diffx conventions: diffai-js, diffai-python
+- Removed legacy API implementations following diffx modernization
 
 ## [0.2.6] - 2025-01-09
 ### 🚀 Features - Phase 2: Scientific Data Support Complete

@@ -76,7 +76,7 @@ fn test_pyproject_toml_validity() {
 
         // Check version matches Cargo.toml
         let version = project["version"].as_str().unwrap();
-        assert_eq!(version, "0.2.6", "Version should match Cargo.toml");
+        assert_eq!(version, "0.2.7", "Version should match Cargo.toml");
 
         // Check build system
         let build_system = &toml["build-system"];
@@ -242,7 +242,7 @@ fn test_python_diffai_py_structure() {
 
         // Check version
         assert!(
-            content.contains("__version__ = \"0.2.6\""),
+            content.contains("__version__ = \"0.2.7\""),
             "Should have correct version"
         );
     }
