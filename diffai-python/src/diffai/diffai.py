@@ -21,7 +21,7 @@ try:
     __version__ = importlib.metadata.version("diffai-python")
 except importlib.metadata.PackageNotFoundError:
     # Fallback for development
-    __version__ = "0.2.8"
+    __version__ = "0.2.9"
 
 
 class OutputFormat(Enum):

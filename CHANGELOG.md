@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.2.8] - 2025-07-12
+## [0.2.9] - 2025-07-12
 ### 🚀 Features
 - **Verbose mode (`--verbose`/`-v`)**: Comprehensive diagnostic output with configuration, file analysis, and performance metrics
 - **Fixed recursive directory behavior**: Now matches standard diff behavior - auto-detect directories, `--recursive` controls depth
