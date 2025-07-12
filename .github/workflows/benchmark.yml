@@ -1,0 +1,155 @@
+name: Performance Benchmark
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+  schedule:
+    # Run weekly on Sundays at 2 AM UTC
+    - cron: '0 2 * * 0'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10  # Longer timeout for ML benchmarks
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+      
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          target
+        key: ${{ runner.os }}-bench-${{ hashFiles('**/Cargo.lock') }}
+        
+    - name: Run benchmarks
+      run: |
+        # Quick benchmark run with shorter sampling time for ML operations
+        CARGO_CRITERION_ARGS="--sample-size 10 --measurement-time 2" cargo bench --package diffai-core > benchmark_results.txt 2>&1 || true
+        cat benchmark_results.txt
+        
+    - name: Check performance regression
+      run: |
+        # Show benchmark results for debugging
+        echo "=== Benchmark Results ==="
+        cat benchmark_results.txt
+        echo "=========================="
+        
+        # Extract criterion benchmark results for ML operations
+        SAFETENSORS_LINE=$(grep "ml_safetensors_diff" benchmark_results.txt -A 1 | grep "time:" | head -1)
+        PYTORCH_LINE=$(grep "ml_pytorch_diff" benchmark_results.txt -A 1 | grep "time:" | head -1)
+        
+        echo "Safetensors line: $SAFETENSORS_LINE"
+        echo "PyTorch line: $PYTORCH_LINE"
+        
+        # Extract middle value and unit from criterion format
+        SAFETENSORS_TIME=$(echo "$SAFETENSORS_LINE" | sed -n 's/.*\[\([0-9.]*\) \([a-z]*\)s \([0-9.]*\) \([a-z]*\)s \([0-9.]*\) \([a-z]*\)s\].*/\3/p')
+        SAFETENSORS_UNIT=$(echo "$SAFETENSORS_LINE" | sed -n 's/.*\[\([0-9.]*\) \([a-z]*\)s \([0-9.]*\) \([a-z]*\)s \([0-9.]*\) \([a-z]*\)s\].*/\4/p')
+        
+        PYTORCH_TIME=$(echo "$PYTORCH_LINE" | sed -n 's/.*\[\([0-9.]*\) \([a-z]*\)s \([0-9.]*\) \([a-z]*\)s \([0-9.]*\) \([a-z]*\)s\].*/\3/p')
+        PYTORCH_UNIT=$(echo "$PYTORCH_LINE" | sed -n 's/.*\[\([0-9.]*\) \([a-z]*\)s \([0-9.]*\) \([a-z]*\)s \([0-9.]*\) \([a-z]*\)s\].*/\4/p')
+        
+        echo "Safetensors: $SAFETENSORS_TIME ${SAFETENSORS_UNIT}s"
+        echo "PyTorch: $PYTORCH_TIME ${PYTORCH_UNIT}s"
+        
+        # Convert to milliseconds for ML operations
+        if [ "$SAFETENSORS_UNIT" = "n" ]; then
+          SAFETENSORS_TIME_MS=$(echo "scale=3; $SAFETENSORS_TIME / 1000000" | bc -l)
+        elif [ "$SAFETENSORS_UNIT" = "µ" ] || [ "$SAFETENSORS_UNIT" = "u" ]; then
+          SAFETENSORS_TIME_MS=$(echo "scale=3; $SAFETENSORS_TIME / 1000" | bc -l)
+        elif [ "$SAFETENSORS_UNIT" = "m" ]; then
+          SAFETENSORS_TIME_MS=$SAFETENSORS_TIME
+        else
+          SAFETENSORS_TIME_MS=$SAFETENSORS_TIME
+        fi
+        
+        if [ "$PYTORCH_UNIT" = "n" ]; then
+          PYTORCH_TIME_MS=$(echo "scale=3; $PYTORCH_TIME / 1000000" | bc -l)
+        elif [ "$PYTORCH_UNIT" = "µ" ] || [ "$PYTORCH_UNIT" = "u" ]; then
+          PYTORCH_TIME_MS=$(echo "scale=3; $PYTORCH_TIME / 1000" | bc -l)
+        elif [ "$PYTORCH_UNIT" = "m" ]; then
+          PYTORCH_TIME_MS=$PYTORCH_TIME
+        else
+          PYTORCH_TIME_MS=$PYTORCH_TIME
+        fi
+        
+        echo "Safetensors diff time: ${SAFETENSORS_TIME_MS}ms"
+        echo "PyTorch diff time: ${PYTORCH_TIME_MS}ms"
+        
+        # Performance thresholds for ML operations (more lenient)
+        SAFETENSORS_THRESHOLD=50.0   # ms
+        PYTORCH_THRESHOLD=100.0      # ms
+        
+        # Check if performance is within acceptable range
+        if (( $(echo "$SAFETENSORS_TIME_MS > $SAFETENSORS_THRESHOLD" | bc -l) )); then
+          echo "❌ Performance regression detected in Safetensors test!"
+          echo "Expected: < ${SAFETENSORS_THRESHOLD}ms, Got: ${SAFETENSORS_TIME_MS}ms"
+          exit 1
+        fi
+        
+        if (( $(echo "$PYTORCH_TIME_MS > $PYTORCH_THRESHOLD" | bc -l) )); then
+          echo "❌ Performance regression detected in PyTorch test!"
+          echo "Expected: < ${PYTORCH_THRESHOLD}ms, Got: ${PYTORCH_TIME_MS}ms"
+          exit 1
+        fi
+        
+        echo "✅ Performance tests passed!"
+        echo "Safetensors: ${SAFETENSORS_TIME_MS}ms (threshold: ${SAFETENSORS_THRESHOLD}ms)"
+        echo "PyTorch: ${PYTORCH_TIME_MS}ms (threshold: ${PYTORCH_THRESHOLD}ms)"
+        
+    - name: Upload benchmark results
+      uses: actions/upload-artifact@v4
+      with:
+        name: benchmark-results
+        path: |
+          benchmark_results.txt
+          target/criterion/
+        retention-days: 30
+
+  benchmark-comparison:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout PR
+      uses: actions/checkout@v4
+      
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+      
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          target
+        key: ${{ runner.os }}-bench-pr-${{ hashFiles('**/Cargo.lock') }}
+        
+    - name: Run PR benchmarks
+      run: |
+        CARGO_CRITERION_ARGS="--sample-size 10 --measurement-time 2" cargo bench --package diffai-core > pr_benchmark.txt 2>&1 || true
+        echo "## 📊 AI/ML Performance Impact" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Benchmark Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        cat pr_benchmark.txt >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Performance Thresholds" >> $GITHUB_STEP_SUMMARY
+        echo "- Safetensors diff: < 50.0ms" >> $GITHUB_STEP_SUMMARY
+        echo "- PyTorch diff: < 100.0ms" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY

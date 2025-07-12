@@ -104,13 +104,13 @@ diffai tests/fixtures/ml_models/tiny_gpt2_real.bin \
 ### 実モデルテスト（要ダウンロード）
 ```bash
 # HuggingFaceから実モデルをダウンロード
-cd real_models_test/
+cd test-models/
 uv sync
 uv run python download_models.py
 
 # 実モデルで検証（DistilBERT vs GPT-2等）
-diffai real_models_test/distilbert_base/model.safetensors \
-       real_models_test/gpt2_small/model.safetensors --stats
+diffai test-models/distilbert_base/model.safetensors \
+       test-models/gpt2_small/model.safetensors --stats
 ```
 
 ## 📋 開発状況

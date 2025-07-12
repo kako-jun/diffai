@@ -12,24 +12,30 @@ jobs:
   create-release:
     runs-on: ubuntu-latest
     outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      release_id: ${{ steps.create_release.outputs.id }}
     steps:
     - uses: actions/checkout@v4
     
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v1
+      run: |
+        # Extract tag name from ref
+        TAG_NAME=${GITHUB_REF#refs/tags/}
+        
+        # Create release and capture output
+        gh release create "$TAG_NAME" \
+          --title "Release $TAG_NAME" \
+          --notes "Changes in this Release
+        - First Change  
+        - Second Change" \
+          --draft=false \
+          --prerelease=false
+        
+        # Get release ID for outputs
+        RELEASE_ID=$(gh api repos/${{ github.repository }}/releases/tags/$TAG_NAME --jq '.id')
+        echo "id=$RELEASE_ID" >> $GITHUB_OUTPUT
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        body: |
-          Changes in this Release
-          - First Change
-          - Second Change
-        draft: false
-        prerelease: false
 
   build-release:
     needs: create-release
@@ -81,14 +87,14 @@ jobs:
         7z a ../../../${{ matrix.asset_name }} ${{ matrix.binary_name }}
         
     - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
+      run: |
+        # Extract tag name from ref
+        TAG_NAME=${GITHUB_REF#refs/tags/}
+        
+        # Upload asset to release
+        gh release upload "$TAG_NAME" "${{ matrix.asset_name }}"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.create-release.outputs.upload_url }}
-        asset_path: ./${{ matrix.asset_name }}
-        asset_name: ${{ matrix.asset_name }}
-        asset_content_type: application/octet-stream
 
   publish-crates:
     needs: build-release

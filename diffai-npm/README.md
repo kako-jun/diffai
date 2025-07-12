@@ -1,7 +1,7 @@
 # diffai - AI/ML Specialized Diff Tool (npm package)
 
-[![npm version](https://badge.fury.io/js/diffai.svg)](https://badge.fury.io/js/diffai)
-[![Downloads](https://img.shields.io/npm/dm/diffai.svg)](https://npmjs.org/package/diffai)
+[![npm version](https://badge.fury.io/js/diffai-js.svg)](https://badge.fury.io/js/diffai-js)
+[![Downloads](https://img.shields.io/npm/dm/diffai-js.svg)](https://npmjs.org/package/diffai-js)
 
 AI/ML specialized data diff tool for deep tensor comparison and analysis. This npm package provides a convenient way to install and use diffai through Node.js.
 
@@ -11,10 +11,10 @@ AI/ML specialized data diff tool for deep tensor comparison and analysis. This n
 
 ```bash
 # Global installation
-npm install -g diffai
+npm install -g diffai-js
 
 # Project-specific installation
-npm install diffai
+npm install diffai-js
 
 # One-time usage
 npx diffai model1.safetensors model2.safetensors --stats

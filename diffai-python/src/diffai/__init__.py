@@ -39,12 +39,7 @@ from .diffai import (
     __version__,
 )
 
-# Backward compatibility imports
-from .compat import (
-    diffai_diff,
-    diffai_diff_files,
-    check_diffai_binary,
-)
+# No backward compatibility imports - clean modern API only
 
 __all__ = [
     # Main API
@@ -62,11 +57,6 @@ __all__ = [
     "DiffaiError",
     "BinaryNotFoundError", 
     "InvalidInputError",
-    
-    # Backward compatibility
-    "diffai_diff",
-    "diffai_diff_files",
-    "check_diffai_binary",
     
     # Metadata
     "__version__",
