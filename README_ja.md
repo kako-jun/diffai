@@ -101,14 +101,11 @@ diffai original.pt optimized.pt --stats --quantization-analysis --sort-by-change
 # 自動化用JSON出力
 diffai model_v1.safetensors model_v2.safetensors --stats --output json
 
+# 詳細な診断情報付きでのverboseモード
+diffai model_v1.safetensors model_v2.safetensors --verbose --stats --architecture-comparison
+
 # Phase 3機能（近日公開）
 diffai model_v1.safetensors model_v2.safetensors --architecture-comparison --memory-analysis
-
-# 性能影響評価
-diffai original.pt optimized.pt --quantization-analysis --memory-analysis
-
-# JSON形式詳細レポート生成
-diffai model_v1.safetensors model_v2.safetensors --generate-report --output json
 ```
 
 ## 対応ファイル形式
@@ -132,6 +129,49 @@ diffai model_v1.safetensors model_v2.safetensors --generate-report --output json
 ## ML分析機能
 
 diffaiは包括的モデル評価のための28の専門分析機能を提供：
+
+## デバッグと診断
+
+### 詳細モード（`--verbose` / `-v`）
+デバッグとパフォーマンス分析のための包括的な診断情報を取得：
+
+```bash
+# 基本的な詳細出力
+diffai model1.safetensors model2.safetensors --verbose
+
+# ML分析機能付きの詳細出力
+diffai data1.json data2.json --verbose --stats --epsilon 0.001 --ignore-keys-regex "^id$"
+```
+
+**詳細出力に含まれる情報：**
+- **設定診断**: アクティブなML機能、フォーマット設定、フィルター
+- **ファイル解析**: パス、サイズ、検出されたフォーマット、処理コンテキスト
+- **パフォーマンス指標**: 処理時間、差分カウント、最適化状況
+- **ディレクトリ統計**: ファイル数、比較サマリー（`--recursive`使用時）
+
+**詳細出力例：**
+```
+=== diffai verbose mode enabled ===
+Configuration:
+  Input format: None
+  Output format: Cli
+  ML analysis features: statistics, architecture_comparison
+  Epsilon tolerance: 0.001
+
+File analysis:
+  Input 1: model1.safetensors
+  Input 2: model2.safetensors
+  Detected format: Safetensors
+  File 1 size: 1048576 bytes
+  File 2 size: 1048576 bytes
+
+Processing results:
+  Total processing time: 1.234ms
+  Differences found: 15
+  ML/Scientific data analysis completed
+```
+
+📚 **詳細については[詳細出力ガイド](docs/user-guide/verbose-output_ja.md)をご覧ください**
 
 ### 学習・収束分析
 - `--learning-progress` - チェックポイント間の学習進捗追跡
