@@ -186,6 +186,10 @@ struct Args {
     /// Perform statistical significance testing for metric changes (Phase 2)
     #[arg(long)]
     statistical_significance: bool,
+
+    /// Show verbose processing information
+    #[arg(short, long)]
+    verbose: bool,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug, Serialize, Deserialize)]
@@ -1092,6 +1096,36 @@ fn main() -> Result<()> {
     let epsilon = args.epsilon;
     let array_id_key = args.array_id_key.as_deref();
 
+    // Verbose information
+    if args.verbose {
+        eprintln!("diffai verbose mode enabled");
+        eprintln!("Input format: {:?}", args.format);
+        eprintln!("Output format: {:?}", output_format);
+        eprintln!("Epsilon tolerance: {:?}", epsilon);
+        eprintln!("Array ID key: {:?}", array_id_key);
+        eprintln!("Recursive mode: {}", args.recursive);
+
+        // ML-specific verbose info
+        if args.stats || args.learning_progress || args.architecture_comparison {
+            eprintln!("ML analysis features enabled:");
+            if args.stats {
+                eprintln!("  - Statistics analysis");
+            }
+            if args.learning_progress {
+                eprintln!("  - Learning progress tracking");
+            }
+            if args.architecture_comparison {
+                eprintln!("  - Architecture comparison");
+            }
+            if args.memory_analysis {
+                eprintln!("  - Memory analysis");
+            }
+            if args.anomaly_detection {
+                eprintln!("  - Anomaly detection");
+            }
+        }
+    }
+
     // Handle directory comparison
     if args.recursive {
         if !args.input1.is_dir() || !args.input2.is_dir() {
@@ -1121,6 +1155,23 @@ fn main() -> Result<()> {
             .context("Could not infer format from file extensions. Please specify --format or configure in diffx.toml.")?
     };
 
+    // Verbose file information
+    if args.verbose {
+        eprintln!("Processing files:");
+        eprintln!("  Input 1: {}", args.input1.display());
+        eprintln!("  Input 2: {}", args.input2.display());
+        eprintln!("  Detected format: {:?}", input_format);
+
+        // File size information
+        if let Ok(metadata1) = args.input1.metadata() {
+            eprintln!("  File 1 size: {} bytes", metadata1.len());
+        }
+        if let Ok(metadata2) = args.input2.metadata() {
+            eprintln!("  File 2 size: {} bytes", metadata2.len());
+        }
+    }
+
+    let start_time = std::time::Instant::now();
     let mut differences = match input_format {
         Format::Numpy | Format::Npz => {
             // Handle NumPy scientific array comparison
@@ -1272,6 +1323,13 @@ fn main() -> Result<()> {
             };
             key.starts_with(&filter_path)
         });
+    }
+
+    // Verbose processing completion info
+    if args.verbose {
+        let elapsed = start_time.elapsed();
+        eprintln!("Processing completed in {:?}", elapsed);
+        eprintln!("Found {} differences", differences.len());
     }
 
     match output_format {
