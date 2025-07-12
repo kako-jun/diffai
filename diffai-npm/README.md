@@ -77,7 +77,7 @@ diffai provides 35 specialized analysis functions for AI/ML workflows:
 - `--sort-by-change-magnitude` - Priority-sorted differences
 - `--show-layer-impact` - Layer-by-layer impact analysis
 
-### Phase 3 Advanced Analysis (v0.2.6+)
+### Phase 3 Advanced Analysis (v0.2.7+)
 - `--architecture-comparison` - Model architecture and structural changes
 - `--memory-analysis` - Memory usage and optimization opportunities  
 - `--anomaly-detection` - Numerical anomalies and training issues

@@ -83,7 +83,7 @@ result = diffai.diff("model1.safetensors", "model2.safetensors",
                     sort_by_change_magnitude=True, stats=True)
 ```
 
-### Phase 3 Advanced Analysis (v0.2.6+)
+### Phase 3 Advanced Analysis (v0.2.7+)
 ```python
 # Architecture comparison
 result = diffai.diff("model1.safetensors", "model2.safetensors", 

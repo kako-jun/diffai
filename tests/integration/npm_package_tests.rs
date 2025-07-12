@@ -78,7 +78,7 @@ fn test_npm_package_json_validity() {
 
         // Check version matches Cargo.toml
         let version = json["version"].as_str().unwrap();
-        assert_eq!(version, "0.2.6", "Version should match Cargo.toml");
+        assert_eq!(version, "0.2.7", "Version should match Cargo.toml");
     }
 }
 

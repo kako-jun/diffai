@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Dict, Optional, Tuple
 
 
-PACKAGE_VERSION = "0.2.6"
+PACKAGE_VERSION = "0.2.7"
 GITHUB_REPO = "diffai-team/diffai"
 RELEASES_URL = f"https://github.com/{GITHUB_REPO}/releases/download/v{PACKAGE_VERSION}"
 

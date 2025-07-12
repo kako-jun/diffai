@@ -15,7 +15,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-__version__ = "0.2.6"
+__version__ = "0.2.7"
 
 
 class OutputFormat(Enum):
