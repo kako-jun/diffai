@@ -35,7 +35,8 @@
       "Bash(./target/release/diffai:*)",
       "Bash(./ci-local.sh)",
       "Bash(./scripts/ci-local.sh:*)",
-      "Bash(RUST_BACKTRACE=1 cargo test cli_tests::test_architecture_comparison -- --nocapture)"
+      "Bash(RUST_BACKTRACE=1 cargo test cli_tests::test_architecture_comparison -- --nocapture)",
+      "Bash(CARGO_MANIFEST_DIR=/home/kako-jun/repos/2025/diffx cargo run --manifest-path /home/kako-jun/repos/2025/diffx/Cargo.toml -- --help)"
     ],
     "deny": []
   }

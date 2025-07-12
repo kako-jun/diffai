@@ -7,3 +7,4 @@ mod performance_tests;
 mod phase3_features_tests;
 mod python_package_tests;
 mod real_ml_tests;
+mod verbose_output_tests;

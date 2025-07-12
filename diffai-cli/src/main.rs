@@ -14,6 +14,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::io::{self, Read};
 use std::path::{Path, PathBuf};
+use std::time::Instant;
 use walkdir::WalkDir;
 
 #[derive(Parser, Debug)]
@@ -70,6 +71,10 @@ struct Args {
     /// Show detailed statistics for ML models
     #[arg(long)]
     stats: bool,
+
+    /// Show verbose processing information
+    #[arg(short, long)]
+    verbose: bool,
 
     /// Analyze learning progress between training checkpoints
     #[arg(long)]
@@ -1083,6 +1088,66 @@ fn main() -> Result<()> {
     let output_format = args.output.unwrap_or(OutputFormat::Cli);
     let input_format_from_config = None;
 
+    // Verbose configuration information
+    if args.verbose {
+        eprintln!("=== diffai verbose mode enabled ===");
+        eprintln!("Configuration:");
+        eprintln!("  Input format: {:?}", args.format);
+        eprintln!("  Output format: {:?}", output_format);
+        eprintln!("  Recursive mode: {}", args.recursive);
+
+        // ML analysis features enabled
+        let mut ml_features = Vec::new();
+        if args.stats {
+            ml_features.push("statistics");
+        }
+        if args.learning_progress {
+            ml_features.push("learning_progress");
+        }
+        if args.convergence_analysis {
+            ml_features.push("convergence_analysis");
+        }
+        if args.anomaly_detection {
+            ml_features.push("anomaly_detection");
+        }
+        if args.gradient_analysis {
+            ml_features.push("gradient_analysis");
+        }
+        if args.memory_analysis {
+            ml_features.push("memory_analysis");
+        }
+        if args.architecture_comparison {
+            ml_features.push("architecture_comparison");
+        }
+        if args.inference_speed_estimate {
+            ml_features.push("inference_speed_estimate");
+        }
+        if args.show_layer_impact {
+            ml_features.push("layer_impact");
+        }
+        if args.quantization_analysis {
+            ml_features.push("quantization_analysis");
+        }
+        if args.sort_by_change_magnitude {
+            ml_features.push("sort_by_change_magnitude");
+        }
+
+        if !ml_features.is_empty() {
+            eprintln!("  ML analysis features: {}", ml_features.join(", "));
+        }
+
+        // Advanced options
+        if let Some(epsilon) = args.epsilon {
+            eprintln!("  Epsilon tolerance: {}", epsilon);
+        }
+        if let Some(regex) = &args.ignore_keys_regex {
+            eprintln!("  Ignore keys regex: {}", regex);
+        }
+        if let Some(path) = &args.path {
+            eprintln!("  Path filter: {}", path);
+        }
+    }
+
     let ignore_keys_regex = if let Some(regex_str) = &args.ignore_keys_regex {
         Some(Regex::new(regex_str).context("Invalid regex for --ignore-keys-regex")?)
     } else {
@@ -1091,6 +1156,13 @@ fn main() -> Result<()> {
 
     let epsilon = args.epsilon;
     let array_id_key = args.array_id_key.as_deref();
+
+    // Start timing measurement for verbose mode
+    let start_time = if args.verbose {
+        Some(Instant::now())
+    } else {
+        None
+    };
 
     // Handle directory comparison
     if args.recursive {
@@ -1106,6 +1178,7 @@ fn main() -> Result<()> {
             ignore_keys_regex.as_ref(),
             epsilon,
             array_id_key,
+            args.verbose,
         )?;
         return Ok(());
     }
@@ -1120,6 +1193,23 @@ fn main() -> Result<()> {
             .or_else(|| infer_format_from_path(&args.input2))
             .context("Could not infer format from file extensions. Please specify --format or configure in diffx.toml.")?
     };
+
+    // Verbose file analysis information
+    if args.verbose {
+        eprintln!();
+        eprintln!("File analysis:");
+        eprintln!("  Input 1: {}", args.input1.display());
+        eprintln!("  Input 2: {}", args.input2.display());
+        eprintln!("  Detected format: {:?}", input_format);
+
+        // File sizes
+        if let Ok(metadata1) = fs::metadata(&args.input1) {
+            eprintln!("  File 1 size: {} bytes", metadata1.len());
+        }
+        if let Ok(metadata2) = fs::metadata(&args.input2) {
+            eprintln!("  File 2 size: {} bytes", metadata2.len());
+        }
+    }
 
     let mut differences = match input_format {
         Format::Numpy | Format::Npz => {
@@ -1274,6 +1364,42 @@ fn main() -> Result<()> {
         });
     }
 
+    // Verbose processing results
+    if args.verbose {
+        eprintln!();
+        eprintln!("Processing results:");
+        if let Some(start) = start_time {
+            let elapsed = start.elapsed();
+            if elapsed.as_millis() > 0 {
+                eprintln!(
+                    "  Total processing time: {:.3}ms",
+                    elapsed.as_secs_f64() * 1000.0
+                );
+            } else if elapsed.as_micros() > 0 {
+                eprintln!(
+                    "  Total processing time: {:.3}µs",
+                    elapsed.as_micros() as f64
+                );
+            } else {
+                eprintln!("  Total processing time: {}ns", elapsed.as_nanos());
+            }
+        }
+        eprintln!("  Differences found: {}", differences.len());
+        match input_format {
+            Format::Safetensors
+            | Format::Pytorch
+            | Format::Numpy
+            | Format::Npz
+            | Format::Matlab => {
+                eprintln!("  ML/Scientific data analysis completed");
+            }
+            _ => {
+                eprintln!("  Format-specific analysis: {:?}", input_format);
+            }
+        }
+        eprintln!();
+    }
+
     match output_format {
         OutputFormat::Cli => print_cli_output(differences, args.sort_by_change_magnitude),
         OutputFormat::Json => print_json_output(differences)?,
@@ -1309,6 +1435,7 @@ fn compare_directories(
     ignore_keys_regex: Option<&Regex>,
     epsilon: Option<f64>,
     array_id_key: Option<&str>,
+    _verbose: bool,
 ) -> Result<()> {
     let mut files1: HashMap<PathBuf, PathBuf> = HashMap::new();
     for entry in WalkDir::new(dir1).into_iter().filter_map(|e| e.ok()) {
