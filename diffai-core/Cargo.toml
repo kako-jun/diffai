@@ -31,7 +31,7 @@ safetensors = { workspace = true }
 bytemuck = { workspace = true }
 # Scientific data dependencies
 ndarray = { workspace = true }
-numpy = { workspace = true }
+# numpy = { workspace = true }  # Removed: only needed for Python bindings, not CLI
 # hdf5 = { workspace = true }  # Requires system HDF5 libraries
 zip = { workspace = true }
 matfile = { workspace = true }
