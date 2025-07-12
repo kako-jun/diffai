@@ -1164,10 +1164,10 @@ fn main() -> Result<()> {
         None
     };
 
-    // Handle directory comparison
-    if args.recursive {
+    // Handle directory comparison (automatically detect directories)
+    if args.input1.is_dir() || args.input2.is_dir() {
         if !args.input1.is_dir() || !args.input2.is_dir() {
-            bail!("Both inputs must be directories for recursive comparison.");
+            bail!("Both inputs must be directories when comparing directories.");
         }
         compare_directories(
             &args.input1,
@@ -1179,6 +1179,7 @@ fn main() -> Result<()> {
             epsilon,
             array_id_key,
             args.verbose,
+            args.recursive, // Pass recursive flag to control depth
         )?;
         return Ok(());
     }
@@ -1436,9 +1437,18 @@ fn compare_directories(
     epsilon: Option<f64>,
     array_id_key: Option<&str>,
     _verbose: bool,
+    recursive: bool,
 ) -> Result<()> {
     let mut files1: HashMap<PathBuf, PathBuf> = HashMap::new();
-    for entry in WalkDir::new(dir1).into_iter().filter_map(|e| e.ok()) {
+
+    // Configure WalkDir based on recursive flag (like standard diff)
+    let walker1 = if recursive {
+        WalkDir::new(dir1) // Recursive traversal
+    } else {
+        WalkDir::new(dir1).max_depth(1) // Only direct children
+    };
+
+    for entry in walker1.into_iter().filter_map(|e| e.ok()) {
         let path = entry.path();
         if path.is_file() {
             let relative_path = path.strip_prefix(dir1)?.to_path_buf();
@@ -1447,7 +1457,15 @@ fn compare_directories(
     }
 
     let mut files2: HashMap<PathBuf, PathBuf> = HashMap::new();
-    for entry in WalkDir::new(dir2).into_iter().filter_map(|e| e.ok()) {
+
+    // Configure WalkDir for dir2 with same recursive setting
+    let walker2 = if recursive {
+        WalkDir::new(dir2) // Recursive traversal
+    } else {
+        WalkDir::new(dir2).max_depth(1) // Only direct children
+    };
+
+    for entry in walker2.into_iter().filter_map(|e| e.ok()) {
         let path = entry.path();
         if path.is_file() {
             let relative_path = path.strip_prefix(dir2)?.to_path_buf();
