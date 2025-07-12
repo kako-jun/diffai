@@ -22,6 +22,8 @@ const { tmpdir } = require('os');
  * @property {Format} [format] - Input file format
  * @property {OutputFormat} [output] - Output format
  * @property {boolean} [stats=false] - Show detailed tensor statistics
+ * @property {boolean} [verbose=false] - Show verbose processing information
+ * @property {boolean} [recursive=false] - Compare directories recursively
  * @property {boolean} [quantizationAnalysis=false] - Enable quantization analysis
  * @property {boolean} [sortByChangeMagnitude=false] - Sort changes by magnitude
  * @property {boolean} [showLayerImpact=false] - Show layer-wise impact analysis
@@ -32,7 +34,6 @@ const { tmpdir } = require('os');
  * @property {boolean} [convergenceAnalysis=false] - Analyze convergence state
  * @property {boolean} [gradientAnalysis=false] - Analyze gradient information
  * @property {boolean} [similarityMatrix=false] - Generate similarity matrix
- * @property {boolean} [quiet=false] - Suppress output (exit code only)
  * @property {string} [path] - Filter differences by path
  * @property {number} [epsilon] - Tolerance for float comparisons
  */
@@ -181,6 +182,14 @@ async function diff(input1, input2, options = {}) {
     args.push('--stats');
   }
   
+  if (options.verbose) {
+    args.push('--verbose');
+  }
+  
+  if (options.recursive) {
+    args.push('--recursive');
+  }
+  
   if (options.quantizationAnalysis) {
     args.push('--quantization-analysis');
   }
@@ -231,10 +240,6 @@ async function diff(input1, input2, options = {}) {
     args.push('--epsilon', options.epsilon.toString());
   }
   
-  // Add quiet option
-  if (options.quiet) {
-    args.push('--quiet');
-  }
   
   const { stdout, stderr } = await executeDiffai(args);
   

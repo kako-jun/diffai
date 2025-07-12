@@ -54,6 +54,7 @@ class DiffOptions:
     
     # Core analysis options
     stats: bool = False
+    verbose: bool = False  # NEW: Added verbose mode
     show_layer_impact: bool = False
     quantization_analysis: bool = False
     sort_by_change_magnitude: bool = False
@@ -120,6 +121,7 @@ class DiffOptions:
         flag_mapping = {
             "recursive": "--recursive",
             "stats": "--stats",
+            "verbose": "--verbose",  # NEW: Added verbose mode
             "show_layer_impact": "--show-layer-impact",
             "quantization_analysis": "--quantization-analysis",
             "sort_by_change_magnitude": "--sort-by-change-magnitude",
