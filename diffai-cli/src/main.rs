@@ -186,6 +186,10 @@ struct Args {
     /// Perform statistical significance testing for metric changes (Phase 2)
     #[arg(long)]
     statistical_significance: bool,
+
+    /// Show verbose processing information
+    #[arg(short, long)]
+    verbose: bool,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug, Serialize, Deserialize)]
@@ -1092,6 +1096,61 @@ fn main() -> Result<()> {
     let epsilon = args.epsilon;
     let array_id_key = args.array_id_key.as_deref();
 
+    // Verbose configuration information
+    if args.verbose {
+        eprintln!("=== diffai verbose mode enabled ===");
+        eprintln!("Configuration:");
+        eprintln!("  Input format: {:?}", args.format);
+        eprintln!("  Output format: {:?}", output_format);
+        eprintln!("  Recursive mode: {}", args.recursive);
+
+        // Numerical analysis configuration
+        if let Some(eps) = epsilon {
+            eprintln!("  Epsilon tolerance: {}", eps);
+        }
+        if let Some(key) = array_id_key {
+            eprintln!("  Array ID key: {}", key);
+        }
+        if let Some(pattern) = &args.ignore_keys_regex {
+            eprintln!("  Ignore keys regex: {}", pattern);
+        }
+        if let Some(filter_path) = &args.path {
+            eprintln!("  Path filter: {}", filter_path);
+        }
+
+        // ML analysis features enabled
+        let mut ml_features = Vec::new();
+        if args.stats {
+            ml_features.push("statistics");
+        }
+        if args.architecture_comparison {
+            ml_features.push("architecture_comparison");
+        }
+        if args.memory_analysis {
+            ml_features.push("memory_analysis");
+        }
+        if args.anomaly_detection {
+            ml_features.push("anomaly_detection");
+        }
+        if args.learning_progress {
+            ml_features.push("learning_progress");
+        }
+        if args.convergence_analysis {
+            ml_features.push("convergence_analysis");
+        }
+        if args.gradient_analysis {
+            ml_features.push("gradient_analysis");
+        }
+        if args.similarity_matrix {
+            ml_features.push("similarity_matrix");
+        }
+
+        if !ml_features.is_empty() {
+            eprintln!("  ML analysis features: {}", ml_features.join(", "));
+        }
+        eprintln!();
+    }
+
     // Handle directory comparison
     if args.recursive {
         if !args.input1.is_dir() || !args.input2.is_dir() {
@@ -1106,6 +1165,7 @@ fn main() -> Result<()> {
             ignore_keys_regex.as_ref(),
             epsilon,
             array_id_key,
+            args.verbose,
         )?;
         return Ok(());
     }
@@ -1121,6 +1181,24 @@ fn main() -> Result<()> {
             .context("Could not infer format from file extensions. Please specify --format or configure in diffx.toml.")?
     };
 
+    // Verbose file information
+    if args.verbose {
+        eprintln!("File analysis:");
+        eprintln!("  Input 1: {}", args.input1.display());
+        eprintln!("  Input 2: {}", args.input2.display());
+        eprintln!("  Detected format: {:?}", input_format);
+
+        // File size information
+        if let Ok(metadata1) = args.input1.metadata() {
+            eprintln!("  File 1 size: {} bytes", metadata1.len());
+        }
+        if let Ok(metadata2) = args.input2.metadata() {
+            eprintln!("  File 2 size: {} bytes", metadata2.len());
+        }
+        eprintln!();
+    }
+
+    let start_time = std::time::Instant::now();
     let mut differences = match input_format {
         Format::Numpy | Format::Npz => {
             // Handle NumPy scientific array comparison
@@ -1274,6 +1352,26 @@ fn main() -> Result<()> {
         });
     }
 
+    // Verbose processing completion info
+    if args.verbose {
+        let elapsed = start_time.elapsed();
+        eprintln!("Processing results:");
+        eprintln!("  Total processing time: {:?}", elapsed);
+        eprintln!("  Differences found: {}", differences.len());
+
+        // Memory and performance info
+        eprintln!("  Format-specific analysis: {:?}", input_format);
+
+        // ML-specific result statistics
+        if matches!(
+            input_format,
+            Format::Safetensors | Format::Pytorch | Format::Numpy | Format::Npz | Format::Matlab
+        ) {
+            eprintln!("  ML/Scientific data analysis completed");
+        }
+        eprintln!();
+    }
+
     match output_format {
         OutputFormat::Cli => print_cli_output(differences, args.sort_by_change_magnitude),
         OutputFormat::Json => print_json_output(differences)?,
@@ -1309,6 +1407,7 @@ fn compare_directories(
     ignore_keys_regex: Option<&Regex>,
     epsilon: Option<f64>,
     array_id_key: Option<&str>,
+    verbose: bool,
 ) -> Result<()> {
     let mut files1: HashMap<PathBuf, PathBuf> = HashMap::new();
     for entry in WalkDir::new(dir1).into_iter().filter_map(|e| e.ok()) {
@@ -1332,7 +1431,17 @@ fn compare_directories(
         files1.keys().cloned().collect();
     all_relative_paths.extend(files2.keys().cloned());
 
+    // Verbose directory scan results
+    if verbose {
+        eprintln!("Directory scan results:");
+        eprintln!("  Files in {}: {}", dir1.display(), files1.len());
+        eprintln!("  Files in {}: {}", dir2.display(), files2.len());
+        eprintln!("  Total files to compare: {}", all_relative_paths.len());
+        eprintln!();
+    }
+
     let mut compared_files = 0;
+    let mut skipped_files = 0;
 
     for relative_path in &all_relative_paths {
         let path1_option = files1.get(relative_path.as_path());
@@ -1432,6 +1541,7 @@ fn compare_directories(
                     dir1.display(),
                     relative_path.display()
                 );
+                skipped_files += 1;
             }
             (None, Some(_)) => {
                 println!(
@@ -1440,6 +1550,7 @@ fn compare_directories(
                     dir2.display(),
                     relative_path.display()
                 );
+                skipped_files += 1;
             }
             (None, None) => { /* Should not happen */ }
         }
@@ -1447,6 +1558,17 @@ fn compare_directories(
 
     if compared_files == 0 && all_relative_paths.is_empty() {
         println!("No comparable files found in directories.");
+    }
+
+    // Verbose directory comparison summary
+    if verbose {
+        eprintln!("Directory comparison summary:");
+        eprintln!("  Files compared: {}", compared_files);
+        eprintln!("  Files only in one directory: {}", skipped_files);
+        eprintln!(
+            "  Total files processed: {}",
+            compared_files + skipped_files
+        );
     }
 
     Ok(())
