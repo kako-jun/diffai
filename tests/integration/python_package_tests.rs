@@ -248,9 +248,17 @@ fn test_python_diffai_py_structure() {
         );
 
         // Check version - should use dynamic version from importlib.metadata
+        let cargo_toml_content = std::fs::read_to_string("../Cargo.toml").unwrap();
+        let cargo_toml: toml::Value = toml::from_str(&cargo_toml_content).unwrap();
+        let expected_version = cargo_toml["workspace"]["package"]["version"]
+            .as_str()
+            .or_else(|| cargo_toml["package"]["version"].as_str())
+            .unwrap();
+        let expected_fallback = format!("__version__ = \"{expected_version}\"");
+
         assert!(
             content.contains("importlib.metadata.version(\"diffai-python\")")
-                || content.contains("__version__ = \"0.2.8\""),
+                || content.contains(&expected_fallback),
             "Should have correct dynamic version or fallback version"
         );
     }
