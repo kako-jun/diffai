@@ -276,11 +276,12 @@ def verify_installation() -> Dict[str, Any]:
         
         if result.returncode == 0:
             version_output = result.stdout.strip()
-            return {
+            info: Dict[str, str] = {
                 "binary_path": binary_path,
                 "version": version_output,
                 "status": "ok"
             }
+            return info
         else:
             raise BinaryNotFoundError(
                 f"diffai binary found at {binary_path} but failed to execute: {result.stderr}"
@@ -380,7 +381,7 @@ def diff(
     if options is None:
         options = DiffOptions(**kwargs)
     elif isinstance(options, dict):
-        combined_options = {**options, **kwargs}
+        combined_options: Dict[str, Any] = {**options, **kwargs}
         options = DiffOptions(**combined_options)
     elif kwargs:
         # Merge kwargs into existing DiffOptions
@@ -389,7 +390,8 @@ def diff(
             for field in options.__dataclass_fields__.values()
         }
         combined_options = {**option_dict, **kwargs}
-        options = DiffOptions(**combined_options)
+        merged_opts: Dict[str, Union[str, bool, int, float, None]] = combined_options
+        options = DiffOptions(**merged_opts)
     
     # Build command arguments
     args = [input1, input2]
@@ -398,7 +400,12 @@ def diff(
     return run_diffai(args)
 
 
-def diff_string(content1: str, content2: str, **kwargs) -> DiffResult:
+def diff_string(
+    content1: str, 
+    content2: str, 
+    format_type: Union[str, None] = None,
+    **kwargs
+) -> DiffResult:
     """
     Compare two strings using diffai (creates temporary files).
     

@@ -1,6 +1,22 @@
 #!/bin/bash
 set -euo pipefail
 
+# Display help if requested
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Run local CI simulation matching GitHub Actions workflow"
+    echo ""
+    echo "Options:"
+    echo "  --release     Include release build and tests (slower, for pre-release)"
+    echo "  --help, -h    Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  $0            # Fast CI (development)"
+    echo "  $0 --release  # Full CI (pre-release)"
+    exit 0
+fi
+
 # Same environment as GitHub Actions CI
 export CARGO_TERM_COLOR=always
 export RUST_BACKTRACE=1
@@ -27,7 +43,11 @@ print_error() {
 # Trap to handle errors
 trap 'print_error "CI failed at step: ${CURRENT_STEP:-unknown}"' ERR
 
-echo "🔄 Running complete CI simulation locally (matching GitHub Actions exactly)..."
+if [[ "${1:-}" == "--release" ]]; then
+    echo "🔄 Running FULL CI simulation locally (including release builds)..."
+else
+    echo "🔄 Running FAST CI simulation locally (skipping release builds)..."
+fi
 
 CURRENT_STEP="formatting check"
 print_step "📝 Step 1: Check formatting"
@@ -50,12 +70,19 @@ print_step "📚 Step 5: Run doc tests (workspace-wide)"
 cargo test --workspace --doc
 
 CURRENT_STEP="release build"
-print_step "🚀 Step 6: Release build (workspace)"
-cargo build --workspace --release --verbose
+# Skip release build and tests in regular CI to avoid timeout
+# Use --release flag to run full CI with release builds
+if [[ "${1:-}" == "--release" ]]; then
+    print_step "🚀 Step 6: Release build (workspace)"
+    cargo build --workspace --release --verbose
 
-CURRENT_STEP="release tests"
-print_step "🧪 Step 7: Run tests in release mode (workspace)"
-cargo test --workspace --release --verbose
+    CURRENT_STEP="release tests"
+    print_step "🧪 Step 7: Run tests in release mode (workspace)"
+    cargo test --workspace --release --verbose
+else
+    print_step "⏭️ Step 6: Skipping release build (use --release flag to enable)"
+    print_step "⏭️ Step 7: Skipping release tests (use --release flag to enable)"
+fi
 
 CURRENT_STEP="security audit"
 print_step "🔒 Step 8: Security audit"

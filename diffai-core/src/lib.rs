@@ -314,6 +314,7 @@ pub struct ArchitectureComparisonInfo {
     pub migration_difficulty: String,  // "easy", "moderate", "difficult"
     pub performance_trade_offs: String,
     pub recommendation: String,
+    pub deployment_readiness: String, // "ready", "caution", "not_ready"
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -2850,6 +2851,16 @@ fn analyze_architecture_comparison(
             "thorough_testing_required".to_string()
         } else {
             "moderate_testing_recommended".to_string()
+        },
+        deployment_readiness: if param_ratio > 0.9
+            && param_ratio < 1.1
+            && architectural_differences.len() < 3
+        {
+            "ready".to_string()
+        } else if param_ratio > 1.5 || architectural_differences.len() > 5 {
+            "not_ready".to_string()
+        } else {
+            "caution".to_string()
         },
     }
 }

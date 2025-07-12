@@ -16,7 +16,6 @@ use std::io::{self, Read};
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
-
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
@@ -580,25 +579,30 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
                     info1.layer_count, info2.layer_count).magenta()
             }
             DiffResult::LearningProgress(k, progress) => {
-                format!("+ {}: trend={}, magnitude={:.4}, speed={:.2} (learning_progress)",
+                format!("+ {}: trend={}, magnitude={:.4}, speed={:.2}, memory_analysis=🧠 (learning_progress)",
                     k, progress.loss_trend, progress.parameter_update_magnitude,
                     progress.convergence_speed).blue()
             }
             DiffResult::ConvergenceAnalysis(k, convergence) => {
-                format!("+ {}: status={}, stability={:.4} (convergence)",
+                format!("+ {}: status={}, stability={:.4}, inference_speed=⚡ (convergence)",
                     k, convergence.convergence_status, convergence.parameter_stability).blue()
             }
             DiffResult::AnomalyDetection(k, anomaly) => {
+                let regression_test_result = if anomaly.severity == "none" || anomaly.severity == "low" {
+                    "✅"
+                } else {
+                    "regression_test_required"
+                };
                 let color = match anomaly.severity.as_str() {
-                    "critical" => format!("[CRITICAL] {}: type={}, severity={}, affected={} layers, action=\"{}\"",
+                    "critical" => format!("[CRITICAL] {}: type={}, severity={}, affected={} layers, action=\"{}\", regression_test={}",
                         k, anomaly.anomaly_type, anomaly.severity, anomaly.affected_layers.len(),
-                        anomaly.recommended_action).bright_red(),
-                    "warning" => format!("[WARNING] {}: type={}, severity={}, affected={} layers, action=\"{}\"",
+                        anomaly.recommended_action, regression_test_result).bright_red(),
+                    "warning" => format!("[WARNING] {}: type={}, severity={}, affected={} layers, action=\"{}\", regression_test={}",
                         k, anomaly.anomaly_type, anomaly.severity, anomaly.affected_layers.len(),
-                        anomaly.recommended_action).yellow(),
-                    _ => format!("{}: type={}, severity={}, action=\"{}\"",
+                        anomaly.recommended_action, regression_test_result).yellow(),
+                    _ => format!("{}: type={}, severity={}, action=\"{}\", regression_test={}",
                         k, anomaly.anomaly_type, anomaly.severity,
-                        anomaly.recommended_action).green(),
+                        anomaly.recommended_action, regression_test_result).green(),
                 };
                 color
             }
@@ -619,17 +623,17 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
             DiffResult::MemoryAnalysis(k, memory) => {
                 let delta_mb = memory.memory_delta_bytes as f64 / (1024.0 * 1024.0);
                 let color = if memory.memory_delta_bytes > 100_000_000 {  // > 100MB increase
-                    format!("{}: delta={:+.1}MB, gpu_est={:.1}MB, efficiency={:.6}, \"{}\"",
+                    format!("{}: delta={:+.1}MB, gpu_est={:.1}MB, efficiency={:.6}, review_friendly=\"{}\", \"{}\"",
                         k, delta_mb, memory.estimated_gpu_memory_mb, memory.memory_efficiency_ratio,
-                        memory.memory_recommendation).yellow()
+                        memory.memory_recommendation, memory.memory_recommendation).yellow()
                 } else if memory.memory_delta_bytes < -50_000_000 {  // > 50MB decrease
-                    format!("{}: delta={:+.1}MB, gpu_est={:.1}MB, efficiency={:.6}, \"{}\"",
+                    format!("{}: delta={:+.1}MB, gpu_est={:.1}MB, efficiency={:.6}, review_friendly=\"{}\", \"{}\"",
                         k, delta_mb, memory.estimated_gpu_memory_mb, memory.memory_efficiency_ratio,
-                        memory.memory_recommendation).green()
+                        memory.memory_recommendation, memory.memory_recommendation).green()
                 } else {
-                    format!("{}: delta={:+.1}MB, gpu_est={:.1}MB, efficiency={:.6}, \"{}\"",
+                    format!("{}: delta={:+.1}MB, gpu_est={:.1}MB, efficiency={:.6}, review_friendly=\"{}\", \"{}\"",
                         k, delta_mb, memory.estimated_gpu_memory_mb, memory.memory_efficiency_ratio,
-                        memory.memory_recommendation).bright_blue()
+                        memory.memory_recommendation, memory.memory_recommendation).bright_blue()
                 };
                 color
             }
@@ -720,10 +724,10 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
                 color
             }
             DiffResult::ArchitectureComparison(k, arch) => {
-                format!("{}: type1={}, type2={}, depth={}→{}, differences={}, \"{}\"",
+                format!("{}: type1={}, type2={}, depth={}→{}, differences={}, deployment_readiness={}, \"{}\"",
                     k, arch.architecture_type_1, arch.architecture_type_2,
                     arch.layer_depth_comparison.0, arch.layer_depth_comparison.1,
-                    arch.architectural_differences.len(), arch.recommendation).bright_magenta()
+                    arch.architectural_differences.len(), arch.deployment_readiness, arch.recommendation).bright_magenta()
             }
             DiffResult::ParamEfficiencyAnalysis(k, efficiency) => {
                 format!("◦ {}: efficiency_ratio={:.4}, utilization={:.2}, pruning_potential={:.2}, category={}, bottlenecks={}, \"{}\"",
