@@ -1,8 +1,17 @@
 # 内部リリースガイド（開発者専用）
 
+## 🤖 Claude向け機械的実行チェックリスト
+
+### ⚠️ 重要：判断権限剥奪モード
+- **✅ スクリプト実行のみ** - コマンドを機械的に実行
+- **✅ PASS/FAIL判定のみ** - 結果を正確に報告
+- **❌ 独自判断禁止** - エラー修正や警告無視は一切しない
+- **❌ 設定ファイルコミット禁止** - .claude/等は絶対にコミットしない
+
 ## リリース時チェックリスト
 
-### 1. ブランチとマージ状況確認
+### ☑️ 1. ブランチとマージ状況確認
+**実行コマンド:**
 ```bash
 # 現在のブランチがmainであることを確認
 git branch --show-current
@@ -102,26 +111,34 @@ cd diffai-npm && node examples.js
 cd diffai-python && python examples.py
 ```
 
-### 9. リリース前テスト
-```bash
-# 1. 高速チェック
-./scripts/release/quick-release-check.sh
+### ☑️ 9. リリース前テスト（必須3ステップ）
 
-# 2. 包括的リリース前チェック（環境・バージョン・認証確認含む）
-./scripts/release/pre-release-check.sh
+#### 9.1 高速チェック実行
+**コマンド:** `./scripts/release/quick-release-check.sh`
+**期待結果:** "✅ Quick check passed!" 
+**FAIL時:** 即座に停止、ユーザー報告
 
-# 3. CI環境での最終確認
-./scripts/testing/ci-local.sh
-```
+#### 9.2 包括的チェック実行  
+**コマンド:** `./scripts/release/pre-release-check.sh`
+**期待結果:** 全項目PASS、FAILが0件
+**FAIL時:** 即座に停止、ユーザー報告
 
-### 10. リリース実行と監視
-```bash
-# 統合リリース（監視機能付き）
-./scripts/release/release.sh
+#### 9.3 CI環境最終確認
+**コマンド:** `./scripts/testing/ci-local.sh`
+**期待結果:** 全テスト成功
+**FAIL時:** 即座に停止、ユーザー報告
 
-# または個別に監視
-./scripts/release/monitor-release.sh v<version>
-```
+### ☑️ 10. リリース実行と監視
+
+#### 10.1 統合リリース実行
+**コマンド:** `./scripts/release/release.sh`
+**期待結果:** GitHub Actions開始、タグ作成成功
+**FAIL時:** 即座に停止、ユーザー報告
+
+#### 10.2 監視実行
+**コマンド:** `./scripts/release/monitor-release.sh v<version>`
+**期待結果:** 全ワークフロー成功
+**FAIL時:** 失敗詳細をユーザー報告
 
 ### 11. リリース後の徹底監視・確認
 **重要**: タグプッシュ後は全てのアクションが正常完了するまで監視を継続する
