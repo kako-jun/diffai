@@ -14,7 +14,6 @@ thumbs.db
 diffx/
 
 # Internal development documentation
-CLAUDE.md
 .claude/settings.local.json
 
 # Downloaded ML models (large files)
