@@ -1,88 +1,95 @@
 #!/bin/bash
 set -euo pipefail
 
-# CI-local: GitHub Actions CI checks reproduction (NO BUILDS)
-# Reproduces CI checks without heavy compilation
+# Find the project root directory (where Cargo.toml exists)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
+# Change to project root
+cd "$PROJECT_ROOT"
 
-print_step() {
-    echo -e "${GREEN}$1${NC}"
-}
-
-print_warning() {
-    echo -e "${YELLOW}⚠️  $1${NC}"
-}
-
-print_error() {
-    echo -e "${RED}❌ $1${NC}"
-}
-
-print_info() {
-    echo -e "${BLUE}ℹ️  $1${NC}"
-}
-
-# Trap errors
-trap 'print_error "CI check failed at: ${CURRENT_STEP:-unknown}"' ERR
-
-# Same environment as GitHub Actions
+# Exactly match GitHub Actions CI environment
 export CARGO_TERM_COLOR=always
 export RUST_BACKTRACE=1
 
-echo "🔄 CI-local: Fast checks (NO compilation)"
-print_info "Platform: $(uname -s) $(uname -m)"
-print_info "Rust: $(rustc --version)"
-echo ""
+# Stricter error handling to match CI
+trap 'echo "Error occurred on line $LINENO. Exit code: $?" >&2' ERR
 
-# =============================================================================
-# FAST CHECKS ONLY
-# =============================================================================
+echo "Running complete CI simulation locally (matching GitHub Actions exactly)..."
+echo "Project root: $PROJECT_ROOT"
 
-CURRENT_STEP="formatting check"
-print_step "📝 Check formatting"
-cargo fmt --all -- --check
+echo "Step 1: Check formatting"
+cargo fmt --all --check
 
-CURRENT_STEP="clippy analysis"
-print_step "🔍 Run clippy (workspace-wide)"
+echo "Step 2: Run Clippy"
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 
-CURRENT_STEP="dependency verification"
-print_step "🔗 Verify dependencies (catches cross-platform issues)"
+echo "Step 3: Build"
+cargo build --workspace --verbose
 
-# Check for problematic dependencies that cause GitHub Actions failures
-print_info "Checking for Python binding dependencies..."
-if grep -q "^[^#]*pyo3\|^[^#]*numpy.*=" Cargo.toml diffai-*/Cargo.toml 2>/dev/null; then
-    print_error "Found Python binding dependencies!"
-    print_error "These cause PyO3/Python version issues on macOS/Windows"
-    print_info "Check: pyo3, numpy dependencies in Cargo.toml files"
+echo "Step 4: Run tests"
+cargo test --workspace --verbose
+
+echo "Step 5: Quick performance check"
+# Light performance sanity check (just compilation and basic run)
+cargo build --release --package diffai-core
+echo "Release build successful - performance optimizations applied"
+
+echo "Step 6: Test core CLI functionality"
+
+# Create temp directory for test files (like CI would)
+TEST_DIR=$(mktemp -d)
+trap 'rm -rf "$TEST_DIR"' EXIT
+
+# Test basic JSON diff (must succeed)
+echo '{"a": 1}' > "$TEST_DIR/test1.json"
+echo '{"a": 2}' > "$TEST_DIR/test2.json"
+if ! cargo run --bin diffai -- "$TEST_DIR/test1.json" "$TEST_DIR/test2.json" > /dev/null 2>&1; then
+    echo "ERROR: Basic JSON diff test failed" >&2
     exit 1
 fi
 
-# Verify package name for release workflow
-print_info "Checking package names for release workflow..."
-if ! grep -q 'name = "diffai"' diffai-cli/Cargo.toml; then
-    print_error "Package name issue: diffai-cli/Cargo.toml should have name = \"diffai\""
+# Test YAML diff (must succeed)
+echo 'name: old' > "$TEST_DIR/test1.yaml"
+echo 'name: new' > "$TEST_DIR/test2.yaml"
+if ! cargo run --bin diffai -- "$TEST_DIR/test1.yaml" "$TEST_DIR/test2.yaml" > /dev/null 2>&1; then
+    echo "ERROR: YAML diff test failed" >&2
     exit 1
 fi
 
-# Check workflow files for incorrect package names
-print_info "Checking workflow files for package name consistency..."
-if grep -q "diffai-cli" .github/workflows/*.yml 2>/dev/null; then
-    print_error "Found 'diffai-cli' in workflow files!"
-    print_error "Should be 'diffai' (actual package name)"
-    print_info "Check: .github/workflows/*.yml files"
+# Test stdin processing (must succeed)
+if ! echo '{"b": 1}' | cargo run --bin diffai -- - "$TEST_DIR/test1.json" > /dev/null 2>&1; then
+    echo "ERROR: Stdin processing test failed" >&2
     exit 1
 fi
 
-# Clear trap
-trap - ERR
+# Additional tests to ensure exact CI parity
+echo "Step 7: Additional strict checks"
 
-print_step "✅ ALL CI CHECKS PASSED!"
-print_info "✅ No Python binding dependencies found"
-print_info "✅ Package names correct for release workflow"
-print_info "✅ Ready for GitHub Actions push"
+# Ensure no warnings in release mode
+if ! cargo build --release --workspace 2>&1 | grep -v "Finished" | grep -v "Compiling" | grep -v "Building" | grep -q .; then
+    echo "Release build completed without warnings"
+else
+    echo "ERROR: Release build produced warnings" >&2
+    exit 1
+fi
+
+# Check for any TODO or FIXME comments (optional but good practice)
+if grep -r "TODO\|FIXME" --include="*.rs" "$PROJECT_ROOT" | grep -v "target/"; then
+    echo "WARNING: Found TODO/FIXME comments in code"
+fi
+
+# Verify Cargo.lock is committed and up to date
+if ! git diff --quiet Cargo.lock; then
+    echo "ERROR: Cargo.lock has uncommitted changes" >&2
+    exit 1
+fi
+
+# Check for large files that shouldn't be committed
+if find "$PROJECT_ROOT" -type f -size +1M -not -path "$PROJECT_ROOT/target/*" -not -path "$PROJECT_ROOT/.git/*" | grep -q .; then
+    echo "WARNING: Found files larger than 1MB"
+    find "$PROJECT_ROOT" -type f -size +1M -not -path "$PROJECT_ROOT/target/*" -not -path "$PROJECT_ROOT/.git/*" -exec ls -lh {} \;
+fi
+
+echo "All CI steps completed successfully!"
+echo "Ready to push to remote repository"

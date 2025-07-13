@@ -12,8 +12,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-# Add python to Python path for testing
-sys.path.insert(0, str(Path(__file__).parent / "python"))
+# Add src to Python path for testing
+sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 import diffai
 
@@ -119,20 +119,37 @@ class TestDiffaiIntegration(unittest.TestCase):
             self.skipTest("diffai binary not found")
     
     def test_string_comparison(self):
-        """Test string-based comparison."""
+        """Test temporary file creation for content comparison."""
         try:
+            # Test creating temporary files and comparing them
+            import tempfile
+            
             json_str1 = '{"test": "value1", "number": 42}'
             json_str2 = '{"test": "value2", "number": 42, "new": "field"}'
             
-            result = diffai.diff_string(
-                json_str1, 
-                json_str2,
-                output_format=diffai.OutputFormat.JSON
-            )
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f1:
+                f1.write(json_str1)
+                f1.flush()
+                temp1 = f1.name
+                
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f2:
+                f2.write(json_str2)
+                f2.flush()
+                temp2 = f2.name
             
-            self.assertTrue(result.is_json)
-            self.assertTrue(len(result.data) > 0)
-            print("✅ String comparison test passed")
+            try:
+                result = diffai.diff(
+                    temp1, 
+                    temp2,
+                    output_format=diffai.OutputFormat.JSON
+                )
+                
+                self.assertTrue(result.is_json)
+                self.assertTrue(len(result.data) > 0)
+                print("✅ String comparison test passed")
+            finally:
+                os.unlink(temp1)
+                os.unlink(temp2)
             
         except diffai.DiffaiError:
             self.skipTest("diffai binary not found")
@@ -172,6 +189,16 @@ class TestDiffaiIntegration(unittest.TestCase):
         self.assertIsInstance(version, str)
         self.assertTrue(len(version) > 0)
         print(f"✅ Version access test passed: {version}")
+    
+    def test_backward_compatibility(self):
+        """Test package structure compatibility."""
+        # Test that main API is accessible directly from diffai
+        self.assertTrue(hasattr(diffai, 'diff'))
+        self.assertTrue(hasattr(diffai, 'DiffOptions'))
+        self.assertTrue(hasattr(diffai, 'OutputFormat'))
+        self.assertTrue(hasattr(diffai, 'DiffResult'))
+        self.assertTrue(hasattr(diffai, 'DiffaiError'))
+        print("✅ Package structure compatibility test passed")
 
 
 class TestDiffaiWithoutBinary(unittest.TestCase):

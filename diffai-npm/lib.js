@@ -34,7 +34,30 @@ const { tmpdir } = require('os');
  * @property {boolean} [convergenceAnalysis=false] - Analyze convergence state
  * @property {boolean} [gradientAnalysis=false] - Analyze gradient information
  * @property {boolean} [similarityMatrix=false] - Generate similarity matrix
+ * @property {boolean} [learningProgress=false] - Analyze learning progress between checkpoints
+ * @property {boolean} [inferenceSpeedEstimate=false] - Estimate inference speed characteristics
+ * @property {boolean} [regressionTest=false] - Perform automated regression testing
+ * @property {boolean} [alertOnDegradation=false] - Alert on performance degradation
+ * @property {boolean} [reviewFriendly=false] - Generate review-friendly output
+ * @property {boolean} [deploymentReadiness=false] - Assess deployment readiness
+ * @property {boolean} [paramEfficiencyAnalysis=false] - Analyze parameter efficiency
+ * @property {boolean} [hyperparameterImpact=false] - Analyze hyperparameter impact
+ * @property {boolean} [learningRateAnalysis=false] - Analyze learning rate effects
+ * @property {boolean} [performanceImpactEstimate=false] - Estimate performance impact
+ * @property {boolean} [generateReport=false] - Generate comprehensive analysis report
+ * @property {boolean} [markdownOutput=false] - Output results in markdown format
+ * @property {boolean} [includeCharts=false] - Include charts and visualizations
+ * @property {boolean} [embeddingAnalysis=false] - Analyze embedding layer changes
+ * @property {boolean} [attentionAnalysis=false] - Analyze attention mechanisms
+ * @property {boolean} [headImportance=false] - Analyze attention head importance
+ * @property {boolean} [attentionPatternDiff=false] - Compare attention patterns
+ * @property {boolean} [clusteringChange=false] - Analyze clustering changes
+ * @property {boolean} [hyperparameterComparison=false] - Compare hyperparameters
+ * @property {boolean} [learningCurveAnalysis=false] - Analyze learning curves
+ * @property {boolean} [statisticalSignificance=false] - Perform statistical significance testing
  * @property {string} [path] - Filter differences by path
+ * @property {string} [ignoreKeysRegex] - Ignore keys matching regex pattern
+ * @property {string} [arrayIdKey] - Key to use for identifying array elements
  * @property {number} [epsilon] - Tolerance for float comparisons
  */
 
@@ -177,17 +200,34 @@ async function diff(input1, input2, options = {}) {
     args.push('--format', options.format);
   }
   
-  // Add ML analysis options
-  if (options.stats) {
-    args.push('--stats');
+  // Add basic options
+  if (options.recursive) {
+    args.push('--recursive');
   }
   
   if (options.verbose) {
     args.push('--verbose');
   }
   
-  if (options.recursive) {
-    args.push('--recursive');
+  if (options.path) {
+    args.push('--path', options.path);
+  }
+  
+  if (options.ignoreKeysRegex) {
+    args.push('--ignore-keys-regex', options.ignoreKeysRegex);
+  }
+  
+  if (options.epsilon !== undefined) {
+    args.push('--epsilon', options.epsilon.toString());
+  }
+  
+  if (options.arrayIdKey) {
+    args.push('--array-id-key', options.arrayIdKey);
+  }
+  
+  // Add ML analysis options
+  if (options.showLayerImpact) {
+    args.push('--show-layer-impact');
   }
   
   if (options.quantizationAnalysis) {
@@ -198,46 +238,120 @@ async function diff(input1, input2, options = {}) {
     args.push('--sort-by-change-magnitude');
   }
   
-  if (options.showLayerImpact) {
-    args.push('--show-layer-impact');
+  if (options.stats) {
+    args.push('--stats');
   }
   
-  if (options.architectureComparison) {
-    args.push('--architecture-comparison');
-  }
-  
-  if (options.memoryAnalysis) {
-    args.push('--memory-analysis');
-  }
-  
-  if (options.anomalyDetection) {
-    args.push('--anomaly-detection');
-  }
-  
-  if (options.changeSummary) {
-    args.push('--change-summary');
+  if (options.learningProgress) {
+    args.push('--learning-progress');
   }
   
   if (options.convergenceAnalysis) {
     args.push('--convergence-analysis');
   }
   
+  if (options.anomalyDetection) {
+    args.push('--anomaly-detection');
+  }
+  
   if (options.gradientAnalysis) {
     args.push('--gradient-analysis');
+  }
+  
+  if (options.memoryAnalysis) {
+    args.push('--memory-analysis');
+  }
+  
+  if (options.inferenceSpeedEstimate) {
+    args.push('--inference-speed-estimate');
+  }
+  
+  if (options.regressionTest) {
+    args.push('--regression-test');
+  }
+  
+  if (options.alertOnDegradation) {
+    args.push('--alert-on-degradation');
+  }
+  
+  if (options.reviewFriendly) {
+    args.push('--review-friendly');
+  }
+  
+  if (options.changeSummary) {
+    args.push('--change-summary');
+  }
+  
+  if (options.deploymentReadiness) {
+    args.push('--deployment-readiness');
+  }
+  
+  if (options.architectureComparison) {
+    args.push('--architecture-comparison');
+  }
+  
+  if (options.paramEfficiencyAnalysis) {
+    args.push('--param-efficiency-analysis');
+  }
+  
+  if (options.hyperparameterImpact) {
+    args.push('--hyperparameter-impact');
+  }
+  
+  if (options.learningRateAnalysis) {
+    args.push('--learning-rate-analysis');
+  }
+  
+  if (options.performanceImpactEstimate) {
+    args.push('--performance-impact-estimate');
+  }
+  
+  if (options.generateReport) {
+    args.push('--generate-report');
+  }
+  
+  if (options.markdownOutput) {
+    args.push('--markdown-output');
+  }
+  
+  if (options.includeCharts) {
+    args.push('--include-charts');
+  }
+  
+  if (options.embeddingAnalysis) {
+    args.push('--embedding-analysis');
   }
   
   if (options.similarityMatrix) {
     args.push('--similarity-matrix');
   }
   
-  // Add path filter option
-  if (options.path) {
-    args.push('--path', options.path);
+  if (options.clusteringChange) {
+    args.push('--clustering-change');
   }
   
-  // Add epsilon option
-  if (options.epsilon !== undefined) {
-    args.push('--epsilon', options.epsilon.toString());
+  if (options.attentionAnalysis) {
+    args.push('--attention-analysis');
+  }
+  
+  if (options.headImportance) {
+    args.push('--head-importance');
+  }
+  
+  if (options.attentionPatternDiff) {
+    args.push('--attention-pattern-diff');
+  }
+  
+  if (options.hyperparameterComparison) {
+    args.push('--hyperparameter-comparison');
+  }
+  
+  if (options.learningCurveAnalysis) {
+    args.push('--learning-curve-analysis');
+  }
+  
+  if (options.statisticalSignificance) {
+    args.push('--statistical-significance');
   }
   
   

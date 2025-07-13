@@ -17,6 +17,7 @@ Following the same distribution pattern as [ruff](https://github.com/astral-sh/r
 - **High Performance**: Uses the native diffai Rust binary for maximum speed
 - **Zero Dependencies**: Self-contained package with bundled binary
 - **ML-Focused**: Specialized analysis for PyTorch, Safetensors, NumPy, and MATLAB files
+- **Scientific Computing**: Full support for NumPy arrays and MATLAB .mat files
 - **Multiple Output Formats**: CLI, JSON, and YAML outputs for different use cases
 - **Python Integration**: Clean API for programmatic use in ML pipelines
 
@@ -177,12 +178,74 @@ def validate_model_changes(old_model, new_model):
     result = diffai.diff(old_model, new_model,
                         output_format=diffai.OutputFormat.JSON,
                         anomaly_detection=True,
+                        memory_analysis=True)
+    
+    if result.is_json:
+        # Check for critical issues
+        for item in result.data:
+            if 'AnomalyDetection' in item and 'critical' in str(item):
+                raise ValueError("Critical model anomaly detected")
+    
+    return result
+
+### MLflow Integration
+```python
+import mlflow
+import diffai
+
+def log_model_comparison(run_id1, run_id2):
+    """Compare models between MLflow runs"""
+    
+    # Download models from MLflow
+    model1_path = mlflow.artifacts.download_artifacts(
+        run_id=run_id1, artifact_path="model/model.pt"
+    )
+    model2_path = mlflow.artifacts.download_artifacts(
+        run_id=run_id2, artifact_path="model/model.pt"
+    )
+    
+    # Compare with diffai
+    result = diffai.diff(model1_path, model2_path,
+                        output_format=diffai.OutputFormat.JSON,
+                        stats=True,
                         architecture_comparison=True)
     
-    if result.return_code != 0:
-        raise ValueError("Model validation failed")
+    # Log results to MLflow
+    with mlflow.start_run():
+        mlflow.log_dict(result.data, "model_comparison.json")
+        if result.is_json:
+            # Extract metrics for logging
+            for item in result.data:
+                if 'TensorStatsChanged' in item:
+                    mlflow.log_metric("tensor_changes", len(result.data))
+                    break
+                    
+    return result
+
+### Weights & Biases Integration  
+```python
+import wandb
+import diffai
+
+def log_model_comparison_wandb(model1_path, model2_path):
+    """Log model comparison to Weights & Biases"""
     
-    return result.data
+    result = diffai.diff(model1_path, model2_path,
+                        output_format=diffai.OutputFormat.JSON,
+                        stats=True,
+                        memory_analysis=True,
+                        convergence_analysis=True)
+    
+    # Log to wandb
+    wandb.log({"model_comparison": result.data})
+    
+    if result.is_json:
+        # Log specific metrics
+        memory_changes = [item for item in result.data if 'MemoryAnalysis' in item]
+        if memory_changes:
+            wandb.log({"memory_impact_detected": len(memory_changes)})
+            
+    return result
 ```
 
 ### Jupyter Notebooks

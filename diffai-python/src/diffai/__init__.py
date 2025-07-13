@@ -5,6 +5,8 @@ This package provides a Python wrapper around the diffai Rust binary,
 following the same pattern as ruff for optimal performance and reliability.
 """
 
+# No backward compatibility needed
+
 import json
 import subprocess
 import sys
@@ -34,21 +36,47 @@ class DiffOptions:
     path: Optional[str] = None
     ignore_keys_regex: Optional[str] = None
     epsilon: Optional[float] = None
+    array_id_key: Optional[str] = None
     
     # ML analysis options
+    show_layer_impact: bool = False
+    quantization_analysis: bool = False
+    sort_by_change_magnitude: bool = False
     stats: bool = False
-    architecture_comparison: bool = False
-    memory_analysis: bool = False
-    anomaly_detection: bool = False
+    learning_progress: bool = False
     convergence_analysis: bool = False
+    anomaly_detection: bool = False
     gradient_analysis: bool = False
-    similarity_matrix: bool = False
+    memory_analysis: bool = False
+    inference_speed_estimate: bool = False
+    regression_test: bool = False
+    alert_on_degradation: bool = False
+    review_friendly: bool = False
     change_summary: bool = False
+    deployment_readiness: bool = False
+    architecture_comparison: bool = False
+    param_efficiency_analysis: bool = False
+    hyperparameter_impact: bool = False
+    learning_rate_analysis: bool = False
+    performance_impact_estimate: bool = False
+    generate_report: bool = False
+    markdown_output: bool = False
+    include_charts: bool = False
+    embedding_analysis: bool = False
+    similarity_matrix: bool = False
+    clustering_change: bool = False
+    attention_analysis: bool = False
+    head_importance: bool = False
+    attention_pattern_diff: bool = False
+    hyperparameter_comparison: bool = False
+    learning_curve_analysis: bool = False
+    statistical_significance: bool = False
     
     def to_args(self) -> List[str]:
         """Convert options to command line arguments."""
         args = []
         
+        # Basic options
         if self.input_format:
             args.extend(["--format", self.input_format])
         if self.output_format:
@@ -63,22 +91,74 @@ class DiffOptions:
             args.extend(["--ignore-keys-regex", self.ignore_keys_regex])
         if self.epsilon is not None:
             args.extend(["--epsilon", str(self.epsilon)])
+        if self.array_id_key:
+            args.extend(["--array-id-key", self.array_id_key])
+            
+        # ML analysis options
+        if self.show_layer_impact:
+            args.append("--show-layer-impact")
+        if self.quantization_analysis:
+            args.append("--quantization-analysis")
+        if self.sort_by_change_magnitude:
+            args.append("--sort-by-change-magnitude")
         if self.stats:
             args.append("--stats")
-        if self.architecture_comparison:
-            args.append("--architecture-comparison")
-        if self.memory_analysis:
-            args.append("--memory-analysis")
-        if self.anomaly_detection:
-            args.append("--anomaly-detection")
+        if self.learning_progress:
+            args.append("--learning-progress")
         if self.convergence_analysis:
             args.append("--convergence-analysis")
+        if self.anomaly_detection:
+            args.append("--anomaly-detection")
         if self.gradient_analysis:
             args.append("--gradient-analysis")
-        if self.similarity_matrix:
-            args.append("--similarity-matrix")
+        if self.memory_analysis:
+            args.append("--memory-analysis")
+        if self.inference_speed_estimate:
+            args.append("--inference-speed-estimate")
+        if self.regression_test:
+            args.append("--regression-test")
+        if self.alert_on_degradation:
+            args.append("--alert-on-degradation")
+        if self.review_friendly:
+            args.append("--review-friendly")
         if self.change_summary:
             args.append("--change-summary")
+        if self.deployment_readiness:
+            args.append("--deployment-readiness")
+        if self.architecture_comparison:
+            args.append("--architecture-comparison")
+        if self.param_efficiency_analysis:
+            args.append("--param-efficiency-analysis")
+        if self.hyperparameter_impact:
+            args.append("--hyperparameter-impact")
+        if self.learning_rate_analysis:
+            args.append("--learning-rate-analysis")
+        if self.performance_impact_estimate:
+            args.append("--performance-impact-estimate")
+        if self.generate_report:
+            args.append("--generate-report")
+        if self.markdown_output:
+            args.append("--markdown-output")
+        if self.include_charts:
+            args.append("--include-charts")
+        if self.embedding_analysis:
+            args.append("--embedding-analysis")
+        if self.similarity_matrix:
+            args.append("--similarity-matrix")
+        if self.clustering_change:
+            args.append("--clustering-change")
+        if self.attention_analysis:
+            args.append("--attention-analysis")
+        if self.head_importance:
+            args.append("--head-importance")
+        if self.attention_pattern_diff:
+            args.append("--attention-pattern-diff")
+        if self.hyperparameter_comparison:
+            args.append("--hyperparameter-comparison")
+        if self.learning_curve_analysis:
+            args.append("--learning-curve-analysis")
+        if self.statistical_significance:
+            args.append("--statistical-significance")
             
         return args
 
