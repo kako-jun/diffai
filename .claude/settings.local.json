@@ -47,7 +47,9 @@
       "Bash(node:*)",
       "Bash(git tag:*)",
       "Bash(gh api:*)",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh pr list:*)"
     ],
     "deny": []
   }
