@@ -1,13 +1,20 @@
 #!/bin/bash
 
-# 3言語ドキュメント整合性チェックスクリプト (diffai用)
-# Three-language documentation consistency checker for diffai
+# 3言語ドキュメント整合性チェックスクリプト
+# Three-language documentation consistency checker
 
 set -e
 
-echo "🔍 3言語ドキュメント整合性チェック開始 (diffai)"
-echo "🔍 Starting 3-language documentation consistency check (diffai)"
-echo "🔍 开始检查3语言文档一致性 (diffai)"
+# Find the project root directory (where Cargo.toml exists)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+# Change to project root
+cd "$PROJECT_ROOT"
+
+echo "🔍 3言語ドキュメント整合性チェック開始"
+echo "🔍 Starting 3-language documentation consistency check"
+echo "🔍 开始检查3语言文档一致性"
 echo "============================================="
 
 # 色付きログ用関数
@@ -32,12 +39,12 @@ log_warning() {
 ERROR_COUNT=0
 WARNING_COUNT=0
 
-# 対象ドキュメントファイルの定義 (diffai用)
+# 対象ドキュメントファイルの定義
 declare -a DOCS=(
     "README"
-    "docs/user-guide/basic-usage"
-    "docs/user-guide/ml-analysis"
-    "docs/user-guide/output-formats"
+    "docs/reference/cli-reference"
+    "docs/user-guide/getting-started"
+    "docs/user-guide/examples"
 )
 
 # 言語サフィックス
@@ -59,7 +66,7 @@ for doc in "${DOCS[@]}"; do
         
         file_path="${doc}${suffix}.md"
         
-        if [ -f "$file_path" ]; then
+        if [ -f "$PROJECT_ROOT/$file_path" ]; then
             log_success "$lang_name: $file_path exists"
         else
             log_error "$lang_name: $file_path NOT FOUND"
@@ -85,9 +92,9 @@ for doc in "${DOCS[@]}"; do
         lang_name="${LANGUAGE_NAMES[$i]}"
         file_path="${doc}${suffix}.md"
         
-        if [ -f "$file_path" ]; then
+        if [ -f "$PROJECT_ROOT/$file_path" ]; then
             # 見出し（#で始まる行）をカウント
-            count=$(grep -c "^#" "$file_path" 2>/dev/null || echo "0")
+            count=$(grep -c "^#" "$PROJECT_ROOT/$file_path" 2>/dev/null || echo "0")
             heading_counts[$i]=$count
             echo "  $lang_name: $count headings"
         else
@@ -125,9 +132,9 @@ for doc in "${DOCS[@]}"; do
         lang_name="${LANGUAGE_NAMES[$i]}"
         file_path="${doc}${suffix}.md"
         
-        if [ -f "$file_path" ]; then
+        if [ -f "$PROJECT_ROOT/$file_path" ]; then
             # コードブロック（```で始まる行）をカウント
-            count=$(grep -c "^```" "$file_path" 2>/dev/null || echo "0")
+            count=$(grep -c "^```" "$PROJECT_ROOT/$file_path" 2>/dev/null || echo "0")
             # コードブロックは開始と終了で2つずつなので2で割る
             count=$((count / 2))
             code_counts[$i]=$count
@@ -150,55 +157,54 @@ for doc in "${DOCS[@]}"; do
     fi
 done
 
-# 4. ML分析オプション整合性チェック (diffai特有)
+# 4. CLIオプション整合性チェック（cli-referenceのみ）
 echo ""
-echo "🤖 4. ML分析オプション整合性チェック / ML analysis option consistency check / ML分析选项一致性检查"
+echo "⚙️  4. CLIオプション整合性チェック / CLI option consistency check / CLI选项一致性检查"
 echo "-------------------------------------------------------------------------------"
 
-for doc in "${DOCS[@]}"; do
-    if [[ "$doc" == *"ml-analysis"* ]]; then
-        echo ""
-        echo "📄 Checking ML options in $doc"
+cli_ref_base="docs/reference/cli-reference"
+if [ -f "$PROJECT_ROOT/${cli_ref_base}.md" ]; then
+    echo ""
+    echo "📄 Checking CLI options in cli-reference"
+    
+    # 各言語のCLIオプション数を取得（--で始まる行）
+    declare -a option_counts=()
+    
+    for i in "${!LANGUAGES[@]}"; do
+        suffix="${LANGUAGES[$i]}"
+        lang_name="${LANGUAGE_NAMES[$i]}"
+        file_path="${cli_ref_base}${suffix}.md"
         
-        # 各言語のMLオプション数を取得（--で始まるML関連オプション）
-        declare -a ml_option_counts=()
-        
-        for i in "${!LANGUAGES[@]}"; do
-            suffix="${LANGUAGES[$i]}"
-            lang_name="${LANGUAGE_NAMES[$i]}"
-            file_path="${doc}${suffix}.md"
-            
-            if [ -f "$file_path" ]; then
-                # ML分析オプション（--stats, --learning-progress等）をカウント
-                count=$(grep -c "^#### \`--\(stats\|learning-progress\|convergence-analysis\|anomaly-detection\|gradient-analysis\|architecture-comparison\|memory-analysis\|inference-speed-estimate\|deployment-readiness\|regression-test\|risk-assessment\|hyperparameter-impact\|learning-rate-analysis\|alert-on-degradation\|performance-impact-estimate\|generate-report\|markdown-output\|include-charts\|review-friendly\|embedding-analysis\|similarity-matrix\|clustering-change\|attention-analysis\|head-importance\|attention-pattern-diff\|quantization-analysis\|sort-by-change-magnitude\|change-summary\|param-efficiency-analysis\|hyperparameter-comparison\|learning-curve-analysis\|statistical-significance\)" "$file_path" 2>/dev/null || echo "0")
-                ml_option_counts[$i]=$count
-                echo "  $lang_name: $count ML analysis options"
-            else
-                ml_option_counts[$i]=0
-            fi
-        done
-        
-        # MLオプション数の一致チェック
-        en_count=${ml_option_counts[0]}
-        ja_count=${ml_option_counts[1]}
-        zh_count=${ml_option_counts[2]}
-        
-        if [ "$en_count" -eq "$ja_count" ] && [ "$ja_count" -eq "$zh_count" ]; then
-            log_success "ML analysis option counts match ($en_count options)"
+        if [ -f "$PROJECT_ROOT/$file_path" ]; then
+            # CLIオプション（--で始まる行）をカウント
+            count=$(grep -c "^#### \`--" "$PROJECT_ROOT/$file_path" 2>/dev/null || echo "0")
+            option_counts[$i]=$count
+            echo "  $lang_name: $count CLI options"
         else
-            log_error "ML analysis option counts differ: EN=$en_count, JA=$ja_count, ZH=$zh_count"
-            ((ERROR_COUNT++))
+            option_counts[$i]=0
         fi
+    done
+    
+    # CLIオプション数の一致チェック
+    en_count=${option_counts[0]}
+    ja_count=${option_counts[1]}
+    zh_count=${option_counts[2]}
+    
+    if [ "$en_count" -eq "$ja_count" ] && [ "$ja_count" -eq "$zh_count" ]; then
+        log_success "CLI option counts match ($en_count options)"
+    else
+        log_error "CLI option counts differ: EN=$en_count, JA=$ja_count, ZH=$zh_count"
+        ((ERROR_COUNT++))
     fi
-done
+fi
 
-# 5. 特定キーワードの整合性チェック（diffai用）
+# 5. 特定キーワードの整合性チェック（簡略版）
 echo ""
 echo "🔍 5. 特定キーワード整合性チェック / Specific keyword consistency check / 特定关键词一致性检查"
 echo "-------------------------------------------------------------------------------------"
 
-# 重要なキーワードリスト (diffai用)
-declare -a KEYWORDS=("diffai" "Safetensors" "PyTorch" "NumPy" "MATLAB" "JSON" "YAML")
+# 重要なキーワードリスト
+declare -a KEYWORDS=("diffai" "JSON" "YAML")
 
 for doc in "${DOCS[@]}"; do
     echo ""
@@ -211,9 +217,9 @@ for doc in "${DOCS[@]}"; do
             suffix="${LANGUAGES[$i]}"
             file_path="${doc}${suffix}.md"
             
-            if [ -f "$file_path" ]; then
+            if [ -f "$PROJECT_ROOT/$file_path" ]; then
                 # 大文字小文字を区別してキーワードをカウント
-                count=$(grep -c "$keyword" "$file_path" 2>/dev/null || echo "0")
+                count=$(grep -c "$keyword" "$PROJECT_ROOT/$file_path" 2>/dev/null || echo "0")
                 keyword_counts[$i]=$count
             else
                 keyword_counts[$i]=0
@@ -247,7 +253,6 @@ echo "📊 チェック結果サマリー / Check Result Summary / 检查结果�
 echo "============================================="
 echo "🔍 対象ドキュメント数: ${#DOCS[@]}"
 echo "🌐 対象言語数: ${#LANGUAGES[@]}"
-echo "🤖 AI/ML特化チェック項目追加済み"
 echo ""
 
 if [ "$ERROR_COUNT" -eq 0 ] && [ "$WARNING_COUNT" -eq 0 ]; then

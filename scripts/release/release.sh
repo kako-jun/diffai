@@ -1,4 +1,4 @@
-#\!/usr/bin/env bash
+#!/usr/bin/env bash
 set -euo pipefail
 
 # Find the project root directory (where Cargo.toml exists)
@@ -39,7 +39,7 @@ print_error() {
 
 # Function to check if we're on the main branch
 check_branch() {
-    if [ "$CURRENT_BRANCH" \!= "$MAIN_BRANCH" ]; then
+    if [ "$CURRENT_BRANCH" != "$MAIN_BRANCH" ]; then
         print_error "You must be on the $MAIN_BRANCH branch to release"
         exit 1
     fi
@@ -47,7 +47,7 @@ check_branch() {
 
 # Function to check if working directory is clean
 check_git_status() {
-    if \! git diff-index --quiet HEAD --; then
+    if ! git diff-index --quiet HEAD --; then
         print_error "Working directory is not clean. Please commit or stash your changes."
         exit 1
     fi
@@ -72,7 +72,7 @@ run_pre_release_checks() {
         "$PROJECT_ROOT/scripts/testing/test-published-packages.sh"
     fi
     
-    print_success "All pre-release checks passed\!"
+    print_success "All pre-release checks passed!"
 }
 
 # Function to get current version
@@ -83,7 +83,7 @@ get_current_version() {
 # Function to validate version format
 validate_version() {
     local version=$1
-    if \! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$ ]]; then
+    if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$ ]]; then
         print_error "Invalid version format: $version"
         print_error "Expected format: X.Y.Z or X.Y.Z-tag"
         exit 1
@@ -150,7 +150,7 @@ create_and_push_tag() {
     git push origin "$MAIN_BRANCH"
     git push origin "$tag"
     
-    print_success "Tag $tag created and pushed\!"
+    print_success "Tag $tag created and pushed!"
 }
 
 # Function to wait for GitHub Actions
@@ -183,7 +183,7 @@ publish_crates() {
     cargo publish
     cd "$PROJECT_ROOT"
     
-    print_success "Crates published successfully\!"
+    print_success "Crates published successfully!"
 }
 
 # Function to publish Python package
@@ -205,7 +205,7 @@ publish_python() {
     
     cd "$PROJECT_ROOT"
     
-    print_success "Python package published successfully\!"
+    print_success "Python package published successfully!"
 }
 
 # Function to publish npm package
@@ -215,7 +215,7 @@ publish_npm() {
     cd "$PROJECT_ROOT/diffai-npm"
     
     # Ensure we're logged in
-    if \! npm whoami &> /dev/null; then
+    if ! npm whoami &> /dev/null; then
         print_error "Not logged in to npm. Please run 'npm login' first."
         exit 1
     fi
@@ -225,7 +225,7 @@ publish_npm() {
     
     cd "$PROJECT_ROOT"
     
-    print_success "npm package published successfully\!"
+    print_success "npm package published successfully!"
 }
 
 # Main release flow
@@ -261,7 +261,7 @@ main() {
     read -p "Continue? (y/N) " -n 1 -r
     echo ""
     
-    if [[ \! $REPLY =~ ^[Yy]$ ]]; then
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         print_info "Release cancelled"
         exit 0
     fi
@@ -284,10 +284,10 @@ main() {
     read -p "Start release monitoring? (Y/n) " -n 1 -r
     echo ""
     
-    if [[ \! $REPLY =~ ^[Nn]$ ]]; then
+    if [[ ! $REPLY =~ ^[Nn]$ ]]; then
         print_info "Starting release monitoring..."
         if "$PROJECT_ROOT/scripts/release/monitor-release.sh" "v$NEW_VERSION"; then
-            print_success "🎉 Release $NEW_VERSION completed successfully across all platforms\!"
+            print_success "🎉 Release $NEW_VERSION completed successfully across all platforms!"
             
             # Automatic release notes enhancement check
             print_info "Performing automatic release quality checks..."
@@ -295,8 +295,8 @@ main() {
             RELEASE_BODY=$(gh release view "v$NEW_VERSION" --json body --jq '.body' 2>/dev/null || echo "")
             BODY_LENGTH=${#RELEASE_BODY}
             
-            if [ "$BODY_LENGTH" -lt 200 ] || [[ "$RELEASE_BODY" == *"**Full Changelog**"* ]] && [[ \! "$RELEASE_BODY" == *"Key Highlights"* ]]; then
-                print_warning "⚠️  ATTENTION: Release notes need enhancement\!"
+            if [ "$BODY_LENGTH" -lt 200 ] || [[ "$RELEASE_BODY" == *"**Full Changelog**"* ]] && [[ ! "$RELEASE_BODY" == *"Key Highlights"* ]]; then
+                print_warning "⚠️  ATTENTION: Release notes need enhancement!"
                 echo ""
                 print_info "According to release guide, detailed release notes should be added."
                 print_info "This release currently has minimal content and should be enhanced."
@@ -333,4 +333,3 @@ main() {
 
 # Run main function
 main "$@"
-EOF < /dev/null

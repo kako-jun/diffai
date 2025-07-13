@@ -29,10 +29,7 @@ fn test_python_package_structure() {
         python_dir.join("src/diffai/__init__.py").exists(),
         "__init__.py should exist"
     );
-    assert!(
-        python_dir.join("src/diffai/diffai.py").exists(),
-        "diffai.py should exist"
-    );
+    // diffai.py is not required - all functionality is in __init__.py
     assert!(
         python_dir.join("src/diffai/installer.py").exists(),
         "installer.py should exist"
@@ -141,11 +138,7 @@ fn test_python_init_py_structure() {
         let content =
             std::fs::read_to_string(init_path).expect("Should be able to read __init__.py");
 
-        // Check for essential imports and exports
-        assert!(
-            content.contains("from .diffai import"),
-            "Should import from diffai module"
-        );
+        // Check for essential exports - no longer requires import from diffai module
         assert!(content.contains("diff"), "Should export diff function");
         assert!(content.contains("DiffOptions"), "Should export DiffOptions");
         assert!(content.contains("DiffResult"), "Should export DiffResult");
@@ -528,7 +521,7 @@ fn test_python_integration_test_completeness() {
         );
         assert!(
             content.contains("test_backward_compatibility"),
-            "Should test compatibility"
+            "Should test package structure compatibility"
         );
 
         // Check for unittest usage

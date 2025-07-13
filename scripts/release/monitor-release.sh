@@ -1,4 +1,4 @@
-#\!/usr/bin/env bash
+#!/usr/bin/env bash
 set -euo pipefail
 
 # Colors for output
@@ -28,13 +28,13 @@ print_error() {
 # Check if version is provided
 if [ $# -eq 0 ]; then
     print_error "Usage: $0 <version>"
-    print_error "Example: $0 v0.3.0"
+    print_error "Example: $0 v0.6.0"
     exit 1
 fi
 
 VERSION=$1
 TAG_VERSION=$VERSION
-if [[ \! $VERSION =~ ^v ]]; then
+if [[ ! $VERSION =~ ^v ]]; then
     TAG_VERSION="v$VERSION"
 fi
 
@@ -44,7 +44,7 @@ print_info "Monitoring release for version: $TAG_VERSION"
 check_github_actions() {
     print_info "Checking GitHub Actions status..."
     
-    if \! command -v gh &> /dev/null; then
+    if ! command -v gh &> /dev/null; then
         print_error "GitHub CLI (gh) is required for monitoring"
         return 1
     fi
@@ -201,7 +201,7 @@ wait_for_workflows() {
     
     while [ $elapsed -lt $max_wait ]; do
         if check_github_actions; then
-            print_success "All workflows completed\!"
+            print_success "All workflows completed!"
             return 0
         elif [ $? -eq 2 ]; then
             # Still pending
@@ -210,7 +210,7 @@ wait_for_workflows() {
             elapsed=$((elapsed + wait_interval))
         else
             # Failed
-            print_error "Workflows failed\!"
+            print_error "Workflows failed!"
             return 1
         fi
     done
@@ -226,7 +226,7 @@ main() {
     echo ""
     
     # Step 1: Wait for GitHub Actions
-    if \! wait_for_workflows; then
+    if ! wait_for_workflows; then
         print_error "GitHub Actions monitoring failed"
         exit 1
     fi
@@ -247,7 +247,7 @@ main() {
         fi
     done
     
-    if \! $github_ok; then
+    if ! $github_ok; then
         print_error "GitHub release verification failed"
         exit 1
     fi
@@ -329,7 +329,7 @@ main() {
     echo ""
     
     if $github_ok && $crates_ok && $pypi_ok && $npm_ok; then
-        print_success "🎉 Release $TAG_VERSION completed successfully across all platforms\!"
+        print_success "🎉 Release $TAG_VERSION completed successfully across all platforms!"
         echo ""
         
         # Automatic release notes enhancement
@@ -337,7 +337,7 @@ main() {
         RELEASE_BODY=$(gh release view "$TAG_VERSION" --json body --jq '.body' 2>/dev/null || echo "")
         BODY_LENGTH=${#RELEASE_BODY}
         
-        if [ "$BODY_LENGTH" -lt 200 ] || [[ "$RELEASE_BODY" == *"**Full Changelog**"* ]] && [[ \! "$RELEASE_BODY" == *"Key Highlights"* ]]; then
+        if [ "$BODY_LENGTH" -lt 200 ] || [[ "$RELEASE_BODY" == *"**Full Changelog**"* ]] && [[ ! "$RELEASE_BODY" == *"Key Highlights"* ]]; then
             print_warning "Release notes are too brief. Detailed notes should be added."
             print_info "Run the following to enhance release notes:"
             echo "  gh release edit $TAG_VERSION --notes \"[Detailed release notes]\""
@@ -374,4 +374,3 @@ main() {
 
 # Run main function
 main "$@"
-EOF < /dev/null
