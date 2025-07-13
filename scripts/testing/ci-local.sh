@@ -30,10 +30,50 @@ cargo build --workspace --verbose
 echo "Step 4: Run tests"
 cargo test --workspace --verbose
 
-echo "Step 5: Quick performance check"
-# Light performance sanity check (just compilation and basic run)
-cargo build --release --package diffai-core
+echo "Step 5: Release build test (matching GitHub Actions)"
+# Test release build like GitHub Actions does - this will catch dependency version mismatches
+echo "Testing release build for diffai CLI (this catches crates.io dependency issues)..."
+cargo build --release --package diffai --verbose
+echo "Testing release build for diffai-core..."
+cargo build --release --package diffai-core --verbose
 echo "Release build successful - performance optimizations applied"
+
+echo "Step 5.1: Check for dependency version consistency"
+# Check that workspace dependencies match individual package dependencies
+echo "Verifying dependency versions are consistent across workspace..."
+WORKSPACE_VERSION=$(grep 'version =' Cargo.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
+CLI_DEP_VERSION=$(grep "diffai-core.*version.*=" diffai-cli/Cargo.toml | sed 's/.*version = "\(.*\)".*/\1/')
+
+if [ "$WORKSPACE_VERSION" != "$CLI_DEP_VERSION" ]; then
+    echo "ERROR: Version mismatch detected!" >&2
+    echo "Workspace version: $WORKSPACE_VERSION" >&2
+    echo "diffai-cli dependency version: $CLI_DEP_VERSION" >&2
+    echo "This will cause GitHub Actions to fail during release build." >&2
+    exit 1
+fi
+echo "✅ Dependency versions are consistent ($WORKSPACE_VERSION)"
+
+echo "Step 5.2: Simulate GitHub Actions crates.io dependency resolution"
+# Create a temporary directory and test building without local path dependencies
+TEMP_TEST_DIR=$(mktemp -d)
+trap 'rm -rf "$TEMP_TEST_DIR"' EXIT
+
+echo "Simulating crates.io dependency resolution (like GitHub Actions)..."
+# This simulates what happens in GitHub Actions where path dependencies aren't available
+cd "$TEMP_TEST_DIR"
+cargo init --name test-crates-io-deps --bin
+echo "Testing if diffai-core version $CLI_DEP_VERSION would be available from crates.io..."
+
+# Check if the required version exists on crates.io
+if ! cargo search diffai-core | grep -q "diffai-core.*$CLI_DEP_VERSION"; then
+    echo "WARNING: diffai-core version $CLI_DEP_VERSION not found on crates.io" >&2
+    echo "This means GitHub Actions will fail if it tries to download this version" >&2
+    echo "You may need to publish diffai-core first, or this is a new version about to be released" >&2
+else
+    echo "✅ diffai-core version $CLI_DEP_VERSION is available on crates.io"
+fi
+
+cd "$PROJECT_ROOT"
 
 echo "Step 6: Test core CLI functionality"
 
