@@ -25,14 +25,20 @@ jobs:
     outputs:
       tag-name: ${{ steps.get-tag.outputs.tag }}
     steps:
-    - name: Get tag name
+    - name: Get tag name from workflow run
       id: get-tag
       run: |
         if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
           TAG_NAME="${{ github.event.inputs.tag }}"
         else
-          # Get tag from the triggering workflow
-          TAG_NAME=$(gh api repos/${{ github.repository }}/releases/latest --jq '.tag_name')
+          # Get tag from the triggering workflow run context
+          WORKFLOW_RUN_ID="${{ github.event.workflow_run.id }}"
+          TAG_NAME=$(gh api repos/${{ github.repository }}/actions/runs/$WORKFLOW_RUN_ID --jq '.head_branch // .head_sha' | sed 's/refs\/tags\///')
+          
+          # Fallback: get latest release including drafts
+          if [[ ! "$TAG_NAME" =~ ^v[0-9] ]]; then
+            TAG_NAME=$(gh api repos/${{ github.repository }}/releases --jq '.[0].tag_name')
+          fi
         fi
         echo "tag=$TAG_NAME" >> $GITHUB_OUTPUT
       env:
