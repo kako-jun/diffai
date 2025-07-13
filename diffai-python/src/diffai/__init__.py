@@ -16,7 +16,18 @@ from typing import Any, Dict, List, Optional, Union
 from dataclasses import dataclass
 from enum import Enum
 
-__version__ = "0.3.2"
+# Version is now managed dynamically from pyproject.toml
+# This prevents hardcoded version mismatches during releases
+try:
+    from importlib.metadata import version
+    __version__ = version("diffai-python")
+except ImportError:
+    # Fallback for Python < 3.8
+    try:
+        import pkg_resources
+        __version__ = pkg_resources.get_distribution("diffai-python").version
+    except Exception:
+        __version__ = "unknown"
 
 class OutputFormat(Enum):
     """Supported output formats for diffai results."""
