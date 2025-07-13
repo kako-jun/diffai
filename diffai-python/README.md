@@ -1,353 +1,239 @@
-# diffai - AI/ML Specialized Diff Tool (Python Package)
+# diffai-python
+
+AI/ML specialized diff tool for deep tensor comparison and analysis - Python Package
 
 [![PyPI version](https://badge.fury.io/py/diffai-python.svg)](https://badge.fury.io/py/diffai-python)
-[![Downloads](https://img.shields.io/pypi/dm/diffai-python.svg)](https://pypi.org/project/diffai-python/)
-[![Python Versions](https://img.shields.io/pypi/pyversions/diffai-python.svg)](https://pypi.org/project/diffai-python/)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-AI/ML specialized data diff tool for deep tensor comparison and analysis. This Python package provides a convenient and type-safe interface to diffai through Python.
+## Overview
 
-## 🚀 Quick Start
+**diffai-python** provides Python bindings for [diffai](https://github.com/kako-jun/diffai), an AI/ML specialized diff tool. This package bundles the high-performance Rust binary and provides a clean Python API for integration into ML workflows, notebooks, and automation scripts.
 
-### Installation
+Following the same distribution pattern as [ruff](https://github.com/astral-sh/ruff), this package distributes a pre-compiled binary for maximum performance while providing a convenient Python interface.
+
+## Features
+
+- **High Performance**: Uses the native diffai Rust binary for maximum speed
+- **Zero Dependencies**: Self-contained package with bundled binary
+- **ML-Focused**: Specialized analysis for PyTorch, Safetensors, NumPy, and MATLAB files
+- **Multiple Output Formats**: CLI, JSON, and YAML outputs for different use cases
+- **Python Integration**: Clean API for programmatic use in ML pipelines
+
+## Installation
 
 ```bash
-# Install via pip
 pip install diffai-python
-
-# Development installation
-pip install diffai-python[dev]
 ```
 
-### Basic Usage
+## Quick Start
+
+### Command Line Usage
+
+After installation, the `diffai` command is available:
+
+```bash
+# Compare ML models
+diffai model_v1.safetensors model_v2.safetensors --stats
+
+# Compare NumPy arrays
+diffai data_v1.npy data_v2.npy --stats
+
+# JSON output for automation
+diffai model_v1.pt model_v2.pt --output json
+```
+
+### Python API Usage
 
 ```python
 import diffai
 
-# Simple model comparison
-result = diffai.diff("model_v1.safetensors", "model_v2.safetensors", stats=True)
-print(result)
+# Basic comparison
+result = diffai.diff("model_v1.safetensors", "model_v2.safetensors")
+print(result.raw_output)
 
-# Advanced ML analysis with type-safe configuration
+# With options
 options = diffai.DiffOptions(
     stats=True,
     architecture_comparison=True,
-    memory_analysis=True,
     output_format=diffai.OutputFormat.JSON
 )
+result = diffai.diff("model_v1.pt", "model_v2.pt", options)
 
-result = diffai.diff("baseline.safetensors", "improved.safetensors", options)
+# Access structured data
 if result.is_json:
-    for change in result.changes:
-        print(f"Changed: {change}")
+    data = result.data
+    print(f"Found {len(data)} differences")
 ```
 
-### Command Line Usage
+### Advanced ML Analysis
 
-```bash
-# The package also installs the diffai binary
-diffai model1.safetensors model2.safetensors --stats
-
-# Download binary manually if needed
-diffai-download-binary
-```
-
-## 📦 Supported File Formats
-
-### AI/ML Formats (Specialized Analysis)
-- **Safetensors** (.safetensors) - PyTorch model format with ML analysis
-- **PyTorch** (.pt, .pth) - Native PyTorch models with tensor statistics
-- **NumPy** (.npy, .npz) - Scientific computing arrays with statistical analysis
-- **MATLAB** (.mat) - Engineering/scientific data with numerical analysis
-
-### Structured Data Formats (Universal)
-- **JSON** (.json) - API configurations, model metadata
-- **YAML** (.yaml, .yml) - Configuration files, CI/CD pipelines
-- **TOML** (.toml) - Rust configs, Python pyproject.toml
-- **XML** (.xml) - Legacy configurations, model definitions
-- **CSV** (.csv) - Datasets, experiment results
-- **INI** (.ini) - Legacy configuration files
-
-## 🔬 35 ML Analysis Functions
-
-### Core Analysis Functions
 ```python
-# Statistical analysis
-result = diffai.diff("model1.safetensors", "model2.safetensors", stats=True)
-
-# Quantization analysis
-result = diffai.diff("fp32.safetensors", "quantized.safetensors", 
-                    quantization_analysis=True)
-
-# Change magnitude sorting
-result = diffai.diff("model1.safetensors", "model2.safetensors", 
-                    sort_by_change_magnitude=True, stats=True)
-```
-
-### Phase 3 Advanced Analysis (v0.2.7+)
-```python
-# Architecture comparison
-result = diffai.diff("model1.safetensors", "model2.safetensors", 
-                    architecture_comparison=True)
-
-# Memory analysis for deployment
-result = diffai.diff("model1.safetensors", "model2.safetensors", 
-                    memory_analysis=True)
-
-# Anomaly detection for debugging
-result = diffai.diff("stable.safetensors", "problematic.safetensors", 
-                    anomaly_detection=True)
-
-# Comprehensive analysis
-options = diffai.DiffOptions(
+# Comprehensive ML model analysis
+result = diffai.diff(
+    "baseline.safetensors", 
+    "improved.safetensors",
     stats=True,
     architecture_comparison=True,
     memory_analysis=True,
     anomaly_detection=True,
-    convergence_analysis=True,
-    gradient_analysis=True,
-    similarity_matrix=True,
-    change_summary=True
-)
-result = diffai.diff("baseline.safetensors", "improved.safetensors", options)
-```
-
-## 💡 Python API Examples
-
-### Type-Safe Configuration
-```python
-from diffai import DiffOptions, OutputFormat
-
-# Create type-safe configuration
-options = DiffOptions(
-    stats=True,
-    architecture_comparison=True,
-    memory_analysis=True,
-    output_format=OutputFormat.JSON
+    convergence_analysis=True
 )
 
-# Compare models
-result = diffai.diff("model1.safetensors", "model2.safetensors", options)
-
-# Access structured results
-if result.is_json:
-    print(f"Found {len(result.changes)} changes")
-    for change in result.changes:
-        print(f"  {change.get('path')}: {change.get('type')}")
+print(result.raw_output)
 ```
 
-### Scientific Data Analysis
-```python
-# NumPy array comparison
-result = diffai.diff("experiment_v1.npy", "experiment_v2.npy", stats=True)
-print(f"Statistical changes: {result}")
+## Supported Formats
 
-# MATLAB data comparison
-result = diffai.diff("simulation_v1.mat", "simulation_v2.mat", 
-                    stats=True, sort_by_change_magnitude=True)
+### Input Formats
+- **ML Models**: `.safetensors`, `.pt`, `.pth`, `.bin` (PyTorch)
+- **Scientific Data**: `.npy`, `.npz` (NumPy), `.mat` (MATLAB)  
+- **Structured Data**: `.json`, `.yaml`, `.toml`, `.xml`, `.ini`, `.csv`
+
+### Output Formats
+- **CLI**: Colored terminal output (default)
+- **JSON**: Machine-readable format for automation
+- **YAML**: Human-readable structured format
+
+## ML Analysis Features
+
+The package provides 11 specialized ML analysis features:
+
+- `--stats`: Detailed tensor statistics
+- `--architecture-comparison`: Model structure comparison
+- `--memory-analysis`: Memory usage analysis  
+- `--anomaly-detection`: Numerical anomaly detection
+- `--convergence-analysis`: Training convergence analysis
+- `--gradient-analysis`: Gradient information analysis
+- `--similarity-matrix`: Layer similarity comparison
+- `--change-summary`: Detailed change summary
+- `--quantization-analysis`: Quantization impact analysis
+- `--sort-by-change-magnitude`: Sort by change magnitude
+- `--show-layer-impact`: Layer-specific impact analysis
+
+## API Reference
+
+### Main Functions
+
+```python
+# Compare two files
+def diff(input1: str, input2: str, options: Optional[DiffOptions] = None, **kwargs) -> DiffResult
+
+# Main CLI entry point
+def main() -> None
 ```
 
-### JSON Output for Automation
-```python
-# Get JSON results for MLOps integration
-result = diffai.diff("model1.safetensors", "model2.safetensors", 
-                    stats=True, output_format=diffai.OutputFormat.JSON)
+### Configuration
 
-if result.is_json:
-    # Process structured data
-    changes = result.changes
-    summary = result.summary
+```python
+@dataclass
+class DiffOptions:
+    # Basic options
+    input_format: Optional[str] = None
+    output_format: Optional[OutputFormat] = None
+    recursive: bool = False
+    verbose: bool = False
     
-    # Integration with MLflow, Weights & Biases, etc.
-    log_model_comparison(changes, summary)
+    # ML analysis options  
+    stats: bool = False
+    architecture_comparison: bool = False
+    memory_analysis: bool = False
+    anomaly_detection: bool = False
+    # ... and more
 ```
 
-### Error Handling
+### Results
+
 ```python
-try:
-    result = diffai.diff("model1.safetensors", "model2.safetensors", stats=True)
-    print(result)
-except diffai.BinaryNotFoundError:
-    print("diffai binary not found. Please install: pip install diffai-python")
-except diffai.InvalidInputError as e:
-    print(f"Invalid input: {e}")
-except diffai.DiffaiError as e:
-    print(f"diffai error: {e}")
+class DiffResult:
+    raw_output: str           # Raw output from diffai
+    format_type: str          # Output format used
+    return_code: int          # Process return code
+    
+    @property
+    def data(self) -> Any     # Parsed data (JSON when applicable)
+    
+    @property  
+    def is_json(self) -> bool # True if JSON format
 ```
 
-### String Comparison (Temporary Files)
-```python
-# Compare JSON strings directly
-json1 = '{"model": "gpt-2", "layers": 12}'
-json2 = '{"model": "gpt-2", "layers": 24}'
+## Use Cases
 
-result = diffai.diff_string(json1, json2, output_format=diffai.OutputFormat.JSON)
-print(result)
+### Research & Development
+```python
+# Compare fine-tuning results
+before = "model_baseline.safetensors"
+after = "model_finetuned.safetensors"
+
+result = diffai.diff(before, after, 
+                    stats=True, 
+                    convergence_analysis=True)
 ```
 
-## 🔧 Advanced Usage
-
-### Installation Verification
+### MLOps Integration
 ```python
-# Check if diffai is properly installed
-try:
-    info = diffai.verify_installation()
-    print(f"diffai version: {info['version']}")
-    print(f"Binary path: {info['binary_path']}")
-except diffai.BinaryNotFoundError as e:
-    print(f"Installation issue: {e}")
-```
-
-### Manual Binary Management
-```python
-# Download binary programmatically
-from diffai.installer import install_binary
-
-success = install_binary(force=True)  # Force reinstall
-if success:
-    print("Binary installed successfully")
-```
-
-### Low-Level API Access
-```python
-# Direct command execution
-result = diffai.run_diffai([
-    "model1.safetensors", 
-    "model2.safetensors", 
-    "--stats", 
-    "--architecture-comparison",
-    "--output", "json"
-])
-
-print(f"Exit code: {result.exit_code}")
-print(f"Output: {result.raw_output}")
-```
-
-## 🔗 Integration Examples
-
-### MLflow Integration
-```python
-import mlflow
-import diffai
-
-def log_model_comparison(model1_path, model2_path, run_id=None):
-    with mlflow.start_run(run_id=run_id):
-        # Compare models with comprehensive analysis
-        result = diffai.diff(
-            model1_path, model2_path,
-            stats=True,
-            architecture_comparison=True,
-            memory_analysis=True,
-            output_format=diffai.OutputFormat.JSON
-        )
-        
-        if result.is_json:
-            # Log structured comparison data
-            mlflow.log_dict(result.data, "model_comparison.json")
-            
-            # Log metrics
-            if result.changes:
-                mlflow.log_metric("total_changes", len(result.changes))
-                mlflow.log_metric("significant_changes", 
-                                sum(1 for c in result.changes 
-                                    if c.get('magnitude', 0) > 0.1))
-
-# Usage
-log_model_comparison("baseline.safetensors", "candidate.safetensors")
-```
-
-### Weights & Biases Integration
-```python
-import wandb
-import diffai
-
-def wandb_log_model_diff(model1, model2, **kwargs):
-    result = diffai.diff(model1, model2, 
-                        stats=True, 
+# Automated model validation in CI/CD
+def validate_model_changes(old_model, new_model):
+    result = diffai.diff(old_model, new_model,
                         output_format=diffai.OutputFormat.JSON,
-                        **kwargs)
+                        anomaly_detection=True,
+                        architecture_comparison=True)
     
-    if result.is_json and result.changes:
-        # Log to wandb
-        wandb.log({
-            "model_comparison": wandb.Table(
-                columns=["parameter", "change_type", "magnitude"],
-                data=[[c.get("path"), c.get("type"), c.get("magnitude")] 
-                      for c in result.changes[:100]]  # Limit rows
-            )
-        })
-
-# Initialize wandb run
-wandb.init(project="model-comparison")
-wandb_log_model_diff("model_v1.safetensors", "model_v2.safetensors")
+    if result.return_code != 0:
+        raise ValueError("Model validation failed")
+    
+    return result.data
 ```
 
-### Flask API Endpoint
+### Jupyter Notebooks
 ```python
-from flask import Flask, request, jsonify
-import diffai
+# Interactive analysis in notebooks
+result = diffai.diff("checkpoint_100.pt", "checkpoint_200.pt", 
+                    stats=True, memory_analysis=True)
 
-app = Flask(__name__)
-
-@app.route('/compare', methods=['POST'])
-def compare_models():
-    try:
-        files = request.files
-        model1 = files['model1']
-        model2 = files['model2']
-        
-        # Save temporary files
-        model1.save('/tmp/model1.safetensors')
-        model2.save('/tmp/model2.safetensors')
-        
-        # Compare models
-        result = diffai.diff('/tmp/model1.safetensors', '/tmp/model2.safetensors',
-                           stats=True, 
-                           architecture_comparison=True,
-                           output_format=diffai.OutputFormat.JSON)
-        
-        return jsonify({
-            "status": "success",
-            "comparison": result.data if result.is_json else result.raw_output
-        })
-        
-    except diffai.DiffaiError as e:
-        return jsonify({"status": "error", "message": str(e)}), 400
-
-if __name__ == '__main__':
-    app.run(debug=True)
+# Display results
+if result.is_json:
+    from IPython.display import display, JSON
+    display(JSON(result.data))
+else:
+    print(result.raw_output)
 ```
 
-## 🏗️ Platform Support
+## Binary Distribution
 
-This package automatically downloads platform-specific binaries:
+This package follows the same pattern as [ruff](https://github.com/astral-sh/ruff):
 
-- **Linux** (x86_64, ARM64)
-- **macOS** (Intel x86_64, Apple Silicon ARM64)
-- **Windows** (x86_64)
+- Pre-compiled `diffai` binary is bundled with the Python package
+- No external dependencies or system requirements
+- Cross-platform compatibility (Windows, macOS, Linux)
+- Maximum performance through native Rust implementation
 
-The binary is downloaded during installation and cached. If download fails, the package falls back to system PATH.
+## Testing
 
-## 🔗 Related Projects
+Run the integration tests:
 
-- **[diffx-python](https://pypi.org/project/diffx-python/)** - General-purpose structured data diff tool
-- **[diffai (npm)](https://www.npmjs.com/package/diffai)** - Node.js package for diffai
-- **[diffai (GitHub)](https://github.com/diffai-team/diffai)** - Main repository
+```bash
+cd diffai-python
+python test_integration.py
+```
 
-## 📚 Documentation
+The test suite includes:
+- Binary availability verification
+- Basic diff functionality
+- JSON output parsing
+- ML analysis options
+- Error handling
 
-- [CLI Reference](https://github.com/diffai-team/diffai/blob/main/docs/reference/cli-reference.md)
-- [ML Analysis Guide](https://github.com/diffai-team/diffai/blob/main/docs/reference/ml-analysis.md)
-- [User Guide](https://github.com/diffai-team/diffai/blob/main/docs/user-guide/)
-- [API Documentation](https://github.com/diffai-team/diffai/blob/main/docs/reference/api-reference.md)
+## Contributing
 
-## 📄 License
+This package is part of the [diffai](https://github.com/kako-jun/diffai) project. Please see the main repository for contribution guidelines.
 
-MIT License - see [LICENSE](https://github.com/diffai-team/diffai/blob/main/LICENSE) file for details.
+## License
 
-## 🤝 Contributing
+MIT License - see [LICENSE](../LICENSE) for details.
 
-Contributions welcome! Please see [CONTRIBUTING.md](https://github.com/diffai-team/diffai/blob/main/CONTRIBUTING.md) for guidelines.
+## Related Projects
 
----
-
-**diffai** - Making AI/ML data differences visible, measurable, and actionable through Python. 🐍🚀
+- **[diffai](https://github.com/kako-jun/diffai)**: Main Rust CLI tool
+- **[diffx](https://github.com/kako-jun/diffx)**: Generic structured data diff tool
+- **[ruff](https://github.com/astral-sh/ruff)**: Inspiration for Python packaging approach

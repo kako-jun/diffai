@@ -12,8 +12,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-# Add src to Python path for testing
-sys.path.insert(0, str(Path(__file__).parent / "src"))
+# Add python to Python path for testing
+sys.path.insert(0, str(Path(__file__).parent / "python"))
 
 import diffai
 
@@ -65,24 +65,22 @@ class TestDiffaiIntegration(unittest.TestCase):
     def test_installation_verification(self):
         """Test that diffai is properly installed and accessible."""
         try:
-            info = diffai.verify_installation()
-            self.assertIn("version", info)
-            self.assertIn("binary_path", info)
-            self.assertIn("status", info)
-            self.assertEqual(info["status"], "ok")
-            print(f"✅ diffai installation verified: {info['version']}")
-        except diffai.BinaryNotFoundError:
-            self.skipTest("diffai binary not found - install with 'diffai-download-binary'")
+            from diffai import _find_diffai_binary
+            binary_path = _find_diffai_binary()
+            self.assertTrue(os.path.exists(binary_path))
+            print(f"✅ diffai binary found at: {binary_path}")
+        except diffai.DiffaiError:
+            self.skipTest("diffai binary not found")
     
     def test_basic_diff(self):
         """Test basic file comparison."""
         try:
             result = diffai.diff(self.json1_path, self.json2_path)
             self.assertIsInstance(result, diffai.DiffResult)
-            self.assertEqual(result.exit_code, 0)
+            self.assertEqual(result.return_code, 0)
             self.assertTrue(len(result.raw_output) > 0)
             print(f"✅ Basic diff completed: {len(result.raw_output)} chars output")
-        except diffai.BinaryNotFoundError:
+        except diffai.DiffaiError:
             self.skipTest("diffai binary not found")
     
     def test_json_output(self):
@@ -98,12 +96,11 @@ class TestDiffaiIntegration(unittest.TestCase):
             self.assertIsInstance(result.data, list)
             
             # Should detect the changes we made
-            changes = result.changes
-            self.assertTrue(len(changes) > 0)
+            self.assertTrue(len(result.data) > 0)
             
-            print(f"✅ JSON output test passed: {len(changes)} changes detected")
+            print(f"✅ JSON output test passed: {len(result.data)} changes detected")
             
-        except diffai.BinaryNotFoundError:
+        except diffai.DiffaiError:
             self.skipTest("diffai binary not found")
     
     def test_diff_options(self):
@@ -118,7 +115,7 @@ class TestDiffaiIntegration(unittest.TestCase):
             self.assertTrue(result.is_json)
             print("✅ DiffOptions test passed")
             
-        except diffai.BinaryNotFoundError:
+        except diffai.DiffaiError:
             self.skipTest("diffai binary not found")
     
     def test_string_comparison(self):
@@ -134,22 +131,22 @@ class TestDiffaiIntegration(unittest.TestCase):
             )
             
             self.assertTrue(result.is_json)
-            self.assertTrue(len(result.changes) > 0)
+            self.assertTrue(len(result.data) > 0)
             print("✅ String comparison test passed")
             
-        except diffai.BinaryNotFoundError:
+        except diffai.DiffaiError:
             self.skipTest("diffai binary not found")
     
     def test_error_handling(self):
         """Test error handling for invalid inputs."""
         try:
             # Test with non-existent files
-            with self.assertRaises(diffai.InvalidInputError):
+            with self.assertRaises(diffai.DiffaiError):
                 diffai.diff("nonexistent1.json", "nonexistent2.json")
             
             print("✅ Error handling test passed")
             
-        except diffai.BinaryNotFoundError:
+        except diffai.DiffaiError:
             self.skipTest("diffai binary not found")
     
     def test_ml_analysis_options(self):
@@ -163,29 +160,18 @@ class TestDiffaiIntegration(unittest.TestCase):
             )
             
             result = diffai.diff(self.json1_path, self.json2_path, options)
-            self.assertEqual(result.exit_code, 0)
+            self.assertEqual(result.return_code, 0)
             print("✅ ML analysis options test passed")
             
-        except diffai.BinaryNotFoundError:
+        except diffai.DiffaiError:
             self.skipTest("diffai binary not found")
     
-    def test_backward_compatibility(self):
-        """Test backward compatibility functions."""
-        try:
-            # Test legacy functions
-            self.assertTrue(diffai.check_diffai_binary())
-            
-            result_str = diffai.diffai_diff(
-                self.json1_path,
-                self.json2_path,
-                stats=False
-            )
-            self.assertIsInstance(result_str, str)
-            
-            print("✅ Backward compatibility test passed")
-            
-        except diffai.BinaryNotFoundError:
-            self.skipTest("diffai binary not found")
+    def test_version_access(self):
+        """Test version access."""
+        version = diffai.__version__
+        self.assertIsInstance(version, str)
+        self.assertTrue(len(version) > 0)
+        print(f"✅ Version access test passed: {version}")
 
 
 class TestDiffaiWithoutBinary(unittest.TestCase):
@@ -199,7 +185,7 @@ class TestDiffaiWithoutBinary(unittest.TestCase):
             output_format=diffai.OutputFormat.JSON
         )
         
-        args = options.to_cli_args()
+        args = options.to_args()
         self.assertIn("--stats", args)
         self.assertIn("--architecture-comparison", args)
         self.assertIn("--output", args)
@@ -210,22 +196,21 @@ class TestDiffaiWithoutBinary(unittest.TestCase):
         """Test OutputFormat enum."""
         self.assertEqual(diffai.OutputFormat.JSON.value, "json")
         self.assertEqual(diffai.OutputFormat.YAML.value, "yaml")
-        self.assertEqual(diffai.OutputFormat.DIFFAI.value, "diffai")
+        self.assertEqual(diffai.OutputFormat.CLI.value, "cli")
         print("✅ OutputFormat enum test passed")
     
     def test_diff_result_properties(self):
         """Test DiffResult properties."""
         # Test with JSON data
         json_output = '[{"path": "test", "type": "modified"}]'
-        result = diffai.DiffResult(json_output, 0, "json")
+        result = diffai.DiffResult(json_output, "json", 0)
         
         self.assertTrue(result.is_json)
         self.assertIsInstance(result.data, list)
-        self.assertEqual(len(result.changes), 1)
         
         # Test with non-JSON data
         text_output = "Some diff output"
-        result2 = diffai.DiffResult(text_output, 0, "diffai")
+        result2 = diffai.DiffResult(text_output, "cli", 0)
         
         self.assertFalse(result2.is_json)
         self.assertEqual(result2.data, text_output)

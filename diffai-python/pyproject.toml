@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
 
 [project]
 name = "diffai-python"
@@ -64,17 +64,7 @@ Issues = "https://github.com/kako-jun/diffai/issues"
 Changelog = "https://github.com/kako-jun/diffai/blob/main/CHANGELOG.md"
 
 [project.scripts]
-diffai-download-binary = "diffai.installer:main"
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/diffai"]
-
-[tool.hatch.build.targets.sdist]
-include = [
-    "src/",
-    "README.md",
-    "LICENSE",
-]
+diffai = "diffai:main"
 
 [tool.black]
 line-length = 88
@@ -107,6 +97,12 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 warn_no_return = true
 warn_unreachable = true
+
+[tool.maturin]
+bindings = "bin"
+manifest-path = "../Cargo.toml"
+python-source = "python"
+strip = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
