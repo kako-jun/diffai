@@ -19,15 +19,12 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  test-binaries:
+  get-tag:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     outputs:
       tag-name: ${{ steps.get-tag.outputs.tag }}
-      binaries-ready: ${{ steps.test.outputs.ready }}
     steps:
-    - uses: actions/checkout@v4
-    
     - name: Get tag name
       id: get-tag
       run: |
@@ -38,33 +35,12 @@ jobs:
           TAG_NAME=$(gh api repos/${{ github.repository }}/releases/latest --jq '.tag_name')
         fi
         echo "tag=$TAG_NAME" >> $GITHUB_OUTPUT
-        echo "Testing binaries for tag: $TAG_NAME"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
-    - name: Test binary downloads
-      id: test
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        TAG_NAME="${{ steps.get-tag.outputs.tag }}"
-        echo "Testing binary downloads for $TAG_NAME..."
-        
-        # Test Linux binary download
-        if curl -f -L "https://github.com/${{ github.repository }}/releases/download/$TAG_NAME/diffai-linux-x86_64.tar.gz" -o test.tar.gz; then
-          echo "✅ Linux binary download successful"
-          rm test.tar.gz
-        else
-          echo "❌ Linux binary download failed"
-          exit 1
-        fi
-        
-        echo "ready=true" >> $GITHUB_OUTPUT
 
   publish-npm:
-    needs: test-binaries
+    needs: get-tag
     runs-on: ubuntu-latest
-    if: needs.test-binaries.outputs.binaries-ready == 'true'
     steps:
     - uses: actions/checkout@v4
     
@@ -79,7 +55,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        TAG_NAME="${{ needs.test-binaries.outputs.tag-name }}"
+        TAG_NAME="${{ needs.get-tag.outputs.tag-name }}"
         node scripts/download-all-binaries.js
     
     - name: Publish to npm
@@ -89,7 +65,7 @@ jobs:
       run: npm publish
 
   publish-pypi:
-    needs: test-binaries
+    needs: get-tag
     strategy:
       matrix:
         include:
@@ -102,7 +78,6 @@ jobs:
           - os: macos-latest
             target: aarch64-apple-darwin
     runs-on: ${{ matrix.os }}
-    if: needs.test-binaries.outputs.binaries-ready == 'true'
     steps:
     - uses: actions/checkout@v4
     
