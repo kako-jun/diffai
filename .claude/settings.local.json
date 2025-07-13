@@ -49,7 +49,8 @@
       "Bash(gh api:*)",
       "Bash(git fetch:*)",
       "Bash(gh issue list:*)",
-      "Bash(gh pr list:*)"
+      "Bash(gh pr list:*)",
+      "Bash(./scripts/release/pre-release-check.sh:*)"
     ],
     "deny": []
   }
