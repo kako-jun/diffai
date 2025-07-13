@@ -37,7 +37,14 @@
       "Bash(./scripts/ci-local.sh:*)",
       "Bash(RUST_BACKTRACE=1 cargo test cli_tests::test_architecture_comparison -- --nocapture)",
       "Bash(CARGO_MANIFEST_DIR=/home/kako-jun/repos/2025/diffx cargo run --manifest-path /home/kako-jun/repos/2025/diffx/Cargo.toml -- --help)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(npm view:*)",
+      "Bash(gh release list:*)",
+      "Bash(./scripts/release/quick-release-check.sh:*)",
+      "Bash(chmod:*)",
+      "Bash(bash:*)",
+      "Bash(./scripts/testing/ci-local.sh:*)",
+      "Bash(node:*)"
     ],
     "deny": []
   }

@@ -5,7 +5,7 @@ This package provides a Python wrapper around the diffai Rust binary,
 following the same pattern as ruff for optimal performance and reliability.
 """
 
-# No backward compatibility needed
+# No backward compatibility imports
 
 import json
 import subprocess

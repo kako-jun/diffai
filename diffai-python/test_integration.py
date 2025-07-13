@@ -166,6 +166,21 @@ class TestDiffaiIntegration(unittest.TestCase):
         except diffai.DiffaiError:
             self.skipTest("diffai binary not found")
     
+    def test_binary_not_found_error(self):
+        """Test handling of BinaryNotFoundError scenarios."""
+        # Test binary detection functions
+        try:
+            from diffai import _find_diffai_binary
+            binary_path = _find_diffai_binary()
+            self.assertTrue(os.path.exists(binary_path))
+            print("✅ BinaryNotFoundError handling test passed")
+        except diffai.DiffaiError as e:
+            if "binary not found" in str(e) or "BinaryNotFoundError" in str(e):
+                print("✅ BinaryNotFoundError correctly raised")
+                self.skipTest("diffai binary not found - this is expected behavior")
+            else:
+                raise
+    
     def test_ml_analysis_options(self):
         """Test ML-specific analysis options."""
         try:

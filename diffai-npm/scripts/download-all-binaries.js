@@ -1,4 +1,4 @@
-#\!/usr/bin/env node
+#!/usr/bin/env node
 
 const fs = require('fs');
 const path = require('path');
@@ -164,4 +164,5 @@ async function main() {
 if (require.main === module) {
   main();
 }
-EOF < /dev/null
+
+module.exports = { downloadAllBinaries: main };

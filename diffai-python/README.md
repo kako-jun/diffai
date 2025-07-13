@@ -300,3 +300,48 @@ MIT License - see [LICENSE](../LICENSE) for details.
 - **[diffai](https://github.com/kako-jun/diffai)**: Main Rust CLI tool
 - **[diffx](https://github.com/kako-jun/diffx)**: Generic structured data diff tool
 - **[ruff](https://github.com/astral-sh/ruff)**: Inspiration for Python packaging approach
+
+## Error Handling
+
+The diffai-python package provides comprehensive error handling for various failure scenarios:
+
+### DiffaiError
+The base exception class for all diffai-related errors:
+
+```python
+import diffai
+
+try:
+    result = diffai.diff("model1.pt", "model2.pt")
+except diffai.DiffaiError as e:
+    print(f"Diffai error: {e}")
+```
+
+### BinaryNotFoundError
+Raised when the diffai binary cannot be found:
+
+```python
+import diffai
+
+try:
+    result = diffai.diff("model1.pt", "model2.pt")
+except diffai.DiffaiError as e:
+    if "binary not found" in str(e):
+        print("Please install diffai binary or ensure it's in PATH")
+        # Fallback or installation logic here
+```
+
+### Binary Installation
+If the binary is not found, you can install it manually:
+
+```bash
+# Install via pip (includes binary)
+pip install diffai-python
+
+# Or install Rust version globally
+cargo install diffai-cli
+```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
