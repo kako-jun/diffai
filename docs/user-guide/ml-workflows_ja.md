@@ -256,30 +256,11 @@ fi
 python scripts/check_param_changes.py $REPORT
 ```
 
-### 2. 設定ファイルの管理
-
-```toml
-# .diffai.toml
-[project]
-name = "my-ml-project"
-
-[pytorch]
-show_structure = true
-tensor_details = true
-filter_small_changes = true
-threshold = 0.01
-
-[output]
-format = "enhanced"
-color = true
-max_tensor_display = 10
-```
-
-### 3. チーム共有
+### 2. チーム共有
 
 ```bash
-# チーム用の比較テンプレート
-diffai model1.pth model2.pth --template team_report.jinja2 > team_comparison.html
+# チーム用の比較レポート
+diffai model1.pth model2.pth --output json > team_comparison.json
 
 # Slackに結果を通知
 curl -X POST -H 'Content-type: application/json' \

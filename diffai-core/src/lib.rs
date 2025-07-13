@@ -72,7 +72,7 @@ pub enum DiffResult {
     // Model optimization analysis
     QuantizationAnalysis(String, QuantizationAnalysisInfo),
     TransferLearningAnalysis(String, TransferLearningInfo),
-    // Advanced experimental analysis (powered by diffx)
+    // Advanced experimental analysis (powered by diffx-core)
     ExperimentReproducibility(String, ExperimentReproducibilityInfo),
     EnsembleAnalysis(String, EnsembleAnalysisInfo),
     // Phase 2: Experiment Analysis

@@ -197,19 +197,15 @@ diffai model1.safetensors model2.safetensors
 - **テキスト形式**: UTF-8
 - **バイナリ形式**: ネイティブエンディアン
 
-## 設定例
+## 使用例
 
-### 設定ファイル (diffx.toml)
-```toml
-[format]
-default = "auto"
-numpy_precision = "float64"
-matlab_version = "v7.3"
+### 基本的な比較
+```bash
+# PyTorchモデルの比較
+diffai model1.pth model2.pth --stats
 
-[output]
-default = "cli"
-json_pretty = true
-yaml_flow = false
+# NumPy配列の比較
+diffai data1.npy data2.npy --stats
 ```
 
 ### 環境変数

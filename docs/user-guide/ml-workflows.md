@@ -256,30 +256,11 @@ fi
 python scripts/check_param_changes.py $REPORT
 ```
 
-### 2. Configuration Management
-
-```toml
-# .diffai.toml
-[project]
-name = "my-ml-project"
-
-[pytorch]
-show_structure = true
-tensor_details = true
-filter_small_changes = true
-threshold = 0.01
-
-[output]
-format = "enhanced"
-color = true
-max_tensor_display = 10
-```
-
-### 3. Team Collaboration
+### 2. Team Collaboration
 
 ```bash
 # Generate team comparison report
-diffai model1.pth model2.pth --template team_report.jinja2 > team_comparison.html
+diffai model1.pth model2.pth --output json > team_comparison.json
 
 # Notify team via Slack
 curl -X POST -H 'Content-type: application/json' \

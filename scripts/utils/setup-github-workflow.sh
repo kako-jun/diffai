@@ -201,7 +201,7 @@ body:
     attributes:
       label: diffai Version
       description: What version of diffai are you running?
-      placeholder: e.g., v0.2.6
+      placeholder: e.g., v0.3.0
     validations:
       required: true
       
