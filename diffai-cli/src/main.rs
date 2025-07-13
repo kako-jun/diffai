@@ -1498,7 +1498,10 @@ fn compare_directories(
                 } else {
                     infer_format_from_path(path1)
                         .or_else(|| infer_format_from_path(path2))
-                        .context(format!("Could not infer format for {}. Please specify --format.", relative_path.display()))?
+                        .context(format!(
+                            "Could not infer format for {}. Please specify --format.",
+                            relative_path.display()
+                        ))?
                 };
 
                 let v1: Value = parse_content(&content1, input_format)?;
