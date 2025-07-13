@@ -16,7 +16,7 @@ from typing import Any, Dict, List, Optional, Union
 from dataclasses import dataclass
 from enum import Enum
 
-__version__ = "0.2.9"
+__version__ = "0.3.0"
 
 class OutputFormat(Enum):
     """Supported output formats for diffai results."""

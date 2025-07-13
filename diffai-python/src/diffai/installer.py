@@ -19,7 +19,7 @@ import zipfile
 from pathlib import Path
 
 # Package version constant for GitHub releases
-PACKAGE_VERSION = "0.2.9"
+PACKAGE_VERSION = "0.3.0"
 
 
 def get_platform_info():
