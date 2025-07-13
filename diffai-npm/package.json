@@ -31,7 +31,6 @@
     "diffai": "./index.js"
   },
   "scripts": {
-    "postinstall": "node scripts/download-binary.js",
     "test": "node test.js",
     "examples": "node examples.js",
     "verify": "node index.js --help",
@@ -43,7 +42,6 @@
   "files": [
     "index.js",
     "lib.js",
-    "scripts/download-binary.js",
     "bin/",
     "README.md",
     "examples.js",

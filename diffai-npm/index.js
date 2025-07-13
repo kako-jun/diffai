@@ -4,46 +4,50 @@ const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
-/**
- * Main entry point for diffai npm package
- * Spawns the native Rust binary and proxies all arguments
- */
-
-// Determine the binary name based on platform
-let binaryName = 'diffai';
-if (process.platform === 'win32') {
-  binaryName = 'diffai.exe';
+// Determine the platform-specific binary name and directory
+function getPlatformInfo() {
+  const platform = process.platform;
+  const arch = process.arch;
+  
+  if (platform === 'win32') {
+    return { subdir: 'win32-x64', binaryName: 'diffai.exe' };
+  } else if (platform === 'darwin') {
+    if (arch === 'arm64') {
+      return { subdir: 'darwin-arm64', binaryName: 'diffai' };
+    } else {
+      return { subdir: 'darwin-x64', binaryName: 'diffai' };
+    }
+  } else if (platform === 'linux') {
+    return { subdir: 'linux-x64', binaryName: 'diffai' };
+  } else {
+    throw new Error(`Unsupported platform: ${platform}-${arch}`);
+  }
 }
 
-const binaryPath = path.join(__dirname, 'bin', binaryName);
+// Get platform-specific binary path
+const platformInfo = getPlatformInfo();
+const binaryPath = path.join(__dirname, 'bin', platformInfo.subdir, platformInfo.binaryName);
 
-// Check if binary exists
+// Check if the binary exists
 if (!fs.existsSync(binaryPath)) {
-  console.error('diffai binary not found. Please run "npm install diffai" to download the binary.');
-  console.error('Manual installation: https://github.com/kako-jun/diffai/releases');
+  console.error(`Error: Binary not found at ${binaryPath}`);
+  console.error(`Platform: ${process.platform}-${process.arch}`);
+  console.error('Expected platform-specific binary not found.');
+  console.error('This might indicate a packaging issue. Please report this at:');
+  console.error('https://github.com/kako-jun/diffai/issues');
   process.exit(1);
 }
 
-// Spawn the binary with all arguments passed through
+// Spawn the diffai process with arguments
 const child = spawn(binaryPath, process.argv.slice(2), {
   stdio: 'inherit',
-});
-
-// Handle process events
-child.on('error', (error) => {
-  console.error('Failed to start diffai:', error.message);
-  process.exit(1);
 });
 
 child.on('close', (code) => {
   process.exit(code);
 });
 
-// Forward signals to child process
-process.on('SIGINT', () => {
-  child.kill('SIGINT');
-});
-
-process.on('SIGTERM', () => {
-  child.kill('SIGTERM');
+child.on('error', (err) => {
+  console.error(`Failed to start diffai: ${err.message}`);
+  process.exit(1);
 });

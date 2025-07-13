@@ -48,12 +48,12 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.0",
-    "pytest-cov>=4.0",
-    "black>=22.0",
-    "flake8>=5.0",
-    "mypy>=0.991",
-    "types-requests>=2.28",
+    "pytest >= 6.0",
+    "pytest-cov",
+    "black",
+    "isort",
+    "mypy",
+    "ruff"
 ]
 
 [project.urls]
@@ -66,23 +66,13 @@ Changelog = "https://github.com/kako-jun/diffai/blob/main/CHANGELOG.md"
 [project.scripts]
 diffai = "diffai:main"
 
-[tool.black]
+[tool.ruff]
 line-length = 88
-target-version = ['py38']
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-  # directories
-  \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | build
-  | dist
-)/
-'''
+target-version = "py38"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "YTT", "ANN", "S", "BLE", "FBT", "B", "A", "COM", "C4", "DTZ", "T10", "ISC", "ICN", "G", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SLF", "SIM", "TID", "TCH", "ARG", "PTH", "ERA", "PGH", "PL", "TRY", "NPY", "RUF"]
+ignore = ["ANN101", "ANN102", "COM812", "ISC001"]
 
 [tool.mypy]
 python_version = "3.8"
@@ -99,10 +89,12 @@ warn_no_return = true
 warn_unreachable = true
 
 [tool.maturin]
+# This package includes both Python code and a binary (diffai CLI) in the wheel
+python-source = "src"
+module-name = "diffai"
 bindings = "bin"
-manifest-path = "../Cargo.toml"
-python-source = "python"
-strip = true
+# Find Python interpreters automatically
+find-interpreter = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
