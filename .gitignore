@@ -25,3 +25,4 @@ test-models/distilgpt2/
 test-models/tiny_gpt2/
 test-models/.venv/
 test-models/uv.lock
+scripts_old/
