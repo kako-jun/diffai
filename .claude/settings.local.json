@@ -44,7 +44,10 @@
       "Bash(chmod:*)",
       "Bash(bash:*)",
       "Bash(./scripts/testing/ci-local.sh:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(git tag:*)",
+      "Bash(gh api:*)",
+      "Bash(git fetch:*)"
     ],
     "deny": []
   }

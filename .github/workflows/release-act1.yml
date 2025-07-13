@@ -103,7 +103,8 @@ jobs:
         
         gh release create "$TAG_NAME" \
           --title "Release $TAG_NAME" \
-          --generate-notes
+          --generate-notes \
+          --verify-tag
         
         echo "created=true" >> $GITHUB_OUTPUT
         
