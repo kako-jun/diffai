@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.4] - 2025-07-14
+### 🐛 Critical Fixes
+- **Fixed PyPI package distribution**: Resolved maturin build error "Defining scripts and working with a binary doesn't mix well"
+- **Removed conflicting Python script definition**: Eliminated duplicate `diffai` command definition in `[project.scripts]`
+- **Unified command interface**: All packages now provide `diffai` command exclusively through Rust binary
+
+### 📦 Package Distribution
+- **Rust (crates.io)**: `diffai-core` and `diffai-cli` v0.3.4
+- **JavaScript (npm)**: `diffai-js` v0.3.4 with cross-platform binaries  
+- **Python (PyPI)**: `diffai-python` v0.3.4 with working wheel distribution
+
+### 🔄 Infrastructure Improvements
+- Enhanced release automation and CI/CD robustness
+- Dynamic version handling to prevent hardcoded version issues
+- Comprehensive test suite improvements for all packages
+- Migration from diffx architecture improvements
+
+### 📝 Documentation & Testing
+- Added comprehensive verbose mode documentation
+- Enhanced CLI behavior standardization
+- Complete test coverage for npm and Python packages
+
 ## [0.2.9] - 2025-07-12
 ### 🚀 Features
 - **Verbose mode (`--verbose`/`-v`)**: Comprehensive diagnostic output with configuration, file analysis, and performance metrics
