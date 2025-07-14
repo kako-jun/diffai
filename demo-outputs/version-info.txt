@@ -1,0 +1,9 @@
+# diffai Demo Output: version-info
+# Description: Version information
+# Command: diffai --version
+# Generated: Mon Jul 14 01:58:45 PM JST 2025
+# Version: 0.3.4
+
+## Command Output:
+
+diffai 0.3.4
