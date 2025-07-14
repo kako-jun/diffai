@@ -6,10 +6,11 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-OUTPUT_DIR="$PROJECT_ROOT/demo-outputs"
+OUTPUT_DIR="$PROJECT_ROOT/docs/examples/outputs"
 
 echo "🎬 Generating diffai demonstration outputs..."
-echo "📁 Output directory: $OUTPUT_DIR"
+echo "📁 Output directory: $OUTPUT_DIR
+mkdir -p "$OUTPUT_DIR""
 
 # Create output directory
 mkdir -p "$OUTPUT_DIR"
