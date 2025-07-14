@@ -1,6 +1,6 @@
 {
   "name": "diffai-js",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "A Node.js wrapper for the diffai CLI tool - AI/ML specialized diff tool for PyTorch, Safetensors, NumPy, and MATLAB files with deep tensor analysis",
   "keywords": [
     "ai",
