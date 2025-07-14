@@ -48,7 +48,7 @@ function downloadFile(url, dest) {
         return;
       }
       
-      if (response.statusCode \!== 200) {
+      if (response.statusCode !== 200) {
         reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
         return;
       }
@@ -99,7 +99,7 @@ async function downloadPlatformBinary(platform) {
   const archivePath = path.join(platformDir, platform.file);
   
   // Create platform-specific directory
-  if (\!fs.existsSync(platformDir)) {
+  if (!fs.existsSync(platformDir)) {
     fs.mkdirSync(platformDir, { recursive: true });
   }
   
@@ -122,7 +122,7 @@ async function downloadPlatformBinary(platform) {
     fs.unlinkSync(archivePath);
     
     // Make binary executable on Unix systems
-    if (platform.binaryName \!== 'diffai.exe') {
+    if (platform.binaryName !== 'diffai.exe') {
       fs.chmodSync(binaryPath, '755');
     }
     
@@ -139,7 +139,7 @@ async function main() {
     console.log(`Downloading diffai v${DIFFAI_VERSION} binaries for all platforms...`);
     
     // Create main bin directory
-    if (\!fs.existsSync(BINARY_DIR)) {
+    if (!fs.existsSync(BINARY_DIR)) {
       fs.mkdirSync(BINARY_DIR, { recursive: true });
     }
     
