@@ -7,11 +7,11 @@
 ### 1. 模型开发与改进
 
 ```bash
-# 比较新架构与基线
-diffai baseline/resnet18.pth experiment/resnet34.pth --show-structure
+# 比较新架构与基线（自动综合分析）
+diffai baseline/resnet18.pth experiment/resnet34.pth
 
-# 微调前后比较
-diffai pretrained/model.pth finetuned/model.pth --tensor-details
+# 微调前后比较（自动综合分析）
+diffai pretrained/model.pth finetuned/model.pth
 ```
 
 ### 2. 实验管理
@@ -48,15 +48,15 @@ python train.py --config experiment.yaml --output experiment/
 # 3. 比较结果
 diffai baseline/ experiment/ --recursive --include "*.json" --include "*.pth"
 
-# 4. 详细分析
-diffai baseline/model.pth experiment/model.pth --show-structure --tensor-details
+# 4. 详细分析（自动综合分析）
+diffai baseline/model.pth experiment/model.pth
 ```
 
 ### 模型比较报告
 
 ```bash
-# 生成全面比较报告
-diffai baseline/model.pth experiment/model.pth --format json > comparison.json
+# 生成全面比较报告（30+分析功能自动）
+diffai baseline/model.pth experiment/model.pth --output json > comparison.json
 
 # 可视化报告
 python scripts/visualize_comparison.py comparison.json
@@ -103,10 +103,10 @@ diffai model_v1/model.safetensors model_v2/model.safetensors --filter "attention
 
 ```bash
 # 跟踪数据集变化
-diffai dataset_v1.csv dataset_v2.csv --stats --format json
+diffai dataset_v1.csv dataset_v2.csv --format json
 
 # 比较训练/验证数据分布
-diffai train.csv val.csv --stats --show-distribution
+diffai train.csv val.csv --show-distribution
 ```
 
 ## 持续集成

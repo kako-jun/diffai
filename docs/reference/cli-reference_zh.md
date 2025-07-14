@@ -1,6 +1,6 @@
 # CLI参考手册
 
-diffai v0.2.0 完整命令行参考手册 - AI/ML专用差分工具
+diffai v0.3.4 完整命令行参考手册 - 具有简化界面的AI/ML专用差分工具
 
 ## 命令概要
 
@@ -62,10 +62,6 @@ diffai - config.json < input.json
 
 - **示例**: `diffai dir1/ dir2/ --recursive`
 
-#### `--stats`
-显示ML模型和科学数据的详细统计信息
-
-- **示例**: `diffai model.safetensors model2.safetensors --stats`
 
 ### 高级选项
 
@@ -100,114 +96,80 @@ diffai - config.json < input.json
 
 ## ML分析功能
 
-### 当前可用功能（v0.2.0）
+### ML分析（PyTorch/Safetensors文件自动执行）
 
-以下ML分析功能当前已实现：
+**对于PyTorch（.pt/.pth）和Safetensors（.safetensors）文件，diffai会自动执行包括以下内容的综合分析：**
 
-#### `--stats`
-显示ML模型和科学数据的详细统计信息
+#### 综合分析套件（30+功能）
 
-- **输出**: 每个张量的平均值、标准差、最小/最大值、形状、数据类型
-- **示例**: `diffai model.safetensors model2.safetensors --stats`
+- **基础统计**: 每个张量的平均值、标准差、最小/最大值、形状、数据类型
+- **量化分析**: 压缩比例、精度损失分析
+- **架构比较**: 结构检测、层深度比较、迁移评估
+- **内存分析**: 内存增量、峰值使用估算、优化建议
+- **异常检测**: NaN/Inf检测、梯度爆炸/消失分析
+- **收敛分析**: 参数稳定性、早停建议
+- **梯度分析**: 梯度流健康度、范数估算、问题层
+- **变化摘要**: 幅度分析、模式、层排名
+- **相似度矩阵**: 层间相似度、聚类系数
+- **部署准备**: 生产部署安全性评估
+- **风险评估**: 变化影响评估
+- **性能影响**: 速度和效率分析
+- **参数效率**: 优化机会
+- **回归测试**: 质量保证验证
+- **学习进度**: 训练进度跟踪
+- **嵌入分析**: 语义漂移检测
+- **注意力分析**: Transformer注意力模式分析
+- **统计显著性**: 变化显著性测试
+- **迁移学习分析**: 微调效果
+- **集成分析**: 多模型比较
+- **超参数影响**: 配置变化效果
+- **学习率分析**: 优化调度效果
+- **等等更多...**
 
-#### `--quantization-analysis`
-分析量化效果和效率
+**🎯 无需标志** - 为了获得最佳用户体验，所有分析都会自动执行。
 
-- **输出**: 压缩比例、精度损失分析
-- **示例**: `diffai fp32_model.safetensors quantized_model.safetensors --quantization-analysis`
-
-#### `--sort-by-change-magnitude`
-按幅度排序差异以便确定优先级
-
-- **输出**: 按幅度排序的差异列表
-- **示例**: `diffai model1.pt model2.pt --sort-by-change-magnitude`
-
-#### `--show-layer-impact`
-分析逐层变化影响
-
-- **输出**: 每层变化分析
-- **示例**: `diffai baseline.safetensors modified.safetensors --show-layer-impact`
-
-### 第3阶段功能（现已可用）
-
-#### 架构与性能分析
-
-##### `--architecture-comparison`
-比较模型架构和检测结构变化
-
-- **输出**: 架构类型检测、层深度比较、迁移难度评估
-- **示例**: `diffai model1.safetensors model2.safetensors --architecture-comparison`
-
-##### `--memory-analysis`
-分析内存使用和优化机会
-
-- **输出**: 内存增量、峰值使用估算、GPU利用率、优化建议
-- **示例**: `diffai model1.safetensors model2.safetensors --memory-analysis`
-
-##### `--anomaly-detection`
-检测模型参数中的数值异常
-
-- **输出**: NaN/Inf检测、梯度爆炸/消失分析、死神经元检测
-- **示例**: `diffai model1.safetensors model2.safetensors --anomaly-detection`
-
-##### `--change-summary`
-生成详细的变化摘要
-
-- **输出**: 变化幅度、模式、层排名、结构vs参数变化
-- **示例**: `diffai model1.safetensors model2.safetensors --change-summary`
-
-#### 高级分析
-
-##### `--convergence-analysis`
-分析模型参数中的收敛模式
-
-- **输出**: 收敛状态、参数稳定性、早停建议
-- **示例**: `diffai model1.safetensors model2.safetensors --convergence-analysis`
-
-##### `--gradient-analysis`
-分析从参数变化估算的梯度信息
-
-- **输出**: 梯度流健康度、范数估算、问题层、裁剪建议
-- **示例**: `diffai model1.safetensors model2.safetensors --gradient-analysis`
-
-##### `--similarity-matrix`
-生成模型比较的相似度矩阵
-
-- **输出**: 层间相似度、聚类系数、异常值检测
-- **示例**: `diffai model1.safetensors model2.safetensors --similarity-matrix`
+**示例**: 只需运行 `diffai model1.safetensors model2.safetensors` 即可获得综合分析。
 
 ## 输出示例
 
-### CLI输出（默认）
+### CLI输出（默认 - 完整分析）
 
 ```bash
-$ diffai model_v1.safetensors model_v2.safetensors --stats
+$ diffai model_v1.safetensors model_v2.safetensors
+anomalydectionnamely_detection: type=none, severity=none, action="continue_training"
+architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
+convergence_analysis: status=converging, stability=0.92
+gradient_analysis: flow_health=healthy, norm=0.021069
+memory_analysis: delta=+0.0MB, efficiency=1.000000
+quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%
+regression_test: passed=true, degradation=-2.5%, severity=low
+deployment_readiness: readiness=0.92, risk=low, timeline=ready_for_immediate_deployment
   ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
+  ~ fc2.bias: mean=-0.0076->-0.0257, std=0.0661->0.0973
   ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
+  ~ fc3.bias: mean=-0.0074->-0.0130, std=0.1031->0.1093
+  ~ fc3.weight: mean=-0.0035->-0.0010, std=0.0990->0.1113
 ```
 
-### 组合分析输出
+### 综合分析的好处
+
+- **30+分析功能**自动运行
+- **无需选择选项** - 默认获得所有洞察
+- **相同处理时间** - 无性能损失
+- **生产就绪洞察** - 部署准备、风险评估等
+
+### 科学数据分析（自动）
 
 ```bash
-$ diffai baseline.safetensors improved.safetensors --stats --quantization-analysis --sort-by-change-magnitude
-quantization_analysis: compression=0.25, precision_loss=minimal
-  ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
-  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
-  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
-```
-
-### 科学数据分析
-
-```bash
-$ diffai experiment_data_v1.npy experiment_data_v2.npy --stats
+$ diffai experiment_data_v1.npy experiment_data_v2.npy
   ~ data: shape=[1000, 256], mean=0.1234->0.1456, std=0.9876->0.9654, dtype=float64
 ```
 
-### MATLAB文件比较
+### MATLAB文件比较（自动）
 
 ```bash
-$ diffai simulation_v1.mat simulation_v2.mat --stats
+$ diffai simulation_v1.mat simulation_v2.mat
   ~ results: var=results, shape=[500, 100], mean=2.3456->2.4567, std=1.2345->1.3456, dtype=double
   + new_variable: var=new_variable, shape=[100], dtype=single, elements=100, size=0.39KB
 ```
@@ -267,7 +229,7 @@ $ diffai model_v1.safetensors model_v2.safetensors --output yaml
 
 1. **"Binary files differ"消息**: 使用`--format`指定文件类型
 2. **内存不足**: 设置`DIFFAI_MAX_MEMORY`环境变量
-3. **处理缓慢**: 对于大模型，仅在需要时使用`--stats`
+3. **处理缓慢**: 分析已针对大模型自动优化
 4. **缺少依赖**: 确保Rust工具链已正确安装
 
 ### 调试模式

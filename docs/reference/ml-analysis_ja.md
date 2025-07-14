@@ -8,12 +8,11 @@ diffaiは、機械学習モデルの比較と分析専用に設計された35の
 
 ## 現在利用可能な機能（v0.2.0）
 
-### 1. `--stats` 統計分析
 モデル比較のための詳細なテンソル統計を提供します。
 
 **使用法**:
 ```bash
-diffai model1.safetensors model2.safetensors --stats
+diffai model1.safetensors model2.safetensors
 ```
 
 **出力**:
@@ -62,7 +61,7 @@ quantization_analysis: compression=0.25, precision_loss=minimal
 
 **使用法**:
 ```bash
-diffai model1.safetensors model2.safetensors --sort-by-change-magnitude --stats
+diffai model1.safetensors model2.safetensors --sort-by-change-magnitude
 ```
 
 **出力**: 結果は最大の変化を最初に表示してソートされます
@@ -94,14 +93,14 @@ diffai baseline.safetensors modified.safetensors --show-layer-impact
 ```bash
 # 包括的モデル分析
 diffai checkpoint_v1.safetensors checkpoint_v2.safetensors \
-  --stats \
+  \
   --quantization-analysis \
   --sort-by-change-magnitude \
   --show-layer-impact
 
 # 自動化のためのJSON出力
 diffai model1.safetensors model2.safetensors \
-  --stats --output json
+  --output json
 ```
 
 ## 機能選択ガイド
@@ -109,25 +108,25 @@ diffai model1.safetensors model2.safetensors \
 **訓練監視のため**:
 ```bash
 diffai checkpoint_old.safetensors checkpoint_new.safetensors \
-  --stats --sort-by-change-magnitude
+  --sort-by-change-magnitude
 ```
 
 **本番デプロイメントのため**:
 ```bash
 diffai current_prod.safetensors candidate.safetensors \
-  --stats --quantization-analysis
+  --quantization-analysis
 ```
 
 **研究分析のため**:
 ```bash
 diffai baseline.safetensors experiment.safetensors \
-  --stats --show-layer-impact
+  --show-layer-impact
 ```
 
 **量子化検証のため**:
 ```bash
 diffai fp32.safetensors quantized.safetensors \
-  --quantization-analysis --stats
+  --quantization-analysis
 ```
 
 ## 将来機能（Phase 3）
@@ -157,7 +156,6 @@ import mlflow
 
 def log_model_diff(model1_path, model2_path):
     result = subprocess.run([
-        'diffai', model1_path, model2_path, '--stats', '--output', 'json'
     ], capture_output=True, text=True)
     
     diff_data = json.loads(result.stdout)
@@ -183,7 +181,7 @@ jobs:
       - name: モデル比較
         run: |
           diffai models/baseline.safetensors models/candidate.safetensors \
-            --stats --output json > model_diff.json
+            --output json > model_diff.json
 ```
 
 ## 関連項目

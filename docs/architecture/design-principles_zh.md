@@ -166,37 +166,37 @@ pub enum DiffaiError {
 ### 1. 直观界面
 
 ```bash
-# 直观且清晰的命令
-diffai model1.pth model2.pth              # 基本比较
-diffai model1.pth model2.pth --detailed   # 详细比较
+# 直观且清晰的命令（综合ML分析自动执行）
+diffai model1.pth model2.pth              # 综合ML分析（30+功能自动）
+diffai model1.pth model2.pth --verbose    # 详细诊断 + 综合分析
 diffai models/ --recursive                # 目录比较
 ```
 
 **设计指导：**
-- 用最少参数实现最多功能
-- 渐进式详细层次
-- 一致的选项命名
+- 用最少参数实现最多功能（默认综合）
+- 通过自动功能启用消除选择困难
+- 仅为必要控制保持一致的选项命名
 
-### 2. 渐进式信息披露
+### 2. 默认综合，渐进式详细控制
 
 ```bash
-# 基本信息
+# 综合ML分析（自动）
 diffai model1.pth model2.pth
-# → 仅显示主要差异
+# → 自动显示所有30+ML分析功能
 
-# 详细信息
+# 详细诊断 + 综合分析
 diffai model1.pth model2.pth --verbose
-# → 显示所有详细信息
+# → 相同综合分析 + 调试信息
 
-# 特定信息
-diffai model1.pth model2.pth --show-structure
-# → 仅显示结构差异
+# 输出格式控制
+diffai model1.pth model2.pth --output json
+# → 用于自动化的JSON格式综合分析
 ```
 
-**效果：**
-- 防止信息过载
-- 根据用户需求提供信息
-- 降低学习曲线
+**新哲学：**
+- 默认提供综合分析（无需功能选择）
+- 控制输出详细度和格式，而非功能选择
+- 消除ML分析功能的学习曲线
 
 ### 3. 高质量输出
 

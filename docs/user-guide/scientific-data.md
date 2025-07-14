@@ -17,8 +17,11 @@ diffai extends beyond ML models to support scientific data formats commonly used
 
 ## What diffai Analyzes
 
+### Automatic Comprehensive Analysis
+diffai automatically provides complete statistical analysis for all scientific data formats. No flags are required - all analysis features are included by default.
+
 ### Array Statistics
-For each array in the data, diffai calculates and compares:
+For each array in the data, diffai automatically calculates and compares:
 
 - **Mean**: Average value of all elements
 - **Standard Deviation**: Measure of data variance
@@ -40,10 +43,10 @@ For each array in the data, diffai calculates and compares:
 
 ```bash
 # Compare single NumPy arrays
-diffai data_v1.npy data_v2.npy --stats
+diffai data_v1.npy data_v2.npy
 
 # Compare compressed NumPy archives
-diffai dataset_v1.npz dataset_v2.npz --stats
+diffai dataset_v1.npz dataset_v2.npz
 
 # With specific output format
 diffai experiment_baseline.npy experiment_result.npy --output json
@@ -53,7 +56,7 @@ diffai experiment_baseline.npy experiment_result.npy --output json
 
 ```bash
 # Compare MATLAB files
-diffai simulation_v1.mat simulation_v2.mat --stats
+diffai simulation_v1.mat simulation_v2.mat
 
 # Focus on specific variables
 diffai results_v1.mat results_v2.mat --path "experiment_data"
@@ -67,14 +70,14 @@ diffai analysis_v1.mat analysis_v2.mat --output yaml
 ### NumPy Array Changes
 
 ```bash
-$ diffai experiment_data_v1.npy experiment_data_v2.npy --stats
+$ diffai experiment_data_v1.npy experiment_data_v2.npy
   ~ data: shape=[1000, 256], mean=0.1234->0.1456, std=0.9876->0.9654, dtype=float64
 ```
 
 ### MATLAB File Changes
 
 ```bash
-$ diffai simulation_v1.mat simulation_v2.mat --stats
+$ diffai simulation_v1.mat simulation_v2.mat
   ~ results: var=results, shape=[500, 100], mean=2.3456->2.4567, std=1.2345->1.3456, dtype=double
   + new_variable: var=new_variable, shape=[100], dtype=single, elements=100, size=0.39KB
 ```
@@ -82,7 +85,7 @@ $ diffai simulation_v1.mat simulation_v2.mat --stats
 ### Compressed Archive Comparison
 
 ```bash
-$ diffai dataset_v1.npz dataset_v2.npz --stats
+$ diffai dataset_v1.npz dataset_v2.npz
   ~ train_data: shape=[60000, 784], mean=0.1307->0.1309, std=0.3081->0.3082, dtype=float32
   ~ test_data: shape=[10000, 784], mean=0.1325->0.1327, std=0.3105->0.3106, dtype=float32
   + validation_data: shape=[5000, 784], mean=0.1315, std=0.3095, dtype=float32
@@ -117,7 +120,7 @@ diffai data_v1.mat data_v2.mat --ignore-keys-regex "^(metadata|timestamp)"
 Compare experimental results across different conditions:
 
 ```bash
-diffai baseline_experiment.npy treated_experiment.npy --stats
+diffai baseline_experiment.npy treated_experiment.npy
 
 # Expected output: Statistical significance of changes
 # ~ data: shape=[1000, 50], mean=0.4567->0.5123, std=0.1234->0.1456, dtype=float64
@@ -133,7 +136,7 @@ diffai baseline_experiment.npy treated_experiment.npy --stats
 Compare simulation outputs across parameter sets:
 
 ```bash
-diffai simulation_param_1.mat simulation_param_2.mat --stats
+diffai simulation_param_1.mat simulation_param_2.mat
 
 # Expected output: Parameter sensitivity analysis
 # ~ velocity_field: var=velocity_field, shape=[100, 100, 50], mean=1.234->1.567
@@ -150,7 +153,7 @@ diffai simulation_param_1.mat simulation_param_2.mat --stats
 Compare data at different processing stages:
 
 ```bash
-diffai raw_data.npz processed_data.npz --stats
+diffai raw_data.npz processed_data.npz
 
 # Expected output: Processing impact assessment
 # ~ features: shape=[10000, 512], mean=0.0->0.5, std=1.0->0.25, dtype=float32
@@ -167,7 +170,7 @@ diffai raw_data.npz processed_data.npz --stats
 Compare time series data across different time periods:
 
 ```bash
-diffai timeseries_q1.npy timeseries_q2.npy --stats
+diffai timeseries_q1.npy timeseries_q2.npy
 
 # Expected output: Temporal pattern changes
 # ~ data: shape=[2160, 24], mean=23.45->25.67, std=5.67->6.23, dtype=float32

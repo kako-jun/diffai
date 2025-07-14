@@ -25,11 +25,10 @@ fn test_basic_model_comparison() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn test_learning_progress_real_models() -> Result<(), Box<dyn std::error::Error>> {
+fn test_learning_progress_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/checkpoint_epoch_0.safetensors")
-        .arg("../tests/fixtures/ml_models/checkpoint_epoch_10.safetensors")
-        .arg("--learning-progress");
+        .arg("../tests/fixtures/ml_models/checkpoint_epoch_10.safetensors");
 
     cmd.assert()
         .success()
@@ -40,11 +39,10 @@ fn test_learning_progress_real_models() -> Result<(), Box<dyn std::error::Error>
 }
 
 #[test]
-fn test_convergence_analysis_real_models() -> Result<(), Box<dyn std::error::Error>> {
+fn test_convergence_analysis_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/checkpoint_epoch_10.safetensors")
-        .arg("../tests/fixtures/ml_models/checkpoint_epoch_50.safetensors")
-        .arg("--convergence-analysis");
+        .arg("../tests/fixtures/ml_models/checkpoint_epoch_50.safetensors");
 
     cmd.assert()
         .success()
@@ -55,11 +53,10 @@ fn test_convergence_analysis_real_models() -> Result<(), Box<dyn std::error::Err
 }
 
 #[test]
-fn test_anomaly_detection_real_models() -> Result<(), Box<dyn std::error::Error>> {
+fn test_anomaly_detection_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/normal_model.safetensors")
-        .arg("../tests/fixtures/ml_models/anomalous_model.safetensors")
-        .arg("--anomaly-detection");
+        .arg("../tests/fixtures/ml_models/anomalous_model.safetensors");
 
     cmd.assert()
         .success()
@@ -70,11 +67,10 @@ fn test_anomaly_detection_real_models() -> Result<(), Box<dyn std::error::Error>
 }
 
 #[test]
-fn test_memory_analysis_real_models() -> Result<(), Box<dyn std::error::Error>> {
+fn test_memory_analysis_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/small_model.safetensors")
-        .arg("../tests/fixtures/ml_models/large_model.safetensors")
-        .arg("--memory-analysis");
+        .arg("../tests/fixtures/ml_models/large_model.safetensors");
 
     cmd.assert()
         .success()
@@ -85,11 +81,10 @@ fn test_memory_analysis_real_models() -> Result<(), Box<dyn std::error::Error>> 
 }
 
 #[test]
-fn test_quantization_analysis_real_models() -> Result<(), Box<dyn std::error::Error>> {
+fn test_quantization_analysis_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/model_fp32.safetensors")
-        .arg("../tests/fixtures/ml_models/model_quantized.safetensors")
-        .arg("--quantization-analysis");
+        .arg("../tests/fixtures/ml_models/model_quantized.safetensors");
 
     cmd.assert()
         .success()
@@ -100,11 +95,10 @@ fn test_quantization_analysis_real_models() -> Result<(), Box<dyn std::error::Er
 }
 
 #[test]
-fn test_architecture_comparison_real_models() -> Result<(), Box<dyn std::error::Error>> {
+fn test_architecture_comparison_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
-        .arg("../tests/fixtures/ml_models/transformer.safetensors")
-        .arg("--architecture-comparison");
+        .arg("../tests/fixtures/ml_models/transformer.safetensors");
 
     cmd.assert()
         .success()
@@ -115,14 +109,10 @@ fn test_architecture_comparison_real_models() -> Result<(), Box<dyn std::error::
 }
 
 #[test]
-fn test_multiple_advanced_features() -> Result<(), Box<dyn std::error::Error>> {
+fn test_multiple_advanced_features_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
-        .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--learning-progress")
-        .arg("--convergence-analysis")
-        .arg("--memory-analysis")
-        .arg("--stats");
+        .arg("../tests/fixtures/ml_models/simple_modified.safetensors");
 
     cmd.assert()
         .success()
@@ -134,11 +124,10 @@ fn test_multiple_advanced_features() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn test_json_output_with_real_models() -> Result<(), Box<dyn std::error::Error>> {
+fn test_json_output_with_default_analysis() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
         .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--learning-progress")
         .arg("--output")
         .arg("json");
 
@@ -157,11 +146,10 @@ fn test_json_output_with_real_models() -> Result<(), Box<dyn std::error::Error>>
 }
 
 #[test]
-fn test_yaml_output_with_real_models() -> Result<(), Box<dyn std::error::Error>> {
+fn test_yaml_output_with_default_analysis() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
         .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--convergence-analysis")
         .arg("--output")
         .arg("yaml");
 
@@ -179,12 +167,11 @@ fn test_yaml_output_with_real_models() -> Result<(), Box<dyn std::error::Error>>
 #[test]
 // PyTorch parsing now works correctly with multi-dimensional tensors
 fn test_pytorch_vs_safetensors_consistency() -> Result<(), Box<dyn std::error::Error>> {
-    // Test that PyTorch and Safetensors versions produce similar results
+    // Test that PyTorch and Safetensors versions produce similar results with default analysis
     let mut cmd_safetensors = diffai_cmd();
     cmd_safetensors
         .arg("../tests/fixtures/ml_models/simple_base.safetensors")
-        .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--stats");
+        .arg("../tests/fixtures/ml_models/simple_modified.safetensors");
 
     let output_safetensors = cmd_safetensors.output()?;
     assert!(output_safetensors.status.success());
@@ -192,8 +179,7 @@ fn test_pytorch_vs_safetensors_consistency() -> Result<(), Box<dyn std::error::E
     let mut cmd_pytorch = diffai_cmd();
     cmd_pytorch
         .arg("../tests/fixtures/ml_models/simple_base.pt")
-        .arg("../tests/fixtures/ml_models/simple_modified.pt")
-        .arg("--stats");
+        .arg("../tests/fixtures/ml_models/simple_modified.pt");
 
     let output_pytorch = cmd_pytorch.output()?;
 
@@ -214,12 +200,10 @@ fn test_pytorch_vs_safetensors_consistency() -> Result<(), Box<dyn std::error::E
 
 #[test]
 fn test_model_size_impact_analysis() -> Result<(), Box<dyn std::error::Error>> {
-    // Test analysis between significantly different model sizes
+    // Test analysis between significantly different model sizes with default analysis
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/small_model.safetensors")
-        .arg("../tests/fixtures/ml_models/transformer.safetensors")
-        .arg("--architecture-comparison")
-        .arg("--memory-analysis");
+        .arg("../tests/fixtures/ml_models/transformer.safetensors");
 
     cmd.assert()
         .success()

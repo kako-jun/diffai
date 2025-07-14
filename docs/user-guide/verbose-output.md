@@ -78,7 +78,7 @@ When ML analysis options are enabled, verbose mode shows which features are acti
 
 ```bash
 diffai model1.safetensors model2.safetensors --verbose \
-  --stats \
+  \
   --architecture-comparison \
   --memory-analysis \
   --anomaly-detection
@@ -176,8 +176,8 @@ Example debugging session:
 # Check if format detection is correct
 diffai problematic_file1.dat problematic_file2.dat --verbose
 
-# Verify ML analysis features are enabled
-diffai model1.pt model2.pt --verbose --stats --architecture-comparison
+# Verify ML analysis features (automatic for ML models)
+diffai model1.pt model2.pt --verbose
 
 # Analyze directory comparison behavior
 diffai dir1/ dir2/ --verbose --recursive
@@ -249,7 +249,7 @@ Use verbose mode in CI/CD for debugging:
 ```bash
 # In GitHub Actions or similar
 - name: Compare models with verbose output
-  run: diffai baseline.safetensors new_model.safetensors --verbose --stats
+  run: diffai baseline.safetensors new_model.safetensors --verbose
 ```
 
 ### Scripts and Automation
@@ -269,5 +269,4 @@ fi
 
 - [`--help`](basic-usage.md#help): Show all available options
 - [`--output`](output-formats.md): Control output format
-- [`--stats`](ml-analysis.md#statistics): Enable ML statistics analysis
 - [`--recursive`](directory-comparison.md): Enable directory comparison

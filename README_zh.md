@@ -14,19 +14,25 @@
 $ diff model_v1.safetensors model_v2.safetensors
 Binary files model_v1.safetensors and model_v2.safetensors differ
 
-# diffai 显示有意义的模型变化
-$ diffai model_v1.safetensors model_v2.safetensors --stats
+# diffai 自动显示有意义的模型变化（30+分析功能）
+$ diffai model_v1.safetensors model_v2.safetensors
+anomaly_detection: type=none, severity=none, action="continue_training"
+architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
+convergence_analysis: status=converging, stability=0.92
+gradient_analysis: flow_health=healthy, norm=0.021069
+memory_analysis: delta=+0.0MB, efficiency=1.000000
+quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%
+regression_test: passed=true, degradation=-2.5%, severity=low
   ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
   ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
-  gradient_analysis: flow_health=healthy, norm=0.015000, ratio=1.0500
 ```
 
 ## 核心特性
 
 - **AI/ML 原生支持**: 直接支持 PyTorch (.pt/.pth)、Safetensors (.safetensors)、NumPy (.npy/.npz) 和 MATLAB (.mat) 文件
 - **张量分析**: 自动计算张量统计（均值、标准差、最小值、最大值、形状、内存使用）
-- **ML 分析功能**: 统计分析、量化分析、架构比较等
+- **自动ML分析**: 30+分析功能自动执行（统计、量化、架构、收敛、梯度、异常检测等）
 - **科学数据支持**: 支持复数的 NumPy 数组和 MATLAB 矩阵
 - **纯 Rust 实现**: 无系统依赖，在 Windows/Linux/macOS 上无需额外安装即可运行
 - **多种输出格式**: 彩色 CLI、用于 MLOps 集成的 JSON、人类可读的 YAML 报告
@@ -76,36 +82,33 @@ cargo build --release
 ### 基本模型比较
 
 ```bash
-# 比较 PyTorch 模型
-diffai model_old.pt model_new.pt --stats
+# 比较 PyTorch 模型（30+分析功能自动执行）
+diffai model_old.pt model_new.pt
 
-# 比较 Safetensors 并进行统计分析
-diffai checkpoint_v1.safetensors checkpoint_v2.safetensors --stats
+# 比较 Safetensors（综合分析自动执行）
+diffai checkpoint_v1.safetensors checkpoint_v2.safetensors
 
 # 比较 NumPy 数组
-diffai data_v1.npy data_v2.npy --stats
+diffai data_v1.npy data_v2.npy
 
 # 比较 MATLAB 文件
-diffai experiment_v1.mat experiment_v2.mat --stats
+diffai experiment_v1.mat experiment_v2.mat
 ```
 
-### 高级 ML 分析
+### 自动ML分析
 
 ```bash
-# 当前可用的分析功能
-diffai baseline.safetensors finetuned.safetensors --stats --quantization-analysis
+# 所有分析功能自动执行（无需标志）
+diffai baseline.safetensors finetuned.safetensors
 
-# 组合分析并排序
-diffai original.pt optimized.pt --stats --quantization-analysis --sort-by-change-magnitude
+# 同样自动执行30+分析功能
+diffai original.pt optimized.pt
 
-# JSON 输出用于自动化
-diffai model_v1.safetensors model_v2.safetensors --stats --output json
+# JSON输出用于自动化（包含所有分析功能）
+diffai model_v1.safetensors model_v2.safetensors --output json
 
-# 带详细诊断信息的verbose模式
-diffai model_v1.safetensors model_v2.safetensors --verbose --stats --architecture-comparison
-
-# 第 3 阶段功能（即将推出）
-diffai model_v1.safetensors model_v2.safetensors --architecture-comparison --memory-analysis
+# 带详细诊断信息的verbose模式（所有分析功能自动）
+diffai model_v1.safetensors model_v2.safetensors --verbose
 ```
 
 ## 支持的文件格式
@@ -130,11 +133,11 @@ diffai model_v1.safetensors model_v2.safetensors --architecture-comparison --mem
 获取用于调试和性能分析的综合诊断信息：
 
 ```bash
-# 基本详细输出
+# 基本详细输出（ML分析功能自动执行）
 diffai model1.safetensors model2.safetensors --verbose
 
-# 带ML分析功能的详细输出
-diffai data1.json data2.json --verbose --stats --epsilon 0.001 --ignore-keys-regex "^id$"
+# 结构化数据的详细输出
+diffai data1.json data2.json --verbose --epsilon 0.001 --ignore-keys-regex "^id$"
 ```
 
 **详细输出包含信息：**
@@ -167,28 +170,32 @@ Processing results:
 
 📚 **详细信息请参见[详细输出指南](docs/user-guide/verbose-output_zh.md)**
 
-## 28 个高级 ML 分析功能
+## 自动执行的30+ML分析功能
 
-### 学习和收敛分析（4 个功能）
-- `--learning-progress` - 跟踪检查点间的学习进度
-- `--convergence-analysis` - 分析收敛稳定性和模式
-- `--anomaly-detection` - 检测训练异常（梯度爆炸、消失）
-- `--gradient-analysis` - 分析梯度特征和流向
+### 自动执行的ML分析功能
 
-### 架构和性能分析（4 个功能）
-- `--architecture-comparison` - 比较模型架构和结构变化
-- `--param-efficiency-analysis` - 分析模型间参数效率
-- `--memory-analysis` - 分析内存使用和优化机会
-- `--inference-speed-estimate` - 估算推理速度和性能特征
+**学习和收敛分析（自动）：**
+- 跟踪检查点间的学习进度
+- 分析收敛稳定性和模式
+- 检测训练异常（梯度爆炸、消失）
+- 分析梯度特征和流向
 
-### MLOps 和部署支持（7 个功能）
-- `--deployment-readiness` - 评估部署准备度和兼容性
-- `--regression-test` - 执行自动回归测试
-- `--risk-assessment` - 评估部署风险和稳定性
-- `--hyperparameter-impact` - 分析超参数对模型变化的影响
-- `--learning-rate-analysis` - 分析学习率效果和优化
-- `--alert-on-degradation` - 超出阈值时的性能降级警报
-- `--performance-impact-estimate` - 估算变化的性能影响
+**架构和性能分析（自动）：**
+- 比較模型架构和结构变化
+- 分析模型间参数效率
+- 分析内存使用和优化机会
+- 估算推理速度和性能特征
+
+**MLOps和部署支持（自动）：**
+- 评估部署准备度和兼容性
+- 执行自动回归测试
+- 评估部署风险和稳定性
+- 分析超参数对模型变化的影响
+- 分析学习率效果和优化
+- 超出阈值时的性能降级警报
+- 估算变化的性能影响
+
+**其他20+分析功能也自动执行**
 
 ### 实验和文档支持（4 个功能）
 - `--generate-report` - 生成全面的分析报告
@@ -255,7 +262,7 @@ diffai fp32.safetensors quantized.safetensors \
 
 ### CLI 输出（默认）
 ```bash
-$ diffai model_v1.safetensors model_v2.safetensors --stats
+$ diffai model_v1.safetensors model_v2.safetensors
   ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
   + new_layer.weight: shape=[64, 64], dtype=f32, params=4096
@@ -299,7 +306,7 @@ $ diffai config1.yaml config2.yaml --output yaml
 ### 训练进度监控
 ```bash
 # 比较训练检查点
-diffai checkpoint_epoch_10.safetensors checkpoint_epoch_20.safetensors --learning-progress
+diffai checkpoint_epoch_10.safetensors checkpoint_epoch_20.safetensors
 
 # 输出分析学习趋势和收敛速度
 + learning_progress: trend=improving, magnitude=0.0543, speed=0.80
@@ -308,7 +315,7 @@ diffai checkpoint_epoch_10.safetensors checkpoint_epoch_20.safetensors --learnin
 ### 模型微调分析
 ```bash
 # 分析微调前后的变化
-diffai pretrained_bert.safetensors finetuned_bert.safetensors --stats
+diffai pretrained_bert.safetensors finetuned_bert.safetensors
 
 # 显示统计变化
 ~ bert.encoder.layer.11.attention.self.query.weight: mean=-0.0001→0.0023
@@ -318,7 +325,7 @@ diffai pretrained_bert.safetensors finetuned_bert.safetensors --stats
 ### 量化影响评估
 ```bash
 # 评估量化对模型的影响
-diffai fp32_model.safetensors int8_model.safetensors --quantization-analysis
+diffai fp32_model.safetensors int8_model.safetensors
 
 # 分析压缩效果
 quantization_analysis: compression=75.0%, speedup=2.5x, precision_loss=2.0%, suitability=good
@@ -327,7 +334,7 @@ quantization_analysis: compression=75.0%, speedup=2.5x, precision_loss=2.0%, sui
 ### 部署准备度检查
 ```bash
 # 检查模型是否准备好部署
-diffai production.safetensors candidate.safetensors --deployment-readiness
+diffai production.safetensors candidate.safetensors
 
 # 评估部署风险
 deployment_readiness: readiness=0.75, strategy=gradual, risk=medium

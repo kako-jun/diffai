@@ -78,7 +78,7 @@ ML解析オプションが有効な場合、詳細モードではどの機能が
 
 ```bash
 diffai model1.safetensors model2.safetensors --verbose \
-  --stats \
+  \
   --architecture-comparison \
   --memory-analysis \
   --anomaly-detection
@@ -176,8 +176,8 @@ diffaiが予期しない動作をする場合、詳細モードで以下を特�
 # フォーマット検出が正しいかチェック
 diffai problematic_file1.dat problematic_file2.dat --verbose
 
-# ML解析機能が有効か確認
-diffai model1.pt model2.pt --verbose --stats --architecture-comparison
+# ML解析機能確認（MLモデルでは自動実行）
+diffai model1.pt model2.pt --verbose
 
 # ディレクトリ比較動作を解析
 diffai dir1/ dir2/ --verbose --recursive
@@ -249,7 +249,7 @@ CI/CDでデバッグのために詳細モードを使用：
 ```bash
 # GitHub Actionsなどで
 - name: 詳細出力でモデル比較
-  run: diffai baseline.safetensors new_model.safetensors --verbose --stats
+  run: diffai baseline.safetensors new_model.safetensors --verbose
 ```
 
 ### スクリプトと自動化
@@ -269,5 +269,4 @@ fi
 
 - [`--help`](basic-usage.md#help): 利用可能なすべてのオプションを表示
 - [`--output`](output-formats.md): 出力フォーマットの制御
-- [`--stats`](ml-analysis.md#statistics): ML統計解析の有効化
 - [`--recursive`](directory-comparison.md): ディレクトリ比較の有効化

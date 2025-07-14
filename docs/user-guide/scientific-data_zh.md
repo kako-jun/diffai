@@ -40,10 +40,10 @@ diffai超越了ML模型，支持研究和计算科学中常用的科学数据格
 
 ```bash
 # 比较单个NumPy数组
-diffai data_v1.npy data_v2.npy --stats
+diffai data_v1.npy data_v2.npy
 
 # 比较压缩的NumPy存档
-diffai dataset_v1.npz dataset_v2.npz --stats
+diffai dataset_v1.npz dataset_v2.npz
 
 # 使用特定输出格式
 diffai experiment_baseline.npy experiment_result.npy --output json
@@ -53,7 +53,7 @@ diffai experiment_baseline.npy experiment_result.npy --output json
 
 ```bash
 # 比较MATLAB文件
-diffai simulation_v1.mat simulation_v2.mat --stats
+diffai simulation_v1.mat simulation_v2.mat
 
 # 专注于特定变量
 diffai results_v1.mat results_v2.mat --path "experiment_data"
@@ -67,14 +67,14 @@ diffai analysis_v1.mat analysis_v2.mat --output yaml
 ### NumPy数组变化
 
 ```bash
-$ diffai experiment_data_v1.npy experiment_data_v2.npy --stats
+$ diffai experiment_data_v1.npy experiment_data_v2.npy
   ~ data: shape=[1000, 256], mean=0.1234->0.1456, std=0.9876->0.9654, dtype=float64
 ```
 
 ### MATLAB文件变化
 
 ```bash
-$ diffai simulation_v1.mat simulation_v2.mat --stats
+$ diffai simulation_v1.mat simulation_v2.mat
   ~ results: var=results, shape=[500, 100], mean=2.3456->2.4567, std=1.2345->1.3456, dtype=double
   + new_variable: var=new_variable, shape=[100], dtype=single, elements=100, size=0.39KB
 ```
@@ -82,7 +82,7 @@ $ diffai simulation_v1.mat simulation_v2.mat --stats
 ### 压缩存档比较
 
 ```bash
-$ diffai dataset_v1.npz dataset_v2.npz --stats
+$ diffai dataset_v1.npz dataset_v2.npz
   ~ train_data: shape=[60000, 784], mean=0.1307->0.1309, std=0.3081->0.3082, dtype=float32
   ~ test_data: shape=[10000, 784], mean=0.1325->0.1327, std=0.3105->0.3106, dtype=float32
   + validation_data: shape=[5000, 784], mean=0.1315, std=0.3095, dtype=float32
@@ -117,7 +117,7 @@ diffai data_v1.mat data_v2.mat --ignore-keys-regex "^(metadata|timestamp)"
 比较不同条件下的实验结果：
 
 ```bash
-diffai baseline_experiment.npy treated_experiment.npy --stats
+diffai baseline_experiment.npy treated_experiment.npy
 
 # 预期输出：变化的统计显著性
 # ~ data: shape=[1000, 50], mean=0.4567->0.5123, std=0.1234->0.1456, dtype=float64
@@ -133,7 +133,7 @@ diffai baseline_experiment.npy treated_experiment.npy --stats
 比较不同参数集的仿真输出：
 
 ```bash
-diffai simulation_param_1.mat simulation_param_2.mat --stats
+diffai simulation_param_1.mat simulation_param_2.mat
 
 # 预期输出：参数敏感性分析
 # ~ velocity_field: var=velocity_field, shape=[100, 100, 50], mean=1.234->1.567
@@ -150,7 +150,7 @@ diffai simulation_param_1.mat simulation_param_2.mat --stats
 比较不同处理阶段的数据：
 
 ```bash
-diffai raw_data.npz processed_data.npz --stats
+diffai raw_data.npz processed_data.npz
 
 # 预期输出：处理影响评估
 # ~ features: shape=[10000, 512], mean=0.0->0.5, std=1.0->0.25, dtype=float32
@@ -167,7 +167,7 @@ diffai raw_data.npz processed_data.npz --stats
 比较不同时间段的时间序列数据：
 
 ```bash
-diffai timeseries_q1.npy timeseries_q2.npy --stats
+diffai timeseries_q1.npy timeseries_q2.npy
 
 # 预期输出：时间模式变化
 # ~ data: shape=[2160, 24], mean=23.45->25.67, std=5.67->6.23, dtype=float32

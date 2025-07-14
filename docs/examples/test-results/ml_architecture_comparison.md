@@ -1,8 +1,8 @@
 # diffai Test: ml/architecture_comparison
 
-**Description:** Architecture comparison and deployment readiness assessment
+**Description:** Comprehensive ML analysis including architecture comparison (automatic)
 
-**Command:** `diffai tests/fixtures/ml_models/simple_base.safetensors tests/fixtures/ml_models/simple_modified.safetensors --architecture-comparison`
+**Command:** `diffai tests/fixtures/ml_models/simple_base.safetensors tests/fixtures/ml_models/simple_modified.safetensors`
 
 **Generated:** Mon Jul 14 02:00:32 PM JST 2025
 **Version:** v0.3.4

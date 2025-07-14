@@ -16,35 +16,30 @@ npm install -g diffai-js
 # Project-specific installation
 npm install diffai-js
 
-# One-time usage
-npx diffai model1.safetensors model2.safetensors --stats
+# One-time usage (30+ ML analysis features automatic)
+npx diffai model1.safetensors model2.safetensors
 ```
 
 ### Usage
 
 ```bash
-# Compare ML models with detailed statistics
-diffai model_v1.safetensors model_v2.safetensors --stats
+# Compare ML models (30+ analysis features automatic)
+diffai model_v1.safetensors model_v2.safetensors
 
-# Analyze architecture changes
-diffai baseline.safetensors modified.safetensors --architecture-comparison
+# All ML analysis features run automatically:
+# - Architecture comparison, memory analysis, anomaly detection
+# - Convergence analysis, gradient analysis, quantization analysis
+# - Deployment readiness, regression testing, and 22+ more features
 
-# Memory analysis for deployment optimization
-diffai model_fp32.safetensors model_quantized.safetensors --memory-analysis
+# JSON output for MLOps integration (all features included)
+diffai model1.safetensors model2.safetensors --output json
 
-# Comprehensive ML analysis (Phase 3 features)
-diffai checkpoint_v1.safetensors checkpoint_v2.safetensors \
-  --architecture-comparison \
-  --memory-analysis \
-  --anomaly-detection \
-  --convergence-analysis
-
-# JSON output for MLOps integration
-diffai model1.safetensors model2.safetensors --stats --output json
+# Verbose output with debugging information
+diffai model1.safetensors model2.safetensors --verbose
 
 # Compare scientific data
-diffai experiment_v1.npy experiment_v2.npy --stats
-diffai simulation_v1.mat simulation_v2.mat --stats
+diffai experiment_v1.npy experiment_v2.npy
+diffai simulation_v1.mat simulation_v2.mat
 
 # Standard structured data comparison
 diffai config_v1.json config_v2.json
@@ -67,65 +62,58 @@ diffai data_v1.yaml data_v2.yaml
 - **CSV** (.csv) - Datasets, experiment results
 - **INI** (.ini) - Legacy configuration files
 
-## 🔬 35 ML Analysis Functions
+## 🔬 30+ ML Analysis Functions (Automatic)
 
-diffai provides 35 specialized analysis functions for AI/ML workflows:
+diffai provides 30+ specialized analysis functions that run automatically for AI/ML models:
 
-### Core Analysis (Always Available)
-- `--stats` - Detailed tensor statistics (mean, std, min, max, shape, dtype)
-- `--quantization-analysis` - Quantization effect analysis
-- `--sort-by-change-magnitude` - Priority-sorted differences
-- `--show-layer-impact` - Layer-by-layer impact analysis
-
-### Phase 3 Advanced Analysis (v0.2.7+)
-- `--architecture-comparison` - Model architecture and structural changes
-- `--memory-analysis` - Memory usage and optimization opportunities  
-- `--anomaly-detection` - Numerical anomalies and training issues
-- `--change-summary` - Detailed change summaries and patterns
-- `--convergence-analysis` - Training convergence patterns
-- `--gradient-analysis` - Gradient flow health assessment
-- `--similarity-matrix` - Inter-layer similarity analysis
+### Automatic Comprehensive Analysis
+For PyTorch and Safetensors files, all analysis features run automatically:
+- **Statistical Analysis** - Detailed tensor statistics (mean, std, min, max, shape, dtype)
+- **Quantization Analysis** - Quantization effect analysis
+- **Architecture Comparison** - Model architecture and structural changes
+- **Memory Analysis** - Memory usage and optimization opportunities  
+- **Anomaly Detection** - Numerical anomalies and training issues
+- **Convergence Analysis** - Training convergence patterns
+- **Gradient Analysis** - Gradient flow health assessment
+- **Deployment Readiness** - Production deployment assessment
+- **Plus 22+ additional specialized features**
 
 ## 💡 Usage Examples
 
 ### Research & Development
 ```bash
-# Monitor training progress
-diffai epoch_100.safetensors epoch_101.safetensors --stats --convergence-analysis
+# Monitor training progress (all analysis automatic)
+diffai epoch_100.safetensors epoch_101.safetensors
 
-# Analyze fine-tuning effects
-diffai base_model.safetensors finetuned_model.safetensors \
-  --architecture-comparison --show-layer-impact
+# Analyze fine-tuning effects (comprehensive analysis automatic)
+diffai base_model.safetensors finetuned_model.safetensors
 
-# Debug training issues
-diffai stable_checkpoint.safetensors problematic_checkpoint.safetensors \
-  --anomaly-detection --gradient-analysis
+# Debug training issues (full analysis automatic)
+diffai stable_checkpoint.safetensors problematic_checkpoint.safetensors
 ```
 
 ### MLOps & Production
 ```bash
-# Pre-deployment validation
-diffai current_prod.safetensors candidate.safetensors \
-  --memory-analysis --quantization-analysis --change-summary
+# Pre-deployment validation (all analysis automatic)
+diffai current_prod.safetensors candidate.safetensors
 
 # CI/CD integration with JSON output
-diffai baseline.safetensors modified.safetensors --stats --output json | jq .
+diffai baseline.safetensors modified.safetensors --output json | jq .
 
-# Performance impact assessment
-diffai model_v1.safetensors model_v2.safetensors \
-  --memory-analysis --architecture-comparison
+# Performance impact assessment (comprehensive analysis automatic)
+diffai model_v1.safetensors model_v2.safetensors
 ```
 
 ### Scientific Computing
 ```bash
 # Compare experimental results
-diffai control_group.npy treatment_group.npy --stats
+diffai control_group.npy treatment_group.npy
 
 # Engineering simulation analysis
-diffai simulation_baseline.mat simulation_optimized.mat --stats
+diffai simulation_baseline.mat simulation_optimized.mat
 
 # Dataset version comparison
-diffai dataset_v1.npz dataset_v2.npz --stats --sort-by-change-magnitude
+diffai dataset_v1.npz dataset_v2.npz --sort-by-change-magnitude
 ```
 
 ## 🔧 Integration Examples
@@ -138,9 +126,7 @@ const { diff, diffString, inspect, isDiffaiAvailable, getVersion, DiffaiError } 
 async function compareModels() {
   try {
     const result = await diff('model1.safetensors', 'model2.safetensors', {
-      output: 'json',
-      stats: true,
-      architectureComparison: true
+      output: 'json'
     });
     
     console.log(`Found ${result.length} differences`);
@@ -196,7 +182,7 @@ function compareTensors(model1, model2, options = []) {
 }
 
 // Usage
-compareTensors('model1.safetensors', 'model2.safetensors', ['--stats', '--output', 'json'])
+compareTensors('model1.safetensors', 'model2.safetensors', ['--output', 'json'])
   .then(result => console.log(JSON.parse(result)))
   .catch(console.error);
 ```
@@ -209,10 +195,7 @@ const { diff } = require('diffai');
 async function logModelDiff(model1Path, model2Path, runId) {
   try {
     const diffData = await diff(model1Path, model2Path, {
-      stats: true,
-      output: 'json',
-      architectureComparison: true,
-      memoryAnalysis: true
+      output: 'json'
     });
     
     // Save comparison results

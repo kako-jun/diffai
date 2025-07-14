@@ -16,7 +16,7 @@ diffai supports a wide range of file formats optimized for different use cases, 
 
 **Example**:
 ```bash
-diffai model1.pt model2.pt --stats
+diffai model1.pt model2.pt
 ```
 
 ### Safetensors Models
@@ -27,7 +27,7 @@ diffai model1.pt model2.pt --stats
 
 **Example**:
 ```bash
-diffai model1.safetensors model2.safetensors --stats
+diffai model1.safetensors model2.safetensors
 ```
 
 ## Scientific Data Formats
@@ -40,8 +40,8 @@ diffai model1.safetensors model2.safetensors --stats
 
 **Example**:
 ```bash
-diffai data1.npy data2.npy --stats
-diffai archive1.npz archive2.npz --stats
+diffai data1.npy data2.npy
+diffai archive1.npz archive2.npz
 ```
 
 ### MATLAB Matrices
@@ -52,7 +52,7 @@ diffai archive1.npz archive2.npz --stats
 
 **Example**:
 ```bash
-diffai simulation1.mat simulation2.mat --stats
+diffai simulation1.mat simulation2.mat
 ```
 
 ## Structured Data Formats

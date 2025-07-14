@@ -34,13 +34,13 @@ pip install diffai-python
 After installation, the `diffai` command is available:
 
 ```bash
-# Compare ML models
-diffai model_v1.safetensors model_v2.safetensors --stats
+# Compare ML models (30+ analysis features automatic)
+diffai model_v1.safetensors model_v2.safetensors
 
 # Compare NumPy arrays
-diffai data_v1.npy data_v2.npy --stats
+diffai data_v1.npy data_v2.npy
 
-# JSON output for automation
+# JSON output for automation (all ML features included)
 diffai model_v1.pt model_v2.pt --output json
 ```
 
@@ -55,8 +55,6 @@ print(result.raw_output)
 
 # With options
 options = diffai.DiffOptions(
-    stats=True,
-    architecture_comparison=True,
     output_format=diffai.OutputFormat.JSON
 )
 result = diffai.diff("model_v1.pt", "model_v2.pt", options)
@@ -70,15 +68,10 @@ if result.is_json:
 ### Advanced ML Analysis
 
 ```python
-# Comprehensive ML model analysis
+# Comprehensive ML model analysis (automatic for ML models)
 result = diffai.diff(
     "baseline.safetensors", 
-    "improved.safetensors",
-    stats=True,
-    architecture_comparison=True,
-    memory_analysis=True,
-    anomaly_detection=True,
-    convergence_analysis=True
+    "improved.safetensors"
 )
 
 print(result.raw_output)
@@ -96,21 +89,21 @@ print(result.raw_output)
 - **JSON**: Machine-readable format for automation
 - **YAML**: Human-readable structured format
 
-## ML Analysis Features
+## ML Analysis Features (Automatic)
 
-The package provides 11 specialized ML analysis features:
+The package provides 30+ specialized ML analysis features that run automatically for PyTorch and Safetensors files:
 
-- `--stats`: Detailed tensor statistics
-- `--architecture-comparison`: Model structure comparison
-- `--memory-analysis`: Memory usage analysis  
-- `--anomaly-detection`: Numerical anomaly detection
-- `--convergence-analysis`: Training convergence analysis
-- `--gradient-analysis`: Gradient information analysis
-- `--similarity-matrix`: Layer similarity comparison
-- `--change-summary`: Detailed change summary
-- `--quantization-analysis`: Quantization impact analysis
-- `--sort-by-change-magnitude`: Sort by change magnitude
-- `--show-layer-impact`: Layer-specific impact analysis
+- **Detailed tensor statistics**: Mean, std, min, max, shape, dtype
+- **Model structure comparison**: Architecture and structural changes
+- **Memory usage analysis**: Memory optimization opportunities
+- **Numerical anomaly detection**: Training issues and anomalies
+- **Training convergence analysis**: Convergence patterns
+- **Gradient information analysis**: Gradient flow health
+- **Layer similarity comparison**: Inter-layer analysis
+- **Detailed change summary**: Comprehensive change patterns
+- **Quantization impact analysis**: Quantization effects
+- **Change magnitude sorting**: Priority-sorted differences
+- **Plus 20+ additional specialized features**
 
 ## API Reference
 
@@ -135,12 +128,9 @@ class DiffOptions:
     recursive: bool = False
     verbose: bool = False
     
-    # ML analysis options  
-    stats: bool = False
-    architecture_comparison: bool = False
-    memory_analysis: bool = False
-    anomaly_detection: bool = False
-    # ... and more
+    # For scientific data (NumPy/MATLAB)
+    stats: bool = False  # Only used for NumPy/MATLAB files
+    # Note: ML analysis runs automatically for PyTorch/Safetensors
 ```
 
 ### Results
@@ -166,9 +156,7 @@ class DiffResult:
 before = "model_baseline.safetensors"
 after = "model_finetuned.safetensors"
 
-result = diffai.diff(before, after, 
-                    stats=True, 
-                    convergence_analysis=True)
+result = diffai.diff(before, after)
 ```
 
 ### MLOps Integration
@@ -176,9 +164,7 @@ result = diffai.diff(before, after,
 # Automated model validation in CI/CD
 def validate_model_changes(old_model, new_model):
     result = diffai.diff(old_model, new_model,
-                        output_format=diffai.OutputFormat.JSON,
-                        anomaly_detection=True,
-                        memory_analysis=True)
+                        output_format=diffai.OutputFormat.JSON)
     
     if result.is_json:
         # Check for critical issues
@@ -206,9 +192,7 @@ def log_model_comparison(run_id1, run_id2):
     
     # Compare with diffai
     result = diffai.diff(model1_path, model2_path,
-                        output_format=diffai.OutputFormat.JSON,
-                        stats=True,
-                        architecture_comparison=True)
+                        output_format=diffai.OutputFormat.JSON)
     
     # Log results to MLflow
     with mlflow.start_run():
@@ -231,10 +215,7 @@ def log_model_comparison_wandb(model1_path, model2_path):
     """Log model comparison to Weights & Biases"""
     
     result = diffai.diff(model1_path, model2_path,
-                        output_format=diffai.OutputFormat.JSON,
-                        stats=True,
-                        memory_analysis=True,
-                        convergence_analysis=True)
+                        output_format=diffai.OutputFormat.JSON)
     
     # Log to wandb
     wandb.log({"model_comparison": result.data})
@@ -251,8 +232,7 @@ def log_model_comparison_wandb(model1_path, model2_path):
 ### Jupyter Notebooks
 ```python
 # Interactive analysis in notebooks
-result = diffai.diff("checkpoint_100.pt", "checkpoint_200.pt", 
-                    stats=True, memory_analysis=True)
+result = diffai.diff("checkpoint_100.pt", "checkpoint_200.pt")
 
 # Display results
 if result.is_json:
