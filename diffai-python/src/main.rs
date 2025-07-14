@@ -15,9 +15,8 @@ fn main() -> ExitCode {
             }
         }
         Err(_) => {
-            eprintln\!("Error: Failed to execute diffai CLI. Make sure diffai is installed.");
+            eprintln!("Error: Failed to execute diffai CLI. Make sure diffai is installed.");
             ExitCode::FAILURE
         }
     }
 }
-EOF < /dev/null
