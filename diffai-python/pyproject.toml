@@ -63,8 +63,8 @@ Repository = "https://github.com/kako-jun/diffai.git"
 Issues = "https://github.com/kako-jun/diffai/issues"
 Changelog = "https://github.com/kako-jun/diffai/blob/main/CHANGELOG.md"
 
-[project.scripts]
-diffai = "diffai:main"
+# [project.scripts]
+# diffai = "diffai:main"  # Commented out: conflicts with binary from Rust
 
 [tool.ruff]
 line-length = 88
