@@ -1,7 +1,7 @@
 # diffai Demo Output: help-output
 # Description: Complete CLI help showing all available options
 # Command: diffai --help
-# Generated: Mon Jul 14 01:58:45 PM JST 2025
+# Generated: Mon Jul 14 02:10:44 PM JST 2025
 # Version: 0.3.4
 
 ## Command Output:

@@ -1,7 +1,7 @@
 # diffai Demo Output: ml-model-architecture
 # Description: ML model architecture comparison
-# Command: diffai /home/kako-jun/repos/2025/diffai/tests/fixtures/ml_models/simple_base.safetensors /home/kako-jun/repos/2025/diffai/tests/fixtures/ml_models/simple_modified.safetensors --architecture-comparison
-# Generated: Mon Jul 14 01:58:45 PM JST 2025
+# Command: diffai tests/fixtures/ml_models/simple_base.safetensors tests/fixtures/ml_models/simple_modified.safetensors --architecture-comparison
+# Generated: Mon Jul 14 02:10:44 PM JST 2025
 # Version: 0.3.4
 
 ## Command Output:

@@ -1,0 +1,42 @@
+# diffai Demo Output: ml-model-full-analysis
+# Description: Complete ML model analysis with all available options
+# Command: diffai tests/fixtures/ml_models/simple_base.safetensors tests/fixtures/ml_models/simple_modified.safetensors --stats --quantization-analysis --architecture-comparison --memory-analysis --convergence-analysis --anomaly-detection --gradient-analysis --learning-progress --inference-speed-estimate --regression-test --alert-on-degradation --review-friendly --change-summary --risk-assessment --param-efficiency-analysis --hyperparameter-impact --learning-rate-analysis --deployment-readiness --performance-impact-estimate --generate-report --embedding-analysis --similarity-matrix --clustering-change --attention-analysis --head-importance --attention-pattern-diff --hyperparameter-comparison --learning-curve-analysis --statistical-significance
+# Generated: Mon Jul 14 09:45:23 PM JST 2025
+# Version: 0.3.4
+
+## Command Output:
+
+alert_degradation: triggered=false, "All metrics within normal range"
+◦ analysis_report: type="comprehensive_analysis", findings=2, recommendations=1, confidence=0.92
+anomaly_detection: type=none, severity=none, action="continue_training", regression_test=✅
+architecture_comparison: type1=feedforward, type2=feedforward, depth=6→6, differences=0, deployment_readiness=ready, "safe_to_upgrade"
+◦ attention_analysis: layers=12, pattern_changes=2, focus_shift=0.85, "high"
+◦ attention_pattern: pattern=stable→minimal_drift, similarity=0.9100, span_change=2, "maintain_current_patterns"
+change_summary: layers_changed=6, magnitude=1.1632, patterns=5, most_changed=5
+◦ clustering_change: clusters=8→10, stability=0.8900, migrated=8, new=10, dissolved=9, "slight_increase_in_clusters"
++ convergence_analysis: status=slow_convergence, stability=0.5465, inference_speed=⚡ (convergence)
+◦ deployment_readiness: readiness=0.92, strategy=blue_green, risk=low, timeline=ready_for_immediate_deployment
+◦ embedding_analysis: dim_change=768→768, semantic_drift=0.0300, similarity_preservation=0.9400, clustering_stability=0.8700
+◦ ensemble_analysis: models=3, diversity=0.72, efficiency=0.88x, redundancy=2 (ensemble)
+◦ experiment_reproducibility: score=0.91, critical_changes=1, determinism=0.91 (reproducibility)
+  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
+  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
+  ~ fc2.bias: mean=-0.0076->-0.0257, std=0.0661->0.0973
+  ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
+  ~ fc3.bias: mean=-0.0074->-0.0130, std=0.1031->0.1093
+  ~ fc3.weight: mean=-0.0035->-0.0010, std=0.0990->0.1113
+gradient_analysis: flow_health=healthy, norm=0.021069, ratio=2.1069
+◦ head_importance: important_heads=2, prunable_heads=2, specializations=4
+◦ hyperparameter_impact: lr_impact=0.1500, batch_impact=0.0800, convergence=0.1200, performance=2.3000
+inference_speed: speed_ratio=1.00x, flops_ratio=1.00x, bottlenecks=0, "optimal_for_deployment"
++ learning_progress: trend=improving, magnitude=0.0500, speed=0.80, memory_analysis=🧠 (learning_progress)
+◦ learning_rate_analysis: current_lr=0.001000, schedule=cosine_decay, effectiveness=0.8700, stability_impact=0.9200, "add_warmup_phase"
+memory_analysis: delta=+0.0MB, gpu_est=0.1MB, efficiency=1.000000, review_friendly="optimal_no_action_needed", "optimal_no_action_needed"
+◦ param_efficiency: efficiency_ratio=0.0094, utilization=0.87, pruning_potential=0.15, category=optimal, bottlenecks=1, "maintain_current_size"
+◦ performance_impact: latency_change=0.00%, throughput_change=-0.00%, memory_change=0.00%, category=neutral, confidence=0.8500
+◦ quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%, suitability=good (quantization)
+regression_test: passed=true, degradation=-2.5%, severity=low, "proceed_with_deployment"
+review_friendly: impact=medium, approval=approve, key_changes=2, "Model improvement with better convergence and performance"
+◦ risk_assessment: risk=low, readiness=ready, factors=1, rollback=easy
+◦ similarity_matrix: matrix_dims=6x6, clustering_coeff=1.0000, sparsity=0.0000, outliers=0, metric=cosine
+◦ transfer_learning_analysis: frozen=0/6, updated_params=100.0%, adaptation=strong, efficiency=0.85 (transfer_learning)
