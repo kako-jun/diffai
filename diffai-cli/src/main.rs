@@ -3,9 +3,7 @@
 use anyhow::{bail, Context, Result};
 use clap::{Parser, ValueEnum};
 use colored::*;
-use diffai_core::{
-    diff, diff_ml_models, diff_ml_models_enhanced, parse_csv, parse_ini, parse_xml, DiffResult,
-};
+use diffai_core::{diff, diff_ml_models_enhanced, parse_csv, parse_ini, parse_xml, DiffResult};
 use diffx_core::value_type_name;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
@@ -56,141 +54,9 @@ struct Args {
     #[arg(long)]
     array_id_key: Option<String>,
 
-    /// Show layer-by-layer impact analysis for ML models
-    #[arg(long)]
-    show_layer_impact: bool,
-
-    /// Enable quantization analysis for ML models
-    #[arg(long)]
-    quantization_analysis: bool,
-
-    /// Sort differences by change magnitude (ML models only)
-    #[arg(long)]
-    sort_by_change_magnitude: bool,
-
-    /// Show detailed statistics for ML models
-    #[arg(long)]
-    stats: bool,
-
     /// Show verbose processing information
     #[arg(short, long)]
     verbose: bool,
-
-    /// Analyze learning progress between training checkpoints
-    #[arg(long)]
-    learning_progress: bool,
-
-    /// Perform convergence analysis for training stability
-    #[arg(long)]
-    convergence_analysis: bool,
-
-    /// Detect training anomalies (gradient explosion, vanishing gradients)
-    #[arg(long)]
-    anomaly_detection: bool,
-
-    /// Analyze gradient characteristics and stability
-    #[arg(long)]
-    gradient_analysis: bool,
-
-    /// Analyze memory usage and efficiency between models
-    #[arg(long)]
-    memory_analysis: bool,
-
-    /// Estimate inference speed and performance characteristics
-    #[arg(long)]
-    inference_speed_estimate: bool,
-
-    /// Perform automated regression testing
-    #[arg(long)]
-    regression_test: bool,
-
-    /// Alert on performance degradation beyond thresholds
-    #[arg(long)]
-    alert_on_degradation: bool,
-
-    /// Generate review-friendly output for human reviewers
-    #[arg(long)]
-    review_friendly: bool,
-
-    /// Generate detailed change summary
-    #[arg(long)]
-    change_summary: bool,
-
-    /// Assess deployment risk and readiness
-    #[arg(long)]
-    risk_assessment: bool,
-
-    /// Compare model architectures and structural differences
-    #[arg(long)]
-    architecture_comparison: bool,
-
-    /// Analyze parameter efficiency between models
-    #[arg(long)]
-    param_efficiency_analysis: bool,
-
-    /// Analyze hyperparameter impact on model changes
-    #[arg(long)]
-    hyperparameter_impact: bool,
-
-    /// Analyze learning rate effects and patterns
-    #[arg(long)]
-    learning_rate_analysis: bool,
-
-    /// Assess deployment readiness and safety
-    #[arg(long)]
-    deployment_readiness: bool,
-
-    /// Estimate performance impact of model changes
-    #[arg(long)]
-    performance_impact_estimate: bool,
-
-    /// Generate comprehensive analysis report
-    #[arg(long)]
-    generate_report: bool,
-
-    /// Output results in markdown format
-    #[arg(long)]
-    markdown_output: bool,
-
-    /// Include charts and visualizations in output
-    #[arg(long)]
-    include_charts: bool,
-
-    /// Analyze embedding layer changes and semantic drift
-    #[arg(long)]
-    embedding_analysis: bool,
-
-    /// Generate similarity matrix for model comparison
-    #[arg(long)]
-    similarity_matrix: bool,
-
-    /// Analyze clustering changes in model representations
-    #[arg(long)]
-    clustering_change: bool,
-
-    /// Analyze attention mechanism patterns (Transformer models)
-    #[arg(long)]
-    attention_analysis: bool,
-
-    /// Analyze attention head importance and specialization
-    #[arg(long)]
-    head_importance: bool,
-
-    /// Compare attention patterns between models
-    #[arg(long)]
-    attention_pattern_diff: bool,
-
-    /// Compare hyperparameters from JSON/YAML configs (Phase 2)
-    #[arg(long)]
-    hyperparameter_comparison: bool,
-
-    /// Analyze learning curves from training logs (Phase 2)
-    #[arg(long)]
-    learning_curve_analysis: bool,
-
-    /// Perform statistical significance testing for metric changes (Phase 2)
-    #[arg(long)]
-    statistical_significance: bool,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug, Serialize, Deserialize)]
@@ -1088,65 +954,8 @@ fn main() -> Result<()> {
     let output_format = args.output.unwrap_or(OutputFormat::Cli);
     let input_format_from_config = None;
 
-    // Verbose configuration information
-    if args.verbose {
-        eprintln!("=== diffai verbose mode enabled ===");
-        eprintln!("Configuration:");
-        eprintln!("  Input format: {:?}", args.format);
-        eprintln!("  Output format: {:?}", output_format);
-        eprintln!("  Recursive mode: {}", args.recursive);
-
-        // ML analysis features enabled
-        let mut ml_features = Vec::new();
-        if args.stats {
-            ml_features.push("statistics");
-        }
-        if args.learning_progress {
-            ml_features.push("learning_progress");
-        }
-        if args.convergence_analysis {
-            ml_features.push("convergence_analysis");
-        }
-        if args.anomaly_detection {
-            ml_features.push("anomaly_detection");
-        }
-        if args.gradient_analysis {
-            ml_features.push("gradient_analysis");
-        }
-        if args.memory_analysis {
-            ml_features.push("memory_analysis");
-        }
-        if args.architecture_comparison {
-            ml_features.push("architecture_comparison");
-        }
-        if args.inference_speed_estimate {
-            ml_features.push("inference_speed_estimate");
-        }
-        if args.show_layer_impact {
-            ml_features.push("layer_impact");
-        }
-        if args.quantization_analysis {
-            ml_features.push("quantization_analysis");
-        }
-        if args.sort_by_change_magnitude {
-            ml_features.push("sort_by_change_magnitude");
-        }
-
-        if !ml_features.is_empty() {
-            eprintln!("  ML analysis features: {}", ml_features.join(", "));
-        }
-
-        // Advanced options
-        if let Some(epsilon) = args.epsilon {
-            eprintln!("  Epsilon tolerance: {}", epsilon);
-        }
-        if let Some(regex) = &args.ignore_keys_regex {
-            eprintln!("  Ignore keys regex: {}", regex);
-        }
-        if let Some(path) = &args.path {
-            eprintln!("  Path filter: {}", path);
-        }
-    }
+    // Verbose configuration information (will be shown after format detection)
+    let show_verbose_config = args.verbose;
 
     let ignore_keys_regex = if let Some(regex_str) = &args.ignore_keys_regex {
         Some(Regex::new(regex_str).context("Invalid regex for --ignore-keys-regex")?)
@@ -1212,6 +1021,39 @@ fn main() -> Result<()> {
         }
     }
 
+    // Show verbose configuration after format detection
+    if show_verbose_config {
+        eprintln!("=== diffai verbose mode enabled ===");
+        eprintln!("Configuration:");
+        eprintln!("  Input format: {:?}", input_format);
+        eprintln!("  Output format: {:?}", output_format);
+        eprintln!("  Recursive mode: {}", args.recursive);
+
+        // ML analysis features (always enabled for ML models)
+        match input_format {
+            Format::Safetensors | Format::Pytorch => {
+                eprintln!("  ML analysis: Full analysis enabled (all 28 features)");
+            }
+            Format::Numpy | Format::Npz | Format::Matlab => {
+                eprintln!("  Scientific data analysis: Array statistics enabled");
+            }
+            _ => {
+                eprintln!("  Analysis mode: Structured data comparison");
+            }
+        }
+
+        // Advanced options
+        if let Some(epsilon) = args.epsilon {
+            eprintln!("  Epsilon tolerance: {}", epsilon);
+        }
+        if let Some(regex) = &args.ignore_keys_regex {
+            eprintln!("  Ignore keys regex: {}", regex);
+        }
+        if let Some(path) = &args.path {
+            eprintln!("  Path filter: {}", path);
+        }
+    }
+
     let mut differences = match input_format {
         Format::Numpy | Format::Npz => {
             // Handle NumPy scientific array comparison
@@ -1222,82 +1064,44 @@ fn main() -> Result<()> {
             diffai_core::diff_matlab_files(&args.input1, &args.input2)?
         }
         Format::Safetensors | Format::Pytorch => {
-            // Check if any ML-specific options are enabled
-            if args.show_layer_impact
-                || args.quantization_analysis
-                || args.stats
-                || args.learning_progress
-                || args.convergence_analysis
-                || args.anomaly_detection
-                || args.gradient_analysis
-                || args.memory_analysis
-                || args.inference_speed_estimate
-                || args.regression_test
-                || args.alert_on_degradation
-                || args.review_friendly
-                || args.change_summary
-                || args.risk_assessment
-                || args.architecture_comparison
-                || args.param_efficiency_analysis
-                || args.hyperparameter_impact
-                || args.learning_rate_analysis
-                || args.deployment_readiness
-                || args.performance_impact_estimate
-                || args.generate_report
-                || args.markdown_output
-                || args.include_charts
-                || args.embedding_analysis
-                || args.similarity_matrix
-                || args.clustering_change
-                || args.attention_analysis
-                || args.head_importance
-                || args.attention_pattern_diff
-                || args.hyperparameter_comparison
-                || args.learning_curve_analysis
-                || args.statistical_significance
-            {
-                // Use enhanced ML analysis
-                diff_ml_models_enhanced(
-                    &args.input1,
-                    &args.input2,
-                    args.learning_progress,
-                    args.convergence_analysis,
-                    args.anomaly_detection,
-                    args.gradient_analysis,
-                    args.memory_analysis,
-                    args.inference_speed_estimate,
-                    args.regression_test,
-                    args.alert_on_degradation,
-                    args.review_friendly,
-                    args.change_summary,
-                    args.risk_assessment,
-                    args.architecture_comparison,
-                    args.param_efficiency_analysis,
-                    args.hyperparameter_impact,
-                    args.learning_rate_analysis,
-                    args.deployment_readiness,
-                    args.performance_impact_estimate,
-                    args.generate_report,
-                    args.markdown_output,
-                    args.include_charts,
-                    args.embedding_analysis,
-                    args.similarity_matrix,
-                    args.clustering_change,
-                    args.attention_analysis,
-                    args.head_importance,
-                    args.attention_pattern_diff,
-                    args.hyperparameter_comparison,
-                    args.learning_curve_analysis,
-                    args.statistical_significance,
-                    args.quantization_analysis,
-                    false, // transfer_learning_analysis
-                    false, // experiment_reproducibility
-                    false, // ensemble_analysis
-                )?
-            } else {
-                // Use basic ML comparison for backward compatibility
-                diff_ml_models(&args.input1, &args.input2)?
-            }
+            // Always use enhanced ML analysis with all features enabled
+            diff_ml_models_enhanced(
+                &args.input1,
+                &args.input2,
+                true, // learning_progress
+                true, // convergence_analysis
+                true, // anomaly_detection
+                true, // gradient_analysis
+                true, // memory_analysis
+                true, // inference_speed_estimate
+                true, // regression_test
+                true, // alert_on_degradation
+                true, // review_friendly
+                true, // change_summary
+                true, // risk_assessment
+                true, // architecture_comparison
+                true, // param_efficiency_analysis
+                true, // hyperparameter_impact
+                true, // learning_rate_analysis
+                true, // deployment_readiness
+                true, // performance_impact_estimate
+                true, // generate_report
+                true, // markdown_output
+                true, // include_charts
+                true, // embedding_analysis
+                true, // similarity_matrix
+                true, // clustering_change
+                true, // attention_analysis
+                true, // head_importance
+                true, // attention_pattern_diff
+                true, // hyperparameter_comparison
+                true, // learning_curve_analysis
+                true, // statistical_significance
+                true, // quantization_analysis
+                true, // transfer_learning_analysis
+                true, // experiment_reproducibility
+                true, // ensemble_analysis
+            )?
         }
         _ => {
             // Handle regular structured data files
@@ -1402,7 +1206,7 @@ fn main() -> Result<()> {
     }
 
     match output_format {
-        OutputFormat::Cli => print_cli_output(differences, args.sort_by_change_magnitude),
+        OutputFormat::Cli => print_cli_output(differences, false),
         OutputFormat::Json => print_json_output(differences)?,
         OutputFormat::Yaml => print_yaml_output(differences)?,
         OutputFormat::Unified => match input_format {

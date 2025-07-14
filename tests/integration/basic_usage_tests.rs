@@ -11,89 +11,94 @@ fn diffai_cmd() -> Command {
 /// Tests basic usage examples and implemented features mentioned in the basic usage guide
 
 #[test]
-fn test_stats_feature() -> Result<(), Box<dyn std::error::Error>> {
+fn test_default_ml_analysis() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
-        .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--stats");
+        .arg("../tests/fixtures/ml_models/simple_modified.safetensors");
 
     let output = cmd.output()?;
     assert!(output.status.success());
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    // Should contain statistical information
+    // Should contain statistical information by default
     assert!(stdout.contains("mean=") || stdout.contains("std=") || stdout.contains("shape="));
+    // Should also contain advanced analysis
+    assert!(stdout.contains("convergence_analysis") || stdout.contains("anomaly_detection") || stdout.contains("quantization_analysis"));
 
     Ok(())
 }
 
 #[test]
-fn test_quantization_analysis() -> Result<(), Box<dyn std::error::Error>> {
+fn test_quantization_analysis_included() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
-        .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--quantization-analysis");
-
-    let output = cmd.output()?;
-    assert!(output.status.success());
-
-    // Quantization analysis should run without error
-    Ok(())
-}
-
-#[test]
-fn test_sort_by_change_magnitude() -> Result<(), Box<dyn std::error::Error>> {
-    let mut cmd = diffai_cmd();
-    cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
-        .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--sort-by-change-magnitude");
-
-    let output = cmd.output()?;
-    assert!(output.status.success());
-
-    // Should run without error
-    Ok(())
-}
-
-#[test]
-fn test_show_layer_impact() -> Result<(), Box<dyn std::error::Error>> {
-    let mut cmd = diffai_cmd();
-    cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
-        .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--show-layer-impact");
-
-    let output = cmd.output()?;
-    assert!(output.status.success());
-
-    // Should run without error
-    Ok(())
-}
-
-#[test]
-fn test_combined_implemented_features() -> Result<(), Box<dyn std::error::Error>> {
-    let mut cmd = diffai_cmd();
-    cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
-        .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--stats")
-        .arg("--quantization-analysis")
-        .arg("--sort-by-change-magnitude");
+        .arg("../tests/fixtures/ml_models/simple_modified.safetensors");
 
     let output = cmd.output()?;
     assert!(output.status.success());
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    // Should contain statistical information when using --stats
-    assert!(stdout.contains("mean=") || stdout.contains("std=") || stdout.contains("shape="));
+    // Quantization analysis should be included in default output
+    assert!(stdout.contains("quantization_analysis") || stdout.contains("compression=") || stdout.contains("speedup="));
 
     Ok(())
 }
 
 #[test]
-fn test_json_output_with_implemented_features() -> Result<(), Box<dyn std::error::Error>> {
+fn test_comprehensive_analysis() -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = diffai_cmd();
+    cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
+        .arg("../tests/fixtures/ml_models/simple_modified.safetensors");
+
+    let output = cmd.output()?;
+    assert!(output.status.success());
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    // Should contain multiple analysis types
+    assert!(stdout.contains("gradient_analysis") || stdout.contains("memory_analysis") || stdout.contains("deployment_readiness"));
+
+    Ok(())
+}
+
+#[test]
+fn test_architecture_analysis_included() -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = diffai_cmd();
+    cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
+        .arg("../tests/fixtures/ml_models/simple_modified.safetensors");
+
+    let output = cmd.output()?;
+    assert!(output.status.success());
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    // Should contain architecture analysis by default
+    assert!(stdout.contains("architecture_comparison") || stdout.contains("deployment_readiness") || stdout.contains("type1=feedforward"));
+
+    Ok(())
+}
+
+#[test]
+fn test_full_analysis_by_default() -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = diffai_cmd();
+    cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
+        .arg("../tests/fixtures/ml_models/simple_modified.safetensors");
+
+    let output = cmd.output()?;
+    assert!(output.status.success());
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    // Should contain statistical information by default
+    assert!(stdout.contains("mean=") || stdout.contains("std=") || stdout.contains("shape="));
+    // Should contain multiple analysis types
+    assert!(stdout.contains("quantization_analysis") || stdout.contains("architecture_comparison") || stdout.contains("gradient_analysis"));
+
+    Ok(())
+}
+
+#[test]
+fn test_json_output_with_full_analysis() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
         .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--stats")
         .arg("--output")
         .arg("json");
 
@@ -108,11 +113,10 @@ fn test_json_output_with_implemented_features() -> Result<(), Box<dyn std::error
 }
 
 #[test]
-fn test_yaml_output_with_implemented_features() -> Result<(), Box<dyn std::error::Error>> {
+fn test_yaml_output_with_full_analysis() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
         .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--stats")
         .arg("--output")
         .arg("yaml");
 

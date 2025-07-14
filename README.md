@@ -14,19 +14,21 @@ A next-generation diff tool specialized for **AI/ML and scientific computing wor
 $ diff model_v1.safetensors model_v2.safetensors
 Binary files model_v1.safetensors and model_v2.safetensors differ
 
-# diffai shows meaningful model changes
-$ diffai model_v1.safetensors model_v2.safetensors --stats
+# diffai shows meaningful model changes with full analysis
+$ diffai model_v1.safetensors model_v2.safetensors
   ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
   ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
   gradient_analysis: flow_health=healthy, norm=0.015000, ratio=1.0500
+  deployment_readiness: readiness=0.92, strategy=blue_green, risk=low
+  quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%
 ```
 
 ## Key Features
 
 - **AI/ML Native**: Direct support for PyTorch (.pt/.pth), Safetensors (.safetensors), NumPy (.npy/.npz), and MATLAB (.mat) files
 - **Tensor Analysis**: Automatic calculation of tensor statistics (mean, std, min, max, shape, memory usage)
-- **ML Analysis Functions**: Statistical analysis, quantization analysis, architecture comparison, and more
+- **Comprehensive ML Analysis**: 30+ analysis functions including quantization, architecture, memory, convergence, anomaly detection, and deployment readiness - all enabled by default
 - **Scientific Data Support**: NumPy arrays and MATLAB matrices with complex number support
 - **Pure Rust Implementation**: No system dependencies, works on Windows/Linux/macOS without additional installations
 - **Multiple Output Formats**: Colored CLI, JSON for MLOps integration, YAML for human-readable reports
@@ -76,36 +78,34 @@ cargo build --release
 ### Basic Model Comparison
 
 ```bash
-# Compare PyTorch models
-diffai model_old.pt model_new.pt --stats
+# Compare PyTorch models with full analysis (default)
+diffai model_old.pt model_new.pt
 
-# Compare Safetensors with statistical analysis
-diffai checkpoint_v1.safetensors checkpoint_v2.safetensors --stats
+# Compare Safetensors with complete ML analysis
+diffai checkpoint_v1.safetensors checkpoint_v2.safetensors
 
 # Compare NumPy arrays
-diffai data_v1.npy data_v2.npy --stats
+diffai data_v1.npy data_v2.npy
 
 # Compare MATLAB files
-diffai experiment_v1.mat experiment_v2.mat --stats
+diffai experiment_v1.mat experiment_v2.mat
 ```
 
-### Advanced ML Analysis
+### ML Analysis Features
 
 ```bash
-# Current available analysis
-diffai baseline.safetensors finetuned.safetensors --stats --quantization-analysis
-
-# Combined analysis with sorting
-diffai original.pt optimized.pt --stats --quantization-analysis --sort-by-change-magnitude
+# Full ML analysis runs automatically for PyTorch/Safetensors
+diffai baseline.safetensors finetuned.safetensors
+# Outputs: 30+ analysis types including quantization, architecture, memory, etc.
 
 # JSON output for automation
-diffai model_v1.safetensors model_v2.safetensors --stats --output json
+diffai model_v1.safetensors model_v2.safetensors --output json
 
 # Detailed diagnostic information with verbose mode
-diffai model_v1.safetensors model_v2.safetensors --verbose --stats --architecture-comparison
+diffai model_v1.safetensors model_v2.safetensors --verbose
 
-# Future Phase 3 features (coming soon)
-diffai model_v1.safetensors model_v2.safetensors --architecture-comparison --memory-analysis
+# YAML output for human-readable reports
+diffai model_v1.safetensors model_v2.safetensors --output yaml
 ```
 
 ## 📚 Documentation
@@ -165,12 +165,12 @@ Get comprehensive diagnostic information for debugging and performance analysis:
 # Basic verbose output
 diffai model1.safetensors model2.safetensors --verbose
 
-# Verbose with ML analysis features
-diffai data1.json data2.json --verbose --stats --epsilon 0.001 --ignore-keys-regex "^id$"
+# Verbose with structured data filtering
+diffai data1.json data2.json --verbose --epsilon 0.001 --ignore-keys-regex "^id$"
 ```
 
 **Verbose output includes:**
-- **Configuration diagnostics**: Active ML features, format settings, filters
+- **Configuration diagnostics**: Format settings, filters, analysis modes
 - **File analysis**: Paths, sizes, detected formats, processing context
 - **Performance metrics**: Processing time, difference counts, optimization status
 - **Directory statistics**: File counts, comparison summaries (with `--recursive`)
@@ -179,9 +179,9 @@ diffai data1.json data2.json --verbose --stats --epsilon 0.001 --ignore-keys-reg
 ```
 === diffai verbose mode enabled ===
 Configuration:
-  Input format: None
+  Input format: Safetensors
   Output format: Cli
-  ML analysis features: statistics, architecture_comparison
+  ML analysis: Full analysis enabled (all 30 features)
   Epsilon tolerance: 0.001
 
 File analysis:
@@ -223,30 +223,30 @@ diffai model1.safetensors model2.safetensors --output yaml
 
 ### Research & Development
 ```bash
-# Compare model before and after fine-tuning
-diffai pretrained_model.safetensors finetuned_model.safetensors \
-  --learning-progress --convergence-analysis --stats
+# Compare model before and after fine-tuning (full analysis automatic)
+diffai pretrained_model.safetensors finetuned_model.safetensors
+# Outputs: learning_progress, convergence_analysis, parameter stats, and 27 more analyses
 
 # Analyze architectural changes during development
-diffai baseline_architecture.pt improved_architecture.pt \
-  --architecture-comparison --param-efficiency-analysis
+diffai baseline_architecture.pt improved_architecture.pt
+# Outputs: architecture_comparison, param_efficiency_analysis, and full ML analysis
 ```
 
 ### MLOps & CI/CD
 ```bash
-# Automated model validation in CI/CD
-diffai production_model.safetensors candidate_model.safetensors \
-  --deployment-readiness --regression-test --risk-assessment
+# Automated model validation in CI/CD (comprehensive analysis)
+diffai production_model.safetensors candidate_model.safetensors
+# Outputs: deployment_readiness, regression_test, risk_assessment, and 27 more analyses
 
-# Performance impact assessment
-diffai original_model.pt optimized_model.pt \
-  --quantization-analysis --memory-analysis --performance-impact-estimate
+# Performance impact assessment with JSON output for automation
+diffai original_model.pt optimized_model.pt --output json
+# Outputs: quantization_analysis, memory_analysis, performance_impact_estimate, etc.
 ```
 
 ### Scientific Computing
 ```bash
 # Compare NumPy experiment results
-diffai baseline_results.npy new_results.npy --stats
+diffai baseline_results.npy new_results.npy
 
 # Analyze MATLAB simulation data
 diffai simulation_v1.mat simulation_v2.mat --stats
