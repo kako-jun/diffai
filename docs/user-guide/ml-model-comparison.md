@@ -43,20 +43,28 @@ For each tensor in the model, diffai calculates and compares:
 ### Simple Comparison
 
 ```bash
-# Compare two PyTorch models
-diffai model1.pt model2.pt --stats
+# Compare two PyTorch models (comprehensive analysis automatic)
+diffai model1.pt model2.pt
 
-# Compare Safetensors models (recommended)
-diffai model1.safetensors model2.safetensors --stats
+# Compare Safetensors models (recommended, comprehensive analysis automatic)
+diffai model1.safetensors model2.safetensors
 
-# Automatic format detection
-diffai pretrained.safetensors finetuned.safetensors --stats
+# Automatic format detection with full analysis
+diffai pretrained.safetensors finetuned.safetensors
 ```
 
 ### Example Output
 
 ```bash
-$ diffai model_v1.safetensors model_v2.safetensors --stats
+$ diffai model_v1.safetensors model_v2.safetensors
+anomaly_detection: type=none, severity=none, action="continue_training"
+architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
+convergence_analysis: status=converging, stability=0.92
+gradient_analysis: flow_health=healthy, norm=0.021069
+memory_analysis: delta=+0.0MB, efficiency=1.000000
+quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%
+regression_test: passed=true, degradation=-2.5%, severity=low
+deployment_readiness: readiness=0.92, risk=low
   ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
   ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
@@ -114,9 +122,12 @@ diffai model1.safetensors model2.safetensors --ignore-keys-regex "^(timestamp|_m
 Compare a pre-trained model with its fine-tuned version:
 
 ```bash
-diffai pretrained_bert.safetensors finetuned_bert.safetensors --stats
+diffai pretrained_bert.safetensors finetuned_bert.safetensors
 
-# Expected output: Statistical changes in attention layers
+# Expected output: Comprehensive analysis with attention layer changes
+# anomaly_detection: type=none, severity=none
+# architecture_comparison: type=transformer, deployment_readiness=ready
+# convergence_analysis: status=converged, stability=0.95
 # ~ bert.encoder.layer.11.attention.self.query.weight: mean=-0.0001→0.0023
 # ~ classifier.weight: mean=0.0000→0.0145, std=0.0200→0.0890
 ```
@@ -366,135 +377,73 @@ gunzip model.safetensors.gz
 
 ## ML Analysis Features
 
-### Currently Available (v0.2.0)
+### Comprehensive Analysis (Automatic)
 
-diffai provides the following implemented analysis features:
+diffai now provides automatic comprehensive analysis with 30+ features for ML models:
 
-### 1. Statistical Analysis (`--stats`)
+### Automatic Analysis Features
 
-Provides detailed tensor statistics for model comparison:
+All analysis is performed automatically when comparing PyTorch/Safetensors files:
 
 ```bash
-# Compare training checkpoints with detailed statistics
-diffai checkpoint_epoch_10.safetensors checkpoint_epoch_20.safetensors --stats
+# Single command triggers comprehensive analysis
+diffai checkpoint_epoch_10.safetensors checkpoint_epoch_20.safetensors
 
-# Output example:
-# ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
-# ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
+# Output includes:
+# - Anomaly detection
+# - Architecture comparison
+# - Convergence analysis
+# - Gradient analysis
+# - Memory analysis
+# - Quantization analysis
+# - Regression testing
+# - Deployment readiness
+# - Statistical analysis
+# - And 20+ more features
 ```
 
-**Analysis Information:**
-- **mean**: Average parameter values
-- **std**: Standard deviation of parameters  
-- **min/max**: Parameter value ranges
-- **shape**: Tensor dimensions
-- **dtype**: Data type precision
+**Analysis Information (Automatic):**
+- **Statistical metrics**: mean, std, min/max, shape, dtype
+- **Architecture analysis**: model type, complexity, migration difficulty
+- **Performance metrics**: memory usage, quantization impact, speedup
+- **Training insights**: convergence status, gradient health, stability
+- **Deployment readiness**: risk assessment, compatibility, optimization
 
 **Use Cases:**
-- Monitor parameter changes during training
-- Detect statistical shifts in model weights
-- Validate model consistency
+- Monitor complete training progress
+- Validate production deployment readiness
+- Comprehensive model comparison
+- Automated quality assurance
 
-### 2. Quantization Analysis (`--quantization-analysis`)
-
-Analyzes quantization effects and efficiency:
-
-```bash
-# Compare quantized vs full-precision models
-diffai fp32_model.safetensors quantized_model.safetensors --quantization-analysis
-
-# Output example:
-# quantization_analysis: compression=0.25, precision_loss=minimal
-```
-
-**Analysis Information:**
-- **compression**: Model size reduction ratio
-- **precision_loss**: Accuracy impact assessment
-- **efficiency**: Performance vs quality trade-offs
-
-**Use Cases:**
-- Validate quantization quality
-- Optimize deployment size
-- Compare compression techniques
-
-### 3. Change Magnitude Sorting (`--sort-by-change-magnitude`)
-
-Sorts differences by magnitude for prioritization:
-
-```bash
-# Sort changes by importance
-diffai model1.safetensors model2.safetensors --sort-by-change-magnitude --stats
-
-# Output shows largest changes first
-```
-
-**Use Cases:**
-- Focus on most significant changes
-- Prioritize debugging efforts
-- Identify critical parameter shifts
-
-### 4. Layer Impact Analysis (`--show-layer-impact`)
-
-Analyzes layer-by-layer impact of changes:
-
-```bash
-# Analyze impact across model layers
-diffai baseline.safetensors modified.safetensors --show-layer-impact
-
-# Output shows per-layer change analysis
-```
-
-**Use Cases:**
-- Understand which layers changed most
-- Guide fine-tuning strategies
-- Analyze architectural modifications
-
-### 5. Combined Analysis
-
-Combine multiple features for comprehensive analysis:
-
-```bash
-# Comprehensive model analysis
-diffai checkpoint_v1.safetensors checkpoint_v2.safetensors \
-  --stats \
-  --quantization-analysis \
-  --sort-by-change-magnitude \
-  --show-layer-impact
-
-# JSON output for automation
-diffai model1.safetensors model2.safetensors \
-  --stats --output json
-```
-
-## Feature Selection Guide
+## Simplified Usage Guide
 
 **For Training Monitoring:**
 ```bash
-diffai checkpoint_old.safetensors checkpoint_new.safetensors \
-  --stats --sort-by-change-magnitude
+# Comprehensive analysis automatic
+diffai checkpoint_old.safetensors checkpoint_new.safetensors
 ```
 
 **For Production Deployment:**
 ```bash
-diffai current_prod.safetensors candidate.safetensors \
-  --stats --quantization-analysis
+# Full deployment readiness analysis automatic
+diffai current_prod.safetensors candidate.safetensors
 ```
 
 **For Research Analysis:**
 ```bash
-diffai baseline.safetensors experiment.safetensors \
-  --stats --show-layer-impact
+# Complete experimental comparison automatic
+diffai baseline.safetensors experiment.safetensors
 ```
 
 **For Quantization Validation:**
 ```bash
-diffai fp32.safetensors quantized.safetensors \
-  --quantization-analysis --stats
+# Automatic quantization impact assessment
+diffai fp32.safetensors quantized.safetensors
 ```
 
-## Phase 3 Features (Now Available)
+## Advanced Features (Integrated)
 
-### Phase 3A: Core Analysis Features
+### Core Analysis Features (Automatic)
 
 #### Architecture Comparison (`--architecture-comparison`)
 Compare model architectures and detect structural changes:

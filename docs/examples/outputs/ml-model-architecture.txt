@@ -1,15 +1,24 @@
 # diffai Demo Output: ml-model-architecture
-# Description: ML model architecture comparison
-# Command: diffai tests/fixtures/ml_models/simple_base.safetensors tests/fixtures/ml_models/simple_modified.safetensors --architecture-comparison
+# Description: ML model comprehensive analysis (architecture comparison included automatically)
+# Command: diffai tests/fixtures/ml_models/simple_base.safetensors tests/fixtures/ml_models/simple_modified.safetensors
 # Generated: Mon Jul 14 02:10:44 PM JST 2025
 # Version: 0.3.4
 
 ## Command Output:
 
-architecture_comparison: type1=feedforward, type2=feedforward, depth=6→6, differences=0, deployment_readiness=ready, "safe_to_upgrade"
-  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
-  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
-  ~ fc2.bias: mean=-0.0076->-0.0257, std=0.0661->0.0973
-  ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
-  ~ fc3.bias: mean=-0.0074->-0.0130, std=0.1031->0.1093
-  ~ fc3.weight: mean=-0.0035->-0.0010, std=0.0990->0.1113
+anomaly_detection: type=missing_layer, severity=medium, action="monitor_closely_adjust_hyperparameters", regression_test=regression_test_required
+architecture_comparison: type1=feedforward, type2=feedforward, depth=2→6, differences=10, deployment_readiness=not_ready, "thorough_testing_required"
+change_summary: layers_changed=8, magnitude=2.0000, patterns=2, most_changed=5
++ convergence_analysis: status=plateaued, stability=1.0000, inference_speed=⚡ (convergence)
+gradient_analysis: flow_health=vanishing, norm=0.000000, ratio=1.0000
+memory_analysis: delta=+0.0MB, gpu_est=0.1MB, efficiency=0.015470, review_friendly="optimal_no_action_needed", "optimal_no_action_needed"
+◦ quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%, suitability=good (quantization)
+regression_test: passed=true, degradation=-2.5%, severity=low, "proceed_with_deployment"
+  - fc.bias: shape=[5], dtype=f32, params=5
+  - fc.weight: shape=[5, 10], dtype=f32, params=50
+  + fc1.bias: shape=[64], dtype=f32, params=64
+  + fc1.weight: shape=[64, 128], dtype=f32, params=8192
+  + fc2.bias: shape=[32], dtype=f32, params=32
+  + fc2.weight: shape=[32, 64], dtype=f32, params=2048
+  + fc3.bias: shape=[10], dtype=f32, params=10
+  + fc3.weight: shape=[10, 32], dtype=f32, params=320

@@ -7,14 +7,14 @@ Learn the fundamental operations of diffai - AI/ML specialized diff tool.
 ### Basic File Comparison
 
 ```bash
-# Compare two model files
+# Compare two model files (comprehensive analysis automatic)
 diffai model1.safetensors model2.safetensors
-
-# Show detailed tensor statistics
-diffai model1.safetensors model2.safetensors --stats
 
 # Output in JSON format
 diffai model1.safetensors model2.safetensors --output json
+
+# Output in YAML format  
+diffai model1.safetensors model2.safetensors --output yaml
 ```
 
 ### Directory Comparison
@@ -32,45 +32,52 @@ diffai models_v1/ models_v2/ --format safetensors --recursive
 ### PyTorch Model Comparison
 
 ```bash
-# Compare PyTorch model files
-diffai model1.pt model2.pt --stats
+# Compare PyTorch model files (full analysis automatic)
+diffai model1.pt model2.pt
 
-# With quantization analysis
-diffai checkpoint_epoch_1.pt checkpoint_epoch_10.pt --quantization-analysis
+# Compare training checkpoints  
+diffai checkpoint_epoch_1.pt checkpoint_epoch_10.pt
 
-# With combined analysis (coming in Phase 3)
-diffai baseline_model.pt improved_model.pt --architecture-comparison
+# Compare baseline vs improved model
+diffai baseline_model.pt improved_model.pt
 ```
 
-**Example Output:**
+**Example Output (Full Analysis):**
 ```
+anomaldy_detection: type=none, severity=none, action="continue_training"
+architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
+convergence_analysis: status=converging, stability=0.92
+gradient_analysis: flow_health=healthy, norm=0.021069
+memory_analysis: delta=+0.0MB, efficiency=1.000000
+quantization_analysis: compression=0.25, speedup=1.8x, precision_loss=minimal
+regression_test: passed=true, degradation=-2.5%, severity=low
+deployment_readiness: readiness=0.92, risk=low
   ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
   ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
-  quantization_analysis: compression=0.25, precision_loss=minimal
 ```
 
 ### Safetensors File Comparison
 
 ```bash
-# Compare Safetensors files with statistics
-diffai model1.safetensors model2.safetensors --stats
+# Compare Safetensors files (comprehensive analysis automatic)
+diffai model1.safetensors model2.safetensors
 
-# With deployment readiness analysis
-diffai baseline.safetensors candidate.safetensors --deployment-readiness
+# For production deployment validation
+diffai baseline.safetensors candidate.safetensors
 ```
 
 ### Scientific Data Comparison
 
 ```bash
-# Compare NumPy arrays
-diffai data_v1.npy data_v2.npy --stats
+# Compare NumPy arrays (automatic statistics)
+diffai data_v1.npy data_v2.npy
 
-# Compare MATLAB files
-diffai simulation_v1.mat simulation_v2.mat --stats
+# Compare MATLAB files (automatic statistics)
+diffai simulation_v1.mat simulation_v2.mat
 
-# Compare compressed NumPy archives
-diffai dataset_v1.npz dataset_v2.npz --stats
+# Compare compressed NumPy archives (automatic statistics)
+diffai dataset_v1.npz dataset_v2.npz
 ```
 
 ## Command Options
@@ -82,7 +89,7 @@ diffai dataset_v1.npz dataset_v2.npz --stats
 | `-f, --format` | Specify input file format | `--format safetensors` |
 | `-o, --output` | Choose output format | `--output json` |
 | `-r, --recursive` | Compare directories recursively | `--recursive` |
-| `--stats` | Show detailed statistics | `--stats` |
+| `-v, --verbose` | Show verbose processing info | `--verbose` |
 
 ### Advanced Options
 
@@ -92,26 +99,23 @@ diffai dataset_v1.npz dataset_v2.npz --stats
 | `--ignore-keys-regex` | Ignore keys matching regex | `--ignore-keys-regex "^id$"` |
 | `--epsilon` | Float comparison tolerance | `--epsilon 0.001` |
 | `--array-id-key` | Array element identification | `--array-id-key "id"` |
-| `--sort-by-change-magnitude` | Sort by change magnitude | `--sort-by-change-magnitude` |
-
-### ML Analysis Options
-
-| Option | Description | Example |
-|--------|-------------|---------|
-| `--learning-progress` | Track learning progress | `--learning-progress` |
-| `--convergence-analysis` | Analyze convergence | `--convergence-analysis` |
-| `--architecture-comparison` | Compare architectures | `--architecture-comparison` |
-| `--deployment-readiness` | Assess deployment readiness | `--deployment-readiness` |
-| `--quantization-analysis` | Analyze quantization effects | `--quantization-analysis` |
 
 ## Output Formats
 
-### CLI Output (Default)
+### CLI Output (Default - Full Analysis)
 
-Human-readable colored output with symbols:
+Human-readable colored output with comprehensive analysis:
 
 ```bash
-$ diffai model_v1.safetensors model_v2.safetensors --stats
+$ diffai model_v1.safetensors model_v2.safetensors
+anomaldy_detection: type=none, severity=none, action="continue_training"
+architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
+convergence_analysis: status=converging, stability=0.92
+gradient_analysis: flow_health=healthy, norm=0.021069
+memory_analysis: delta=+0.0MB, efficiency=1.000000
+quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%
+regression_test: passed=true, degradation=-2.5%, severity=low
+deployment_readiness: readiness=0.92, risk=low
   ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
   ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
@@ -163,8 +167,8 @@ diffai model1.safetensors model2.safetensors --output yaml
 # Compare two experiment results
 diffai experiment_v1/ experiment_v2/ --recursive
 
-# Compare model checkpoints with learning analysis
-diffai checkpoints/epoch_10.safetensors checkpoints/epoch_20.safetensors --learning-progress
+# Compare model checkpoints (automatic learning analysis)
+diffai checkpoints/epoch_10.safetensors checkpoints/epoch_20.safetensors
 ```
 
 ### CI/CD Usage
@@ -174,16 +178,16 @@ diffai checkpoints/epoch_10.safetensors checkpoints/epoch_20.safetensors --learn
   run: |
     diffai baseline/model.safetensors new/model.safetensors --output json > model_diff.json
     
-- name: Check deployment readiness
+- name: Check deployment readiness (included in analysis)
   run: |
-    diffai baseline/model.safetensors candidate/model.safetensors --deployment-readiness
+    diffai baseline/model.safetensors candidate/model.safetensors
 ```
 
 ### Scientific Data Analysis
 
 ```bash
-# Compare NumPy experiment results
-diffai baseline_results.npy new_results.npy --stats
+# Compare NumPy experiment results (automatic statistics)
+diffai baseline_results.npy new_results.npy
 
 # Compare MATLAB simulation data
 diffai simulation_v1.mat simulation_v2.mat --stats

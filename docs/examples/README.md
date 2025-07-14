@@ -21,19 +21,19 @@ diffai config_v1.json config_v2.json --output json
 
 ## ML機能
 
-**MLモデル比較** [`ml-model-basic.txt`](outputs/ml-model-basic.txt)
+**MLモデル比較（30+機能自動）** [`ml-model-basic.txt`](outputs/ml-model-basic.txt)
 ```bash
 diffai model1.safetensors model2.safetensors
 ```
 
-**統計分析** [`ml-model-stats.txt`](outputs/ml-model-stats.txt)
+**包括的分析（統計含む）** [`ml-model-stats.txt`](outputs/ml-model-stats.txt)
 ```bash
-diffai model1.safetensors model2.safetensors --stats
+diffai model1.safetensors model2.safetensors
 ```
 
-**アーキテクチャ解析** [`ml-model-architecture.txt`](outputs/ml-model-architecture.txt)
+**包括的分析（アーキテクチャ含む）** [`ml-model-architecture.txt`](outputs/ml-model-architecture.txt)
 ```bash
-diffai model1.safetensors model2.safetensors --architecture-comparison
+diffai model1.safetensors model2.safetensors
 ```
 
 ## システム情報

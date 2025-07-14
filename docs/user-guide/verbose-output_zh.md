@@ -176,8 +176,8 @@ Directory comparison summary:
 # 检查格式检测是否正确
 diffai problematic_file1.dat problematic_file2.dat --verbose
 
-# 验证ML分析功能是否启用
-diffai model1.pt model2.pt --verbose --stats --architecture-comparison
+# 验证ML分析功能（ML模型自动执行）
+diffai model1.pt model2.pt --verbose
 
 # 分析目录比较行为
 diffai dir1/ dir2/ --verbose --recursive

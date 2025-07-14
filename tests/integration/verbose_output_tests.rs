@@ -198,7 +198,7 @@ fn test_verbose_directory_comparison() {
     // For directory comparisons, verbose output may be minimal
     // The test should pass if no error occurs and output is produced
     assert!(output.status.success());
-    
+
     // Directory comparison should produce some output (either verbose info or comparison results)
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert!(!stderr.is_empty() || !stdout.is_empty());

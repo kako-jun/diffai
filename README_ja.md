@@ -14,19 +14,25 @@
 $ diff model_v1.safetensors model_v2.safetensors
 Binary files model_v1.safetensors and model_v2.safetensors differ
 
-# diffaiは意味のあるモデル変更を表示
-$ diffai model_v1.safetensors model_v2.safetensors --stats
+# diffaiは意味のあるモデル変更を自動表示（30+分析機能）
+$ diffai model_v1.safetensors model_v2.safetensors
+anomaly_detection: type=none, severity=none, action="continue_training"
+architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
+convergence_analysis: status=converging, stability=0.92
+gradient_analysis: flow_health=healthy, norm=0.021069
+memory_analysis: delta=+0.0MB, efficiency=1.000000
+quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%
+regression_test: passed=true, degradation=-2.5%, severity=low
   ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
   ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
-  gradient_analysis: flow_health=healthy, norm=0.015000, ratio=1.0500
 ```
 
 ## 主な機能
 
 - **AI/MLネイティブ**: PyTorch (.pt/.pth)、Safetensors (.safetensors)、NumPy (.npy/.npz)、MATLAB (.mat) ファイルを直接サポート
 - **テンソル分析**: テンソル統計の自動計算（平均、標準偏差、最小値、最大値、形状、メモリ使用量）
-- **ML分析機能**: 統計分析、量子化分析、アーキテクチャ比較など
+- **自動ML分析**: 30+の分析機能が自動実行（統計、量子化、アーキテクチャ、収束、勾配、異常検出等）
 - **科学データサポート**: 複素数対応のNumPy配列とMATLAB行列
 - **純粋Rust実装**: システム依存なし、Windows/Linux/macOSで追加インストール不要
 - **複数出力形式**: 色付きCLI、MLOps統合用JSON、人間可読YAML
@@ -76,11 +82,11 @@ cargo build --release
 ### 基本的なモデル比較
 
 ```bash
-# PyTorchモデル比較
-diffai model_old.pt model_new.pt --stats
+# PyTorchモデル比較（30+分析機能が自動実行）
+diffai model_old.pt model_new.pt
 
-# 統計分析付きSafetensors比較
-diffai checkpoint_v1.safetensors checkpoint_v2.safetensors --stats
+# Safetensors比較（包括的分析が自動実行）
+diffai checkpoint_v1.safetensors checkpoint_v2.safetensors
 
 # NumPy配列比較
 diffai data_v1.npy data_v2.npy --stats
@@ -89,23 +95,20 @@ diffai data_v1.npy data_v2.npy --stats
 diffai experiment_v1.mat experiment_v2.mat --stats
 ```
 
-### 高度なML分析
+### 自動ML分析
 
 ```bash
-# 現在利用可能な分析機能
-diffai baseline.safetensors finetuned.safetensors --stats --quantization-analysis
+# すべての分析機能が自動実行（フラグ不要）
+diffai baseline.safetensors finetuned.safetensors
 
-# 組み合わせ分析とソート
-diffai original.pt optimized.pt --stats --quantization-analysis --sort-by-change-magnitude
+# 同じく自動で30+の分析機能
+diffai original.pt optimized.pt
 
-# 自動化用JSON出力
-diffai model_v1.safetensors model_v2.safetensors --stats --output json
+# 自動化用JSON出力（すべての分析機能含む）
+diffai model_v1.safetensors model_v2.safetensors --output json
 
-# 詳細な診断情報付きでのverboseモード
-diffai model_v1.safetensors model_v2.safetensors --verbose --stats --architecture-comparison
-
-# Phase 3機能（近日公開）
-diffai model_v1.safetensors model_v2.safetensors --architecture-comparison --memory-analysis
+# 詳細な診断情報付きでのverboseモード（すべての分析機能自動）
+diffai model_v1.safetensors model_v2.safetensors --verbose
 ```
 
 ## 対応ファイル形式
@@ -128,7 +131,7 @@ diffai model_v1.safetensors model_v2.safetensors --architecture-comparison --mem
 
 ## ML分析機能
 
-diffaiは包括的モデル評価のための28の専門分析機能を提供：
+diffaiはMLモデル比較時に30+の専門分析機能を自動実行：
 
 ## デバッグと診断
 
@@ -136,10 +139,10 @@ diffaiは包括的モデル評価のための28の専門分析機能を提供：
 デバッグとパフォーマンス分析のための包括的な診断情報を取得：
 
 ```bash
-# 基本的な詳細出力
+# 基本的な詳細出力（ML分析機能自動実行）
 diffai model1.safetensors model2.safetensors --verbose
 
-# ML分析機能付きの詳細出力
+# 構造化データの詳細出力
 diffai data1.json data2.json --verbose --stats --epsilon 0.001 --ignore-keys-regex "^id$"
 ```
 
@@ -173,24 +176,28 @@ Processing results:
 
 📚 **詳細については[詳細出力ガイド](docs/user-guide/verbose-output_ja.md)をご覧ください**
 
-### 学習・収束分析
-- `--learning-progress` - チェックポイント間の学習進捗追跡
-- `--convergence-analysis` - 収束安定性とパターン分析
-- `--anomaly-detection` - 学習異常検知（勾配爆発、消失勾配）
-- `--gradient-analysis` - 勾配特性と流れの分析
+### 自動実行されるML分析機能
 
-### アーキテクチャ・性能分析
-- `--architecture-comparison` - モデルアーキテクチャと構造変更の比較
-- `--param-efficiency-analysis` - モデル間パラメータ効率分析
-- `--memory-analysis` - メモリ使用量と最適化機会の分析
-- `--inference-speed-estimate` - 推論速度と性能特性の推定
+**学習・収束分析（自動）:**
+- チェックポイント間の学習進捗追跡
+- 収束安定性とパターン分析
+- 学習異常検知（勾配爆発、消失勾配）
+- 勾配特性と流れの分析
 
-### MLOps・デプロイ支援
-- `--deployment-readiness` - デプロイ準備と互換性評価
-- `--regression-test` - 自動回帰テスト実行
-- `--risk-assessment` - デプロイリスクと安定性評価
-- `--hyperparameter-impact` - ハイパーパラメータがモデル変更に与える影響分析
-- `--learning-rate-analysis` - 学習率効果と最適化の分析
+**アーキテクチャ・性能分析（自動）:**
+- モデルアーキテクチャと構造変更の比較
+- モデル間パラメータ効率分析
+- メモリ使用量と最適化機会の分析
+- 推論速度と性能特性の推定
+
+**MLOps・デプロイ支援（自動）:**
+- デプロイ準備と互換性評価
+- 自動回帰テスト実行
+- デプロイリスクと安定性評価
+- ハイパーパラメータがモデル変更に与える影響分析
+- 学習率効果と最適化の分析
+
+**その他20+の分析機能も自動実行**
 - `--alert-on-degradation` - 閾値を超えた性能劣化のアラート
 - `--performance-impact-estimate` - 変更の性能影響推定
 
@@ -297,9 +304,9 @@ diffai model_a.safetensors model_b.safetensors \
 
 ## 使用例
 
-### 基本テンソル比較
+### 基本テンソル比較（包括的分析自動）
 ```bash
-$ diffai simple_model_v1.safetensors simple_model_v2.safetensors --stats
+$ diffai simple_model_v1.safetensors simple_model_v2.safetensors
   ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
   ~ fc2.bias: mean=-0.0076->-0.0257, std=0.0661->0.0973
@@ -310,7 +317,7 @@ $ diffai simple_model_v1.safetensors simple_model_v2.safetensors --stats
 
 ### 高度分析
 ```bash
-$ diffai baseline.safetensors improved.safetensors --deployment-readiness --architecture-comparison
+$ diffai baseline.safetensors improved.safetensors
 deployment_readiness: readiness=0.92, strategy=blue_green, risk=low, timeline=ready_for_immediate_deployment
 architecture_comparison: type1=feedforward, type2=feedforward, depth=3->3, differences=0
   ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647

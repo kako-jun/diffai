@@ -7,11 +7,11 @@
 ### 1. モデル開発・改良
 
 ```bash
-# 新しいアーキテクチャとベースラインの比較
-diffai baseline/resnet18.pth experiment/resnet34.pth --show-structure
+# 新しいアーキテクチャとベースラインの比較（包括的分析が自動実行）
+diffai baseline/resnet18.pth experiment/resnet34.pth
 
-# ファインチューニング前後の比較
-diffai pretrained/model.pth finetuned/model.pth --tensor-details
+# ファインチューニング前後の比較（包括的分析が自動実行）
+diffai pretrained/model.pth finetuned/model.pth
 ```
 
 ### 2. 実験管理
@@ -48,15 +48,15 @@ python train.py --config experiment.yaml --output experiment/
 # 3. 結果の比較
 diffai baseline/ experiment/ --recursive --include "*.json" --include "*.pth"
 
-# 4. 詳細な分析
-diffai baseline/model.pth experiment/model.pth --show-structure --tensor-details
+# 4. 詳細な分析（包括的分析が自動実行）
+diffai baseline/model.pth experiment/model.pth
 ```
 
 ### モデル比較レポート
 
 ```bash
-# 包括的な比較レポートを生成
-diffai baseline/model.pth experiment/model.pth --format json > comparison.json
+# 包括的な比較レポートを生成（30+分析機能が自動実行）
+diffai baseline/model.pth experiment/model.pth --output json > comparison.json
 
 # レポートの可視化
 python scripts/visualize_comparison.py comparison.json

@@ -2,7 +2,7 @@
 
 **Description:** Training anomaly detection (gradient explosion, vanishing gradients)
 
-**Command:** `diffai tests/fixtures/ml_models/simple_base.safetensors tests/fixtures/ml_models/simple_modified.safetensors --anomaly-detection`
+**Command:** `diffai tests/fixtures/ml_models/simple_base.safetensors tests/fixtures/ml_models/simple_modified.safetensors`
 
 **Generated:** Mon Jul 14 02:00:32 PM JST 2025
 **Version:** v0.3.4

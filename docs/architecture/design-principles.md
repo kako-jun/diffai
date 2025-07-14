@@ -166,37 +166,37 @@ pub enum DiffaiError {
 ### 1. Intuitive Interface
 
 ```bash
-# Intuitive and clear commands
-diffai model1.pth model2.pth              # Basic comparison
-diffai model1.pth model2.pth --detailed   # Detailed comparison
+# Intuitive and clear commands with automatic comprehensive analysis
+diffai model1.pth model2.pth              # Comprehensive ML analysis (30+ features automatic)
+diffai model1.pth model2.pth --verbose    # Detailed diagnostics + comprehensive analysis
 diffai models/ --recursive                # Directory comparison
 ```
 
 **Design Guidelines:**
-- Maximum functionality with minimum arguments
-- Progressive detail levels
-- Consistent option naming
+- Maximum functionality with minimum arguments (comprehensive by default)
+- Eliminate choice paralysis through automatic feature enablement
+- Consistent option naming for essential controls only
 
-### 2. Progressive Information Disclosure
+### 2. Comprehensive by Default, Progressive Detail Control
 
 ```bash
-# Basic information
+# Comprehensive ML analysis (automatic)
 diffai model1.pth model2.pth
-# → Show only major differences
+# → Shows all 30+ ML analysis features automatically
 
-# Detailed information
+# Detailed diagnostics + comprehensive analysis
 diffai model1.pth model2.pth --verbose
-# → Show all detailed information
+# → Same comprehensive analysis + debugging information
 
-# Specific information
-diffai model1.pth model2.pth --show-structure
-# → Show only structural differences
+# Output format control
+diffai model1.pth model2.pth --output json
+# → Comprehensive analysis in JSON format for automation
 ```
 
-**Effects:**
-- Prevent information overload
-- Provide information based on user needs
-- Reduce learning curve
+**New Philosophy:**
+- Provide comprehensive analysis by default (no feature selection needed)
+- Control output detail and format, not feature selection
+- Eliminate learning curve for ML analysis features
 
 ### 3. High-Quality Output
 
@@ -285,25 +285,25 @@ pub struct PluginManager {
 - Encourage community contributions
 - Address diverse needs
 
-## Future Vision
+## Realized Vision: Simplified ML Analysis
 
-### 1. Scalability
+### 1. Interface Simplification Achievement
 
-- Support for large models (hundreds of GB)
-- Integration with distributed processing systems
-- Cloud-native design
+- **Choice Paralysis Elimination**: Reduced 35+ ML flags to automatic comprehensive analysis
+- **Cognitive Load Reduction**: Users no longer need to remember or choose between dozens of analysis options
+- **Default Excellence**: 30+ ML analysis features run automatically for PyTorch/Safetensors files
 
-### 2. New Technology Adoption
+### 2. User Experience Evolution
 
-- Support for new ML frameworks
-- Quantum machine learning support
-- Edge AI device integration
+- **Comprehensive by Default**: All relevant ML analysis runs automatically
+- **Progressive Enhancement**: Advanced users can control output format and verbosity
+- **Zero Configuration**: Works optimally out-of-the-box for ML workflows
 
-### 3. Advanced Analysis Features
+### 3. Future Enhancements
 
-- Semantic diff analysis
-- Performance impact prediction
-- Automatic optimization suggestions
+- **Scalability**: Support for larger models and distributed processing
+- **New Technology**: Support for emerging ML frameworks and quantum ML
+- **Advanced Features**: Semantic analysis and optimization suggestions
 
 ## Design Documentation
 

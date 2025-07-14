@@ -23,7 +23,11 @@ fn test_default_ml_analysis() -> Result<(), Box<dyn std::error::Error>> {
     // Should contain statistical information by default
     assert!(stdout.contains("mean=") || stdout.contains("std=") || stdout.contains("shape="));
     // Should also contain advanced analysis
-    assert!(stdout.contains("convergence_analysis") || stdout.contains("anomaly_detection") || stdout.contains("quantization_analysis"));
+    assert!(
+        stdout.contains("convergence_analysis")
+            || stdout.contains("anomaly_detection")
+            || stdout.contains("quantization_analysis")
+    );
 
     Ok(())
 }
@@ -39,7 +43,11 @@ fn test_quantization_analysis_included() -> Result<(), Box<dyn std::error::Error
 
     let stdout = String::from_utf8_lossy(&output.stdout);
     // Quantization analysis should be included in default output
-    assert!(stdout.contains("quantization_analysis") || stdout.contains("compression=") || stdout.contains("speedup="));
+    assert!(
+        stdout.contains("quantization_analysis")
+            || stdout.contains("compression=")
+            || stdout.contains("speedup=")
+    );
 
     Ok(())
 }
@@ -55,7 +63,11 @@ fn test_comprehensive_analysis() -> Result<(), Box<dyn std::error::Error>> {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
     // Should contain multiple analysis types
-    assert!(stdout.contains("gradient_analysis") || stdout.contains("memory_analysis") || stdout.contains("deployment_readiness"));
+    assert!(
+        stdout.contains("gradient_analysis")
+            || stdout.contains("memory_analysis")
+            || stdout.contains("deployment_readiness")
+    );
 
     Ok(())
 }
@@ -71,7 +83,11 @@ fn test_architecture_analysis_included() -> Result<(), Box<dyn std::error::Error
 
     let stdout = String::from_utf8_lossy(&output.stdout);
     // Should contain architecture analysis by default
-    assert!(stdout.contains("architecture_comparison") || stdout.contains("deployment_readiness") || stdout.contains("type1=feedforward"));
+    assert!(
+        stdout.contains("architecture_comparison")
+            || stdout.contains("deployment_readiness")
+            || stdout.contains("type1=feedforward")
+    );
 
     Ok(())
 }
@@ -89,7 +105,11 @@ fn test_full_analysis_by_default() -> Result<(), Box<dyn std::error::Error>> {
     // Should contain statistical information by default
     assert!(stdout.contains("mean=") || stdout.contains("std=") || stdout.contains("shape="));
     // Should contain multiple analysis types
-    assert!(stdout.contains("quantization_analysis") || stdout.contains("architecture_comparison") || stdout.contains("gradient_analysis"));
+    assert!(
+        stdout.contains("quantization_analysis")
+            || stdout.contains("architecture_comparison")
+            || stdout.contains("gradient_analysis")
+    );
 
     Ok(())
 }

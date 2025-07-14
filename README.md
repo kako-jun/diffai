@@ -135,26 +135,28 @@ diffai model_v1.safetensors model_v2.safetensors --output yaml
 
 ## ML Analysis Functions
 
-### Currently Available (v0.2.7)
-- `--stats` - Detailed tensor statistics (mean, std, min, max, shape, memory)
-- `--quantization-analysis` - Analyze quantization effects and efficiency
-- `--sort-by-change-magnitude` - Sort differences by magnitude for prioritization
-- `--show-layer-impact` - Layer-by-layer impact analysis
-- `--architecture-comparison` - Compare model architectures and structural changes
-- `--memory-analysis` - Analyze memory usage and optimization opportunities
-- `--anomaly-detection` - Detect numerical anomalies in model parameters
-- `--change-summary` - Generate detailed change summaries
-- `--convergence-analysis` - Analyze convergence patterns in model parameters
-- `--gradient-analysis` - Analyze gradient information when available
-- `--similarity-matrix` - Generate similarity matrix for model comparison
+### Automatic Comprehensive Analysis (v0.3.4)
+When comparing PyTorch or Safetensors files, diffai automatically runs 30+ ML analysis features:
 
-### Coming in Phase 4 (ML Framework Expansion)
+**Automatic Features Include:**
+- **Statistical Analysis**: Detailed tensor statistics (mean, std, min, max, shape, memory)
+- **Quantization Analysis**: Analyze quantization effects and efficiency
+- **Architecture Comparison**: Compare model architectures and structural changes
+- **Memory Analysis**: Analyze memory usage and optimization opportunities
+- **Anomaly Detection**: Detect numerical anomalies in model parameters
+- **Convergence Analysis**: Analyze convergence patterns in model parameters
+- **Gradient Analysis**: Analyze gradient information when available
+- **Deployment Readiness**: Assess production deployment readiness
+- **Regression Testing**: Automatic performance degradation detection
+- **Plus 20+ additional specialized features**
+
+### Future Enhancements
 - TensorFlow format support (.pb, .h5, SavedModel)
 - ONNX format support
 - Advanced visualization and charting features
 
 ### Design Philosophy
-diffai follows UNIX philosophy: simple, composable tools that do one thing well. Features are orthogonal and can be combined for powerful analysis workflows.
+diffai provides comprehensive analysis by default for ML models, eliminating choice paralysis. Users get all relevant insights without needing to remember or specify dozens of analysis flags.
 
 ## Debugging and Diagnostics
 
@@ -272,7 +274,9 @@ diffai model_a.safetensors model_b.safetensors \
 - `-f, --format <FORMAT>` - Specify input file format
 - `-o, --output <OUTPUT>` - Choose output format (cli, json, yaml)
 - `-r, --recursive` - Compare directories recursively
-- `--stats` - Show detailed statistics for ML models
+- `--stats` - Show detailed statistics for scientific data (NumPy/MATLAB)
+
+**Note:** For ML models (PyTorch/Safetensors), comprehensive analysis including statistics runs automatically
 
 ### Advanced Options
 - `--path <PATH>` - Filter differences by specific path
@@ -283,9 +287,16 @@ diffai model_a.safetensors model_b.safetensors \
 
 ## Examples
 
-### Basic Tensor Comparison
+### Basic Tensor Comparison (Automatic)
 ```bash
-$ diffai simple_model_v1.safetensors simple_model_v2.safetensors --stats
+$ diffai simple_model_v1.safetensors simple_model_v2.safetensors
+anomaly_detection: type=none, severity=none, action="continue_training"
+architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
+convergence_analysis: status=converging, stability=0.92
+gradient_analysis: flow_health=healthy, norm=0.021069
+memory_analysis: delta=+0.0MB, efficiency=1.000000
+quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%
+regression_test: passed=true, degradation=-2.5%, severity=low
   ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
   ~ fc2.bias: mean=-0.0076->-0.0257, std=0.0661->0.0973
@@ -294,13 +305,17 @@ $ diffai simple_model_v1.safetensors simple_model_v2.safetensors --stats
   ~ fc3.weight: mean=-0.0035->-0.0010, std=0.0990->0.1113
 ```
 
-### Advanced Analysis
+### JSON Output for Automation
 ```bash
-$ diffai baseline.safetensors improved.safetensors --deployment-readiness --architecture-comparison
-deployment_readiness: readiness=0.92, strategy=blue_green, risk=low, timeline=ready_for_immediate_deployment
-architecture_comparison: type1=feedforward, type2=feedforward, depth=3->3, differences=0
-  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
-  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
+$ diffai baseline.safetensors improved.safetensors --output json
+{
+  "anomaly_detection": {"type": "none", "severity": "none"},
+  "architecture_comparison": {"type1": "feedforward", "type2": "feedforward"},
+  "deployment_readiness": {"readiness": 0.92, "strategy": "blue_green"},
+  "quantization_analysis": {"compression": "0.0%", "speedup": "1.8x"},
+  "regression_test": {"passed": true, "degradation": "-2.5%"}
+  // ... plus 25+ additional analysis features
+}
 ```
 
 ### Scientific Data Analysis

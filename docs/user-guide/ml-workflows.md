@@ -7,11 +7,11 @@ Integration guide for machine learning and AI development with diffai.
 ### 1. Model Development & Improvement
 
 ```bash
-# Compare new architecture with baseline
-diffai baseline/resnet18.pth experiment/resnet34.pth --show-structure
+# Compare new architecture with baseline (comprehensive analysis automatic)
+diffai baseline/resnet18.pth experiment/resnet34.pth
 
-# Before/after fine-tuning comparison
-diffai pretrained/model.pth finetuned/model.pth --tensor-details
+# Before/after fine-tuning comparison (comprehensive analysis automatic)
+diffai pretrained/model.pth finetuned/model.pth
 ```
 
 ### 2. Experiment Management
@@ -48,15 +48,15 @@ python train.py --config experiment.yaml --output experiment/
 # 3. Compare results
 diffai baseline/ experiment/ --recursive --include "*.json" --include "*.pth"
 
-# 4. Detailed analysis
-diffai baseline/model.pth experiment/model.pth --show-structure --tensor-details
+# 4. Detailed analysis (comprehensive analysis automatic)
+diffai baseline/model.pth experiment/model.pth
 ```
 
 ### Model Comparison Report
 
 ```bash
-# Generate comprehensive comparison report
-diffai baseline/model.pth experiment/model.pth --format json > comparison.json
+# Generate comprehensive comparison report (30+ analysis features automatic)
+diffai baseline/model.pth experiment/model.pth --output json > comparison.json
 
 # Visualize report
 python scripts/visualize_comparison.py comparison.json

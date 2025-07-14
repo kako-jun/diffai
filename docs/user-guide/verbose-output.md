@@ -176,8 +176,8 @@ Example debugging session:
 # Check if format detection is correct
 diffai problematic_file1.dat problematic_file2.dat --verbose
 
-# Verify ML analysis features are enabled
-diffai model1.pt model2.pt --verbose --stats --architecture-comparison
+# Verify ML analysis features (automatic for ML models)
+diffai model1.pt model2.pt --verbose
 
 # Analyze directory comparison behavior
 diffai dir1/ dir2/ --verbose --recursive

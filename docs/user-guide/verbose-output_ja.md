@@ -176,8 +176,8 @@ diffaiが予期しない動作をする場合、詳細モードで以下を特�
 # フォーマット検出が正しいかチェック
 diffai problematic_file1.dat problematic_file2.dat --verbose
 
-# ML解析機能が有効か確認
-diffai model1.pt model2.pt --verbose --stats --architecture-comparison
+# ML解析機能確認（MLモデルでは自動実行）
+diffai model1.pt model2.pt --verbose
 
 # ディレクトリ比較動作を解析
 diffai dir1/ dir2/ --verbose --recursive

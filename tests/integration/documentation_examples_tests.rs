@@ -33,7 +33,8 @@ fn test_cli_reference_default_analysis_example() -> Result<(), Box<dyn std::erro
 }
 
 #[test]
-fn test_cli_reference_memory_analysis_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
+fn test_cli_reference_memory_analysis_included_by_default() -> Result<(), Box<dyn std::error::Error>>
+{
     // From CLI reference: diffai model1.safetensors model2.safetensors (memory analysis included by default)
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
@@ -54,7 +55,8 @@ fn test_cli_reference_memory_analysis_included_by_default() -> Result<(), Box<dy
 }
 
 #[test]
-fn test_cli_reference_anomaly_detection_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
+fn test_cli_reference_anomaly_detection_included_by_default(
+) -> Result<(), Box<dyn std::error::Error>> {
     // From CLI reference: diffai model1.safetensors model2.safetensors (anomaly detection included by default)
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
@@ -75,7 +77,8 @@ fn test_cli_reference_anomaly_detection_included_by_default() -> Result<(), Box<
 }
 
 #[test]
-fn test_cli_reference_change_summary_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
+fn test_cli_reference_change_summary_included_by_default() -> Result<(), Box<dyn std::error::Error>>
+{
     // From CLI reference: diffai model1.safetensors model2.safetensors (change summary included by default)
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
@@ -96,7 +99,8 @@ fn test_cli_reference_change_summary_included_by_default() -> Result<(), Box<dyn
 }
 
 #[test]
-fn test_cli_reference_convergence_analysis_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
+fn test_cli_reference_convergence_analysis_included_by_default(
+) -> Result<(), Box<dyn std::error::Error>> {
     // From CLI reference: diffai model1.safetensors model2.safetensors (convergence analysis included by default)
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
@@ -117,7 +121,8 @@ fn test_cli_reference_convergence_analysis_included_by_default() -> Result<(), B
 }
 
 #[test]
-fn test_cli_reference_gradient_analysis_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
+fn test_cli_reference_gradient_analysis_included_by_default(
+) -> Result<(), Box<dyn std::error::Error>> {
     // From CLI reference: diffai model1.safetensors model2.safetensors (gradient analysis included by default)
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
@@ -138,7 +143,8 @@ fn test_cli_reference_gradient_analysis_included_by_default() -> Result<(), Box<
 }
 
 #[test]
-fn test_cli_reference_similarity_matrix_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
+fn test_cli_reference_similarity_matrix_included_by_default(
+) -> Result<(), Box<dyn std::error::Error>> {
     // From CLI reference: diffai model1.safetensors model2.safetensors (similarity matrix included by default)
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
@@ -161,7 +167,8 @@ fn test_cli_reference_similarity_matrix_included_by_default() -> Result<(), Box<
 // Tests for ML Analysis Reference examples
 
 #[test]
-fn test_ml_analysis_architecture_comparison_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
+fn test_ml_analysis_architecture_comparison_included_by_default(
+) -> Result<(), Box<dyn std::error::Error>> {
     // From ml-analysis.md: diffai model1.safetensors model2.safetensors (architecture comparison included by default)
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
@@ -178,7 +185,8 @@ fn test_ml_analysis_architecture_comparison_included_by_default() -> Result<(), 
 }
 
 #[test]
-fn test_ml_analysis_memory_analysis_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
+fn test_ml_analysis_memory_analysis_included_by_default() -> Result<(), Box<dyn std::error::Error>>
+{
     // From ml-analysis.md: diffai model1.safetensors model2.safetensors (memory analysis included by default)
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
@@ -195,7 +203,8 @@ fn test_ml_analysis_memory_analysis_included_by_default() -> Result<(), Box<dyn 
 }
 
 #[test]
-fn test_ml_analysis_anomaly_detection_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
+fn test_ml_analysis_anomaly_detection_included_by_default() -> Result<(), Box<dyn std::error::Error>>
+{
     // From ml-analysis.md: diffai model1.safetensors model2.safetensors (anomaly detection included by default)
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
@@ -229,7 +238,8 @@ fn test_ml_analysis_change_summary_included_by_default() -> Result<(), Box<dyn s
 }
 
 #[test]
-fn test_ml_analysis_convergence_analysis_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
+fn test_ml_analysis_convergence_analysis_included_by_default(
+) -> Result<(), Box<dyn std::error::Error>> {
     // From ml-analysis.md: diffai model1.safetensors model2.safetensors (convergence analysis included by default)
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
@@ -246,7 +256,8 @@ fn test_ml_analysis_convergence_analysis_included_by_default() -> Result<(), Box
 }
 
 #[test]
-fn test_ml_analysis_gradient_analysis_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
+fn test_ml_analysis_gradient_analysis_included_by_default() -> Result<(), Box<dyn std::error::Error>>
+{
     // From ml-analysis.md: diffai model1.safetensors model2.safetensors (gradient analysis included by default)
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
@@ -263,7 +274,8 @@ fn test_ml_analysis_gradient_analysis_included_by_default() -> Result<(), Box<dy
 }
 
 #[test]
-fn test_ml_analysis_similarity_matrix_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
+fn test_ml_analysis_similarity_matrix_included_by_default() -> Result<(), Box<dyn std::error::Error>>
+{
     // From ml-analysis.md: diffai model1.safetensors model2.safetensors (similarity matrix included by default)
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
@@ -282,8 +294,8 @@ fn test_ml_analysis_similarity_matrix_included_by_default() -> Result<(), Box<dy
 // Tests for User Guide examples
 
 #[test]
-fn test_user_guide_phase3_architecture_comparison_included_by_default() -> Result<(), Box<dyn std::error::Error>>
-{
+fn test_user_guide_phase3_architecture_comparison_included_by_default(
+) -> Result<(), Box<dyn std::error::Error>> {
     // From ml-model-comparison.md: diffai model1.safetensors model2.safetensors (architecture comparison included by default)
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
@@ -300,7 +312,8 @@ fn test_user_guide_phase3_architecture_comparison_included_by_default() -> Resul
 }
 
 #[test]
-fn test_user_guide_phase3_memory_analysis_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
+fn test_user_guide_phase3_memory_analysis_included_by_default(
+) -> Result<(), Box<dyn std::error::Error>> {
     // From ml-model-comparison.md: diffai model1.safetensors model2.safetensors (memory analysis included by default)
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
@@ -317,7 +330,8 @@ fn test_user_guide_phase3_memory_analysis_included_by_default() -> Result<(), Bo
 }
 
 #[test]
-fn test_user_guide_combined_phase3_features_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
+fn test_user_guide_combined_phase3_features_included_by_default(
+) -> Result<(), Box<dyn std::error::Error>> {
     // From ml-model-comparison.md combined analysis example (all features now included by default)
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
@@ -334,7 +348,8 @@ fn test_user_guide_combined_phase3_features_included_by_default() -> Result<(), 
 }
 
 #[test]
-fn test_user_guide_mlops_json_output_with_default_analysis() -> Result<(), Box<dyn std::error::Error>> {
+fn test_user_guide_mlops_json_output_with_default_analysis(
+) -> Result<(), Box<dyn std::error::Error>> {
     // From ml-model-comparison.md MLOps integration JSON output example (analysis included by default)
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
