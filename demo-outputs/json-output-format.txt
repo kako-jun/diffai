@@ -1,0 +1,16 @@
+[
+  {
+    "Modified": [
+      "app.settings.log_level",
+      "info",
+      "debug"
+    ]
+  },
+  {
+    "Modified": [
+      "app.version",
+      "1.0",
+      "1.1"
+    ]
+  }
+]
