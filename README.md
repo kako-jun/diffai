@@ -108,6 +108,13 @@ diffai model_v1.safetensors model_v2.safetensors --verbose --stats --architectur
 diffai model_v1.safetensors model_v2.safetensors --architecture-comparison --memory-analysis
 ```
 
+## 📚 Documentation
+
+- **[Working Examples & Demonstrations](docs/examples/)** - See diffai in action with real outputs
+- **[API Documentation](https://docs.rs/diffai-core)** - Rust library documentation
+- **[User Guide](docs/user-guide.md)** - Comprehensive usage guide
+- **[ML Analysis Guide](docs/ml-analysis-guide.md)** - Deep dive into ML-specific features
+
 ## Supported File Formats
 
 ### ML Model Formats
