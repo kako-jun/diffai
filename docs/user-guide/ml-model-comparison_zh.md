@@ -122,7 +122,7 @@ diffai model1.safetensors model2.safetensors --ignore-keys-regex "^(timestamp|_m
 比较预训练模型与其微调版本：
 
 ```bash
-diffai pretrained_bert.safetensors finetuned_bert.safetensors --stats
+diffai pretrained_bert.safetensors finetuned_bert.safetensors
 
 # 预期输出：注意力层的统计变化
 # ~ bert.encoder.layer.11.attention.self.query.weight: mean=-0.0001→0.0023
@@ -154,7 +154,7 @@ diffai model_fp32.safetensors model_int8.safetensors --epsilon 0.1
 比较训练过程中的检查点：
 
 ```bash
-diffai checkpoint_epoch_10.pt checkpoint_epoch_50.pt --stats
+diffai checkpoint_epoch_10.pt checkpoint_epoch_50.pt
 
 # 预期输出：收敛模式
 # ~ layers.0.weight: mean=-0.0012→0.0034, std=1.2341→0.8907
@@ -170,7 +170,7 @@ diffai checkpoint_epoch_10.pt checkpoint_epoch_50.pt --stats
 比较不同的模型架构：
 
 ```bash
-diffai resnet50.safetensors efficientnet_b0.safetensors --stats
+diffai resnet50.safetensors efficientnet_b0.safetensors
 
 # 预期输出：结构差异
 # ~ features.conv1.weight: shape=[64, 3, 7, 7] -> [32, 3, 3, 3]
@@ -320,7 +320,7 @@ done
 file model.safetensors
 
 # 显示单一模型分析的详细统计
-diffai model.safetensors model.safetensors --stats
+diffai model.safetensors model.safetensors
 
 # 尝试明确格式
 diffai --format safetensors model1.safetensors model2.safetensors
@@ -440,7 +440,7 @@ diffai fp32_model.safetensors quantized_model.safetensors --quantization-analysi
 
 ```bash
 # 按重要性排序变化
-diffai model1.safetensors model2.safetensors --sort-by-change-magnitude --stats
+diffai model1.safetensors model2.safetensors --sort-by-change-magnitude
 
 # 输出显示最大变化在前
 ```
@@ -473,14 +473,14 @@ diffai baseline.safetensors modified.safetensors --show-layer-impact
 ```bash
 # 全面模型分析
 diffai checkpoint_v1.safetensors checkpoint_v2.safetensors \
-  --stats \
+  \
   --quantization-analysis \
   --sort-by-change-magnitude \
   --show-layer-impact
 
 # 自动化的JSON输出
 diffai model1.safetensors model2.safetensors \
-  --stats --output json
+  --output json
 ```
 
 ## 功能选择指南
@@ -488,25 +488,25 @@ diffai model1.safetensors model2.safetensors \
 **用于训练监控：**
 ```bash
 diffai checkpoint_old.safetensors checkpoint_new.safetensors \
-  --stats --sort-by-change-magnitude
+  --sort-by-change-magnitude
 ```
 
 **用于生产部署：**
 ```bash
 diffai current_prod.safetensors candidate.safetensors \
-  --stats --quantization-analysis
+  --quantization-analysis
 ```
 
 **用于研究分析：**
 ```bash
 diffai baseline.safetensors experiment.safetensors \
-  --stats --show-layer-impact
+  --show-layer-impact
 ```
 
 **用于量化验证：**
 ```bash
 diffai fp32.safetensors quantized.safetensors \
-  --quantization-analysis --stats
+  --quantization-analysis
 ```
 
 ## 第3阶段功能（现已可用）

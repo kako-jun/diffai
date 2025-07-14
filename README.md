@@ -251,10 +251,10 @@ diffai original_model.pt optimized_model.pt --output json
 diffai baseline_results.npy new_results.npy
 
 # Analyze MATLAB simulation data
-diffai simulation_v1.mat simulation_v2.mat --stats
+diffai simulation_v1.mat simulation_v2.mat
 
 # Compare compressed NumPy archives
-diffai dataset_v1.npz dataset_v2.npz --stats
+diffai dataset_v1.npz dataset_v2.npz
 ```
 
 ### Experiment Tracking
@@ -274,7 +274,6 @@ diffai model_a.safetensors model_b.safetensors \
 - `-f, --format <FORMAT>` - Specify input file format
 - `-o, --output <OUTPUT>` - Choose output format (cli, json, yaml)
 - `-r, --recursive` - Compare directories recursively
-- `--stats` - Show detailed statistics for scientific data (NumPy/MATLAB)
 
 **Note:** For ML models (PyTorch/Safetensors), comprehensive analysis including statistics runs automatically
 
@@ -320,13 +319,13 @@ $ diffai baseline.safetensors improved.safetensors --output json
 
 ### Scientific Data Analysis
 ```bash
-$ diffai experiment_data_v1.npy experiment_data_v2.npy --stats
+$ diffai experiment_data_v1.npy experiment_data_v2.npy
   ~ data: shape=[1000, 256], mean=0.1234->0.1456, std=0.9876->0.9654, dtype=float64
 ```
 
 ### MATLAB File Comparison
 ```bash
-$ diffai simulation_v1.mat simulation_v2.mat --stats
+$ diffai simulation_v1.mat simulation_v2.mat
   ~ results: var=results, shape=[500, 100], mean=2.3456->2.4567, std=1.2345->1.3456, dtype=double
   + new_variable: var=new_variable, shape=[100], dtype=single, elements=100, size=0.39KB
 ```

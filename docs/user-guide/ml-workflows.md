@@ -103,10 +103,10 @@ diffai model_v1/model.safetensors model_v2/model.safetensors --filter "attention
 
 ```bash
 # Track dataset changes
-diffai dataset_v1.csv dataset_v2.csv --stats --format json
+diffai dataset_v1.csv dataset_v2.csv --format json
 
 # Compare train/validation data distributions
-diffai train.csv val.csv --stats --show-distribution
+diffai train.csv val.csv --show-distribution
 ```
 
 ## Continuous Integration

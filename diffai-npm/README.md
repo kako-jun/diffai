@@ -38,8 +38,8 @@ diffai model1.safetensors model2.safetensors --output json
 diffai model1.safetensors model2.safetensors --verbose
 
 # Compare scientific data
-diffai experiment_v1.npy experiment_v2.npy --stats
-diffai simulation_v1.mat simulation_v2.mat --stats
+diffai experiment_v1.npy experiment_v2.npy
+diffai simulation_v1.mat simulation_v2.mat
 
 # Standard structured data comparison
 diffai config_v1.json config_v2.json
@@ -107,13 +107,13 @@ diffai model_v1.safetensors model_v2.safetensors
 ### Scientific Computing
 ```bash
 # Compare experimental results
-diffai control_group.npy treatment_group.npy --stats
+diffai control_group.npy treatment_group.npy
 
 # Engineering simulation analysis
-diffai simulation_baseline.mat simulation_optimized.mat --stats
+diffai simulation_baseline.mat simulation_optimized.mat
 
 # Dataset version comparison
-diffai dataset_v1.npz dataset_v2.npz --stats --sort-by-change-magnitude
+diffai dataset_v1.npz dataset_v2.npz --sort-by-change-magnitude
 ```
 
 ## 🔧 Integration Examples

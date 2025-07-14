@@ -38,7 +38,7 @@ After installation, the `diffai` command is available:
 diffai model_v1.safetensors model_v2.safetensors
 
 # Compare NumPy arrays
-diffai data_v1.npy data_v2.npy --stats
+diffai data_v1.npy data_v2.npy
 
 # JSON output for automation (all ML features included)
 diffai model_v1.pt model_v2.pt --output json

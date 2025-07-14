@@ -157,7 +157,7 @@ diffai model_fp32.safetensors model_int8.safetensors --epsilon 0.1
 Compare checkpoints during training:
 
 ```bash
-diffai checkpoint_epoch_10.pt checkpoint_epoch_50.pt --stats
+diffai checkpoint_epoch_10.pt checkpoint_epoch_50.pt
 
 # Expected output: Convergence patterns
 # ~ layers.0.weight: mean=-0.0012→0.0034, std=1.2341→0.8907
@@ -173,7 +173,7 @@ diffai checkpoint_epoch_10.pt checkpoint_epoch_50.pt --stats
 Compare different model architectures:
 
 ```bash
-diffai resnet50.safetensors efficientnet_b0.safetensors --stats
+diffai resnet50.safetensors efficientnet_b0.safetensors
 
 # Expected output: Structural differences
 # ~ features.conv1.weight: shape=[64, 3, 7, 7] -> [32, 3, 3, 3]
@@ -323,7 +323,7 @@ done
 file model.safetensors
 
 # Show detailed statistics for single model analysis
-diffai model.safetensors model.safetensors --stats
+diffai model.safetensors model.safetensors
 
 # Try with explicit format
 diffai --format safetensors model1.safetensors model2.safetensors

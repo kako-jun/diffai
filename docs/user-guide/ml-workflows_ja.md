@@ -103,10 +103,10 @@ diffai model_v1/model.safetensors model_v2/model.safetensors --filter "attention
 
 ```bash
 # データセットの変更を追跡
-diffai dataset_v1.csv dataset_v2.csv --stats --format json
+diffai dataset_v1.csv dataset_v2.csv --format json
 
 # 訓練・検証データの分布比較
-diffai train.csv val.csv --stats --show-distribution
+diffai train.csv val.csv --show-distribution
 ```
 
 ## 継続的インテグレーション

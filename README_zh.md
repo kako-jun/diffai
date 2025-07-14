@@ -89,10 +89,10 @@ diffai model_old.pt model_new.pt
 diffai checkpoint_v1.safetensors checkpoint_v2.safetensors
 
 # 比较 NumPy 数组
-diffai data_v1.npy data_v2.npy --stats
+diffai data_v1.npy data_v2.npy
 
 # 比较 MATLAB 文件
-diffai experiment_v1.mat experiment_v2.mat --stats
+diffai experiment_v1.mat experiment_v2.mat
 ```
 
 ### 自动ML分析
@@ -137,7 +137,7 @@ diffai model_v1.safetensors model_v2.safetensors --verbose
 diffai model1.safetensors model2.safetensors --verbose
 
 # 结构化数据的详细输出
-diffai data1.json data2.json --verbose --stats --epsilon 0.001 --ignore-keys-regex "^id$"
+diffai data1.json data2.json --verbose --epsilon 0.001 --ignore-keys-regex "^id$"
 ```
 
 **详细输出包含信息：**

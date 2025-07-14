@@ -157,7 +157,7 @@ diffai model_fp32.safetensors model_int8.safetensors --epsilon 0.1
 訓練中のチェックポイントを比較：
 
 ```bash
-diffai checkpoint_epoch_10.pt checkpoint_epoch_50.pt --stats
+diffai checkpoint_epoch_10.pt checkpoint_epoch_50.pt
 
 # 期待される出力: 収束パターン
 # ~ layers.0.weight: mean=-0.0012→0.0034, std=1.2341→0.8907
@@ -173,7 +173,7 @@ diffai checkpoint_epoch_10.pt checkpoint_epoch_50.pt --stats
 異なるモデルアーキテクチャを比較：
 
 ```bash
-diffai resnet50.safetensors efficientnet_b0.safetensors --stats
+diffai resnet50.safetensors efficientnet_b0.safetensors
 
 # 期待される出力: 構造的違い
 # ~ features.conv1.weight: shape=[64, 3, 7, 7] -> [32, 3, 3, 3]
@@ -323,7 +323,7 @@ done
 file model.safetensors
 
 # 単一モデル分析の詳細統計を表示
-diffai model.safetensors model.safetensors --stats
+diffai model.safetensors model.safetensors
 
 # 明示的な形式指定で試行
 diffai --format safetensors model1.safetensors model2.safetensors
@@ -443,7 +443,7 @@ diffai fp32_model.safetensors quantized_model.safetensors --quantization-analysi
 
 ```bash
 # 重要度順で変更をソート
-diffai model1.safetensors model2.safetensors --sort-by-change-magnitude --stats
+diffai model1.safetensors model2.safetensors --sort-by-change-magnitude
 
 # 出力は最大の変化から順に表示
 ```
@@ -476,14 +476,14 @@ diffai baseline.safetensors modified.safetensors --show-layer-impact
 ```bash
 # 包括的なモデル分析
 diffai checkpoint_v1.safetensors checkpoint_v2.safetensors \
-  --stats \
+  \
   --quantization-analysis \
   --sort-by-change-magnitude \
   --show-layer-impact
 
 # 自動化用のJSON出力
 diffai model1.safetensors model2.safetensors \
-  --stats --output json
+  --output json
 ```
 
 ## 機能選択ガイド
@@ -491,25 +491,25 @@ diffai model1.safetensors model2.safetensors \
 **訓練監視用:**
 ```bash
 diffai checkpoint_old.safetensors checkpoint_new.safetensors \
-  --stats --sort-by-change-magnitude
+  --sort-by-change-magnitude
 ```
 
 **本番デプロイ用:**
 ```bash
 diffai current_prod.safetensors candidate.safetensors \
-  --stats --quantization-analysis
+  --quantization-analysis
 ```
 
 **研究分析用:**
 ```bash
 diffai baseline.safetensors experiment.safetensors \
-  --stats --show-layer-impact
+  --show-layer-impact
 ```
 
 **量子化検証用:**
 ```bash
 diffai fp32.safetensors quantized.safetensors \
-  --quantization-analysis --stats
+  --quantization-analysis
 ```
 
 ## Phase 3機能（利用可能）

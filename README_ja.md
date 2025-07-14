@@ -89,10 +89,10 @@ diffai model_old.pt model_new.pt
 diffai checkpoint_v1.safetensors checkpoint_v2.safetensors
 
 # NumPy配列比較
-diffai data_v1.npy data_v2.npy --stats
+diffai data_v1.npy data_v2.npy
 
 # MATLABファイル比較
-diffai experiment_v1.mat experiment_v2.mat --stats
+diffai experiment_v1.mat experiment_v2.mat
 ```
 
 ### 自動ML分析
@@ -143,7 +143,7 @@ diffaiはMLモデル比較時に30+の専門分析機能を自動実行：
 diffai model1.safetensors model2.safetensors --verbose
 
 # 構造化データの詳細出力
-diffai data1.json data2.json --verbose --stats --epsilon 0.001 --ignore-keys-regex "^id$"
+diffai data1.json data2.json --verbose --epsilon 0.001 --ignore-keys-regex "^id$"
 ```
 
 **詳細出力に含まれる情報：**
@@ -245,8 +245,7 @@ diffai model1.safetensors model2.safetensors --output yaml
 ### 研究開発
 ```bash
 # ファインチューニング前後のモデル比較
-diffai pretrained_model.safetensors finetuned_model.safetensors \
-  --learning-progress --convergence-analysis --stats
+diffai pretrained_model.safetensors finetuned_model.safetensors
 
 # 開発中のアーキテクチャ変更分析
 diffai baseline_architecture.pt improved_architecture.pt \
@@ -267,13 +266,13 @@ diffai original_model.pt optimized_model.pt \
 ### 科学計算
 ```bash
 # NumPy実験結果比較
-diffai baseline_results.npy new_results.npy --stats
+diffai baseline_results.npy new_results.npy
 
 # MATLABシミュレーションデータ分析
-diffai simulation_v1.mat simulation_v2.mat --stats
+diffai simulation_v1.mat simulation_v2.mat
 
 # 圧縮NumPyアーカイブ比較
-diffai dataset_v1.npz dataset_v2.npz --stats
+diffai dataset_v1.npz dataset_v2.npz
 ```
 
 ### 実験追跡
@@ -293,7 +292,6 @@ diffai model_a.safetensors model_b.safetensors \
 - `-f, --format <FORMAT>` - 入力ファイル形式指定
 - `-o, --output <OUTPUT>` - 出力形式選択（cli, json, yaml）
 - `-r, --recursive` - ディレクトリ再帰比較
-- `--stats` - MLモデル詳細統計表示
 
 ### 高度オプション
 - `--path <PATH>` - 特定パスでの差分フィルタ
@@ -326,13 +324,13 @@ architecture_comparison: type1=feedforward, type2=feedforward, depth=3->3, diffe
 
 ### 科学データ分析
 ```bash
-$ diffai experiment_data_v1.npy experiment_data_v2.npy --stats
+$ diffai experiment_data_v1.npy experiment_data_v2.npy
   ~ data: shape=[1000, 256], mean=0.1234->0.1456, std=0.9876->0.9654, dtype=float64
 ```
 
 ### MATLABファイル比較
 ```bash
-$ diffai simulation_v1.mat simulation_v2.mat --stats
+$ diffai simulation_v1.mat simulation_v2.mat
   ~ results: var=results, shape=[500, 100], mean=2.3456->2.4567, std=1.2345->1.3456, dtype=double
   + new_variable: var=new_variable, shape=[100], dtype=single, elements=100, size=0.39KB
 ```

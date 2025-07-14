@@ -78,7 +78,7 @@ Configuration:
 
 ```bash
 diffai model1.safetensors model2.safetensors --verbose \
-  --stats \
+  \
   --architecture-comparison \
   --memory-analysis \
   --anomaly-detection
@@ -249,7 +249,7 @@ diffai file1.json file2.json --verbose 2>&1 >/dev/null
 ```bash
 # 在GitHub Actions或类似工具中
 - name: 使用详细输出比较模型
-  run: diffai baseline.safetensors new_model.safetensors --verbose --stats
+  run: diffai baseline.safetensors new_model.safetensors --verbose
 ```
 
 ### 脚本和自动化
@@ -269,5 +269,4 @@ fi
 
 - [`--help`](basic-usage.md#help): 显示所有可用选项
 - [`--output`](output-formats.md): 控制输出格式
-- [`--stats`](ml-analysis.md#statistics): 启用ML统计分析
 - [`--recursive`](directory-comparison.md): 启用目录比较

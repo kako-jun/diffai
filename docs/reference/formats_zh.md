@@ -16,7 +16,7 @@ diffai支持多种针对不同用例优化的文件格式，从机器学习模�
 
 **示例**:
 ```bash
-diffai model1.pt model2.pt --stats
+diffai model1.pt model2.pt
 ```
 
 ### Safetensors模型
@@ -27,7 +27,7 @@ diffai model1.pt model2.pt --stats
 
 **示例**:
 ```bash
-diffai model1.safetensors model2.safetensors --stats
+diffai model1.safetensors model2.safetensors
 ```
 
 ## 科学数据格式
@@ -40,8 +40,8 @@ diffai model1.safetensors model2.safetensors --stats
 
 **示例**:
 ```bash
-diffai data1.npy data2.npy --stats
-diffai archive1.npz archive2.npz --stats
+diffai data1.npy data2.npy
+diffai archive1.npz archive2.npz
 ```
 
 ### MATLAB矩阵
@@ -52,7 +52,7 @@ diffai archive1.npz archive2.npz --stats
 
 **示例**:
 ```bash
-diffai simulation1.mat simulation2.mat --stats
+diffai simulation1.mat simulation2.mat
 ```
 
 ## 结构化数据格式

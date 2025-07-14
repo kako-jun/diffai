@@ -8,12 +8,11 @@ diffai提供专门为机器学习模型比较和分析而设计的35项特殊分
 
 ## 当前可用功能（v0.2.0）
 
-### 1. `--stats` 统计分析
 为模型比较提供详细的张量统计。
 
 **用法**:
 ```bash
-diffai model1.safetensors model2.safetensors --stats
+diffai model1.safetensors model2.safetensors
 ```
 
 **输出**:
@@ -62,7 +61,7 @@ quantization_analysis: compression=0.25, precision_loss=minimal
 
 **用法**:
 ```bash
-diffai model1.safetensors model2.safetensors --sort-by-change-magnitude --stats
+diffai model1.safetensors model2.safetensors --sort-by-change-magnitude
 ```
 
 **输出**: 结果按最大变化在前进行排序
@@ -94,14 +93,14 @@ diffai baseline.safetensors modified.safetensors --show-layer-impact
 ```bash
 # 全面模型分析
 diffai checkpoint_v1.safetensors checkpoint_v2.safetensors \
-  --stats \
+  \
   --quantization-analysis \
   --sort-by-change-magnitude \
   --show-layer-impact
 
 # 自动化的JSON输出
 diffai model1.safetensors model2.safetensors \
-  --stats --output json
+  --output json
 ```
 
 ## 功能选择指南
@@ -109,25 +108,25 @@ diffai model1.safetensors model2.safetensors \
 **用于训练监控**:
 ```bash
 diffai checkpoint_old.safetensors checkpoint_new.safetensors \
-  --stats --sort-by-change-magnitude
+  --sort-by-change-magnitude
 ```
 
 **用于生产部署**:
 ```bash
 diffai current_prod.safetensors candidate.safetensors \
-  --stats --quantization-analysis
+  --quantization-analysis
 ```
 
 **用于研究分析**:
 ```bash
 diffai baseline.safetensors experiment.safetensors \
-  --stats --show-layer-impact
+  --show-layer-impact
 ```
 
 **用于量化验证**:
 ```bash
 diffai fp32.safetensors quantized.safetensors \
-  --quantization-analysis --stats
+  --quantization-analysis
 ```
 
 ## 未来功能（第3阶段）
@@ -157,7 +156,6 @@ import mlflow
 
 def log_model_diff(model1_path, model2_path):
     result = subprocess.run([
-        'diffai', model1_path, model2_path, '--stats', '--output', 'json'
     ], capture_output=True, text=True)
     
     diff_data = json.loads(result.stdout)
@@ -183,7 +181,7 @@ jobs:
       - name: 比较模型
         run: |
           diffai models/baseline.safetensors models/candidate.safetensors \
-            --stats --output json > model_diff.json
+            --output json > model_diff.json
 ```
 
 ## 相关文档

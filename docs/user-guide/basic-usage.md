@@ -190,7 +190,7 @@ diffai checkpoints/epoch_10.safetensors checkpoints/epoch_20.safetensors
 diffai baseline_results.npy new_results.npy
 
 # Compare MATLAB simulation data
-diffai simulation_v1.mat simulation_v2.mat --stats
+diffai simulation_v1.mat simulation_v2.mat
 ```
 
 ## Supported File Formats
