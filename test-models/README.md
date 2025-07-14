@@ -27,7 +27,7 @@ uv run python download_models.py
 
 ```bash
 # Safetensorsモデル間の比較
-diffai distilbert_base/model.safetensors gpt2_small/model.safetensors --stats
+diffai distilbert_base/model.safetensors gpt2_small/model.safetensors
 
 # 高度な分析機能
 diffai distilbert_base/model.safetensors gpt2_small/model.safetensors \

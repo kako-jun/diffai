@@ -166,37 +166,37 @@ pub enum DiffaiError {
 ### 1. 直感的なインターフェース
 
 ```bash
-# 直感的で分かりやすいコマンド
-diffai model1.pth model2.pth              # 基本的な比較
-diffai model1.pth model2.pth --detailed   # 詳細な比較
+# 直感的で分かりやすいコマンド（包括的ML分析が自動実行）
+diffai model1.pth model2.pth              # 包括的ML分析（30+機能が自動）
+diffai model1.pth model2.pth --verbose    # 詳細診断 + 包括的分析
 diffai models/ --recursive                # ディレクトリ比較
 ```
 
 **設計指針:**
-- 最小限の引数で最大の機能
-- 段階的な詳細度
-- 一貫したオプション名
+- 最小限の引数で最大の機能（デフォルトで包括的）
+- 自動機能有効化による選択肢の混乱の排除
+- 必須制御のみの一貫したオプション名
 
-### 2. 情報の段階的開示
+### 2. デフォルトで包括的、段階的詳細制御
 
 ```bash
-# 基本情報
+# 包括的ML分析（自動）
 diffai model1.pth model2.pth
-# → 主要な違いのみを表示
+# → 30+のML分析機能をすべて自動表示
 
-# 詳細情報
+# 詳細診断 + 包括的分析
 diffai model1.pth model2.pth --verbose
-# → 全ての詳細情報を表示
+# → 同じ包括的分析 + デバッグ情報
 
-# 特定の情報
-diffai model1.pth model2.pth --show-structure
-# → 構造の違いのみを表示
+# 出力形式制御
+diffai model1.pth model2.pth --output json
+# → 自動化用JSON形式での包括的分析
 ```
 
-**効果:**
-- 情報の過負荷を防ぐ
-- ユーザーのニーズに応じた情報提供
-- 学習コストの軽減
+**新しい哲学:**
+- デフォルトで包括的分析を提供（機能選択不要）
+- 機能選択ではなく、出力詳細度と形式を制御
+- ML分析機能の学習コストを排除
 
 ### 3. 高品質な出力
 

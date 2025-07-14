@@ -6,14 +6,14 @@ Comprehensive guide to diffai's machine learning analysis functions for model co
 
 diffai provides 35 specialized analysis functions designed specifically for machine learning model comparison and analysis. These functions help with research and development, MLOps, and deployment workflows.
 
-## Currently Available Functions (v0.2.0)
+## Automatic Comprehensive Analysis (v0.3.4+)
 
-### 1. `--stats` Statistical Analysis
-Provides detailed tensor statistics for model comparison.
+### All-in-One ML Analysis
+Diffai automatically provides comprehensive analysis for PyTorch and Safetensors files. No flags are required - all 30+ analysis features run by default.
 
 **Usage**:
 ```bash
-diffai model1.safetensors model2.safetensors --stats
+diffai model1.safetensors model2.safetensors
 ```
 
 **Output**:
@@ -62,7 +62,7 @@ Sorts differences by magnitude for prioritization.
 
 **Usage**:
 ```bash
-diffai model1.safetensors model2.safetensors --sort-by-change-magnitude --stats
+diffai model1.safetensors model2.safetensors --sort-by-change-magnitude
 ```
 
 **Output**: Results are sorted with largest changes first
@@ -94,14 +94,14 @@ Combine multiple features for comprehensive analysis:
 ```bash
 # Comprehensive model analysis
 diffai checkpoint_v1.safetensors checkpoint_v2.safetensors \
-  --stats \
+  \
   --quantization-analysis \
   --sort-by-change-magnitude \
   --show-layer-impact
 
 # JSON output for automation
 diffai model1.safetensors model2.safetensors \
-  --stats --output json
+  --output json
 ```
 
 ## Feature Selection Guide
@@ -109,25 +109,25 @@ diffai model1.safetensors model2.safetensors \
 **For Training Monitoring**:
 ```bash
 diffai checkpoint_old.safetensors checkpoint_new.safetensors \
-  --stats --sort-by-change-magnitude
+  --sort-by-change-magnitude
 ```
 
 **For Production Deployment**:
 ```bash
 diffai current_prod.safetensors candidate.safetensors \
-  --stats --quantization-analysis
+  --quantization-analysis
 ```
 
 **For Research Analysis**:
 ```bash
 diffai baseline.safetensors experiment.safetensors \
-  --stats --show-layer-impact
+  --show-layer-impact
 ```
 
 **For Quantization Validation**:
 ```bash
 diffai fp32.safetensors quantized.safetensors \
-  --quantization-analysis --stats
+  --quantization-analysis
 ```
 
 ### 5. `--architecture-comparison` Architecture Comparison
@@ -323,7 +323,6 @@ import mlflow
 
 def log_model_diff(model1_path, model2_path):
     result = subprocess.run([
-        'diffai', model1_path, model2_path, '--stats', '--output', 'json'
     ], capture_output=True, text=True)
     
     diff_data = json.loads(result.stdout)
@@ -349,7 +348,7 @@ jobs:
       - name: Compare models
         run: |
           diffai models/baseline.safetensors models/candidate.safetensors \
-            --stats --output json > model_diff.json
+            --output json > model_diff.json
 ```
 
 ## See Also

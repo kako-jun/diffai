@@ -273,7 +273,7 @@ fn test_npm_readme_completeness() {
         );
         assert!(content.contains("## Usage"), "Should have usage section");
         assert!(content.contains("```bash"), "Should have code examples");
-        assert!(content.contains("--stats"), "Should document stats option");
+        assert!(content.contains("30+ analysis features") || content.contains("automatic"), "Should document automatic ML analysis");
         assert!(
             content.contains("architecture-comparison"),
             "Should document Phase 3 features"

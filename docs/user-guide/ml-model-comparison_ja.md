@@ -43,20 +43,28 @@ diffai は AI/ML モデル形式をネイティブサポートし、単なるバ
 ### シンプルな比較
 
 ```bash
-# 2つのPyTorchモデルを比較
-diffai model1.pt model2.pt --stats
+# 2つのPyTorchモデルを比較（包括的分析が自動実行）
+diffai model1.pt model2.pt
 
-# Safetensorsモデルを比較（推奨）
-diffai model1.safetensors model2.safetensors --stats
+# Safetensorsモデルを比較（推奨、包括的分析が自動実行）
+diffai model1.safetensors model2.safetensors
 
-# 自動形式検出
-diffai pretrained.safetensors finetuned.safetensors --stats
+# 完全分析付き自動形式検出
+diffai pretrained.safetensors finetuned.safetensors
 ```
 
 ### 出力例
 
 ```bash
-$ diffai model_v1.safetensors model_v2.safetensors --stats
+$ diffai model_v1.safetensors model_v2.safetensors
+anomaly_detection: type=none, severity=none, action="continue_training"
+architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
+convergence_analysis: status=converging, stability=0.92
+gradient_analysis: flow_health=healthy, norm=0.021069
+memory_analysis: delta=+0.0MB, efficiency=1.000000
+quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%
+regression_test: passed=true, degradation=-2.5%, severity=low
+deployment_readiness: readiness=0.92, risk=low
   ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
   ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
@@ -114,9 +122,12 @@ diffai model1.safetensors model2.safetensors --ignore-keys-regex "^(timestamp|_m
 事前学習済みモデルとファインチューニング版を比較：
 
 ```bash
-diffai pretrained_bert.safetensors finetuned_bert.safetensors --stats
+diffai pretrained_bert.safetensors finetuned_bert.safetensors
 
-# 期待される出力: アテンション層の統計的変化
+# 期待される出力: アテンション層変化を含む包括的分析
+# anomaly_detection: type=none, severity=none
+# architecture_comparison: type=transformer, deployment_readiness=ready
+# convergence_analysis: status=converged, stability=0.95
 # ~ bert.encoder.layer.11.attention.self.query.weight: mean=-0.0001→0.0023
 # ~ classifier.weight: mean=0.0000→0.0145, std=0.0200→0.0890
 ```
@@ -146,7 +157,7 @@ diffai model_fp32.safetensors model_int8.safetensors --epsilon 0.1
 訓練中のチェックポイントを比較：
 
 ```bash
-diffai checkpoint_epoch_10.pt checkpoint_epoch_50.pt --stats
+diffai checkpoint_epoch_10.pt checkpoint_epoch_50.pt
 
 # 期待される出力: 収束パターン
 # ~ layers.0.weight: mean=-0.0012→0.0034, std=1.2341→0.8907
@@ -162,7 +173,7 @@ diffai checkpoint_epoch_10.pt checkpoint_epoch_50.pt --stats
 異なるモデルアーキテクチャを比較：
 
 ```bash
-diffai resnet50.safetensors efficientnet_b0.safetensors --stats
+diffai resnet50.safetensors efficientnet_b0.safetensors
 
 # 期待される出力: 構造的違い
 # ~ features.conv1.weight: shape=[64, 3, 7, 7] -> [32, 3, 3, 3]
@@ -312,7 +323,7 @@ done
 file model.safetensors
 
 # 単一モデル分析の詳細統計を表示
-diffai model.safetensors model.safetensors --stats
+diffai model.safetensors model.safetensors
 
 # 明示的な形式指定で試行
 diffai --format safetensors model1.safetensors model2.safetensors
@@ -364,38 +375,45 @@ gunzip model.safetensors.gz
 - ノイズを避けるため適切なイプシロン値を設定
 - 比較戦略を選択する際にモデルサイズを考慮
 
-## 高度なML分析機能
+## ML分析機能
 
-diffai は現在以下の機械学習分析機能を提供します（v0.2.0）：
+### 包括的分析（自動）
 
-### 現在利用可能な機能（v0.2.0）
+diffai は現在MLモデルに対して30+の機能を持つ自動包括的分析を提供します：
 
-diffai は現在以下の実装済み分析機能を提供します：
+### 自動分析機能
 
-### 1. 統計分析（`--stats`）
-
-モデル比較のための詳細なテンソル統計を提供：
+PyTorch/Safetensorsファイルの比較時にすべての分析が自動実行されます：
 
 ```bash
-# 詳細統計付きで訓練チェックポイントを比較
-diffai checkpoint_epoch_10.safetensors checkpoint_epoch_20.safetensors --stats
+# 単一コマンドで包括的分析を実行
+diffai checkpoint_epoch_10.safetensors checkpoint_epoch_20.safetensors
 
-# 出力例:
-# ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
-# ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
+# 出力に含まれる内容:
+# - 異常検出
+# - アーキテクチャ比較
+# - 収束分析
+# - 勾配分析
+# - メモリ分析
+# - 量子化分析
+# - 回帰テスト
+# - デプロイ準備状況
+# - 統計分析
+# - その他20+の機能
 ```
 
-**分析情報:**
-- **mean**: パラメータの平均値
-- **std**: パラメータの標準偏差
-- **min/max**: パラメータ値の範囲
-- **shape**: テンソルの次元
-- **dtype**: データ型の精度
+**分析情報（自動）:**
+- **統計指標**: mean、std、min/max、shape、dtype
+- **アーキテクチャ分析**: モデルタイプ、複雑性、移行難易度
+- **パフォーマンス指標**: メモリ使用量、量子化影響、高速化
+- **訓練洞察**: 収束状態、勾配健全性、安定性
+- **デプロイ準備**: リスク評価、互換性、最適化
 
 **使用例:**
-- 訓練中のパラメータ変化の監視
-- モデル重みの統計的変化の検出
-- モデル一貫性の検証
+- 完全な訓練進捗監視
+- 本番デプロイ準備状況の検証
+- 包括的モデル比較
+- 自動品質保証
 
 ### 2. 量子化分析（`--quantization-analysis`）
 
@@ -425,7 +443,7 @@ diffai fp32_model.safetensors quantized_model.safetensors --quantization-analysi
 
 ```bash
 # 重要度順で変更をソート
-diffai model1.safetensors model2.safetensors --sort-by-change-magnitude --stats
+diffai model1.safetensors model2.safetensors --sort-by-change-magnitude
 
 # 出力は最大の変化から順に表示
 ```
@@ -458,14 +476,14 @@ diffai baseline.safetensors modified.safetensors --show-layer-impact
 ```bash
 # 包括的なモデル分析
 diffai checkpoint_v1.safetensors checkpoint_v2.safetensors \
-  --stats \
+  \
   --quantization-analysis \
   --sort-by-change-magnitude \
   --show-layer-impact
 
 # 自動化用のJSON出力
 diffai model1.safetensors model2.safetensors \
-  --stats --output json
+  --output json
 ```
 
 ## 機能選択ガイド
@@ -473,25 +491,25 @@ diffai model1.safetensors model2.safetensors \
 **訓練監視用:**
 ```bash
 diffai checkpoint_old.safetensors checkpoint_new.safetensors \
-  --stats --sort-by-change-magnitude
+  --sort-by-change-magnitude
 ```
 
 **本番デプロイ用:**
 ```bash
 diffai current_prod.safetensors candidate.safetensors \
-  --stats --quantization-analysis
+  --quantization-analysis
 ```
 
 **研究分析用:**
 ```bash
 diffai baseline.safetensors experiment.safetensors \
-  --stats --show-layer-impact
+  --show-layer-impact
 ```
 
 **量子化検証用:**
 ```bash
 diffai fp32.safetensors quantized.safetensors \
-  --quantization-analysis --stats
+  --quantization-analysis
 ```
 
 ## Phase 3機能（利用可能）

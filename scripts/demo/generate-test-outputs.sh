@@ -62,7 +62,7 @@ run_demo() {
         echo ""
     } > "$output_file"
     
-    # Run diffai and capture output
+    # Run diffai and capture output (including stderr for verbose mode)
     if "$DIFFAI_BIN" "${args[@]}" >> "$output_file" 2>&1; then
         echo "✅ Success - Output saved to: ${output_file##*/}"
     else
@@ -77,10 +77,10 @@ run_demo() {
 }
 
 # Demo 1: Basic JSON comparison
-if [ -f "$FIXTURE_DIR/simple1.json" ] && [ -f "$FIXTURE_DIR/simple2.json" ]; then
+if [ -f "$FIXTURE_DIR/config_v1.json" ] && [ -f "$FIXTURE_DIR/config_v2.json" ]; then
     run_demo "basic-json-diff" \
         "Basic JSON file comparison showing added/removed/modified fields" \
-        "$FIXTURE_DIR/simple1.json" "$FIXTURE_DIR/simple2.json"
+        "$FIXTURE_DIR/config_v1.json" "$FIXTURE_DIR/config_v2.json"
 fi
 
 # Demo 2: ML model comparison
@@ -101,23 +101,23 @@ if [ -f "$FIXTURE_DIR/ml_models/simple_base.safetensors" ] && [ -f "$FIXTURE_DIR
 fi
 
 # Demo 3: Verbose output
-if [ -f "$FIXTURE_DIR/simple1.json" ] && [ -f "$FIXTURE_DIR/simple2.json" ]; then
+if [ -f "$FIXTURE_DIR/config_v1.json" ] && [ -f "$FIXTURE_DIR/config_v2.json" ]; then
     run_demo "verbose-mode" \
         "Verbose mode showing detailed analysis process" \
-        "$FIXTURE_DIR/simple1.json" "$FIXTURE_DIR/simple2.json" \
+        "$FIXTURE_DIR/config_v1.json" "$FIXTURE_DIR/config_v2.json" \
         "--verbose"
 fi
 
 # Demo 4: Different output formats
-if [ -f "$FIXTURE_DIR/simple1.json" ] && [ -f "$FIXTURE_DIR/simple2.json" ]; then
+if [ -f "$FIXTURE_DIR/config_v1.json" ] && [ -f "$FIXTURE_DIR/config_v2.json" ]; then
     run_demo "output-json" \
         "JSON output format for programmatic consumption" \
-        "$FIXTURE_DIR/simple1.json" "$FIXTURE_DIR/simple2.json" \
+        "$FIXTURE_DIR/config_v1.json" "$FIXTURE_DIR/config_v2.json" \
         "--output" "json"
         
     run_demo "output-yaml" \
         "YAML output format for human-readable structured data" \
-        "$FIXTURE_DIR/simple1.json" "$FIXTURE_DIR/simple2.json" \
+        "$FIXTURE_DIR/config_v1.json" "$FIXTURE_DIR/config_v2.json" \
         "--output" "yaml"
 fi
 

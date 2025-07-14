@@ -1,8 +1,8 @@
 # diffai Test: ml/combined_features
 
-**Description:** Multiple ML analysis features combined
+**Description:** Comprehensive ML analysis (automatic)
 
-**Command:** `diffai tests/fixtures/ml_models/simple_base.safetensors tests/fixtures/ml_models/simple_modified.safetensors --stats --architecture-comparison --memory-analysis`
+**Command:** `diffai tests/fixtures/ml_models/simple_base.safetensors tests/fixtures/ml_models/simple_modified.safetensors`
 
 **Generated:** Mon Jul 14 02:00:33 PM JST 2025
 **Version:** v0.3.4

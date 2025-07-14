@@ -1,6 +1,6 @@
 # CLI Reference
 
-Complete command-line reference for diffai v0.2.0 - AI/ML specialized diff tool.
+Complete command-line reference for diffai v0.3.4 - AI/ML specialized diff tool with simplified interface.
 
 ## Synopsis
 
@@ -62,10 +62,6 @@ Compare directories recursively.
 
 - **Example**: `diffai dir1/ dir2/ --recursive`
 
-#### `--stats`
-Show detailed statistics for ML models and scientific data.
-
-- **Example**: `diffai model.safetensors model2.safetensors --stats`
 
 ### Advanced Options
 
@@ -93,95 +89,57 @@ Specify key for identifying array elements.
 - **Example**: `--array-id-key "id"`
 - **Usage**: For structured array comparison
 
-#### `--sort-by-change-magnitude`
-Sort differences by change magnitude (ML models only).
-
-- **Example**: `diffai model1.pt model2.pt --sort-by-change-magnitude`
 
 ## ML Analysis Functions
 
-### Currently Available (v0.2.0)
+### ML Analysis (Automatic for PyTorch/Safetensors)
 
-The following ML analysis functions are currently implemented:
+**For PyTorch (.pt/.pth) and Safetensors (.safetensors) files, diffai automatically performs comprehensive analysis including:**
 
-#### `--stats`
-Show detailed statistics for ML models and scientific data.
+#### Comprehensive Analysis Suite (30+ Features)
 
-- **Output**: Mean, standard deviation, min/max, shape, dtype for each tensor
-- **Example**: `diffai model.safetensors model2.safetensors --stats`
+- **Basic Statistics**: Mean, standard deviation, min/max, shape, dtype for each tensor
+- **Quantization Analysis**: Compression ratio, precision loss analysis  
+- **Architecture Comparison**: Structure detection, layer depth comparison, migration assessment
+- **Memory Analysis**: Memory delta, peak usage estimation, optimization recommendations
+- **Anomaly Detection**: NaN/Inf detection, gradient explosion/vanishing analysis
+- **Convergence Analysis**: Parameter stability, early stopping recommendations
+- **Gradient Analysis**: Gradient flow health, norm estimation, problematic layers
+- **Change Summary**: Magnitude analysis, patterns, layer rankings
+- **Similarity Matrix**: Layer-to-layer similarities, clustering coefficient
+- **Deployment Readiness**: Production deployment safety assessment
+- **Risk Assessment**: Change impact evaluation
+- **Performance Impact**: Speed and efficiency analysis
+- **Parameter Efficiency**: Optimization opportunities
+- **Regression Testing**: Quality assurance validation
+- **Learning Progress**: Training progress tracking
+- **Embedding Analysis**: Semantic drift detection
+- **Attention Analysis**: Transformer attention pattern analysis
+- **Statistical Significance**: Change significance testing
+- **Transfer Learning Analysis**: Fine-tuning effectiveness
+- **Ensemble Analysis**: Multi-model comparison
+- **Hyperparameter Impact**: Configuration change effects
+- **Learning Rate Analysis**: Optimization schedule effectiveness
+- **And more...**
 
-#### `--quantization-analysis`
-Analyze quantization effects and efficiency.
+**🎯 No flags required** - all analysis is performed automatically for optimal user experience.
 
-- **Output**: Compression ratio, precision loss analysis
-- **Example**: `diffai fp32_model.safetensors quantized_model.safetensors --quantization-analysis`
-
-#### `--sort-by-change-magnitude`
-Sort differences by magnitude for prioritization.
-
-- **Output**: Magnitude-sorted difference list
-- **Example**: `diffai model1.pt model2.pt --sort-by-change-magnitude`
-
-#### `--show-layer-impact`
-Analyze layer-by-layer impact of changes.
-
-- **Output**: Per-layer change analysis
-- **Example**: `diffai baseline.safetensors modified.safetensors --show-layer-impact`
-
-### Phase 3 Features (Now Available)
-
-#### Architecture & Performance Analysis
-
-##### `--architecture-comparison`
-Compare model architectures and detect structural changes.
-
-- **Output**: Architecture type detection, layer depth comparison, migration difficulty assessment
-- **Example**: `diffai model1.safetensors model2.safetensors --architecture-comparison`
-
-##### `--memory-analysis`
-Analyze memory usage and optimization opportunities.
-
-- **Output**: Memory delta, peak usage estimation, GPU utilization, optimization recommendations
-- **Example**: `diffai model1.safetensors model2.safetensors --memory-analysis`
-
-##### `--anomaly-detection`
-Detect numerical anomalies in model parameters.
-
-- **Output**: NaN/Inf detection, gradient explosion/vanishing analysis, dead neuron detection
-- **Example**: `diffai model1.safetensors model2.safetensors --anomaly-detection`
-
-##### `--change-summary`
-Generate detailed change summaries.
-
-- **Output**: Change magnitude, patterns, layer rankings, structural vs parameter changes
-- **Example**: `diffai model1.safetensors model2.safetensors --change-summary`
-
-#### Advanced Analysis
-
-##### `--convergence-analysis`
-Analyze convergence patterns in model parameters.
-
-- **Output**: Convergence status, parameter stability, early stopping recommendations
-- **Example**: `diffai model1.safetensors model2.safetensors --convergence-analysis`
-
-##### `--gradient-analysis`
-Analyze gradient information estimated from parameter changes.
-
-- **Output**: Gradient flow health, norm estimation, problematic layers, clipping recommendations
-- **Example**: `diffai model1.safetensors model2.safetensors --gradient-analysis`
-
-##### `--similarity-matrix`
-Generate similarity matrix for model comparison.
-
-- **Output**: Layer-to-layer similarities, clustering coefficient, outlier detection
-- **Example**: `diffai model1.safetensors model2.safetensors --similarity-matrix`
+**Example**: Simply run `diffai model1.safetensors model2.safetensors` to get comprehensive analysis.
 
 ## Output Examples
 
-### CLI Output (Default)
+### CLI Output (Default - Full Analysis)
 
 ```bash
-$ diffai model_v1.safetensors model_v2.safetensors --stats
+$ diffai model_v1.safetensors model_v2.safetensors
+anomalydectionnamely_detection: type=none, severity=none, action="continue_training"
+architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
+convergence_analysis: status=converging, stability=0.92
+gradient_analysis: flow_health=healthy, norm=0.021069
+memory_analysis: delta=+0.0MB, efficiency=1.000000
+quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%
+regression_test: passed=true, degradation=-2.5%, severity=low
+deployment_readiness: readiness=0.92, risk=low, timeline=ready_for_immediate_deployment
   ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
   ~ fc2.bias: mean=-0.0076->-0.0257, std=0.0661->0.0973
@@ -190,27 +148,24 @@ $ diffai model_v1.safetensors model_v2.safetensors --stats
   ~ fc3.weight: mean=-0.0035->-0.0010, std=0.0990->0.1113
 ```
 
-### Combined Analysis Output
+### Comprehensive Analysis Benefits
+
+- **30+ analysis functions** run automatically
+- **No option selection needed** - get all insights by default
+- **Same processing time** - no performance penalty
+- **Production-ready insights** - deployment readiness, risk assessment, etc.
+
+### Scientific Data Analysis (Automatic)
 
 ```bash
-$ diffai baseline.safetensors improved.safetensors --stats --quantization-analysis --sort-by-change-magnitude
-quantization_analysis: compression=0.25, precision_loss=minimal
-  ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
-  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
-  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
-```
-
-### Scientific Data Analysis
-
-```bash
-$ diffai experiment_data_v1.npy experiment_data_v2.npy --stats
+$ diffai experiment_data_v1.npy experiment_data_v2.npy
   ~ data: shape=[1000, 256], mean=0.1234->0.1456, std=0.9876->0.9654, dtype=float64
 ```
 
-### MATLAB File Comparison
+### MATLAB File Comparison (Automatic)
 
 ```bash
-$ diffai simulation_v1.mat simulation_v2.mat --stats
+$ diffai simulation_v1.mat simulation_v2.mat
   ~ results: var=results, shape=[500, 100], mean=2.3456->2.4567, std=1.2345->1.3456, dtype=double
   + new_variable: var=new_variable, shape=[100], dtype=single, elements=100, size=0.39KB
 ```
@@ -270,7 +225,7 @@ $ diffai model_v1.safetensors model_v2.safetensors --output yaml
 
 1. **"Binary files differ" message**: Use `--format` to specify file type
 2. **Out of memory**: Set `DIFFAI_MAX_MEMORY` environment variable
-3. **Slow processing**: Use `--stats` only when needed for large models
+3. **Slow processing**: Analysis is optimized for large models automatically
 4. **Missing dependencies**: Ensure Rust toolchain is properly installed
 
 ### Debug Mode

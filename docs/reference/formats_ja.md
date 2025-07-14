@@ -12,7 +12,7 @@ diffaiがサポートするファイル形式とその仕様について説明�
 
 **例**:
 ```bash
-diffai model1.pt model2.pt --stats
+diffai model1.pt model2.pt
 ```
 
 ### Safetensorsモデル
@@ -23,7 +23,7 @@ diffai model1.pt model2.pt --stats
 
 **例**:
 ```bash
-diffai model1.safetensors model2.safetensors --stats
+diffai model1.safetensors model2.safetensors
 ```
 
 ## 科学データ形式
@@ -36,8 +36,8 @@ diffai model1.safetensors model2.safetensors --stats
 
 **例**:
 ```bash
-diffai data1.npy data2.npy --stats
-diffai archive1.npz archive2.npz --stats
+diffai data1.npy data2.npy
+diffai archive1.npz archive2.npz
 ```
 
 ### MATLAB行列
@@ -48,7 +48,7 @@ diffai archive1.npz archive2.npz --stats
 
 **例**:
 ```bash
-diffai simulation1.mat simulation2.mat --stats
+diffai simulation1.mat simulation2.mat
 ```
 
 ## 構造化データ形式
@@ -202,10 +202,10 @@ diffai model1.safetensors model2.safetensors
 ### 基本的な比較
 ```bash
 # PyTorchモデルの比較
-diffai model1.pth model2.pth --stats
+diffai model1.pth model2.pth
 
 # NumPy配列の比較
-diffai data1.npy data2.npy --stats
+diffai data1.npy data2.npy
 ```
 
 ### 環境変数
@@ -241,7 +241,7 @@ diffai large1.safetensors large2.safetensors --path "classifier"
 diffai model1.safetensors model2.safetensors --epsilon 1e-6
 
 # データ型を確認
-diffai data1.npy data2.npy --stats
+diffai data1.npy data2.npy
 ```
 
 ## 関連項目

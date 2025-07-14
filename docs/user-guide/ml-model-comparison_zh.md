@@ -43,20 +43,28 @@ diffai为AI/ML模型格式提供原生支持，让您能够在张量级别比较
 ### 简单比较
 
 ```bash
-# 比较两个PyTorch模型
-diffai model1.pt model2.pt --stats
+# 比较两个PyTorch模型（自动综合分析）
+diffai model1.pt model2.pt
 
-# 比较Safetensors模型（推荐）
-diffai model1.safetensors model2.safetensors --stats
+# 比较Safetensors模型（推荐，自动综合分析）
+diffai model1.safetensors model2.safetensors
 
-# 自动格式检测
-diffai pretrained.safetensors finetuned.safetensors --stats
+# 完整分析的自动格式检测
+diffai pretrained.safetensors finetuned.safetensors
 ```
 
 ### 示例输出
 
 ```bash
-$ diffai model_v1.safetensors model_v2.safetensors --stats
+$ diffai model_v1.safetensors model_v2.safetensors
+anomaly_detection: type=none, severity=none, action="continue_training"
+architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
+convergence_analysis: status=converging, stability=0.92
+gradient_analysis: flow_health=healthy, norm=0.021069
+memory_analysis: delta=+0.0MB, efficiency=1.000000
+quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%
+regression_test: passed=true, degradation=-2.5%, severity=low
+deployment_readiness: readiness=0.92, risk=low
   ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
   ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
@@ -114,7 +122,7 @@ diffai model1.safetensors model2.safetensors --ignore-keys-regex "^(timestamp|_m
 比较预训练模型与其微调版本：
 
 ```bash
-diffai pretrained_bert.safetensors finetuned_bert.safetensors --stats
+diffai pretrained_bert.safetensors finetuned_bert.safetensors
 
 # 预期输出：注意力层的统计变化
 # ~ bert.encoder.layer.11.attention.self.query.weight: mean=-0.0001→0.0023
@@ -146,7 +154,7 @@ diffai model_fp32.safetensors model_int8.safetensors --epsilon 0.1
 比较训练过程中的检查点：
 
 ```bash
-diffai checkpoint_epoch_10.pt checkpoint_epoch_50.pt --stats
+diffai checkpoint_epoch_10.pt checkpoint_epoch_50.pt
 
 # 预期输出：收敛模式
 # ~ layers.0.weight: mean=-0.0012→0.0034, std=1.2341→0.8907
@@ -162,7 +170,7 @@ diffai checkpoint_epoch_10.pt checkpoint_epoch_50.pt --stats
 比较不同的模型架构：
 
 ```bash
-diffai resnet50.safetensors efficientnet_b0.safetensors --stats
+diffai resnet50.safetensors efficientnet_b0.safetensors
 
 # 预期输出：结构差异
 # ~ features.conv1.weight: shape=[64, 3, 7, 7] -> [32, 3, 3, 3]
@@ -312,7 +320,7 @@ done
 file model.safetensors
 
 # 显示单一模型分析的详细统计
-diffai model.safetensors model.safetensors --stats
+diffai model.safetensors model.safetensors
 
 # 尝试明确格式
 diffai --format safetensors model1.safetensors model2.safetensors
@@ -366,34 +374,43 @@ gunzip model.safetensors.gz
 
 ## ML分析功能
 
-### 当前可用功能（v0.2.0）
+### 综合分析（自动）
 
-diffai提供以下已实现的分析功能：
+diffai现在为ML模型提供具有30+功能的自动综合分析：
 
-### 1. 统计分析（`--stats`）
+### 自动分析功能
 
-为模型比较提供详细的张量统计：
+比较PyTorch/Safetensors文件时会自动执行所有分析：
 
 ```bash
-# 使用详细统计比较训练检查点
-diffai checkpoint_epoch_10.safetensors checkpoint_epoch_20.safetensors --stats
+# 单个命令触发综合分析
+diffai checkpoint_epoch_10.safetensors checkpoint_epoch_20.safetensors
 
-# 输出示例：
-# ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
-# ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
+# 输出包括：
+# - 异常检测
+# - 架构比较
+# - 收敛分析
+# - 梯度分析
+# - 内存分析
+# - 量化分析
+# - 回归测试
+# - 部署就绪
+# - 统计分析
+# - 及20+更多功能
 ```
 
-**分析信息：**
-- **mean**：参数平均值
-- **std**：参数标准差
-- **min/max**：参数值范围
-- **shape**：张量维度
-- **dtype**：数据类型精度
+**分析信息（自动）：**
+- **统计指标**：mean、std、min/max、shape、dtype
+- **架构分析**：模型类型、复杂性、迁移难度
+- **性能指标**：内存使用、量化影响、加速
+- **训练洞察**：收敛状态、梯度健康、稳定性
+- **部署就绪**：风险评估、兼容性、优化
 
 **用例：**
-- 监控训练期间的参数变化
-- 检测模型权重的统计变化
-- 验证模型一致性
+- 监控完整训练进度
+- 验证生产部署就绪
+- 综合模型比较
+- 自动质量保证
 
 ### 2. 量化分析（`--quantization-analysis`）
 
@@ -423,7 +440,7 @@ diffai fp32_model.safetensors quantized_model.safetensors --quantization-analysi
 
 ```bash
 # 按重要性排序变化
-diffai model1.safetensors model2.safetensors --sort-by-change-magnitude --stats
+diffai model1.safetensors model2.safetensors --sort-by-change-magnitude
 
 # 输出显示最大变化在前
 ```
@@ -456,14 +473,14 @@ diffai baseline.safetensors modified.safetensors --show-layer-impact
 ```bash
 # 全面模型分析
 diffai checkpoint_v1.safetensors checkpoint_v2.safetensors \
-  --stats \
+  \
   --quantization-analysis \
   --sort-by-change-magnitude \
   --show-layer-impact
 
 # 自动化的JSON输出
 diffai model1.safetensors model2.safetensors \
-  --stats --output json
+  --output json
 ```
 
 ## 功能选择指南
@@ -471,25 +488,25 @@ diffai model1.safetensors model2.safetensors \
 **用于训练监控：**
 ```bash
 diffai checkpoint_old.safetensors checkpoint_new.safetensors \
-  --stats --sort-by-change-magnitude
+  --sort-by-change-magnitude
 ```
 
 **用于生产部署：**
 ```bash
 diffai current_prod.safetensors candidate.safetensors \
-  --stats --quantization-analysis
+  --quantization-analysis
 ```
 
 **用于研究分析：**
 ```bash
 diffai baseline.safetensors experiment.safetensors \
-  --stats --show-layer-impact
+  --show-layer-impact
 ```
 
 **用于量化验证：**
 ```bash
 diffai fp32.safetensors quantized.safetensors \
-  --quantization-analysis --stats
+  --quantization-analysis
 ```
 
 ## 第3阶段功能（现已可用）

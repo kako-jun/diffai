@@ -1,6 +1,6 @@
 # CLIリファレンス
 
-diffai v0.2.0のコマンドライン完全リファレンス - AI/ML特化差分ツール
+diffai v0.3.4のコマンドライン完全リファレンス - 簡素化されたインターフェースを持つAI/ML特化差分ツール
 
 ## 概要
 
@@ -62,10 +62,6 @@ diffai - config.json < input.json
 
 - **例**: `diffai dir1/ dir2/ --recursive`
 
-#### `--stats`
-MLモデルと科学データの詳細統計を表示
-
-- **例**: `diffai model.safetensors model2.safetensors --stats`
 
 ### 高度なオプション
 
@@ -100,114 +96,80 @@ MLモデルと科学データの詳細統計を表示
 
 ## ML分析機能
 
-### 現在利用可能（v0.2.0）
+### ML分析（PyTorch/Safetensorsファイルで自動実行）
 
-以下のML分析機能が現在実装されています：
+**PyTorch（.pt/.pth）およびSafetensors（.safetensors）ファイルに対して、diffaiは自動的に以下を含む包括的な分析を実行します：**
 
-#### `--stats`
-MLモデルと科学データの詳細統計を表示
+#### 包括的分析スイート（30以上の機能）
 
-- **出力**: 各テンソルの平均、標準偏差、最小/最大、形状、データ型
-- **例**: `diffai model.safetensors model2.safetensors --stats`
+- **基本統計**: 各テンソルの平均、標準偏差、最小/最大値、形状、データ型
+- **量子化分析**: 圧縮率、精度損失分析
+- **アーキテクチャ比較**: 構造検出、レイヤー深度比較、移行評価
+- **メモリ分析**: メモリデルタ、ピーク使用量推定、最適化推奨
+- **異常検出**: NaN/Inf検出、勾配爆発・消失分析
+- **収束分析**: パラメータ安定性、早期停止推奨
+- **勾配分析**: 勾配フロー健全性、ノルム推定、問題レイヤー
+- **変更サマリ**: 変更幅度分析、パターン、レイヤーランキング
+- **類似度行列**: レイヤー間類似度、クラスタリング係数
+- **デプロイ準備**: 本番デプロイメント安全性評価
+- **リスク評価**: 変更影響評価
+- **パフォーマンス影響**: 速度と効率分析
+- **パラメータ効率**: 最適化機会
+- **回帰テスト**: 品質保証検証
+- **学習進度**: トレーニング進度追跡
+- **埋め込み分析**: セマンティックドリフト検出
+- **アテンション分析**: Transformerアテンションパターン分析
+- **統計的有意性**: 変更有意性テスト
+- **転移学習分析**: ファインチューニング効果
+- **アンサンブル分析**: 複数モデル比較
+- **ハイパーパラメータ影響**: 設定変更効果
+- **学習率分析**: 最適化スケジュール効果
+- **その他多数...**
 
-#### `--quantization-analysis`
-量子化効果と効率を分析
+**🎯 フラグ不要** - 最適なユーザー体験のため、すべての分析が自動的に実行されます。
 
-- **出力**: 圧縮率、精度損失分析
-- **例**: `diffai fp32_model.safetensors quantized_model.safetensors --quantization-analysis`
-
-#### `--sort-by-change-magnitude`
-優先順位付けのため変更量でソート
-
-- **出力**: 変更量ソートされた差分リスト
-- **例**: `diffai model1.pt model2.pt --sort-by-change-magnitude`
-
-#### `--show-layer-impact`
-レイヤー別の変更影響を分析
-
-- **出力**: レイヤー別変更分析
-- **例**: `diffai baseline.safetensors modified.safetensors --show-layer-impact`
-
-### Phase 3機能（現在利用可能）
-
-#### アーキテクチャ・パフォーマンス分析
-
-##### `--architecture-comparison`
-モデルアーキテクチャと構造変化の比較
-
-- **出力**: アーキテクチャタイプ検出、レイヤー深度比較、移行難易度評価
-- **例**: `diffai model1.safetensors model2.safetensors --architecture-comparison`
-
-##### `--memory-analysis`
-メモリ使用量と最適化機会の分析
-
-- **出力**: メモリデルタ、ピーク使用量推定、GPU利用率、最適化推奨
-- **例**: `diffai model1.safetensors model2.safetensors --memory-analysis`
-
-##### `--anomaly-detection`
-モデルパラメータの数値異常検出
-
-- **出力**: NaN/Inf検出、勾配爆発・消失分析、死んだニューロン検出
-- **例**: `diffai model1.safetensors model2.safetensors --anomaly-detection`
-
-##### `--change-summary`
-詳細な変更サマリの生成
-
-- **出力**: 変更幅度、パターン、レイヤーランキング、構造vs パラメータ変更
-- **例**: `diffai model1.safetensors model2.safetensors --change-summary`
-
-#### 高度分析
-
-##### `--convergence-analysis`
-モデルパラメータの収束パターン分析
-
-- **出力**: 収束状態、パラメータ安定性、早期停止推奨
-- **例**: `diffai model1.safetensors model2.safetensors --convergence-analysis`
-
-##### `--gradient-analysis`
-パラメータ変更から推定される勾配情報の分析
-
-- **出力**: 勾配フロー健全性、ノルム推定、問題レイヤー、クリッピング推奨
-- **例**: `diffai model1.safetensors model2.safetensors --gradient-analysis`
-
-##### `--similarity-matrix`
-モデル比較用類似度行列の生成
-
-- **出力**: レイヤー間類似度、クラスタリング係数、外れ値検出
-- **例**: `diffai model1.safetensors model2.safetensors --similarity-matrix`
+**例**: `diffai model1.safetensors model2.safetensors` を実行するだけで包括的な分析が得られます。
 
 ## 出力例
 
-### CLI出力（デフォルト）
+### CLI出力（デフォルト - 完全分析）
 
 ```bash
-$ diffai model_v1.safetensors model_v2.safetensors --stats
+$ diffai model_v1.safetensors model_v2.safetensors
+anomalydectionnamely_detection: type=none, severity=none, action="continue_training"
+architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
+convergence_analysis: status=converging, stability=0.92
+gradient_analysis: flow_health=healthy, norm=0.021069
+memory_analysis: delta=+0.0MB, efficiency=1.000000
+quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%
+regression_test: passed=true, degradation=-2.5%, severity=low
+deployment_readiness: readiness=0.92, risk=low, timeline=ready_for_immediate_deployment
   ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
+  ~ fc2.bias: mean=-0.0076->-0.0257, std=0.0661->0.0973
   ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
+  ~ fc3.bias: mean=-0.0074->-0.0130, std=0.1031->0.1093
+  ~ fc3.weight: mean=-0.0035->-0.0010, std=0.0990->0.1113
 ```
 
-### 組み合わせ分析出力
+### 包括的分析の利点
+
+- **30以上の分析機能**が自動実行
+- **オプション選択不要** - デフォルトですべての洞察を取得
+- **同じ処理時間** - パフォーマンス負荷なし
+- **本番対応の洞察** - デプロイ準備、リスク評価など
+
+### 科学データ分析（自動）
 
 ```bash
-$ diffai baseline.safetensors improved.safetensors --stats --quantization-analysis --sort-by-change-magnitude
-quantization_analysis: compression=0.25, precision_loss=minimal
-  ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
-  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
-  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
-```
-
-### 科学データ分析
-
-```bash
-$ diffai experiment_data_v1.npy experiment_data_v2.npy --stats
+$ diffai experiment_data_v1.npy experiment_data_v2.npy
   ~ data: shape=[1000, 256], mean=0.1234->0.1456, std=0.9876->0.9654, dtype=float64
 ```
 
-### MATLABファイル比較
+### MATLABファイル比較（自動）
 
 ```bash
-$ diffai simulation_v1.mat simulation_v2.mat --stats
+$ diffai simulation_v1.mat simulation_v2.mat
   ~ results: var=results, shape=[500, 100], mean=2.3456->2.4567, std=1.2345->1.3456, dtype=double
   + new_variable: var=new_variable, shape=[100], dtype=single, elements=100, size=0.39KB
 ```
@@ -267,7 +229,7 @@ $ diffai model_v1.safetensors model_v2.safetensors --output yaml
 
 1. **"Binary files differ"メッセージ**: `--format`でファイル型を指定
 2. **メモリ不足**: `DIFFAI_MAX_MEMORY`環境変数を設定
-3. **処理が遅い**: 大きなモデルでは必要時のみ`--stats`を使用
+3. **処理が遅い**: 分析は大きなモデルに対して自動的に最適化されます
 4. **依存関係不足**: Rustツールチェーンが適切にインストールされていることを確認
 
 ### デバッグモード

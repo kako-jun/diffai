@@ -477,16 +477,15 @@ fn create_test_pytorch_file(path: &str) -> Result<(), Box<dyn std::error::Error>
     Ok(())
 }
 
-// Tests for all 13 advanced ML features
-// These tests verify that the CLI arguments are accepted and processed without errors
+// Tests for ML analysis features
+// These tests verify that full ML analysis is performed by default for ML model files
 
 #[test]
-fn test_stats_analysis() -> Result<(), Box<dyn std::error::Error>> {
-    // Use real ML model files for testing statistical analysis
+fn test_ml_analysis_default() -> Result<(), Box<dyn std::error::Error>> {
+    // Test that ML analysis runs by default for ML model files
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/checkpoint_epoch_0.safetensors")
-        .arg("../tests/fixtures/ml_models/checkpoint_epoch_10.safetensors")
-        .arg("--stats");
+        .arg("../tests/fixtures/ml_models/checkpoint_epoch_10.safetensors");
 
     let output = cmd.output()?;
 
@@ -495,19 +494,23 @@ fn test_stats_analysis() -> Result<(), Box<dyn std::error::Error>> {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Check that statistical analysis was performed
+    // Check that full ML analysis was performed (should contain multiple analysis types)
     assert!(stdout.contains("mean=") || stdout.contains("std="));
+    assert!(
+        stdout.contains("convergence_analysis")
+            || stdout.contains("anomaly_detection")
+            || stdout.contains("gradient_analysis")
+    );
 
     Ok(())
 }
 
 #[test]
-fn test_convergence_analysis() -> Result<(), Box<dyn std::error::Error>> {
-    // Use real ML model files for testing convergence analysis
+fn test_convergence_analysis_in_full_output() -> Result<(), Box<dyn std::error::Error>> {
+    // Test that convergence analysis is included in default full analysis
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/checkpoint_epoch_10.safetensors")
-        .arg("../tests/fixtures/ml_models/checkpoint_epoch_50.safetensors")
-        .arg("--convergence-analysis");
+        .arg("../tests/fixtures/ml_models/checkpoint_epoch_50.safetensors");
 
     let output = cmd.output()?;
 
@@ -524,12 +527,11 @@ fn test_convergence_analysis() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn test_anomaly_detection() -> Result<(), Box<dyn std::error::Error>> {
-    // Use real ML model files for testing anomaly detection
+fn test_anomaly_detection_in_full_output() -> Result<(), Box<dyn std::error::Error>> {
+    // Test that anomaly detection is included in default full analysis
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/normal_model.safetensors")
-        .arg("../tests/fixtures/ml_models/anomalous_model.safetensors")
-        .arg("--anomaly-detection");
+        .arg("../tests/fixtures/ml_models/anomalous_model.safetensors");
 
     let output = cmd.output()?;
 
@@ -546,29 +548,21 @@ fn test_anomaly_detection() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn test_gradient_analysis() -> Result<(), Box<dyn std::error::Error>> {
-    create_test_pytorch_file("../tests/output/grad_before.pt")?;
-    create_test_pytorch_file("../tests/output/grad_after.pt")?;
-
+fn test_gradient_analysis_with_real_models() -> Result<(), Box<dyn std::error::Error>> {
+    // Test gradient analysis with real ML model files
     let mut cmd = diffai_cmd();
-    cmd.arg("../tests/output/grad_before.pt")
-        .arg("../tests/output/grad_after.pt")
-        .arg("--gradient-analysis");
+    cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
+        .arg("../tests/fixtures/ml_models/simple_modified.safetensors");
 
     let output = cmd.output()?;
 
-    // Should accept the flag and either succeed or show a parse error for invalid safetensors
-    let stderr = String::from_utf8_lossy(&output.stderr);
-    assert!(
-        output.status.success()
-            || stderr.contains("Failed to parse")
-            || stderr.contains("HeaderTooSmall")
-            || stderr.contains("Error:")
-    );
+    // Should process successfully with real ML files
+    assert!(output.status.success());
 
-    // Clean up
-    let _ = fs::remove_file("../tests/output/grad_before.pt");
-    let _ = fs::remove_file("../tests/output/grad_after.pt");
+    let stdout = String::from_utf8_lossy(&output.stdout);
+
+    // Check that gradient analysis was performed (should be in full analysis)
+    assert!(stdout.contains("gradient_analysis") || stdout.contains("flow_health"));
 
     Ok(())
 }
@@ -578,8 +572,7 @@ fn test_memory_analysis() -> Result<(), Box<dyn std::error::Error>> {
     // Use real ML model files for testing memory analysis
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/small_model.safetensors")
-        .arg("../tests/fixtures/ml_models/large_model.safetensors")
-        .arg("--memory-analysis");
+        .arg("../tests/fixtures/ml_models/large_model.safetensors");
 
     let output = cmd.output()?;
 
@@ -609,8 +602,7 @@ fn test_inference_speed_estimate() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/output/fast_model.json")
-        .arg("../tests/output/slow_model.json")
-        .arg("--inference-speed-estimate");
+        .arg("../tests/output/slow_model.json");
 
     let output = cmd.output()?;
 
@@ -631,8 +623,7 @@ fn test_regression_test() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/output/production.safetensors")
-        .arg("../tests/output/candidate.safetensors")
-        .arg("--regression-test");
+        .arg("../tests/output/candidate.safetensors");
 
     let output = cmd.output()?;
 
@@ -659,8 +650,7 @@ fn test_alert_on_degradation() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/output/baseline.safetensors")
-        .arg("../tests/output/degraded.safetensors")
-        .arg("--alert-on-degradation");
+        .arg("../tests/output/degraded.safetensors");
 
     let output = cmd.output()?;
 
@@ -685,8 +675,7 @@ fn test_architecture_comparison() -> Result<(), Box<dyn std::error::Error>> {
     // Use real ML model files for testing architecture comparison
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
-        .arg("../tests/fixtures/ml_models/transformer.safetensors")
-        .arg("--architecture-comparison");
+        .arg("../tests/fixtures/ml_models/transformer.safetensors");
 
     let output = cmd.output()?;
 
@@ -716,8 +705,7 @@ fn test_param_efficiency_analysis() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/output/efficient.json")
-        .arg("../tests/output/inefficient.json")
-        .arg("--param-efficiency-analysis");
+        .arg("../tests/output/inefficient.json");
 
     let output = cmd.output()?;
 
@@ -738,8 +726,7 @@ fn test_hyperparameter_impact() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/output/lr_001.safetensors")
-        .arg("../tests/output/lr_0001.safetensors")
-        .arg("--hyperparameter-impact");
+        .arg("../tests/output/lr_0001.safetensors");
 
     let output = cmd.output()?;
 
@@ -766,8 +753,7 @@ fn test_learning_rate_analysis() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/output/high_lr.pt")
-        .arg("../tests/output/low_lr.pt")
-        .arg("--learning-rate-analysis");
+        .arg("../tests/output/low_lr.pt");
 
     let output = cmd.output()?;
 
@@ -801,8 +787,7 @@ fn test_deployment_readiness() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/output/model_a.json")
-        .arg("../tests/output/model_b.json")
-        .arg("--deployment-readiness");
+        .arg("../tests/output/model_b.json");
 
     let output = cmd.output()?;
 
@@ -817,20 +802,15 @@ fn test_deployment_readiness() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn test_combined_advanced_features() -> Result<(), Box<dyn std::error::Error>> {
-    // Test multiple advanced flags together using real ML files
+fn test_full_ml_analysis_by_default() -> Result<(), Box<dyn std::error::Error>> {
+    // Test that full ML analysis runs by default (no flags needed)
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
-        .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--learning-progress")
-        .arg("--convergence-analysis")
-        .arg("--memory-analysis")
-        .arg("--architecture-comparison")
-        .arg("--stats");
+        .arg("../tests/fixtures/ml_models/simple_modified.safetensors");
 
     let output = cmd.output()?;
 
-    // Should accept multiple flags and process successfully
+    // Should process successfully with default full analysis
     assert!(output.status.success());
 
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -844,17 +824,22 @@ fn test_combined_advanced_features() -> Result<(), Box<dyn std::error::Error>> {
             || stdout.contains("⚡")
     );
     assert!(stdout.contains("fc1.") || stdout.contains("fc2.") || stdout.contains("fc3."));
+    // Check for additional analysis types that should be included
+    assert!(
+        stdout.contains("convergence_analysis")
+            || stdout.contains("anomaly_detection")
+            || stdout.contains("gradient_analysis")
+    );
 
     Ok(())
 }
 
 #[test]
-fn test_json_output_with_advanced_features() -> Result<(), Box<dyn std::error::Error>> {
-    // Test JSON output format with advanced features using real ML files
+fn test_json_output_with_full_ml_analysis() -> Result<(), Box<dyn std::error::Error>> {
+    // Test JSON output format with full ML analysis (default)
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
         .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--learning-progress")
         .arg("--output")
         .arg("json");
 
@@ -866,8 +851,14 @@ fn test_json_output_with_advanced_features() -> Result<(), Box<dyn std::error::E
     let stdout = String::from_utf8_lossy(&output.stdout);
     // Should output valid JSON
     assert!(stdout.starts_with('[') && stdout.trim_end().ends_with(']'));
-    // Should contain ML analysis results (TensorStatsChanged and MemoryAnalysis)
+    // Should contain ML analysis results (TensorStatsChanged and multiple other analyses)
     assert!(stdout.contains("TensorStatsChanged") || stdout.contains("MemoryAnalysis"));
+    // Should contain multiple analysis types in JSON output
+    assert!(
+        stdout.contains("ConvergenceAnalysis")
+            || stdout.contains("AnomalyDetection")
+            || stdout.contains("GradientAnalysis")
+    );
 
     Ok(())
 }

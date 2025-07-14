@@ -6,23 +6,22 @@ fn diffai_cmd() -> Command {
     Command::cargo_bin("diffai").expect("Failed to find diffai binary")
 }
 
-/// Tests for Phase 3 features (TDD approach - these will initially fail)
-/// These tests define the expected behavior before implementation
+/// Tests for Phase 3 features (now included by default)
+/// These tests verify that all ML analysis features are included in the default output
 
 // Phase 3A: Core Features
 
 #[test]
-fn test_architecture_comparison_feature() -> Result<(), Box<dyn std::error::Error>> {
+fn test_architecture_comparison_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
-        .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--architecture-comparison");
+        .arg("../tests/fixtures/ml_models/simple_modified.safetensors");
 
     let output = cmd.output()?;
     assert!(output.status.success());
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    // Expected output format: architecture comparison analysis
+    // Expected output format: architecture comparison analysis included by default
     // The feature works if we get successful output with model comparison
     assert!(
         stdout.contains("architecture_comparison:") || 
@@ -39,17 +38,16 @@ fn test_architecture_comparison_feature() -> Result<(), Box<dyn std::error::Erro
 }
 
 #[test]
-fn test_memory_analysis_feature() -> Result<(), Box<dyn std::error::Error>> {
+fn test_memory_analysis_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
-        .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--memory-analysis");
+        .arg("../tests/fixtures/ml_models/simple_modified.safetensors");
 
     let output = cmd.output()?;
     assert!(output.status.success());
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    // Expected output format: memory usage analysis
+    // Expected output format: memory usage analysis included by default
     assert!(
         stdout.contains("memory_analysis:") ||
         stdout.contains("Memory Analysis") ||
@@ -64,17 +62,16 @@ fn test_memory_analysis_feature() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn test_anomaly_detection_feature() -> Result<(), Box<dyn std::error::Error>> {
+fn test_anomaly_detection_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
-        .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--anomaly-detection");
+        .arg("../tests/fixtures/ml_models/simple_modified.safetensors");
 
     let output = cmd.output()?;
     assert!(output.status.success());
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    // Expected output format: anomaly detection results
+    // Expected output format: anomaly detection results included by default
     assert!(
         stdout.contains("anomaly_detection:") ||
         stdout.contains("Anomaly Analysis") ||
@@ -90,17 +87,16 @@ fn test_anomaly_detection_feature() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn test_change_summary_feature() -> Result<(), Box<dyn std::error::Error>> {
+fn test_change_summary_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
-        .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--change-summary");
+        .arg("../tests/fixtures/ml_models/simple_modified.safetensors");
 
     let output = cmd.output()?;
     assert!(output.status.success());
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    // Expected output format: comprehensive change summary
+    // Expected output format: comprehensive change summary included by default
     assert!(
         stdout.contains("change_summary:") ||
         stdout.contains("Change Summary") ||
@@ -117,17 +113,16 @@ fn test_change_summary_feature() -> Result<(), Box<dyn std::error::Error>> {
 // Phase 3B: Advanced Analysis
 
 #[test]
-fn test_convergence_analysis_feature() -> Result<(), Box<dyn std::error::Error>> {
+fn test_convergence_analysis_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
-        .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--convergence-analysis");
+        .arg("../tests/fixtures/ml_models/simple_modified.safetensors");
 
     let output = cmd.output()?;
     assert!(output.status.success());
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    // Expected output format: convergence pattern analysis
+    // Expected output format: convergence pattern analysis included by default
     assert!(
         stdout.contains("convergence_analysis:") ||
         stdout.contains("Convergence Analysis") ||
@@ -142,17 +137,16 @@ fn test_convergence_analysis_feature() -> Result<(), Box<dyn std::error::Error>>
 }
 
 #[test]
-fn test_gradient_analysis_feature() -> Result<(), Box<dyn std::error::Error>> {
+fn test_gradient_analysis_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
-        .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--gradient-analysis");
+        .arg("../tests/fixtures/ml_models/simple_modified.safetensors");
 
     let output = cmd.output()?;
     assert!(output.status.success());
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    // Expected output format: gradient analysis
+    // Expected output format: gradient analysis included by default
     assert!(
         stdout.contains("gradient_analysis:") ||
         stdout.contains("Gradient Analysis") ||
@@ -167,17 +161,16 @@ fn test_gradient_analysis_feature() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn test_similarity_matrix_feature() -> Result<(), Box<dyn std::error::Error>> {
+fn test_similarity_matrix_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
-        .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--similarity-matrix");
+        .arg("../tests/fixtures/ml_models/simple_modified.safetensors");
 
     let output = cmd.output()?;
     assert!(output.status.success());
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    // Expected output format: similarity matrix
+    // Expected output format: similarity matrix included by default
     assert!(
         stdout.contains("similarity_matrix:") ||
         stdout.contains("Similarity Matrix") ||
@@ -194,20 +187,16 @@ fn test_similarity_matrix_feature() -> Result<(), Box<dyn std::error::Error>> {
 // Combined Phase 3 feature tests
 
 #[test]
-fn test_phase3a_core_features_combination() -> Result<(), Box<dyn std::error::Error>> {
+fn test_phase3a_core_features_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
-        .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--architecture-comparison")
-        .arg("--memory-analysis")
-        .arg("--anomaly-detection")
-        .arg("--change-summary");
+        .arg("../tests/fixtures/ml_models/simple_modified.safetensors");
 
     let output = cmd.output()?;
     assert!(output.status.success());
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    // Should contain output from all Phase 3A features
+    // Should contain output from all Phase 3A features by default
     // Make assertions more flexible for actual implementation
     assert!(
         stdout.contains("fc1.") ||  // Model layer analysis indicates features are working
@@ -218,19 +207,16 @@ fn test_phase3a_core_features_combination() -> Result<(), Box<dyn std::error::Er
 }
 
 #[test]
-fn test_phase3b_advanced_features_combination() -> Result<(), Box<dyn std::error::Error>> {
+fn test_phase3b_advanced_features_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
-        .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--convergence-analysis")
-        .arg("--gradient-analysis")
-        .arg("--similarity-matrix");
+        .arg("../tests/fixtures/ml_models/simple_modified.safetensors");
 
     let output = cmd.output()?;
     assert!(output.status.success());
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    // Should contain output from all Phase 3B features
+    // Should contain output from all Phase 3B features by default
     // Make assertions more flexible for actual implementation
     assert!(
         stdout.contains("fc1.") ||  // Model layer analysis indicates features are working
@@ -241,22 +227,15 @@ fn test_phase3b_advanced_features_combination() -> Result<(), Box<dyn std::error
 }
 
 #[test]
-fn test_all_phase3_features_combined() -> Result<(), Box<dyn std::error::Error>> {
+fn test_all_phase3_features_included_by_default() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
-        .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--architecture-comparison")
-        .arg("--memory-analysis")
-        .arg("--anomaly-detection")
-        .arg("--change-summary")
-        .arg("--convergence-analysis")
-        .arg("--gradient-analysis")
-        .arg("--similarity-matrix");
+        .arg("../tests/fixtures/ml_models/simple_modified.safetensors");
 
     let output = cmd.output()?;
     assert!(output.status.success());
 
-    // Should run without crashing when all Phase 3 features are enabled
+    // Should run without crashing with all Phase 3 features included by default
     Ok(())
 }
 
@@ -267,8 +246,6 @@ fn test_phase3_features_json_output() -> Result<(), Box<dyn std::error::Error>> 
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
         .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--architecture-comparison")
-        .arg("--memory-analysis")
         .arg("--output")
         .arg("json");
 
@@ -276,7 +253,7 @@ fn test_phase3_features_json_output() -> Result<(), Box<dyn std::error::Error>> 
     assert!(output.status.success());
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    // Should produce valid JSON with Phase 3 analysis results
+    // Should produce valid JSON with Phase 3 analysis results included by default
     assert!(stdout.starts_with('[') || stdout.starts_with('{'));
 
     // Should contain Phase 3 specific JSON structure
@@ -298,8 +275,7 @@ fn test_phase3_features_json_output() -> Result<(), Box<dyn std::error::Error>> 
 fn test_phase3_features_with_invalid_files() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/nonexistent1.safetensors")
-        .arg("../tests/fixtures/ml_models/nonexistent2.safetensors")
-        .arg("--architecture-comparison");
+        .arg("../tests/fixtures/ml_models/nonexistent2.safetensors");
 
     let output = cmd.output()?;
     // Should handle missing files gracefully
@@ -323,9 +299,7 @@ fn test_phase3_features_performance() -> Result<(), Box<dyn std::error::Error>> 
 
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
-        .arg("../tests/fixtures/ml_models/simple_modified.safetensors")
-        .arg("--architecture-comparison")
-        .arg("--memory-analysis");
+        .arg("../tests/fixtures/ml_models/simple_modified.safetensors");
 
     let output = cmd.output()?;
     let duration = start.elapsed();
@@ -347,9 +321,7 @@ fn test_phase3_features_performance() -> Result<(), Box<dyn std::error::Error>> 
 fn test_phase3_features_with_identical_files() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/ml_models/simple_base.safetensors")
-        .arg("../tests/fixtures/ml_models/simple_base.safetensors") // Same file
-        .arg("--architecture-comparison")
-        .arg("--change-summary");
+        .arg("../tests/fixtures/ml_models/simple_base.safetensors"); // Same file
 
     let output = cmd.output()?;
     assert!(output.status.success());
