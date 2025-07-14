@@ -15,7 +15,7 @@ exclude.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-diffai-core = { path = "../diffai-core", version = "0.3.2" }
+diffai-core = { path = "../diffai-core", version = "0.3.3" }
 diffx-core = { workspace = true }
 anyhow = { workspace = true }
 clap = { workspace = true }
