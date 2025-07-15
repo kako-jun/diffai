@@ -82,7 +82,7 @@
   {
     "name": "area: core",
     "color": "1d76db",
-    "description": "Core library (diffai-core)"
+    "description": "Core library"
   },
   {
     "name": "area: cli",
@@ -92,21 +92,16 @@
   {
     "name": "area: npm",
     "color": "1d76db",
-    "description": "NPM package (diffai-js)"
+    "description": "NPM package"
   },
   {
     "name": "area: pypi",
     "color": "1d76db",
-    "description": "PyPI package (diffai-python)"
+    "description": "PyPI package"
   },
   {
     "name": "area: docs",
     "color": "1d76db",
     "description": "Documentation"
-  },
-  {
-    "name": "area: ml",
-    "color": "1d76db",
-    "description": "Machine Learning specific features"
   }
 ]
