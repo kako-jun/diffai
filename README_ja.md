@@ -26,6 +26,10 @@ regression_test: passed=true, degradation=-2.5%, severity=low
   ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
   ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
+
+[WARNING]
+• Memory usage increased moderately (+250MB). Monitor resource consumption.
+• Inference speed moderately affected (1.3x slower). Consider optimization opportunities.
 ```
 
 ## 主な機能
