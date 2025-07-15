@@ -71,10 +71,19 @@ if result.is_json:
 # Comprehensive ML model analysis (automatic for ML models)
 result = diffai.diff(
     "baseline.safetensors", 
-    "improved.safetensors"
+    "improved.safetensors",
+    stats=True  # Enable statistical analysis
 )
 
 print(result.raw_output)
+
+# ML-specific analysis features (automatic for ML models)
+# - architecture_comparison: Model architecture and structural changes
+# - memory_analysis: Memory usage and optimization opportunities
+# - anomaly_detection: Numerical anomalies and training issues
+# - convergence_analysis: Training convergence patterns
+# - gradient_analysis: Gradient flow health assessment
+# - quantization_analysis: Quantization effect analysis
 ```
 
 ## Supported Formats

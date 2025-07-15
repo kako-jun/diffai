@@ -1,6 +1,6 @@
 {
   "name": "diffai-js",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "A Node.js wrapper for the diffai CLI tool - AI/ML specialized diff tool for PyTorch, Safetensors, NumPy, and MATLAB files with deep tensor analysis",
   "keywords": [
     "ai",
@@ -47,8 +47,15 @@
     "examples.js",
     "test.js"
   ],
-  "os": ["linux", "darwin", "win32"],
-  "cpu": ["x64", "arm64"],
+  "os": [
+    "linux",
+    "darwin",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ],
   "author": "kako-jun",
   "license": "MIT",
   "homepage": "https://github.com/kako-jun/diffai",

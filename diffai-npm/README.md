@@ -70,7 +70,7 @@ diffai provides 30+ specialized analysis functions that run automatically for AI
 For PyTorch and Safetensors files, all analysis features run automatically:
 - **Statistical Analysis** - Detailed tensor statistics (mean, std, min, max, shape, dtype)
 - **Quantization Analysis** - Quantization effect analysis
-- **Architecture Comparison** - Model architecture and structural changes
+- **Architecture Comparison** - Model architecture and structural changes (architecture-comparison)
 - **Memory Analysis** - Memory usage and optimization opportunities  
 - **Anomaly Detection** - Numerical anomalies and training issues
 - **Convergence Analysis** - Training convergence patterns
