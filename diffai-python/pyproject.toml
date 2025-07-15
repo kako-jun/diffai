@@ -91,10 +91,11 @@ warn_unreachable = true
 [tool.maturin]
 # This package includes both Python code and a binary (diffai CLI) in the wheel
 python-source = "src"
-module-name = "diffai"
 bindings = "bin"
 # Find Python interpreters automatically
 find-interpreter = true
+# Use manylinux for PyPI compatibility
+compatibility = "manylinux2014"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
