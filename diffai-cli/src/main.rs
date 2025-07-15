@@ -450,19 +450,19 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
                     info1.layer_count, info2.layer_count).magenta()
             }
             DiffResult::LearningProgress(k, progress) => {
-                format!("+ {}: trend={}, magnitude={:.4}, speed={:.2}, memory_analysis=🧠 (learning_progress)",
+                format!("+ {}: trend={}, magnitude={:.4}, speed={:.2} (learning_progress)",
                     k, progress.loss_trend, progress.parameter_update_magnitude,
                     progress.convergence_speed).blue()
             }
             DiffResult::ConvergenceAnalysis(k, convergence) => {
-                format!("+ {}: status={}, stability={:.4}, inference_speed=⚡ (convergence)",
+                format!("+ {}: status={}, stability={:.4} (convergence)",
                     k, convergence.convergence_status, convergence.parameter_stability).blue()
             }
             DiffResult::AnomalyDetection(k, anomaly) => {
                 let regression_test_result = if anomaly.severity == "none" || anomaly.severity == "low" {
-                    "✅"
+                    "passed"
                 } else {
-                    "regression_test_required"
+                    "required"
                 };
                 let color = match anomaly.severity.as_str() {
                     "critical" => format!("[CRITICAL] {}: type={}, severity={}, affected={} layers, action=\"{}\", regression_test={}",
@@ -768,6 +768,9 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
 
         println!("{}{}", indent, diff_str);
     }
+    
+    // Generate ML-specific recommendations
+    generate_ml_recommendations(&differences);
 }
 
 fn print_json_output(differences: Vec<DiffResult>) -> Result<()> {
@@ -1402,4 +1405,233 @@ fn compare_directories(
     }
 
     Ok(())
+}
+
+/// Generate ML-specific recommendations based on analysis results
+/// Using 11-axis × 3-level priority matrix with predefined natural English messages
+fn generate_ml_recommendations(differences: &[DiffResult]) {
+    let mut recommendations = Vec::new();
+    let mut has_critical = false;
+    let mut has_warning = false;
+    
+    for diff in differences {
+        match diff {
+            // 1. 精度・性能の劣化 (Performance Degradation)
+            DiffResult::RegressionTest(_, regression) => {
+                if !regression.test_passed {
+                    if regression.performance_degradation > 10.0 && regression.severity_level == "critical" {
+                        has_critical = true;
+                        recommendations.push(format!("Model performance severely degraded by {:.1}%. Stop deployment and investigate root cause.", regression.performance_degradation));
+                    } else if regression.performance_degradation > 5.0 {
+                        has_warning = true;
+                        recommendations.push(format!("Performance regression detected ({:.1}% drop). Run comprehensive validation before proceeding.", regression.performance_degradation));
+                    } else if regression.performance_degradation > 2.0 {
+                        recommendations.push(format!("Minor performance change ({:.1}%). Monitor metrics and validate on holdout set.", regression.performance_degradation));
+                    }
+                }
+            }
+            DiffResult::InferenceSpeedAnalysis(_, speed) => {
+                if speed.speed_change_ratio > 3.0 {
+                    has_critical = true;
+                    recommendations.push(format!("Inference speed critically degraded ({:.1}x slower). Identify and fix bottlenecks immediately.", speed.speed_change_ratio));
+                } else if speed.speed_change_ratio > 1.5 {
+                    has_warning = true;
+                    recommendations.push(format!("Inference latency increased significantly ({:.1}x slower). Profile model and optimize hot paths.", speed.speed_change_ratio));
+                } else if speed.speed_change_ratio > 1.2 {
+                    recommendations.push(format!("Inference speed moderately affected ({:.1}x slower). Consider optimization opportunities.", speed.speed_change_ratio));
+                }
+            }
+            DiffResult::MemoryAnalysis(_, memory) => {
+                let delta_mb = memory.memory_delta_bytes as f64 / (1024.0 * 1024.0);
+                if delta_mb > 1000.0 {
+                    has_critical = true;
+                    recommendations.push(format!("Memory usage increased critically (+{:.0}MB). Risk of GPU memory exhaustion.", delta_mb));
+                } else if delta_mb > 500.0 {
+                    has_warning = true;
+                    recommendations.push(format!("Significant memory increase (+{:.0}MB). Consider model quantization or pruning.", delta_mb));
+                } else if delta_mb > 200.0 {
+                    recommendations.push(format!("Memory usage increased moderately (+{:.0}MB). Monitor resource consumption.", delta_mb));
+                }
+            }
+            
+            // 2. 過学習・汎化性能 (Overfitting & Generalization)
+            DiffResult::LearningCurveAnalysis(_, curve) => {
+                if curve.overfitting_risk > 0.9 {
+                    has_critical = true;
+                    recommendations.push(format!("Severe overfitting detected ({:.0}% risk). Stop training immediately and add regularization.", curve.overfitting_risk * 100.0));
+                } else if curve.overfitting_risk > 0.7 {
+                    has_warning = true;
+                    recommendations.push(format!("High overfitting risk ({:.0}%). Implement early stopping or increase regularization.", curve.overfitting_risk * 100.0));
+                } else if curve.overfitting_risk > 0.5 {
+                    recommendations.push(format!("Moderate overfitting risk ({:.0}%). Monitor validation metrics closely.", curve.overfitting_risk * 100.0));
+                }
+            }
+            
+            // 3. 再現性・実験管理 (Reproducibility & Experiment Management)
+            DiffResult::ExperimentReproducibility(_, experiment) => {
+                if experiment.reproducibility_score < 0.5 {
+                    has_critical = true;
+                    recommendations.push(format!("Reproducibility critically low ({:.0}%). Fix random seeds and enable deterministic operations.", experiment.reproducibility_score * 100.0));
+                } else if experiment.reproducibility_score < 0.8 {
+                    has_warning = true;
+                    recommendations.push(format!("Low reproducibility ({:.0}%). Set consistent random seeds across all components.", experiment.reproducibility_score * 100.0));
+                } else if experiment.reproducibility_score < 0.95 {
+                    recommendations.push(format!("Reproducibility could be improved ({:.0}%). Review stochastic operations and configurations.", experiment.reproducibility_score * 100.0));
+                }
+            }
+            
+            // 4. 本番デプロイのリスク (Production Deployment Risk)
+            DiffResult::DeploymentReadiness(_, deploy) => {
+                if deploy.deployment_strategy == "hold" {
+                    has_critical = true;
+                    recommendations.push("Production deployment blocked. Address critical blockers before proceeding.".to_string());
+                } else if deploy.readiness_score < 0.6 {
+                    has_warning = true;
+                    recommendations.push(format!("Low deployment readiness ({:.0}%). Review prerequisites and testing requirements.", deploy.readiness_score * 100.0));
+                } else if deploy.readiness_score < 0.8 {
+                    recommendations.push(format!("Deployment readiness improving ({:.0}%). Continue monitoring progress toward production.", deploy.readiness_score * 100.0));
+                }
+            }
+            DiffResult::RiskAssessment(_, risk) => {
+                if risk.overall_risk_level == "critical" {
+                    has_critical = true;
+                    recommendations.push("Critical deployment risk identified. Implement staged rollout with comprehensive monitoring.".to_string());
+                } else if risk.overall_risk_level == "high" {
+                    has_warning = true;
+                    recommendations.push("High deployment risk detected. Enhanced monitoring and rollback procedures required.".to_string());
+                }
+            }
+            
+            // 5. データドリフト・分布シフト (Data Drift & Distribution Shift)
+            DiffResult::EmbeddingAnalysis(_, embed) => {
+                if embed.semantic_drift > 0.8 {
+                    has_critical = true;
+                    recommendations.push(format!("Severe semantic drift detected ({:.0}%). Model may be obsolete for current data.", embed.semantic_drift * 100.0));
+                } else if embed.semantic_drift > 0.4 {
+                    has_warning = true;
+                    recommendations.push(format!("Significant semantic drift ({:.0}%). Retrain model with recent data samples.", embed.semantic_drift * 100.0));
+                } else if embed.semantic_drift > 0.2 {
+                    recommendations.push(format!("Moderate semantic drift ({:.0}%). Monitor data quality and distribution changes.", embed.semantic_drift * 100.0));
+                }
+            }
+            
+            // 6. 計算効率・コスト (Computational Efficiency & Cost)
+            DiffResult::ParamEfficiencyAnalysis(_, efficiency) => {
+                if efficiency.efficiency_ratio < 0.3 {
+                    has_critical = true;
+                    recommendations.push(format!("Extremely low parameter efficiency ({:.0}%). Consider fundamental model redesign.", efficiency.efficiency_ratio * 100.0));
+                } else if efficiency.efficiency_ratio < 0.6 {
+                    has_warning = true;
+                    recommendations.push(format!("Low parameter efficiency ({:.0}%). Apply pruning, distillation, or architecture optimization.", efficiency.efficiency_ratio * 100.0));
+                } else if efficiency.efficiency_ratio < 0.8 {
+                    recommendations.push(format!("Parameter efficiency could be improved ({:.0}%). Consider optimization techniques.", efficiency.efficiency_ratio * 100.0));
+                }
+            }
+            
+            // 7. モデルの解釈性 (Model Interpretability)
+            DiffResult::AttentionAnalysis(_, attention) => {
+                if attention.pattern_consistency < 0.4 {
+                    has_critical = true;
+                    recommendations.push(format!("Attention patterns highly unstable ({:.0}% consistency). Model interpretability severely compromised.", attention.pattern_consistency * 100.0));
+                } else if attention.pattern_consistency < 0.7 {
+                    has_warning = true;
+                    recommendations.push(format!("Attention patterns unstable ({:.0}% consistency). May impact model interpretability and trust.", attention.pattern_consistency * 100.0));
+                } else if attention.pattern_consistency < 0.85 {
+                    recommendations.push(format!("Attention patterns somewhat inconsistent ({:.0}% consistency). Monitor stability for interpretability needs.", attention.pattern_consistency * 100.0));
+                }
+            }
+            
+            // 8. 互換性・統合 (Compatibility & Integration)
+            DiffResult::QuantizationAnalysis(_, quant) => {
+                if quant.precision_loss_estimate > 10.0 {
+                    has_critical = true;
+                    recommendations.push(format!("Quantization precision loss too high ({:.1}%). Deployment will fail accuracy requirements.", quant.precision_loss_estimate));
+                } else if quant.precision_loss_estimate > 3.0 {
+                    has_warning = true;
+                    recommendations.push(format!("High precision loss in quantization ({:.1}%). May affect edge deployment performance.", quant.precision_loss_estimate));
+                } else if quant.precision_loss_estimate > 1.0 {
+                    recommendations.push(format!("Moderate precision loss ({:.1}%). Test edge device compatibility thoroughly.", quant.precision_loss_estimate));
+                }
+            }
+            
+            // 9. セキュリティ・プライバシー (Security & Privacy)
+            DiffResult::ModelArchitectureChanged(_, info1, info2) => {
+                let param_growth = (info2.total_parameters as f64 / info1.total_parameters as f64) - 1.0;
+                if param_growth > 0.5 {
+                    has_warning = true;
+                    recommendations.push(format!("Large model size increase ({:.0}%). Audit for potential data memorization risks.", param_growth * 100.0));
+                } else if param_growth > 0.2 {
+                    recommendations.push(format!("Model size increased ({:.0}%). Monitor for data leakage patterns in outputs.", param_growth * 100.0));
+                }
+            }
+            
+            // 10. MLOpsワークフロー (MLOps Workflow)
+            DiffResult::ConvergenceAnalysis(_, convergence) => {
+                if convergence.convergence_status == "diverging" {
+                    has_critical = true;
+                    recommendations.push("Training diverging. Stop immediately and fix hyperparameters or learning rate.".to_string());
+                } else if convergence.convergence_status == "not_converged" {
+                    has_warning = true;
+                    recommendations.push("Model not converged. Extend training duration or adjust learning rate schedule.".to_string());
+                } else if convergence.parameter_stability < 0.8 {
+                    recommendations.push(format!("Parameter stability low ({:.0}%). Monitor training progress and consider early stopping.", convergence.parameter_stability * 100.0));
+                }
+            }
+            
+            // 11. ファインチューニング特有 (Fine-tuning Specific)
+            DiffResult::TransferLearningAnalysis(_, transfer) => {
+                if transfer.parameter_update_ratio > 0.8 {
+                    has_critical = true;
+                    recommendations.push(format!("Most parameters updated ({:.0}%). High risk of catastrophic forgetting.", transfer.parameter_update_ratio * 100.0));
+                } else if transfer.parameter_update_ratio > 0.5 {
+                    has_warning = true;
+                    recommendations.push(format!("Many parameters updated ({:.0}%). Monitor base model performance degradation.", transfer.parameter_update_ratio * 100.0));
+                } else if transfer.parameter_update_ratio > 0.3 {
+                    recommendations.push(format!("Moderate parameter updates ({:.0}%). Validate transfer learning effectiveness.", transfer.parameter_update_ratio * 100.0));
+                }
+            }
+            
+            // Critical system-level issues
+            DiffResult::GradientAnalysis(_, gradient) => {
+                match gradient.gradient_flow_health.as_str() {
+                    "exploding" => {
+                        has_critical = true;
+                        recommendations.push("Gradient explosion detected. Reduce learning rate immediately or apply gradient clipping.".to_string());
+                    }
+                    "dead" | "diminishing" => {
+                        has_critical = true;
+                        recommendations.push("Dead or diminishing gradients detected. Adjust architecture, initialization, or activation functions.".to_string());
+                    }
+                    _ => {}
+                }
+            }
+            DiffResult::AnomalyDetection(_, anomaly) => {
+                if anomaly.severity == "critical" {
+                    has_critical = true;
+                    recommendations.push(format!("Critical anomalies detected in {} layers. Run full regression test suite before deployment.", anomaly.affected_layers.len()));
+                } else if anomaly.severity == "warning" {
+                    has_warning = true;
+                    recommendations.push(format!("Anomaly detected: {}. Recommended action: {}", anomaly.anomaly_type, anomaly.recommended_action));
+                }
+            }
+            _ => {}
+        }
+    }
+    
+    if !recommendations.is_empty() {
+        println!();
+        if has_critical {
+            println!("{}", "[CRITICAL]".bright_red());
+        } else if has_warning {
+            println!("{}", "[WARNING]".yellow());
+        } else {
+            println!("{}", "[RECOMMENDATIONS]".bright_cyan());
+        }
+        
+        for (i, rec) in recommendations.iter().enumerate() {
+            if i < 5 {  // Limit to top 5 recommendations
+                println!("• {}", rec);
+            }
+        }
+    }
 }
