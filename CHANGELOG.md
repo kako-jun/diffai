@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.5] - 2025-07-15
+### 🚀 Major Features
+- **Intelligent ML Recommendations System**: 11-axis evaluation matrix with 3-level priority system (CRITICAL/WARNING/RECOMMENDATIONS)
+- **33 Natural Language Messages**: Dynamic value embedding with industry-standard thresholds
+- **Universal Release Automation**: 9-step automated release workflow migrated from diffx
+- **Cross-platform Binary Distribution**: Automated publishing to crates.io, npm, and PyPI
+
+### 🎯 Interface Improvements
+- **Simplified ML Analysis Interface**: Eliminated choice paralysis by removing 35 ML analysis CLI flags
+- **Default Comprehensive Analysis**: 30+ features run automatically for PyTorch/Safetensors files
+- **Cleaner CLI**: Reduced from 35 options to 8 essential options while preserving all functionality
+
+### 📚 Documentation & Testing
+- **Complete Test Suite**: 150 integration tests + 68 unit tests all passing
+- **Multi-language Documentation**: Enhanced guides in English, Japanese, and Chinese
+- **Working Demonstrations**: 19 verified examples with real command outputs
+- **Comprehensive Testing Infrastructure**: Pre-release validation and performance checks
+
+### 🐛 Bug Fixes
+- **Fixed ML recommendations test structure**: Corrected 39 struct name inconsistencies
+- **Fixed integration test paths**: Resolved file path issues using absolute paths
+- **Updated package documentation**: Improved npm and Python README files
+- **All 150 integration tests**: Now pass consistently across all platforms
+
+### 🧹 Maintenance
+- **Removed obsolete scripts**: Cleaned up deprecated release and CI scripts
+- **Updated workflow configurations**: Modernized GitHub Actions setup
+- **Removed outdated references**: Cleaned up documentation inconsistencies
+
+### 📦 Package Distribution
+- **Rust (crates.io)**: `diffai-core` and `diffai-cli` v0.3.5
+- **JavaScript (npm)**: `diffai-js` v0.3.5 with cross-platform binaries
+- **Python (PyPI)**: `diffai-python` v0.3.5 with wheels for all platforms
+
+### 💥 Breaking Changes
+- **Removed ML analysis flags**: `--stats`, `--architecture-comparison`, etc. are no longer needed
+- **Automatic comprehensive analysis**: All ML features run by default for model files
+- **Simplified CLI interface**: Significantly fewer flags to remember
+
 ## [0.3.4] - 2025-07-14
 ### 🐛 Critical Fixes
 - **Fixed PyPI package distribution**: Resolved maturin build error "Defining scripts and working with a binary doesn't mix well"

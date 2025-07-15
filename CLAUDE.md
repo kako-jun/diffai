@@ -71,16 +71,17 @@ AI・機械学習分野でのデータ・モデル変更を明確に可視化し
 - **✅ 3言語エコシステム**: Rust(crates.io), JavaScript(npm), Python(PyPI)
 - **✅ 包括的テスト**: TDD + ドキュメント例テスト完備
 
-## 📦 最新リリース: v0.3.4 (2025-07-14)
-- **🐛 Critical Fix**: PyPI package distribution完全修復
-- **📦 全プラットフォーム公開**: Rust/npm/Python統一リリース成功
-- **🔧 Infrastructure**: 動的バージョン管理・CI/CD堅牢化完了
-- **📝 Documentation**: CHANGELOGとリリースノート充実化
+## 📦 最新リリース: v0.3.5 (2025-07-15)
+- **🤖 Intelligent ML Recommendations**: 11軸評価マトリックス・3段階優先度システム
+- **🎯 Interface Simplification**: 35個のMLフラグ削除・自動包括分析
+- **🚀 Universal Release Automation**: 9ステップ自動リリースワークフロー
+- **📚 Enhanced Testing**: 150統合テスト + 68単体テスト完全通過
+- **🐛 Critical Fixes**: テスト構造修正・統合テストパス問題解決
 
 ## 💻 提供形態（✅完全動作確認済み）
-- **🦀 Rust (crates.io)**: diffai-core/diffai-cli v0.3.4
-- **📦 npm (diffai-js)**: クロスプラットフォームバイナリ同梱 v0.3.4
-- **🐍 Python (PyPI)**: maturin製wheel配布 v0.3.4
+- **🦀 Rust (crates.io)**: diffai-core/diffai-cli v0.3.5
+- **📦 npm (diffai-js)**: クロスプラットフォームバイナリ同梱 v0.3.5
+- **🐍 Python (PyPI)**: maturin製wheel配布 v0.3.5
 
 ---
 
