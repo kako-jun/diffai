@@ -2,6 +2,7 @@ mod basic_usage_tests;
 mod cli_tests;
 mod documentation_examples_tests;
 mod ml_model_comparison_tests;
+mod ml_recommendations_integration_tests;
 mod npm_package_tests;
 mod performance_tests;
 mod phase3_features_tests;

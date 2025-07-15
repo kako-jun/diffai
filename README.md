@@ -22,6 +22,10 @@ $ diffai model_v1.safetensors model_v2.safetensors
   gradient_analysis: flow_health=healthy, norm=0.015000, ratio=1.0500
   deployment_readiness: readiness=0.92, strategy=blue_green, risk=low
   quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%
+
+[WARNING]
+• Memory usage increased moderately (+250MB). Monitor resource consumption.
+• Inference speed moderately affected (1.3x slower). Consider optimization opportunities.
 ```
 
 ## Key Features
