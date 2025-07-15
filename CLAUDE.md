@@ -44,14 +44,11 @@ AI・機械学習分野でのデータ・モデル変更を明確に可視化し
 ## プッシュ前の必須チェック (Pre-Push Requirements)
 **必ずプッシュ前に以下を実行すること:**
 ```bash
-./scripts/testing/ci-local.sh
+./scripts/testing/quick-check.sh
 ```
 
-- このスクリプトはGitHub Actions CIと完全に同じ環境・パラメータで実行される
-- 1つでもエラーが発生したら即座に停止する（`set -e`）
-- フォーマット・Clippy・ビルド・テスト・CLI動作確認をすべて実行
-- ローカルで成功 → GitHub CIでも成功が保証される
-- CI失敗によるプッシュのやり直しを防げる
+- フォーマット・Clippy・ビルド・テストの基本チェックを実行
+- エラーが発生したら即座に停止する
 
 ## コンテキスト効率化ルール (Context Efficiency Rules)
 **CLAUDE.mdは目次として使用し、詳細情報は以下の専用ファイルを参照:**
