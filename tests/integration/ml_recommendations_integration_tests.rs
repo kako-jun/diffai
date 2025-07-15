@@ -1,20 +1,20 @@
+use std::path::PathBuf;
 /// Integration tests for ML recommendations system
 ///
 /// Tests the end-to-end functionality of the recommendation system
 /// including CLI output, message formatting, and priority handling.
 use std::process::Command;
 use std::str;
-use std::path::PathBuf;
 
 fn get_project_root() -> PathBuf {
     // Get the directory containing the main Cargo.toml (workspace root)
     let mut current_dir = std::env::current_dir().unwrap();
-    
+
     // Walk up until we find the workspace root with tests/ directory
     while !current_dir.join("tests").exists() || !current_dir.join("Cargo.toml").exists() {
         current_dir = current_dir.parent().unwrap().to_path_buf();
     }
-    
+
     current_dir
 }
 
@@ -28,7 +28,7 @@ fn test_ml_recommendations_cli_output() {
     let project_root = get_project_root();
     let file1 = get_fixture_path("tests/fixtures/ml_models/simple_base.safetensors");
     let file2 = get_fixture_path("tests/fixtures/ml_models/simple_modified.safetensors");
-    
+
     let output = Command::new("cargo")
         .args([
             "run",
@@ -50,15 +50,25 @@ fn test_ml_recommendations_cli_output() {
 
     // Check if command executed successfully
     if !output.status.success() {
-        panic!("Command failed with exit code: {:?}\nSTDOUT: {}\nSTDERR: {}", 
-               output.status.code(), stdout, stderr);
+        panic!(
+            "Command failed with exit code: {:?}\nSTDOUT: {}\nSTDERR: {}",
+            output.status.code(),
+            stdout,
+            stderr
+        );
     }
-    
+
     // Should contain differences and ML recommendations
-    assert!(stdout.contains("fc1.") || stdout.contains("fc2.") || stdout.contains("fc3."), 
-            "Should contain layer differences");
-    assert!(stdout.contains("[CRITICAL]") || stdout.contains("[WARNING]") || stdout.contains("[RECOMMENDATIONS]"), 
-            "Should contain ML recommendations");
+    assert!(
+        stdout.contains("fc1.") || stdout.contains("fc2.") || stdout.contains("fc3."),
+        "Should contain layer differences"
+    );
+    assert!(
+        stdout.contains("[CRITICAL]")
+            || stdout.contains("[WARNING]")
+            || stdout.contains("[RECOMMENDATIONS]"),
+        "Should contain ML recommendations"
+    );
 }
 
 #[test]
@@ -67,7 +77,7 @@ fn test_ml_recommendations_not_in_json_output() {
     let project_root = get_project_root();
     let file1 = get_fixture_path("tests/fixtures/ml_models/model_quantized.safetensors");
     let file2 = get_fixture_path("tests/fixtures/ml_models/model_fp32.safetensors");
-    
+
     let output = Command::new("cargo")
         .args([
             "run",
@@ -91,10 +101,14 @@ fn test_ml_recommendations_not_in_json_output() {
 
     // Check if command executed successfully
     if !output.status.success() {
-        panic!("Command failed with exit code: {:?}\nSTDOUT: {}\nSTDERR: {}", 
-               output.status.code(), stdout, stderr);
+        panic!(
+            "Command failed with exit code: {:?}\nSTDOUT: {}\nSTDERR: {}",
+            output.status.code(),
+            stdout,
+            stderr
+        );
     }
-    
+
     // Recommendations should not appear in JSON output
     assert!(!stdout.contains("[CRITICAL]"));
     assert!(!stdout.contains("[WARNING]"));
@@ -112,7 +126,7 @@ fn test_ml_recommendations_not_in_yaml_output() {
     let project_root = get_project_root();
     let file1 = get_fixture_path("tests/fixtures/ml_models/model_quantized.safetensors");
     let file2 = get_fixture_path("tests/fixtures/ml_models/model_fp32.safetensors");
-    
+
     let output = Command::new("cargo")
         .args([
             "run",
@@ -136,10 +150,14 @@ fn test_ml_recommendations_not_in_yaml_output() {
 
     // Check if command executed successfully
     if !output.status.success() {
-        panic!("Command failed with exit code: {:?}\nSTDOUT: {}\nSTDERR: {}", 
-               output.status.code(), stdout, stderr);
+        panic!(
+            "Command failed with exit code: {:?}\nSTDOUT: {}\nSTDERR: {}",
+            output.status.code(),
+            stdout,
+            stderr
+        );
     }
-    
+
     // Recommendations should not appear in YAML output
     assert!(!stdout.contains("[CRITICAL]"));
     assert!(!stdout.contains("[WARNING]"));
@@ -157,7 +175,7 @@ fn test_ml_recommendations_priority_ordering() {
     let project_root = get_project_root();
     let file1 = get_fixture_path("tests/fixtures/ml_models/anomalous_model.safetensors");
     let file2 = get_fixture_path("tests/fixtures/ml_models/normal_model.safetensors");
-    
+
     let output = Command::new("cargo")
         .args([
             "run",
@@ -179,10 +197,14 @@ fn test_ml_recommendations_priority_ordering() {
 
     // Check if command executed successfully
     if !output.status.success() {
-        panic!("Command failed with exit code: {:?}\nSTDOUT: {}\nSTDERR: {}", 
-               output.status.code(), stdout, stderr);
+        panic!(
+            "Command failed with exit code: {:?}\nSTDOUT: {}\nSTDERR: {}",
+            output.status.code(),
+            stdout,
+            stderr
+        );
     }
-    
+
     // If recommendations are present, check priority ordering
     let output_text = format!("{stdout}{stderr}");
 
@@ -221,7 +243,7 @@ fn test_ml_recommendations_message_format() {
     let project_root = get_project_root();
     let file1 = get_fixture_path("tests/fixtures/ml_models/large_model.safetensors");
     let file2 = get_fixture_path("tests/fixtures/ml_models/small_model.safetensors");
-    
+
     let output = Command::new("cargo")
         .args([
             "run",
@@ -243,10 +265,14 @@ fn test_ml_recommendations_message_format() {
 
     // Check if command executed successfully
     if !output.status.success() {
-        panic!("Command failed with exit code: {:?}\nSTDOUT: {}\nSTDERR: {}", 
-               output.status.code(), stdout, stderr);
+        panic!(
+            "Command failed with exit code: {:?}\nSTDOUT: {}\nSTDERR: {}",
+            output.status.code(),
+            stdout,
+            stderr
+        );
     }
-    
+
     let output_text = format!("{stdout}{stderr}");
 
     // Check for proper message format if recommendations exist
@@ -283,7 +309,7 @@ fn test_ml_recommendations_with_verbose_mode() {
     let project_root = get_project_root();
     let file1 = get_fixture_path("tests/fixtures/ml_models/model_quantized.safetensors");
     let file2 = get_fixture_path("tests/fixtures/ml_models/model_fp32.safetensors");
-    
+
     let output = Command::new("cargo")
         .args([
             "run",
@@ -306,13 +332,21 @@ fn test_ml_recommendations_with_verbose_mode() {
 
     // Check if command executed successfully
     if !output.status.success() {
-        panic!("Command failed with exit code: {:?}\nSTDOUT: {}\nSTDERR: {}", 
-               output.status.code(), stdout, stderr);
+        panic!(
+            "Command failed with exit code: {:?}\nSTDOUT: {}\nSTDERR: {}",
+            output.status.code(),
+            stdout,
+            stderr
+        );
     }
-    
+
     // Should contain verbose information or ML analysis output
     let output_text = format!("{stdout}{stderr}");
-    assert!(output_text.contains("verbose mode") || output_text.contains("Processing results") || output_text.contains("analysis"));
+    assert!(
+        output_text.contains("verbose mode")
+            || output_text.contains("Processing results")
+            || output_text.contains("analysis")
+    );
 
     // Recommendations should still appear in CLI mode even with verbose
     // (This depends on the test models having differences that trigger recommendations)
@@ -324,7 +358,7 @@ fn test_ml_recommendations_limit_to_five() {
     let project_root = get_project_root();
     let file1 = get_fixture_path("tests/fixtures/ml_models/transformer.safetensors");
     let file2 = get_fixture_path("tests/fixtures/ml_models/simple_base.safetensors");
-    
+
     let output = Command::new("cargo")
         .args([
             "run",
@@ -346,10 +380,14 @@ fn test_ml_recommendations_limit_to_five() {
 
     // Check if command executed successfully
     if !output.status.success() {
-        panic!("Command failed with exit code: {:?}\nSTDOUT: {}\nSTDERR: {}", 
-               output.status.code(), stdout, stderr);
+        panic!(
+            "Command failed with exit code: {:?}\nSTDOUT: {}\nSTDERR: {}",
+            output.status.code(),
+            stdout,
+            stderr
+        );
     }
-    
+
     let output_text = format!("{stdout}{stderr}");
 
     // Count bullet points in recommendations
@@ -370,7 +408,7 @@ fn test_ml_recommendations_with_no_ml_analysis() {
     let project_root = get_project_root();
     let file1 = get_fixture_path("tests/fixtures/data1.json");
     let file2 = get_fixture_path("tests/fixtures/data2.json");
-    
+
     let output = Command::new("cargo")
         .args([
             "run",
@@ -392,10 +430,14 @@ fn test_ml_recommendations_with_no_ml_analysis() {
 
     // Check if command executed successfully
     if !output.status.success() {
-        panic!("Command failed with exit code: {:?}\nSTDOUT: {}\nSTDERR: {}", 
-               output.status.code(), stdout, stderr);
+        panic!(
+            "Command failed with exit code: {:?}\nSTDOUT: {}\nSTDERR: {}",
+            output.status.code(),
+            stdout,
+            stderr
+        );
     }
-    
+
     let output_text = format!("{stdout}{stderr}");
 
     // Should not contain ML recommendations for non-ML files
@@ -410,7 +452,7 @@ fn test_ml_recommendations_colored_output() {
     let project_root = get_project_root();
     let file1 = get_fixture_path("tests/fixtures/ml_models/model_quantized.safetensors");
     let file2 = get_fixture_path("tests/fixtures/ml_models/model_fp32.safetensors");
-    
+
     let output = Command::new("cargo")
         .args([
             "run",
@@ -432,10 +474,14 @@ fn test_ml_recommendations_colored_output() {
 
     // Check if command executed successfully
     if !output.status.success() {
-        panic!("Command failed with exit code: {:?}\nSTDOUT: {}\nSTDERR: {}", 
-               output.status.code(), stdout, stderr);
+        panic!(
+            "Command failed with exit code: {:?}\nSTDOUT: {}\nSTDERR: {}",
+            output.status.code(),
+            stdout,
+            stderr
+        );
     }
-    
+
     // Note: When running through Command, colors might be disabled
     // This test mainly ensures the command completes successfully
 }
@@ -446,7 +492,7 @@ fn test_ml_recommendations_exit_code() {
     let project_root = get_project_root();
     let file1 = get_fixture_path("tests/fixtures/ml_models/model_quantized.safetensors");
     let file2 = get_fixture_path("tests/fixtures/ml_models/model_fp32.safetensors");
-    
+
     let output = Command::new("cargo")
         .args([
             "run",
@@ -469,10 +515,14 @@ fn test_ml_recommendations_exit_code() {
 
     // Check if command executed successfully
     if !output.status.success() {
-        panic!("Command failed with exit code: {:?}\nSTDOUT: {}\nSTDERR: {}", 
-               output.status.code(), stdout, stderr);
+        panic!(
+            "Command failed with exit code: {:?}\nSTDOUT: {}\nSTDERR: {}",
+            output.status.code(),
+            stdout,
+            stderr
+        );
     }
-    
+
     // Exit code should reflect the presence of differences
     // 0 = no differences, non-zero = differences found
     // Note: Current implementation may not set exit codes based on recommendation priority
@@ -495,7 +545,7 @@ fn test_ml_recommendations_thread_safety() {
             let project_root = get_project_root();
             let file1 = get_fixture_path("tests/fixtures/ml_models/model_quantized.safetensors");
             let file2 = get_fixture_path("tests/fixtures/ml_models/model_fp32.safetensors");
-            
+
             let output = Command::new("cargo")
                 .args([
                     "run",
