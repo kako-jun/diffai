@@ -44,7 +44,7 @@ AI・機械学習分野でのデータ・モデル変更を明確に可視化し
 ## プッシュ前の必須チェック (Pre-Push Requirements)
 **必ずプッシュ前に以下を実行すること:**
 ```bash
-./mnt/rust-cli-kiln/scripts/testing/quick-check.sh
+./github-shared/rust-cli-kiln/scripts/testing/quick-check.sh
 ```
 
 - フォーマット・Clippy・ビルド・テストの基本チェックを実行
@@ -54,7 +54,7 @@ AI・機械学習分野でのデータ・モデル変更を明確に可視化し
 **CLAUDE.mdは目次として使用し、詳細情報は以下の専用ファイルを参照:**
 
 - **📋 タスクリスト**: `.claude/tasks.md` を参照
-- **🚀 リリース手順**: `mnt/rust-cli-kiln/release-guide.md` を参照
+- **🚀 リリース手順**: `github-shared/rust-cli-kiln/release-guide.md` を参照
 
 **重要**: 詳細が必要な時のみ該当ファイルを読むこと。CLAUDE.md自体は最小限に保つ。
 
@@ -90,11 +90,20 @@ AI・機械学習分野でのデータ・モデル変更を明確に可視化し
 ## リリース手順
 ```bash
 # 詳細手順は以下を参照
-cat mnt/rust-cli-kiln/release-guide.md
+cat github-shared/rust-cli-kiln/release-guide.md
 ```
 
 ## Python環境管理
 ```bash
 # 必ずuvでvenv作成
 uv venv && source .venv/bin/activate
+```
+
+## 共有スクリプト利用
+```bash
+# GitHub設定セットアップ（ラベル・ブランチ保護など）
+./github-shared/rust-cli-kiln/scripts/setup/setup-github-workflow.sh
+
+# 3言語ドキュメント整合性チェック
+./github-shared/rust-cli-kiln/scripts/docs/check-docs-consistency.sh
 ```
