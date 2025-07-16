@@ -161,4 +161,9 @@ npm-package/bin/benf*
 !npm-package/bin/lawkit
 !npm-package/bin/benf
 
+# === diffai npm package binaries ===
+diffai-npm/bin/diffai
+diffai-npm/bin/*/diffai
+diffai-npm/bin/*/diffai.exe
+
 github-shared
