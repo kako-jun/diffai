@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "diffai-python"
-version = "0.3.7"
+version = "0.3.8"
 description = "AI/ML specialized diff tool for deep tensor comparison and analysis"
 readme = "README.md"
 license = "MIT"
@@ -91,6 +91,7 @@ warn_unreachable = true
 [tool.maturin]
 # This package includes both Python code and a binary (diffai CLI) in the wheel
 python-source = "src"
+module-name = "diffai_python"
 bindings = "bin"
 # Find Python interpreters automatically
 find-interpreter = true

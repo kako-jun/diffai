@@ -26,12 +26,12 @@ fn test_python_package_structure() {
         "pyproject.toml should exist"
     );
     assert!(
-        python_dir.join("src/diffai/__init__.py").exists(),
+        python_dir.join("src/diffai_python/__init__.py").exists(),
         "__init__.py should exist"
     );
     // diffai.py is not required - all functionality is in __init__.py
     assert!(
-        python_dir.join("src/diffai/installer.py").exists(),
+        python_dir.join("src/diffai_python/installer.py").exists(),
         "installer.py should exist"
     );
     assert!(
