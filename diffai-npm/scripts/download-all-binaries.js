@@ -17,6 +17,12 @@ const PLATFORMS = [
     subdir: 'linux-x64'
   },
   { 
+    name: 'linux-arm64', 
+    file: 'diffai-linux-aarch64.tar.gz',
+    binaryName: 'diffai',
+    subdir: 'linux-arm64'
+  },
+  { 
     name: 'darwin-x64', 
     file: 'diffai-macos-x86_64.tar.gz',
     binaryName: 'diffai',
