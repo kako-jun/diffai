@@ -44,7 +44,7 @@ AI・機械学習分野でのデータ・モデル変更を明確に可視化し
 ## プッシュ前の必須チェック (Pre-Push Requirements)
 **必ずプッシュ前に以下を実行すること:**
 ```bash
-./scripts/testing/quick-check.sh
+./mnt/rust-cli-kiln/scripts/testing/quick-check.sh
 ```
 
 - フォーマット・Clippy・ビルド・テストの基本チェックを実行
@@ -54,7 +54,7 @@ AI・機械学習分野でのデータ・モデル変更を明確に可視化し
 **CLAUDE.mdは目次として使用し、詳細情報は以下の専用ファイルを参照:**
 
 - **📋 タスクリスト**: `.claude/tasks.md` を参照
-- **🚀 リリース手順**: `.claude/release-guide.md` を参照
+- **🚀 リリース手順**: `mnt/rust-cli-kiln/release-guide.md` を参照
 
 **重要**: 詳細が必要な時のみ該当ファイルを読むこと。CLAUDE.md自体は最小限に保つ。
 
@@ -90,7 +90,7 @@ AI・機械学習分野でのデータ・モデル変更を明確に可視化し
 ## リリース手順
 ```bash
 # 詳細手順は以下を参照
-cat .claude/release-guide.md
+cat mnt/rust-cli-kiln/release-guide.md
 ```
 
 ## Python環境管理
