@@ -90,12 +90,28 @@ class DiffaiError extends Error {
  * @returns {string} Path to diffai binary
  */
 function getDiffaiBinaryPath() {
-  // Check if local binary exists (installed via postinstall)
-  const binaryName = process.platform === 'win32' ? 'diffai.exe' : 'diffai';
-  const localBinaryPath = path.join(__dirname, 'bin', binaryName);
+  // Determine platform-specific subdirectory
+  const platform = process.platform;
+  const arch = process.arch;
+  let subdir;
   
-  if (fs.existsSync(localBinaryPath)) {
-    return localBinaryPath;
+  if (platform === 'win32') {
+    subdir = 'win32-x64';
+  } else if (platform === 'darwin') {
+    subdir = arch === 'arm64' ? 'darwin-arm64' : 'darwin-x64';
+  } else if (platform === 'linux') {
+    subdir = arch === 'arm64' ? 'linux-arm64' : 'linux-x64';
+  } else {
+    // Unsupported platform, fall back to system PATH
+    return 'diffai';
+  }
+  
+  // Check if platform-specific binary exists
+  const binaryName = process.platform === 'win32' ? 'diffai.exe' : 'diffai';
+  const platformBinaryPath = path.join(__dirname, 'bin', subdir, binaryName);
+  
+  if (fs.existsSync(platformBinaryPath)) {
+    return platformBinaryPath;
   }
   
   // Fall back to system PATH
