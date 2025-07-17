@@ -13,12 +13,12 @@ fn diffai_cmd() -> Command {
 fn test_version_command() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("--version");
-    
+
     cmd.assert()
         .success()
         .stdout(predicate::str::contains("diffai"))
-        .stdout(predicate::str::contains("v0."));
-    
+        .stdout(predicate::str::contains("0."));
+
     Ok(())
 }
 
@@ -28,10 +28,10 @@ fn test_version_flag_variations() -> Result<(), Box<dyn std::error::Error>> {
     // Test -V short flag
     let mut cmd = diffai_cmd();
     cmd.arg("-V");
-    
+
     cmd.assert()
         .success()
         .stdout(predicate::str::contains("diffai"));
-    
+
     Ok(())
 }

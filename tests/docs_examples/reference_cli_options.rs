@@ -17,10 +17,9 @@ fn test_cli_reference_options() -> Result<(), Box<dyn std::error::Error>> {
         .arg("../tests/fixtures/data2.json")
         .arg("--epsilon")
         .arg("0.00001");
-    
-    cmd.assert()
-        .success();
-    
+
+    cmd.assert().success();
+
     Ok(())
 }
 
@@ -33,11 +32,11 @@ fn test_array_id_key_reference() -> Result<(), Box<dyn std::error::Error>> {
         .arg("../tests/fixtures/users2.json")
         .arg("--array-id-key")
         .arg("id");
-    
+
     cmd.assert()
         .success()
         .stdout(predicate::str::contains("[id="));
-    
+
     Ok(())
 }
 
@@ -50,10 +49,10 @@ fn test_ignore_keys_regex_reference() -> Result<(), Box<dyn std::error::Error>> 
         .arg("../tests/fixtures/file2.json")
         .arg("--ignore-keys-regex")
         .arg("^age$");
-    
+
     cmd.assert()
         .success()
         .stdout(predicate::str::contains("~ age:").not());
-    
+
     Ok(())
 }

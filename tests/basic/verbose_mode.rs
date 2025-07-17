@@ -1,7 +1,7 @@
 use assert_cmd::prelude::*;
 use predicates::prelude::*;
-use std::process::Command;
 use std::io::Write;
+use std::process::Command;
 
 // Helper function to get the diffai command
 fn diffai_cmd() -> Command {
@@ -16,14 +16,14 @@ fn test_verbose_mode() -> Result<(), Box<dyn std::error::Error>> {
     cmd.arg("../tests/fixtures/file1.json")
         .arg("../tests/fixtures/file2.json")
         .arg("--verbose");
-    
+
     let output = cmd.output()?;
     assert!(output.status.success());
-    
+
     let stdout = String::from_utf8_lossy(&output.stdout);
     // Verbose mode should provide more detailed output
-    assert!(stdout.len() > 0);
-    
+    assert!(!stdout.is_empty());
+
     Ok(())
 }
 
