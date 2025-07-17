@@ -43,25 +43,92 @@
 - [ ] ドキュメント整合性チェック自動化
 - [ ] エラーハンドリング改善
 
-### 🧪 テスト統合の現状 (2025-07-17)
-**リリーステストとプロジェクトテストの分離状況**
+### 🧪 テスト統合完了 (2025-07-17)
+**共通テストフレームワークによる統一テスト体系確立**
 
-#### 現在のテスト体系
-- **tests/フォルダ**: Rust内部テスト（unit/integration）
+#### 新しいテスト体系
+- **tests/フォルダ**: 純粋にRust内部テスト（unit/integration）
   - `cargo test`で実行される標準テスト
-  - npm/Python関数テストは`#[ignore]`で無効化
-- **04スクリプト**: Act1テスト（Rust crate機能確認）
-  - 現在は外部プロジェクト作成で関数呼び出しテスト実装
-  - **問題**: 無限ループ発生、08スクリプトと統一すべき
-- **05スクリプト**: Act2テスト（npm/Python関数確認）
-  - 実際のインストール→インポート→関数呼び出しテスト
-- **08スクリプト**: 公開パッケージテスト
-  - 各エコシステムでの実際の動作確認
+  - npm/Pythonテストは完全に削除済み
+- **共通テストフレームワーク**: `.github/rust-cli-kiln/scripts/testing/common/`
+  - `test-utils.sh` - 共通ユーティリティ（ログ、結果追跡）
+  - `test-rust-binary.sh` - Rustバイナリテスト
+  - `test-rust-crate.sh` - Rustクレートテスト（cargo test含む）
+  - `test-npm-package.sh` - npmパッケージテスト
+  - `test-python-package.sh` - Pythonパッケージテスト
 
-#### 統一化の方向性
-- **04スクリプト**: 08スクリプトと同様に`cargo test`アプローチに変更
-- **05スクリプト**: 08スクリプトと同レベルのテスト内容を実装済み
-- **実際の関数テスト**: 04/05/08スクリプトで実装、tests/フォルダは内部テストのみ
+#### リファクタリング後のスクリプト
+- **04スクリプト**: Rustエコシステムテスト（135行、50%削減）
+  - 共通フレームワークを使用、無限ループ問題解決
+- **05スクリプト**: npm/Pythonテスト（213行、42%削減）
+  - 共通フレームワークを使用、統一されたテストロジック
+- **08スクリプト**: 公開パッケージテスト（47行、80%削減）
+  - 完全に共通フレームワークに依存
+
+#### 3プロジェクト共通化完了
+- **diffai/diffx/lawkit**: 全く同じテストコードを使用可能
+- **PROJECT_NAME変数**: 自動的に各プロジェクトに対応
+- **完全なDRY原則**: テストロジックの重複を完全に排除
+
+#### 統一された6ファイルテスト構造 (2025-07-17)
+**全プロジェクト・全言語パッケージで同一のテスト構造を適用**
+
+##### npm/Pythonパッケージ統一構造
+**npm**: `tests/` ディレクトリに6ファイル
+- `cli.test.js` - CLI基本機能（--version, --help）
+- `basic.test.js` - 基本機能・出力フォーマット（JSON/YAML）
+- `binary.test.js` - 同梱バイナリ直接実行
+- `formats.test.js` - ファイル形式サポート（JSON/YAML/CSV/TXT）
+- `errors.test.js` - エラーハンドリング（非存在ファイル、不正形式等）
+- `features.test.js` - 機能特化（ML分析、統計、色出力等）
+
+**Python**: `tests/` ディレクトリに6ファイル（同一構造）
+- `test_cli.py` - CLI基本機能
+- `test_basic.py` - 基本機能・出力フォーマット
+- `test_binary.py` - 同梱バイナリ直接実行
+- `test_formats.py` - ファイル形式サポート
+- `test_errors.py` - エラーハンドリング
+- `test_features.py` - 機能特化
+
+##### 実装完了状況
+- ✅ **diffai-npm**: 6ファイル構造完全実装（`npm test`で統一実行）
+- ✅ **diffai-python**: 6ファイル構造完全実装（`python test.py`で統一実行）
+- 📋 **計画**: Rustテスト構造統一 + diffx/lawkitプロジェクト展開
+
+##### 設計方針
+- **業界標準コマンド**: `npm test`, `python test.py`, `cargo test`のみ使用（fallback削除）
+- **一時ファイル管理**: 全テストで適切なクリーンアップ実装
+- **結果オブジェクト**: `{passed, total}`形式で統一
+- **npx実行**: npmパッケージテストは`npx diffai`でCLI実行
+- **プラットフォーム対応**: バイナリ名の自動検出機能
+
+##### 次期計画: Rustテスト構造統一 (優先度: 中)
+**現状**: `/home/d131/repos/42/2025/diffai/tests/` は unit/ と integration/ 混在
+**目標**: 6ファイル構造でRustテストも統一
+
+**Rust統一構造 (tests/ ディレクトリ)**:
+- `cli_tests.rs` - CLIコマンドライン実行（`std::process::Command`でバイナリ実行）
+- `core_tests.rs` - diffai-coreクレート関数直接呼び出し（`use diffai_core::*`）
+- `basic_tests.rs` - 基本機能・出力フォーマット（JSON/YAML）
+- `formats_tests.rs` - ファイル形式サポート（JSON/YAML/CSV/TXT）
+- `errors_tests.rs` - エラーハンドリング（非存在ファイル、不正形式等）
+- `features_tests.rs` - 機能特化（ML分析、統計、色出力等）
+
+**メリット**:
+- 3言語で論理的に同一のテスト分類（言語特性を考慮した適切な分割）
+- `cargo test`での統一実行
+- テストファイル数最適化（現在の unit/integration 細分化から統合）
+- メンテナンス性向上
+
+**言語別テスト対応表**:
+| 分類 | Rust | JavaScript | Python |
+|------|------|------------|--------|
+| CLI実行 | `cli_tests.rs` | `cli.test.js` | `test_cli.py` |
+| ライブラリ/バイナリ | `core_tests.rs` | `binary.test.js` | `test_binary.py` |
+| 基本機能 | `basic_tests.rs` | `basic.test.js` | `test_basic.py` |
+| フォーマット | `formats_tests.rs` | `formats.test.js` | `test_formats.py` |
+| エラー処理 | `errors_tests.rs` | `errors.test.js` | `test_errors.py` |
+| 機能特化 | `features_tests.rs` | `features.test.js` | `test_features.py` |
 
 ### 🌟 エコシステム拡張
 - [ ] Homebrew Formula作成
