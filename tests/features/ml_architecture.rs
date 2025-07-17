@@ -1,5 +1,4 @@
 use assert_cmd::prelude::*;
-use predicates::prelude::*;
 use std::process::Command;
 
 // Helper function to get the diffai command
@@ -34,7 +33,7 @@ fn test_architecture_comparison() -> Result<(), Box<dyn std::error::Error>> {
 #[test]
 fn test_deployment_readiness() -> Result<(), Box<dyn std::error::Error>> {
     use std::fs;
-    
+
     fs::create_dir_all("../tests/output")?;
     fs::write(
         "../tests/output/model_a.json",

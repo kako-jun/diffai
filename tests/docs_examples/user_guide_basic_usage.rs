@@ -15,11 +15,11 @@ fn test_basic_usage_examples() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("../tests/fixtures/file1.json")
         .arg("../tests/fixtures/file2.json");
-    
+
     cmd.assert()
         .success()
         .stdout(predicate::str::contains("~").or(predicate::str::contains("+")));
-    
+
     Ok(())
 }
 
@@ -32,10 +32,10 @@ fn test_output_format_examples() -> Result<(), Box<dyn std::error::Error>> {
         .arg("../tests/fixtures/file2.json")
         .arg("--output")
         .arg("json");
-    
+
     cmd.assert()
         .success()
         .stdout(predicate::str::starts_with("["));
-    
+
     Ok(())
 }
