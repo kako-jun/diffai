@@ -93,7 +93,8 @@
 ##### 実装完了状況
 - ✅ **diffai-npm**: 6ファイル構造完全実装（`npm test`で統一実行）
 - ✅ **diffai-python**: 6ファイル構造完全実装（`python test.py`で統一実行）
-- 📋 **計画**: Rustテスト構造統一 + diffx/lawkitプロジェクト展開
+- ✅ **diffai-rust**: 6フォルダ構造完全実装（`cargo test`で統一実行）
+- 🔄 **進行中**: diffx/lawkitプロジェクトへの展開
 
 ##### 設計方針
 - **業界標準コマンド**: `npm test`, `python test.py`, `cargo test`のみ使用（fallback削除）
@@ -102,23 +103,25 @@
 - **npx実行**: npmパッケージテストは`npx diffai`でCLI実行
 - **プラットフォーム対応**: バイナリ名の自動検出機能
 
-##### 次期計画: Rustテスト構造統一 (優先度: 中)
-**現状**: `/home/d131/repos/42/2025/diffai/tests/` は unit/ と integration/ 混在
-**目標**: 6ファイル構造でRustテストも統一
+##### 次期計画: 全プロジェクト統一 (優先度: 中)
+**戦略**: どのプロジェクトもテストが通らない状態なので、テストコード構造統一を先に完了
 
-**Rust統一構造 (tests/ ディレクトリ)**:
-- `cli_tests.rs` - CLIコマンドライン実行（`std::process::Command`でバイナリ実行）
-- `core_tests.rs` - diffai-coreクレート関数直接呼び出し（`use diffai_core::*`）
-- `basic_tests.rs` - 基本機能・出力フォーマット（JSON/YAML）
-- `formats_tests.rs` - ファイル形式サポート（JSON/YAML/CSV/TXT）
-- `errors_tests.rs` - エラーハンドリング（非存在ファイル、不正形式等）
-- `features_tests.rs` - 機能特化（ML分析、統計、色出力等）
+**現在の優先順位**:
+1. **テスト構造統一**: diffx → lawkit (構造だけ先に統一)
+2. **テスト動作確認**: 3プロジェクト全体で実際のテスト実行・修正
 
-**メリット**:
-- 3言語で論理的に同一のテスト分類（言語特性を考慮した適切な分割）
-- `cargo test`での統一実行
-- テストファイル数最適化（現在の unit/integration 細分化から統合）
-- メンテナンス性向上
+**各プロジェクト現状**:
+- **diffai**: ✅ 3言語統一完了
+- **diffx**: 📋 unit/integration混在 → 6構造展開予定
+- **lawkit**: 📋 unit/integration混在 → 6構造展開予定
+
+**完成後の統一構造**:
+```
+{project}/
+├── tests/ (Rust - 6フォルダ構造)
+├── {project}-npm/tests/ (JS - 6ファイル構造)  
+└── {project}-python/tests/ (Python - 6ファイル構造)
+```
 
 **言語別テスト対応表**:
 | 分類 | Rust | JavaScript | Python |

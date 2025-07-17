@@ -14,18 +14,14 @@
 $ diff model_v1.safetensors model_v2.safetensors
 Binary files model_v1.safetensors and model_v2.safetensors differ
 
-# diffaiは意味のあるモデル変更を自動表示（30+分析機能）
+# diffaiは意味のあるモデル変更を完全分析付きで表示
 $ diffai model_v1.safetensors model_v2.safetensors
-anomaly_detection: type=none, severity=none, action="continue_training"
-architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
-convergence_analysis: status=converging, stability=0.92
-gradient_analysis: flow_health=healthy, norm=0.021069
-memory_analysis: delta=+0.0MB, efficiency=1.000000
-quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%
-regression_test: passed=true, degradation=-2.5%, severity=low
   ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
   ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
+  gradient_analysis: flow_health=healthy, norm=0.015000, ratio=1.0500
+  deployment_readiness: readiness=0.92, strategy=blue_green, risk=low
+  quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%
 
 [WARNING]
 • Memory usage increased moderately (+250MB). Monitor resource consumption.
@@ -36,7 +32,7 @@ regression_test: passed=true, degradation=-2.5%, severity=low
 
 - **AI/MLネイティブ**: PyTorch (.pt/.pth)、Safetensors (.safetensors)、NumPy (.npy/.npz)、MATLAB (.mat) ファイルを直接サポート
 - **テンソル分析**: テンソル統計の自動計算（平均、標準偏差、最小値、最大値、形状、メモリ使用量）
-- **自動ML分析**: 30+の分析機能が自動実行（統計、量子化、アーキテクチャ、収束、勾配、異常検出等）
+- **包括的ML分析**: PyTorch/Safetensorsファイルに対して30+の分析機能が自動実行（量子化、アーキテクチャ、メモリ、収束、異常検出、デプロイ準備度など） - すべてデフォルトで有効
 - **科学データサポート**: 複素数対応のNumPy配列とMATLAB行列
 - **純粋Rust実装**: システム依存なし、Windows/Linux/macOSで追加インストール不要
 - **複数出力形式**: 色付きCLI、MLOps統合用JSON、人間可読YAML
@@ -86,10 +82,10 @@ cargo build --release
 ### 基本的なモデル比較
 
 ```bash
-# PyTorchモデル比較（30+分析機能が自動実行）
+# PyTorchモデル比較（デフォルトで完全分析）
 diffai model_old.pt model_new.pt
 
-# Safetensors比較（包括的分析が自動実行）
+# Safetensors比較（30+のML分析機能を含む包括的分析）
 diffai checkpoint_v1.safetensors checkpoint_v2.safetensors
 
 # NumPy配列比較
@@ -102,17 +98,18 @@ diffai experiment_v1.mat experiment_v2.mat
 ### 自動ML分析
 
 ```bash
-# すべての分析機能が自動実行（フラグ不要）
+# PyTorch/Safetensorsファイルでは完全なML分析が自動実行
 diffai baseline.safetensors finetuned.safetensors
+# 出力: 量子化、アーキテクチャ、メモリ分析など30+種類の分析
 
-# 同じく自動で30+の分析機能
-diffai original.pt optimized.pt
-
-# 自動化用JSON出力（すべての分析機能含む）
+# 自動化用JSON出力
 diffai model_v1.safetensors model_v2.safetensors --output json
 
-# 詳細な診断情報付きでのverboseモード（すべての分析機能自動）
+# 詳細な診断情報付きでのverboseモード
 diffai model_v1.safetensors model_v2.safetensors --verbose
+
+# 人間可読レポート用YAML出力
+diffai model_v1.safetensors model_v2.safetensors --output yaml
 ```
 
 ## 対応ファイル形式
@@ -135,7 +132,28 @@ diffai model_v1.safetensors model_v2.safetensors --verbose
 
 ## ML分析機能
 
-diffaiはMLモデル比較時に30+の専門分析機能を自動実行：
+### 自動包括的分析 (v0.3.4)
+PyTorchまたはSafetensorsファイルを比較する際、diffaiは30+のML分析機能を自動実行します：
+
+**自動機能に含まれるもの：**
+- **統計分析**: 詳細なテンソル統計（平均、標準偏差、最小値、最大値、形状、メモリ）
+- **量子化分析**: 量子化効果と効率の分析
+- **アーキテクチャ比較**: モデルアーキテクチャと構造変更の比較
+- **メモリ分析**: メモリ使用量と最適化機会の分析
+- **異常検知**: モデルパラメータの数値異常を検出
+- **収束分析**: モデルパラメータの収束パターンを分析
+- **勾配分析**: 利用可能な場合の勾配情報を分析
+- **デプロイ準備度**: 本番デプロイの準備状況を評価
+- **回帰テスト**: 自動的な性能劣化検出
+- **その他20+の専門機能**
+
+### 将来の拡張
+- TensorFlow形式サポート (.pb, .h5, SavedModel)
+- ONNX形式サポート
+- 高度な可視化とチャート機能
+
+### 設計思想
+diffaiはMLモデルに対してデフォルトで包括的な分析を提供し、選択の迷いを排除します。ユーザーは数十の分析フラグを覚えたり指定したりする必要なく、すべての関連する洞察を得られます。
 
 ## デバッグと診断
 
@@ -160,9 +178,9 @@ diffai data1.json data2.json --verbose --epsilon 0.001 --ignore-keys-regex "^id$
 ```
 === diffai verbose mode enabled ===
 Configuration:
-  Input format: None
+  Input format: Safetensors
   Output format: Cli
-  ML analysis features: statistics, architecture_comparison
+  ML analysis: Full analysis enabled (all 30 features)
   Epsilon tolerance: 0.001
 
 File analysis:
@@ -180,49 +198,6 @@ Processing results:
 
 📚 **詳細については[詳細出力ガイド](docs/user-guide/verbose-output_ja.md)をご覧ください**
 
-### 自動実行されるML分析機能
-
-**学習・収束分析（自動）:**
-- チェックポイント間の学習進捗追跡
-- 収束安定性とパターン分析
-- 学習異常検知（勾配爆発、消失勾配）
-- 勾配特性と流れの分析
-
-**アーキテクチャ・性能分析（自動）:**
-- モデルアーキテクチャと構造変更の比較
-- モデル間パラメータ効率分析
-- メモリ使用量と最適化機会の分析
-- 推論速度と性能特性の推定
-
-**MLOps・デプロイ支援（自動）:**
-- デプロイ準備と互換性評価
-- 自動回帰テスト実行
-- デプロイリスクと安定性評価
-- ハイパーパラメータがモデル変更に与える影響分析
-- 学習率効果と最適化の分析
-
-**その他20+の分析機能も自動実行**
-- `--alert-on-degradation` - 閾値を超えた性能劣化のアラート
-- `--performance-impact-estimate` - 変更の性能影響推定
-
-### 実験・文書化支援
-- `--generate-report` - 包括的分析レポート生成
-- `--markdown-output` - 文書化用markdown形式出力
-- `--include-charts` - チャート・可視化の出力組み込み（予定）
-- `--review-friendly` - 人間レビュー向け出力生成
-
-### 高度分析機能
-- `--embedding-analysis` - 埋め込み層変化と意味ドリフト分析
-- `--similarity-matrix` - モデル比較用類似度行列生成
-- `--clustering-change` - モデル表現のクラスタリング変化分析
-- `--attention-analysis` - アテンション機構パターン分析（Transformerモデル）
-- `--head-importance` - アテンションヘッド重要度と専門化分析
-- `--attention-pattern-diff` - アテンションパターン間比較
-
-### 追加分析機能
-- `--quantization-analysis` - 量子化効果と効率分析
-- `--sort-by-change-magnitude` - 優先度付け用変更量ソート
-- `--change-summary` - 詳細変更サマリー生成
 
 ## 出力形式
 
@@ -248,23 +223,24 @@ diffai model1.safetensors model2.safetensors --output yaml
 
 ### 研究開発
 ```bash
-# ファインチューニング前後のモデル比較
+# ファインチューニング前後のモデル比較（完全分析が自動）
 diffai pretrained_model.safetensors finetuned_model.safetensors
+# 出力: 学習進捗、収束分析、パラメータ統計、その他27+の分析
 
 # 開発中のアーキテクチャ変更分析
-diffai baseline_architecture.pt improved_architecture.pt \
-  --architecture-comparison --param-efficiency-analysis
+diffai baseline_architecture.pt improved_architecture.pt
+# 出力: アーキテクチャ比較、パラメータ効率分析、完全なML分析
 ```
 
 ### MLOps・CI/CD
 ```bash
-# CI/CDでの自動モデル検証
-diffai production_model.safetensors candidate_model.safetensors \
-  --deployment-readiness --regression-test --risk-assessment
+# CI/CDでの自動モデル検証（包括的分析）
+diffai production_model.safetensors candidate_model.safetensors
+# 出力: デプロイ準備度、回帰テスト、リスク評価、その他27+の分析
 
-# 性能影響評価
-diffai original_model.pt optimized_model.pt \
-  --quantization-analysis --memory-analysis --performance-impact-estimate
+# 自動化用の性能影響評価（JSON出力）
+diffai original_model.pt optimized_model.pt --output json
+# 出力: 量子化分析、メモリ分析、性能影響推定など
 ```
 
 ### 科学計算
@@ -297,6 +273,8 @@ diffai model_a.safetensors model_b.safetensors \
 - `-o, --output <OUTPUT>` - 出力形式選択（cli, json, yaml）
 - `-r, --recursive` - ディレクトリ再帰比較
 
+**注意:** MLモデル（PyTorch/Safetensors）では、統計を含む包括的分析が自動的に実行されます
+
 ### 高度オプション
 - `--path <PATH>` - 特定パスでの差分フィルタ
 - `--ignore-keys-regex <REGEX>` - 正規表現パターンに一致するキーを無視
@@ -306,9 +284,16 @@ diffai model_a.safetensors model_b.safetensors \
 
 ## 使用例
 
-### 基本テンソル比較（包括的分析自動）
+### 基本テンソル比較（自動）
 ```bash
 $ diffai simple_model_v1.safetensors simple_model_v2.safetensors
+anomaly_detection: type=none, severity=none, action="continue_training"
+architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
+convergence_analysis: status=converging, stability=0.92
+gradient_analysis: flow_health=healthy, norm=0.021069
+memory_analysis: delta=+0.0MB, efficiency=1.000000
+quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%
+regression_test: passed=true, degradation=-2.5%, severity=low
   ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
   ~ fc2.bias: mean=-0.0076->-0.0257, std=0.0661->0.0973
@@ -317,13 +302,17 @@ $ diffai simple_model_v1.safetensors simple_model_v2.safetensors
   ~ fc3.weight: mean=-0.0035->-0.0010, std=0.0990->0.1113
 ```
 
-### 高度分析
+### 自動化用JSON出力
 ```bash
-$ diffai baseline.safetensors improved.safetensors
-deployment_readiness: readiness=0.92, strategy=blue_green, risk=low, timeline=ready_for_immediate_deployment
-architecture_comparison: type1=feedforward, type2=feedforward, depth=3->3, differences=0
-  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
-  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
+$ diffai baseline.safetensors improved.safetensors --output json
+{
+  "anomaly_detection": {"type": "none", "severity": "none"},
+  "architecture_comparison": {"type1": "feedforward", "type2": "feedforward"},
+  "deployment_readiness": {"readiness": 0.92, "strategy": "blue_green"},
+  "quantization_analysis": {"compression": "0.0%", "speedup": "1.8x"},
+  "regression_test": {"passed": true, "degradation": "-2.5%"}
+  // ... その他25+の分析機能
+}
 ```
 
 ### 科学データ分析
