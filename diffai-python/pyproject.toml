@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "diffai-python"
-version = "0.3.10"
+version = "0.3.11"
 description = "AI/ML specialized diff tool for deep tensor comparison and analysis"
 readme = "README.md"
 license = "MIT"
