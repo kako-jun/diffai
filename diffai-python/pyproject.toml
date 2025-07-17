@@ -98,8 +98,8 @@ find-interpreter = true
 # Use manylinux for PyPI compatibility
 compatibility = "manylinux2014"
 
-[project.scripts]
-test = "python:test"
+# [project.scripts]
+# test = "python:test"  # Commented out: conflicts with binary from Rust
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
