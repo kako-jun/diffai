@@ -167,3 +167,6 @@ diffai-npm/bin/*/diffai
 diffai-npm/bin/*/diffai.exe
 
 github-shared
+# === Temporary test directories ===
+tmp/
+diffai-js/
