@@ -1,0 +1,14 @@
+{
+  "model": "test_model_v1",
+  "version": "1.0.0",
+  "parameters": 1000,
+  "layers": [
+    {"type": "linear", "size": 512},
+    {"type": "relu"},
+    {"type": "linear", "size": 256}
+  ],
+  "metadata": {
+    "created": "2024-01-01",
+    "author": "test"
+  }
+}

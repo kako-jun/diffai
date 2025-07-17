@@ -98,6 +98,9 @@ find-interpreter = true
 # Use manylinux for PyPI compatibility
 compatibility = "manylinux2014"
 
+[project.scripts]
+test = "python:test"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
