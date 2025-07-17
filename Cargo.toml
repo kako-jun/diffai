@@ -3,10 +3,10 @@ resolver = "2"
 members = [
     "diffai-core",
     "diffai-cli"
-]
+, "target/tmp-crate-test-287451-1752760607"]
 
 [workspace.package]
-version = "0.3.8"
+version = "0.3.9"
 edition = "2021"
 authors = ["kako-jun"]
 license = "MIT"
