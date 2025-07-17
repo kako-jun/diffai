@@ -170,3 +170,4 @@ github-shared
 # === Temporary test directories ===
 tmp/
 diffai-js/
+temp-*/
