@@ -208,21 +208,18 @@ class DiffResult:
         return self.raw_output
 
 def _find_diffai_binary() -> str:
-    """Find the diffai binary, checking bundled location first."""
-    # Check if bundled with package
+    """Find the diffai binary bundled with package."""
+    # Check if bundled with package (OS-specific wheel contains appropriate binary)
     package_dir = Path(__file__).parent.parent.parent
     bundled_binary = package_dir / "diffai"
     
     if bundled_binary.exists() and bundled_binary.is_file():
         return str(bundled_binary)
     
-    # Fallback to system PATH
-    system_binary = shutil.which("diffai")
-    if system_binary:
-        return system_binary
-    
+    # Error if binary not found - no system PATH fallback allowed
     raise DiffaiError(
-        "diffai binary not found. Please ensure diffai is installed or available in PATH."
+        f"diffai binary not found at {bundled_binary}. This might indicate a packaging issue. "
+        "Please report this at: https://github.com/kako-jun/diffai/issues"
     )
 
 def diff(

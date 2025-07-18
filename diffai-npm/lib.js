@@ -102,11 +102,10 @@ function getDiffaiBinaryPath() {
   } else if (platform === 'linux') {
     subdir = arch === 'arm64' ? 'linux-arm64' : 'linux-x64';
   } else {
-    // Unsupported platform, fall back to system PATH
-    return 'diffai';
+    throw new Error(`Unsupported platform: ${platform}-${arch}`);
   }
   
-  // Check if platform-specific binary exists
+  // Check if platform-specific binary exists (OS hierarchy required)
   const binaryName = process.platform === 'win32' ? 'diffai.exe' : 'diffai';
   const platformBinaryPath = path.join(__dirname, 'bin', subdir, binaryName);
   
@@ -114,8 +113,8 @@ function getDiffaiBinaryPath() {
     return platformBinaryPath;
   }
   
-  // Fall back to system PATH
-  return 'diffai';
+  // Error if binary not found - no system PATH fallback allowed
+  throw new Error(`Binary not found at ${platformBinaryPath}. Platform: ${platform}-${arch}. This might indicate a packaging issue. Please report this at: https://github.com/kako-jun/diffai/issues`);
 }
 
 /**
