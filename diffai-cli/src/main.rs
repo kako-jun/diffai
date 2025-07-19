@@ -15,6 +15,71 @@ use std::path::{Path, PathBuf};
 use std::time::Instant;
 use walkdir::WalkDir;
 
+/// Color helper functions to support --no-color option
+mod color_utils {
+    use colored::*;
+    
+    pub fn apply_color<T: Colorize>(text: T, no_color: bool) -> ColoredString {
+        if no_color {
+            text.clear()
+        } else {
+            text.normal()
+        }
+    }
+    
+    pub fn blue(text: &str, no_color: bool) -> ColoredString {
+        if no_color { text.normal() } else { text.blue() }
+    }
+    
+    pub fn yellow(text: &str, no_color: bool) -> ColoredString {
+        if no_color { text.normal() } else { text.yellow() }
+    }
+    
+    pub fn cyan(text: &str, no_color: bool) -> ColoredString {
+        if no_color { text.normal() } else { text.cyan() }
+    }
+    
+    pub fn magenta(text: &str, no_color: bool) -> ColoredString {
+        if no_color { text.normal() } else { text.magenta() }
+    }
+    
+    pub fn green(text: &str, no_color: bool) -> ColoredString {
+        if no_color { text.normal() } else { text.green() }
+    }
+    
+    pub fn red(text: &str, no_color: bool) -> ColoredString {
+        if no_color { text.normal() } else { text.red() }
+    }
+    
+    pub fn bright_red(text: &str, no_color: bool) -> ColoredString {
+        if no_color { text.normal() } else { text.bright_red() }
+    }
+    
+    pub fn bright_green(text: &str, no_color: bool) -> ColoredString {
+        if no_color { text.normal() } else { text.bright_green() }
+    }
+    
+    pub fn bright_blue(text: &str, no_color: bool) -> ColoredString {
+        if no_color { text.normal() } else { text.bright_blue() }
+    }
+    
+    pub fn bright_cyan(text: &str, no_color: bool) -> ColoredString {
+        if no_color { text.normal() } else { text.bright_cyan() }
+    }
+    
+    pub fn bright_yellow(text: &str, no_color: bool) -> ColoredString {
+        if no_color { text.normal() } else { text.bright_yellow() }
+    }
+    
+    pub fn bright_magenta(text: &str, no_color: bool) -> ColoredString {
+        if no_color { text.normal() } else { text.bright_magenta() }
+    }
+    
+    pub fn bright_purple(text: &str, no_color: bool) -> ColoredString {
+        if no_color { text.normal() } else { text.bright_purple() }
+    }
+}
+
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
@@ -57,6 +122,10 @@ struct Args {
     /// Show verbose processing information
     #[arg(short, long)]
     verbose: bool,
+
+    /// Disable colored output
+    #[arg(long)]
+    no_color: bool,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug, Serialize, Deserialize)]
@@ -133,7 +202,7 @@ fn parse_content(content: &str, format: Format) -> Result<Value> {
     }
 }
 
-fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
+fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool, no_color: bool) {
     if differences.is_empty() {
         println!("No differences found.");
         return;
@@ -398,33 +467,32 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool) {
         let indent = "  ".repeat(depth);
 
         let diff_str = match diff {
-            DiffResult::Added(k, value) => format!("+ {}: {}", k, value).blue(),
-            DiffResult::Removed(k, value) => format!("- {}: {}", k, value).yellow(),
-            DiffResult::Modified(k, v1, v2) => format!("~ {}: {} -> {}", k, v1, v2).cyan(),
+            DiffResult::Added(k, value) => color_utils::blue(&format!("+ {}: {}", k, value), no_color),
+            DiffResult::Removed(k, value) => color_utils::yellow(&format!("- {}: {}", k, value), no_color),
+            DiffResult::Modified(k, v1, v2) => color_utils::cyan(&format!("~ {}: {} -> {}", k, v1, v2), no_color),
             DiffResult::TypeChanged(k, v1, v2) => {
-                format!("! {}: {} ({}) -> {} ({})", k, v1, value_type_name(v1), v2, value_type_name(v2))
-                    .magenta()
+                color_utils::magenta(&format!("! {}: {} ({}) -> {} ({})", k, v1, value_type_name(v1), v2, value_type_name(v2)), no_color)
             }
             DiffResult::TensorShapeChanged(k, shape1, shape2) => {
-                format!("! {}: {:?} -> {:?} (shape)", k, shape1, shape2).magenta()
+                color_utils::magenta(&format!("! {}: {:?} -> {:?} (shape)", k, shape1, shape2), no_color)
             }
             DiffResult::TensorStatsChanged(k, stats1, stats2) => {
-                format!("~ {}: mean={:.4}->{:.4}, std={:.4}->{:.4}",
-                    k, stats1.mean, stats2.mean, stats1.std, stats2.std).cyan()
+                color_utils::cyan(&format!("~ {}: mean={:.4}->{:.4}, std={:.4}->{:.4}",
+                    k, stats1.mean, stats2.mean, stats1.std, stats2.std), no_color)
             }
             DiffResult::NumpyArrayChanged(k, stats1, stats2) => {
-                format!("~ {}: shape={:?}, mean={:.4}->{:.4}, std={:.4}->{:.4}, dtype={}",
-                    k, stats1.shape, stats1.mean, stats2.mean, stats1.std, stats2.std, stats1.dtype).cyan()
+                color_utils::cyan(&format!("~ {}: shape={:?}, mean={:.4}->{:.4}, std={:.4}->{:.4}, dtype={}",
+                    k, stats1.shape, stats1.mean, stats2.mean, stats1.std, stats2.std, stats1.dtype), no_color)
             }
             DiffResult::NumpyArrayAdded(k, stats) => {
-                format!("+ {}: shape={:?}, dtype={}, elements={}, size={}MB",
+                color_utils::green(&format!("+ {}: shape={:?}, dtype={}, elements={}, size={}MB",
                     k, stats.shape, stats.dtype, stats.total_elements,
-                    stats.memory_size_bytes as f64 / 1024.0 / 1024.0).green()
+                    stats.memory_size_bytes as f64 / 1024.0 / 1024.0), no_color)
             }
             DiffResult::NumpyArrayRemoved(k, stats) => {
-                format!("- {}: shape={:?}, dtype={}, elements={}, size={}MB",
+                color_utils::red(&format!("- {}: shape={:?}, dtype={}, elements={}, size={}MB",
                     k, stats.shape, stats.dtype, stats.total_elements,
-                    stats.memory_size_bytes as f64 / 1024.0 / 1024.0).red()
+                    stats.memory_size_bytes as f64 / 1024.0 / 1024.0), no_color)
             }
             DiffResult::MatlabArrayChanged(k, stats1, stats2) => {
                 let complex_info = if stats1.is_complex || stats2.is_complex { " (complex)" } else { "" };
@@ -992,6 +1060,7 @@ fn main() -> Result<()> {
             array_id_key,
             args.verbose,
             args.recursive, // Pass recursive flag to control depth
+            args.no_color,
         )?;
         return Ok(());
     }
@@ -1209,7 +1278,7 @@ fn main() -> Result<()> {
     }
 
     match output_format {
-        OutputFormat::Cli => print_cli_output(differences, false),
+        OutputFormat::Cli => print_cli_output(differences, false, args.no_color),
         OutputFormat::Json => print_json_output(differences)?,
         OutputFormat::Yaml => print_yaml_output(differences)?,
         OutputFormat::Unified => match input_format {
@@ -1245,6 +1314,7 @@ fn compare_directories(
     array_id_key: Option<&str>,
     _verbose: bool,
     recursive: bool,
+    no_color: bool,
 ) -> Result<()> {
     let mut files1: HashMap<PathBuf, PathBuf> = HashMap::new();
 
@@ -1373,7 +1443,7 @@ fn compare_directories(
                 }
 
                 match output {
-                    OutputFormat::Cli => print_cli_output(differences, false), // No magnitude sort for directory comparison
+                    OutputFormat::Cli => print_cli_output(differences, false, no_color), // No magnitude sort for directory comparison
                     OutputFormat::Json => print_json_output(differences)?,
                     OutputFormat::Yaml => print_yaml_output(differences)?,
                     OutputFormat::Unified => print_unified_output(&v1, &v2)?,

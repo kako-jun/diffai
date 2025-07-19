@@ -89,6 +89,19 @@ Specify key for identifying array elements.
 - **Example**: `--array-id-key "id"`
 - **Usage**: For structured array comparison
 
+#### `-v, --verbose`
+Show verbose processing information including performance metrics, configuration details, and diagnostic output.
+
+- **Example**: `diffai model1.safetensors model2.safetensors --verbose`
+- **Usage**: Debug analysis process and performance
+
+#### `--no-color`
+Disable colored output for better compatibility with scripts, pipelines, or terminals that don't support ANSI colors.
+
+- **Example**: `diffai config.json config.new.json --no-color`
+- **Usage**: Plain text output without color formatting
+- **Note**: Particularly useful for CI/CD environments and automated scripts
+
 
 ## ML Analysis Functions
 
