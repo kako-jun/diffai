@@ -111,7 +111,7 @@ async function testJsonOutput() {
     const { tempDir, file1, file2 } = createTempTestFiles();
     
     try {
-        const result = await runCLI(['--output-format', 'json', file1, file2]);
+        const result = await runCLI(['--output', 'json', file1, file2]);
         
         if (result.code <= 1) {
             // Try to parse JSON output
@@ -144,7 +144,7 @@ async function testYamlOutput() {
     const { tempDir, file1, file2 } = createTempTestFiles();
     
     try {
-        const result = await runCLI(['--output-format', 'yaml', file1, file2]);
+        const result = await runCLI(['--output', 'yaml', file1, file2]);
         
         if (result.code <= 1 && result.stdout.trim().length > 0) {
             console.log('✓ YAML output format works');
