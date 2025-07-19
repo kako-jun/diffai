@@ -209,13 +209,12 @@ $ diffai model_v1.safetensors model_v2.safetensors --output yaml
 
 ## Environment Variables
 
-- **DIFFAI_LOG_LEVEL**: Log level (error, warn, info, debug)
-- **DIFFAI_MAX_MEMORY**: Maximum memory usage (in MB)
+diffai does not use environment variables for configuration. All settings are controlled through command-line options.
 
 ## Performance Considerations
 
 - **Large Files**: diffai uses streaming processing for GB+ files
-- **Memory Usage**: Configurable memory limits with `DIFFAI_MAX_MEMORY`
+- **Memory Usage**: Automatic memory optimization for large files
 - **Parallel Processing**: Automatic parallelization for multi-file comparisons
 - **Caching**: Intelligent caching for repeated comparisons
 
@@ -224,15 +223,15 @@ $ diffai model_v1.safetensors model_v2.safetensors --output yaml
 ### Common Issues
 
 1. **"Binary files differ" message**: Use `--format` to specify file type
-2. **Out of memory**: Set `DIFFAI_MAX_MEMORY` environment variable
+2. **Out of memory**: Memory optimization is automatic for large files
 3. **Slow processing**: Analysis is optimized for large models automatically
 4. **Missing dependencies**: Ensure Rust toolchain is properly installed
 
 ### Debug Mode
 
-Enable debug output with:
+Enable debug output with the `--verbose` option:
 ```bash
-DIFFAI_LOG_LEVEL=debug diffai model1.safetensors model2.safetensors
+diffai model1.safetensors model2.safetensors --verbose
 ```
 
 ## See Also
