@@ -47,6 +47,7 @@ const { tmpdir } = require('os');
  * @property {boolean} [generateReport=false] - Generate comprehensive analysis report
  * @property {boolean} [markdownOutput=false] - Output results in markdown format
  * @property {boolean} [includeCharts=false] - Include charts and visualizations
+ * @property {boolean} [noColor=false] - Disable colored output
  * @property {boolean} [embeddingAnalysis=false] - Analyze embedding layer changes
  * @property {boolean} [attentionAnalysis=false] - Analyze attention mechanisms
  * @property {boolean} [headImportance=false] - Analyze attention head importance
@@ -238,6 +239,11 @@ async function diff(input1, input2, options = {}) {
   
   if (options.arrayIdKey) {
     args.push('--array-id-key', options.arrayIdKey);
+  }
+  
+  // Add no-color option
+  if (options.noColor) {
+    args.push('--no-color');
   }
   
   // Add ML analysis options
