@@ -1,12 +1,12 @@
 # 設計原則
 
-diffai の設計思想と核となる原則について説明します。
+diffaiの設計思想と中核となる原則について詳しく解説します。
 
-## コアな設計原則
+## 基本設計原則
 
-### 1. AI/ML特化の専門性
+### 1. AI/ML分野への特化
 
-**原則:** 汎用的な diff ツールではなく、AI/ML開発に特化した専門ツールとして設計
+**原則:** 汎用diffツールではなく、AI/ML開発に特化した専門ツールとして設計
 
 ```rust
 // 例: PyTorchモデルの特殊な処理
@@ -18,299 +18,309 @@ impl ModelComparison for PyTorchModel {
 }
 ```
 
-**メリット:**
-- ML開発者のニーズに特化した機能
-- ドメイン知識を活用した高度な比較
-- 従来の diff ツールでは不可能な分析
+**利点:**
+- ML開発者のニーズに直接応える機能設計
+- ドメイン知識を活用した高度な比較分析
+- 従来のdiffツールでは不可能な洞察の提供
 
 ### 2. パフォーマンス最優先
 
-**原則:** 大きなモデルファイルでも高速に処理できる設計
+**原則:** 大規模モデルファイルでも高速処理を実現
 
 ```rust
-// 例: 並列処理とメモリ効率
-use rayon::prelude::*;
+// 例: ストリーミング処理による効率的なメモリ使用
+pub fn compare_large_tensors(
+    tensor1: &LargeTensor,
+    tensor2: &LargeTensor,
+) -> Result<TensorDiff> {
+    // チャンク単位での処理でメモリ効率を最適化
+    let chunk_size = calculate_optimal_chunk_size();
+    tensor1.stream_chunks(chunk_size)
+        .zip(tensor2.stream_chunks(chunk_size))
+        .map(|(c1, c2)| compare_chunk(c1, c2))
+        .collect()
+}
+```
 
-impl TensorComparison {
-    fn parallel_compare(&self, tensors: &[Tensor]) -> Vec<TensorDiff> {
-        tensors.par_iter()
-              .map(|tensor| self.compare_tensor(tensor))
-              .collect()
+**実装戦略:**
+- ゼロコピー設計でメモリ効率を最大化
+- 並列処理による計算速度の向上
+- 遅延評価による不要な計算の回避
+
+### 3. ドメイン固有の意味理解
+
+**原則:** 単なるバイト比較ではなく、AI/MLの文脈での意味的な比較
+
+```rust
+// 例: 浮動小数点の賢い比較
+fn compare_model_parameters(
+    param1: f32,
+    param2: f32,
+    context: &ModelContext,
+) -> ParameterDiff {
+    let epsilon = context.get_adaptive_epsilon();
+    
+    if (param1 - param2).abs() < epsilon {
+        ParameterDiff::Equivalent
+    } else {
+        let relative_change = (param2 - param1) / param1.abs();
+        ParameterDiff::Changed {
+            magnitude: calculate_impact_magnitude(relative_change, context),
+            significance: assess_training_impact(relative_change)
+        }
     }
 }
 ```
 
-**技術的な実装:**
-- Rust の所有権システムによるメモリ安全性
-- 並列処理による高速化
-- ストリーミング処理でメモリ使用量を削減
+**特徴:**
+- モデルコンテキストを考慮した比較
+- 学習への影響度を評価
+- 意味のある変更と無視可能な変更の識別
 
-### 3. 拡張性とモジュール性
+### 4. 拡張性とモジュール性
 
-**原則:** 新しいフォーマットやML フレームワークを簡単に追加できる設計
+**原則:** 新しいフォーマットや分析手法を容易に追加可能な設計
 
 ```rust
-// 例: トレイトベースの拡張可能な設計
-trait ModelFormat {
-    fn parse(&self, data: &[u8]) -> Result<Model, ParseError>;
-    fn compare(&self, model1: &Model, model2: &Model) -> ComparisonResult;
+// トレイトベースの拡張可能な設計
+pub trait ModelAnalyzer {
+    fn analyze(&self, model: &dyn Model) -> AnalysisResult;
 }
 
-// 新しいフォーマットの追加
-struct TensorFlowFormat;
-impl ModelFormat for TensorFlowFormat {
+pub trait FormatHandler {
+    fn can_handle(&self, file_path: &Path) -> bool;
+    fn load(&self, file_path: &Path) -> Result<Box<dyn Model>>;
+}
+
+// 新しいフォーマットの追加が簡単
+struct ONNXHandler;
+impl FormatHandler for ONNXHandler {
     // 実装...
 }
 ```
 
-**拡張ポイント:**
-- 新しいモデルフォーマット
-- カスタム比較アルゴリズム
-- 出力形式の追加
+**利点:**
+- プラグイン的な機能追加
+- 既存コードへの影響を最小化
+- コミュニティによる拡張が容易
 
-### 4. 型安全性
+### 5. 人間中心の出力設計
 
-**原則:** コンパイル時にエラーを検出し、実行時エラーを最小化
+**原則:** 開発者が即座に理解し、行動できる出力形式
 
 ```rust
-// 例: 型安全な設定システム
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Config {
-    pub pytorch: PyTorchConfig,
-    pub safetensors: SafetensorsConfig,
-    pub output: OutputConfig,
-}
-
-impl Config {
-    pub fn validate(&self) -> Result<(), ConfigError> {
-        // コンパイル時に設定の妥当性を検証
+// 例: コンテキスト付きの有用な出力
+impl Display for ModelDiff {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        match self {
+            ModelDiff::ArchitectureChange { layers_added, layers_removed } => {
+                write!(f, "🏗️ アーキテクチャ変更: {} 層追加, {} 層削除", 
+                    layers_added.len(), layers_removed.len())?;
+                
+                if self.requires_retraining() {
+                    write!(f, "\n   ⚠️  警告: 完全な再学習が必要です")?;
+                }
+            }
+            // その他のケース...
+        }
+        Ok(())
     }
 }
 ```
 
-**効果:**
-- バグの早期発見
-- 安全で予測可能な動作
-- 開発者の生産性向上
+**設計方針:**
+- 視覚的に理解しやすい差分表示
+- 実行可能な推奨事項の提供
+- 重要度に応じた情報の階層化
 
-## アーキテクチャの設計決定
+## アーキテクチャ原則
 
-### 1. モノリシックではなく、モジュラー設計
+### 1. レイヤード設計
 
 ```
-diffai/
-├── core/           # コア機能
-│   ├── comparison/ # 比較エンジン
-│   ├── parsing/    # ファイル解析
-│   └── output/     # 出力処理
-├── formats/        # フォーマット固有の処理
-│   ├── pytorch/    # PyTorch サポート
-│   ├── safetensors/ # Safetensors サポート
-│   └── tensorflow/ # TensorFlow サポート（予定）
-└── cli/           # CLI インターフェース
+┌─────────────────────────────────┐
+│     CLI インターフェース        │
+├─────────────────────────────────┤
+│      分析エンジン               │
+├─────────────────────────────────┤
+│    フォーマットハンドラ         │
+├─────────────────────────────────┤
+│      コア比較ロジック           │
+└─────────────────────────────────┘
 ```
 
-**理由:**
-- 各フォーマットの専門性を活かせる
-- 依存関係を分離できる
-- テストが容易
+各レイヤーは明確な責任を持ち、独立してテスト可能です。
 
-### 2. 設定駆動アーキテクチャ
+### 2. ストリーム処理アーキテクチャ
+
+大規模ファイルの処理に対応するため、全体をメモリに読み込まない設計：
 
 ```rust
-// 設定ファイルで動作を制御
-#[derive(Config)]
-pub struct DiffaiConfig {
-    #[serde(default = "default_comparison_engine")]
-    pub comparison_engine: ComparisonEngine,
-    
-    #[serde(default)]
-    pub pytorch: PyTorchConfig,
-    
-    #[serde(default)]
-    pub output: OutputConfig,
-}
-```
-
-**メリット:**
-- ユーザーのニーズに応じたカスタマイズ
-- 設定の再利用性
-- 一貫した設定管理
-
-### 3. エラーハンドリングの戦略
-
-```rust
-// 結果型を使用した明示的なエラーハンドリング
-pub type Result<T> = std::result::Result<T, DiffaiError>;
-
-#[derive(Debug, thiserror::Error)]
-pub enum DiffaiError {
-    #[error("Parse error: {0}")]
-    ParseError(String),
-    
-    #[error("IO error: {0}")]
-    IoError(#[from] std::io::Error),
-    
-    #[error("Comparison error: {0}")]
-    ComparisonError(String),
-}
-```
-
-**方針:**
-- 失敗を明示的に扱う
-- 回復可能なエラーと不可能なエラーの分離
-- ユーザーフレンドリーなエラーメッセージ
-
-## ユーザー体験の原則
-
-### 1. 直感的なインターフェース
-
-```bash
-# 直感的で分かりやすいコマンド（包括的ML分析が自動実行）
-diffai model1.pth model2.pth              # 包括的ML分析（30+機能が自動）
-diffai model1.pth model2.pth --verbose    # 詳細診断 + 包括的分析
-diffai models/ --recursive                # ディレクトリ比較
-```
-
-**設計指針:**
-- 最小限の引数で最大の機能（デフォルトで包括的）
-- 自動機能有効化による選択肢の混乱の排除
-- 必須制御のみの一貫したオプション名
-
-### 2. デフォルトで包括的、段階的詳細制御
-
-```bash
-# 包括的ML分析（自動）
-diffai model1.pth model2.pth
-# → 30+のML分析機能をすべて自動表示
-
-# 詳細診断 + 包括的分析
-diffai model1.pth model2.pth --verbose
-# → 同じ包括的分析 + デバッグ情報
-
-# 出力形式制御
-diffai model1.pth model2.pth --output json
-# → 自動化用JSON形式での包括的分析
-```
-
-**新しい哲学:**
-- デフォルトで包括的分析を提供（機能選択不要）
-- 機能選択ではなく、出力詳細度と形式を制御
-- ML分析機能の学習コストを排除
-
-### 3. 高品質な出力
-
-```rust
-// 出力品質の向上
-pub struct OutputFormatter {
-    pub use_color: bool,
-    pub use_unicode: bool,
-    pub max_width: usize,
+pub struct StreamingComparator<T> {
+    source1: Box<dyn Stream<Item = T>>,
+    source2: Box<dyn Stream<Item = T>>,
 }
 
-impl OutputFormatter {
-    pub fn format_diff(&self, diff: &ModelDiff) -> String {
-        // 美しく読みやすい出力を生成
-        self.format_with_highlighting(diff)
+impl<T> StreamingComparator<T> {
+    pub async fn compare(&mut self) -> Result<DiffStream<T>> {
+        // 非同期ストリーム処理
     }
 }
 ```
 
-**重視する要素:**
-- 読みやすさ
-- 視覚的な分かりやすさ
-- 一貫性のあるフォーマット
+### 3. 型安全性の重視
 
-## 継続的な改善
-
-### 1. フィードバックループの組み込み
+Rustの型システムを最大限活用し、実行時エラーを最小化：
 
 ```rust
-// 使用統計の収集（プライバシー配慮）
-pub struct UsageMetrics {
-    pub command_usage: HashMap<String, u64>,
-    pub performance_metrics: Vec<PerformanceMetric>,
+// ファントム型を使用した状態の型レベル表現
+pub struct Diff<S: DiffState> {
+    data: DiffData,
+    _state: PhantomData<S>,
 }
 
-impl UsageMetrics {
-    pub fn collect_anonymized_metrics(&self) -> Option<AnonymizedMetrics> {
-        // ユーザーの同意があった場合のみ収集
+// 状態遷移が型レベルで保証される
+impl Diff<Unprocessed> {
+    pub fn process(self) -> Diff<Processed> {
+        // 処理ロジック
     }
 }
 ```
 
-**目的:**
-- 実際の使用パターンの理解
-- パフォーマンス問題の発見
-- 機能の優先順位決定
+## データ処理原則
 
-### 2. 後方互換性の維持
+### 1. イミュータブルデータ構造
 
 ```rust
-// バージョン管理とマイグレーション
-pub struct ConfigMigrator {
-    pub supported_versions: Vec<Version>,
+// 全ての変換は新しい構造を返す
+pub fn transform_tensor(tensor: &Tensor) -> Tensor {
+    // 元のtensorは変更されない
+    tensor.clone().apply_transformation(|v| v * 2.0)
+}
+```
+
+### 2. エラー処理の明確化
+
+```rust
+// Result型による明示的なエラー処理
+pub enum DiffError {
+    FormatMismatch { expected: String, actual: String },
+    CorruptedData { path: PathBuf, details: String },
+    UnsupportedOperation { operation: String },
 }
 
-impl ConfigMigrator {
-    pub fn migrate_config(&self, old_config: &str, version: &Version) -> Result<String> {
-        // 古い設定を新しい形式に変換
+pub type Result<T> = std::result::Result<T, DiffError>;
+```
+
+### 3. メトリクスとトレーサビリティ
+
+```rust
+// 全ての操作に対してメトリクスを収集
+#[derive(Metrics)]
+pub struct ComparisonMetrics {
+    #[metric(counter)]
+    comparisons_total: u64,
+    
+    #[metric(histogram)]
+    comparison_duration_seconds: f64,
+    
+    #[metric(gauge)]
+    memory_usage_bytes: u64,
+}
+```
+
+## セキュリティ原則
+
+### 1. ゼロトラスト入力処理
+
+全ての入力データを潜在的に悪意があるものとして扱う：
+
+```rust
+pub fn validate_model_file(path: &Path) -> Result<ValidatedModel> {
+    let metadata = fs::metadata(path)?;
+    
+    // サイズ制限のチェック
+    if metadata.len() > MAX_MODEL_SIZE {
+        return Err(DiffError::FileTooLarge);
+    }
+    
+    // マジックナンバーの検証
+    let header = read_file_header(path)?;
+    if !is_valid_model_header(&header) {
+        return Err(DiffError::InvalidFormat);
+    }
+    
+    // さらなる検証...
+}
+```
+
+### 2. 機密情報の保護
+
+モデルに含まれる可能性のある機密情報を適切に扱う：
+
+```rust
+// 機密情報のマスキング
+pub fn sanitize_output(diff: &ModelDiff) -> SanitizedDiff {
+    diff.map_sensitive_fields(|field| {
+        if field.is_sensitive() {
+            field.mask()
+        } else {
+            field.clone()
+        }
+    })
+}
+```
+
+## 持続可能性の原則
+
+### 1. 後方互換性の維持
+
+```rust
+// バージョニングされたAPI
+pub mod v1 {
+    pub trait Comparator {
+        fn compare(&self, a: &Model, b: &Model) -> Diff;
+    }
+}
+
+pub mod v2 {
+    pub trait Comparator {
+        fn compare(&self, a: &Model, b: &Model) -> EnhancedDiff;
+        
+        // v1との互換性
+        fn compare_v1(&self, a: &Model, b: &Model) -> v1::Diff {
+            self.compare(a, b).to_v1()
+        }
     }
 }
 ```
 
-**方針:**
-- 破壊的変更の最小化
-- 明確な非推奨化プロセス
-- 移行ガイドの提供
-
-### 3. コミュニティ駆動の開発
+### 2. ドキュメント駆動開発
 
 ```rust
-// プラグインシステム
-pub trait DiffaiPlugin {
-    fn name(&self) -> &str;
-    fn version(&self) -> &str;
-    fn process(&self, input: &InputData) -> Result<OutputData>;
-}
-
-// プラグインの動的ロード
-pub struct PluginManager {
-    plugins: Vec<Box<dyn DiffaiPlugin>>,
+/// モデルの構造的な差分を計算します。
+/// 
+/// # 引数
+/// 
+/// * `model1` - 比較元のモデル
+/// * `model2` - 比較先のモデル
+/// 
+/// # 戻り値
+/// 
+/// モデル間の構造的な差分を表す`StructuralDiff`オブジェクト
+/// 
+/// # 例
+/// 
+/// ```rust
+/// let diff = compare_model_structure(&model1, &model2)?;
+/// println!("レイヤー数の変化: {}", diff.layer_count_change());
+/// ```
+pub fn compare_model_structure(
+    model1: &Model,
+    model2: &Model
+) -> Result<StructuralDiff> {
+    // 実装
 }
 ```
 
-**理念:**
-- オープンソースの力を活用
-- コミュニティの貢献を促進
-- 多様なニーズへの対応
-
-## 未来への展望
-
-### 1. スケーラビリティ
-
-- 大規模なモデル（数百GB）への対応
-- 分散処理システムとの統合
-- クラウドネイティブな設計
-
-### 2. 新技術への対応
-
-- 新しいMLフレームワークのサポート
-- 量子機械学習への対応
-- エッジAIデバイスとの統合
-
-### 3. 高度な分析機能
-
-- 意味的な差分分析
-- 性能影響の予測
-- 自動的な最適化提案
-
-## 設計ドキュメント
-
-詳細な設計ドキュメントは以下を参照してください：
-
-- [コア機能](core-features_ja.md) - 主要機能の詳細
-- [拡張性](extensibility_ja.md) - プラグインシステムとカスタマイズ
-- [API リファレンス](../api/) - 開発者向けAPI
-
-これらの設計原則は、diffai を AI/ML開発における必須ツールとして位置づけ、長期的な成功を確保するためのものです。
+これらの設計原則により、diffaiは高性能で拡張性が高く、ML開発者にとって使いやすいツールとなっています。

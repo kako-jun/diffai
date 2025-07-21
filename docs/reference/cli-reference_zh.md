@@ -89,10 +89,18 @@ diffai - config.json < input.json
 - **示例**: `--array-id-key "id"`
 - **用途**: 用于结构化数组比较
 
-#### `--sort-by-change-magnitude`
-按变化幅度排序差异（仅限ML模型）
+#### `-v, --verbose`
+显示详细的处理信息，包括性能指标、配置详情和诊断输出。
 
-- **示例**: `diffai model1.pt model2.pt --sort-by-change-magnitude`
+- **示例**: `diffai model1.safetensors model2.safetensors --verbose`
+- **用途**: 调试分析过程和性能
+
+#### `--no-color`
+禁用彩色输出，以提高与脚本、管道或不支持ANSI颜色的终端的兼容性。
+
+- **示例**: `diffai config.json config.new.json --no-color`
+- **用途**: 无颜色格式的纯文本输出
+- **注意**: 在CI/CD环境和自动化脚本中特别有用
 
 ## ML分析功能
 
@@ -136,7 +144,7 @@ diffai - config.json < input.json
 
 ```bash
 $ diffai model_v1.safetensors model_v2.safetensors
-anomalydectionnamely_detection: type=none, severity=none, action="continue_training"
+anomaly_detection: type=none, severity=none, action="continue_training"
 architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
 convergence_analysis: status=converging, stability=0.92
 gradient_analysis: flow_health=healthy, norm=0.021069

@@ -1,40 +1,40 @@
-# Installation Guide
+# インストールガイド
 
-This guide covers different ways to install diffai on various platforms.
+様々なプラットフォームへのdiffaiのインストール方法を解説します。
 
-## Prerequisites
+## 前提条件
 
-- **Rust 1.75+**: Install from [rustup.rs](https://rustup.rs/)
-- **Operating System**: Linux, macOS, or Windows
-- **Memory**: 4GB+ recommended for large model files
+- **Rust 1.75以上**: [rustup.rs](https://rustup.rs/)からインストール
+- **対応OS**: Linux、macOS、Windows
+- **メモリ**: 大規模モデルファイルの処理には4GB以上を推奨
 
-## Installation Methods
+## インストール方法
 
-### Method 1: From crates.io (Recommended)
+### 方法1: crates.ioから（推奨）
 
 ```bash
 cargo install diffai
 ```
 
-**Note**: This method will be available once diffai is published to crates.io.
+**注意**: この方法はdiffaiがcrates.ioに公開され次第利用可能になります。
 
-### Method 2: From Source (Current)
+### 方法2: ソースコードから（現在の方法）
 
 ```bash
-# Clone the repository
+# リポジトリをクローン
 git clone https://github.com/kako-jun/diffai.git
 cd diffai
 
-# Build and install
+# ビルドしてインストール
 cargo install --path diffai-cli
 
-# Verify installation
+# インストールの確認
 diffai --version
 ```
 
-### Method 3: From GitHub Releases
+### 方法3: GitHubリリースから
 
-Download pre-built binaries from the [GitHub releases page](https://github.com/kako-jun/diffai/releases):
+[GitHubリリースページ](https://github.com/kako-jun/diffai/releases)からビルド済みバイナリをダウンロード：
 
 - **Linux (x86_64)**: `diffai-linux-x86_64.tar.gz`
 - **macOS (x86_64)**: `diffai-macos-x86_64.tar.gz`
@@ -42,31 +42,31 @@ Download pre-built binaries from the [GitHub releases page](https://github.com/k
 - **Windows (x86_64)**: `diffai-windows-x86_64.zip`
 
 ```bash
-# Extract and move to PATH
+# 解凍してPATHに移動
 tar -xzf diffai-linux-x86_64.tar.gz
 sudo mv diffai /usr/local/bin/
 ```
 
-## Platform-Specific Instructions
+## プラットフォーム別の手順
 
 ### Linux
 
 #### Ubuntu/Debian
 ```bash
-# Install Rust if not already installed
+# Rustがインストールされていない場合はインストール
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source ~/.cargo/env
 
-# Install diffai
+# diffaiをインストール
 cargo install diffai
 ```
 
 #### Arch Linux
 ```bash
-# Using AUR (when available)
+# AURから（将来提供予定）
 yay -S diffai
 
-# Or from source
+# またはソースから
 git clone https://github.com/kako-jun/diffai.git
 cd diffai
 cargo install --path diffai-cli
@@ -74,86 +74,86 @@ cargo install --path diffai-cli
 
 #### CentOS/RHEL/Fedora
 ```bash
-# Install Rust
+# Rustをインストール
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source ~/.cargo/env
 
-# Install diffai
+# diffaiをインストール
 cargo install diffai
 ```
 
 ### macOS
 
-#### Using Homebrew (Planned)
+#### Homebrewを使用（計画中）
 ```bash
-# This will be available in the future
+# 将来的に利用可能になります
 brew install diffai
 ```
 
-#### Manual Installation
+#### 手動インストール
 ```bash
-# Install Rust if needed
+# 必要に応じてRustをインストール
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source ~/.cargo/env
 
-# Install diffai
+# diffaiをインストール
 cargo install diffai
 ```
 
 ### Windows
 
-#### Using Cargo
+#### Cargoを使用
 ```powershell
-# Install Rust from https://rustup.rs/
-# Then install diffai
+# https://rustup.rs/ からRustをインストール
+# その後diffaiをインストール
 cargo install diffai
 ```
 
-#### Using Scoop (Planned)
+#### Scoopを使用（計画中）
 ```powershell
-# This will be available in the future
+# 将来的に利用可能になります
 scoop install diffai
 ```
 
-## Container Installation
+## コンテナでのインストール
 
 ### Docker
 
 ```bash
-# Pull the image (when available)
+# イメージをプル（提供開始後）
 docker pull ghcr.io/kako-jun/diffai:latest
 
-# Run diffai in a container
+# コンテナでdiffaiを実行
 docker run --rm -v $(pwd):/workspace ghcr.io/kako-jun/diffai:latest \
   model1.safetensors model2.safetensors
 ```
 
-### Building Docker Image
+### Dockerイメージのビルド
 
 ```bash
 git clone https://github.com/kako-jun/diffai.git
 cd diffai
 
-# Build the Docker image
+# Dockerイメージをビルド
 docker build -t diffai .
 
-# Run
+# 実行
 docker run --rm -v $(pwd):/workspace diffai \
   model1.safetensors model2.safetensors
 ```
 
-## Verification
+## 動作確認
 
-After installation, verify that diffai is working correctly:
+インストール後、diffaiが正しく動作することを確認：
 
 ```bash
-# Check version
+# バージョン確認
 diffai --version
 
-# Run help
+# ヘルプを表示
 diffai --help
 
-# Test with sample files
+# サンプルファイルでテスト
 echo '{"a": 1}' > test1.json
 echo '{"a": 2}' > test2.json
 diffai test1.json test2.json
@@ -161,129 +161,129 @@ diffai test1.json test2.json
 # Expected output:
 # ~ a: 1 -> 2
 
-# Clean up
+# クリーンアップ
 rm test1.json test2.json
 ```
 
-## Development Installation
+## 開発環境のセットアップ
 
-For development work, you'll need additional tools:
+開発作業には追加ツールが必要です：
 
 ```bash
-# Clone the repository
+# リポジトリをクローン
 git clone https://github.com/kako-jun/diffai.git
 cd diffai
 
-# Install development dependencies
+# 開発用依存関係をインストール
 cargo install cargo-watch
 cargo install criterion
 
-# Build in development mode
+# 開発モードでビルド
 cargo build
 
-# Run tests
+# テストを実行
 cargo test
 
-# Run benchmarks
+# ベンチマークを実行
 cargo bench
 
-# Install locally for testing
+# テスト用にローカルインストール
 cargo install --path diffai-cli
 ```
 
-## Troubleshooting
+## トラブルシューティング
 
-### Common Issues
+### よくある問題
 
-#### 1. Rust Not Found
+#### 1. Rustが見つからない
 ```bash
-# Install Rust
+# Rustをインストール
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source ~/.cargo/env
 ```
 
-#### 2. Compilation Errors
+#### 2. コンパイルエラー
 ```bash
-# Update Rust to latest version
+# Rustを最新版に更新
 rustup update
 
-# Clean and rebuild
+# クリーンして再ビルド
 cargo clean
 cargo build
 ```
 
-#### 3. Permission Denied (Linux/macOS)
+#### 3. 権限エラー（Linux/macOS）
 ```bash
-# Install to user directory instead
+# ユーザーディレクトリにインストール
 cargo install --path diffai-cli --root ~/.local
 
-# Add to PATH
+# PATHに追加
 echo 'export PATH=$HOME/.local/bin:$PATH' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-#### 4. Large Model Files
-For very large model files (>1GB), ensure you have sufficient memory:
+#### 4. 大規模モデルファイル
+非常に大きなモデルファイル（1GB超）の場合、十分なメモリを確保してください：
 
 ```bash
-# Check available memory
+# 利用可能メモリを確認
 free -h  # Linux
 vm_stat  # macOS
 
-# For large files, consider using streaming mode (future feature)
+# 大規模ファイルにはストリーミングモードを検討（将来機能）
 diffai --stream large_model1.safetensors large_model2.safetensors
 ```
 
-## Performance Considerations
+## パフォーマンスに関する考慮事項
 
-### Memory Requirements
+### メモリ要件
 
-| Model Size | Recommended RAM |
-|------------|----------------|
-| < 100MB    | 1GB            |
-| 100MB-1GB  | 4GB            |
-| 1GB-10GB   | 16GB           |
-| > 10GB     | 32GB+          |
+| モデルサイズ | 推奨メモリ |
+|------------|----------|
+| 100MB未満   | 1GB      |
+| 100MB-1GB  | 4GB      |
+| 1GB-10GB   | 16GB     |
+| 10GB超     | 32GB以上  |
 
-### Optimization Tips
+### 最適化のヒント
 
-1. **Use SSD storage** for faster file I/O
-2. **Close other applications** when comparing large models
-3. **Use epsilon tolerance** to ignore minor floating-point differences
-4. **Filter results** using `--path` or `--ignore-keys-regex` for focused analysis
+1. **SSDストレージを使用** - 高速なファイルI/Oを実現
+2. **他のアプリケーションを終了** - 大規模モデル比較時
+3. **イプシロン許容誤差を活用** - 微小な浮動小数点差を無視
+4. **結果をフィルタリング** - `--path`や`--ignore-keys-regex`で分析対象を絞り込み
 
-## Updating
+## アップデート
 
-### From crates.io
+### crates.ioから
 ```bash
 cargo install diffai --force
 ```
 
-### From Source
+### ソースコードから
 ```bash
 cd diffai
 git pull origin main
 cargo install --path diffai-cli --force
 ```
 
-## Uninstallation
+## アンインストール
 
 ```bash
-# Remove binary
+# バイナリを削除
 cargo uninstall diffai
 
-# Or manually remove
+# または手動で削除
 rm $(which diffai)
 ```
 
-## Getting Help
+## ヘルプ
 
-If you encounter installation issues:
+インストールで問題が発生した場合：
 
-1. Check the [GitHub Issues](https://github.com/kako-jun/diffai/issues)
-2. Join the [GitHub Discussions](https://github.com/kako-jun/diffai/discussions)
-3. Review the [Contributing Guide](../../CONTRIBUTING_ja.md) for development setup
+1. [GitHub Issues](https://github.com/kako-jun/diffai/issues)を確認
+2. [GitHub Discussions](https://github.com/kako-jun/diffai/discussions)に参加
+3. 開発環境のセットアップは[貢献ガイド](../../CONTRIBUTING_ja.md)を参照
 
----
+## 次のステップ
 
-**Next**: [Getting Started](getting-started_ja.md) - Learn the basics of using diffai
+インストール完了後は、[基本的な使い方](basic-usage_ja.md)でdiffaiの使用を開始しましょう。

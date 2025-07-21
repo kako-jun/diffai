@@ -1,20 +1,20 @@
 # diffai
 
-> **PyTorch、Safetensors、NumPy 和 MATLAB 文件的 AI/ML 专用差异工具**
+> **PyTorch、Safetensors、NumPy和MATLAB文件专用的AI/ML特化diff工具**
 
 [![CI](https://github.com/kako-jun/diffai/actions/workflows/ci.yml/badge.svg)](https://github.com/kako-jun/diffai/actions/workflows/ci.yml)
 [![Crates.io](https://img.shields.io/crates/v/diffai.svg)](https://crates.io/crates/diffai)
 [![Documentation](https://img.shields.io/badge/docs-GitHub-blue)](https://github.com/kako-jun/diffai/tree/main/docs/index.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-专为 **AI/ML 和科学计算工作流程** 设计的新一代差异工具，理解模型结构、张量统计和数值数据，而不仅仅是文本变化。原生支持 PyTorch、Safetensors、NumPy 数组、MATLAB 文件和结构化数据。
+专为**AI/ML和科学计算工作流**设计的下一代diff工具，理解模型结构、张量统计和数值数据，而非仅仅是文本变化。原生支持PyTorch、Safetensors、NumPy数组、MATLAB文件和结构化数据。
 
 ```bash
-# 传统 diff 对二进制模型文件失效
+# 传统diff在二进制模型文件上失效
 $ diff model_v1.safetensors model_v2.safetensors
 Binary files model_v1.safetensors and model_v2.safetensors differ
 
-# diffai 显示有意义的模型变化及完整分析
+# diffai显示有意义的模型变化和完整分析
 $ diffai model_v1.safetensors model_v2.safetensors
   ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
@@ -24,52 +24,52 @@ $ diffai model_v1.safetensors model_v2.safetensors
   quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%
 
 [WARNING]
-• Memory usage increased moderately (+250MB). Monitor resource consumption.
-• Inference speed moderately affected (1.3x slower). Consider optimization opportunities.
+• 内存使用量适度增加（+250MB）。监控资源消耗。
+• 推理速度受到适度影响（1.3倍较慢）。考虑优化机会。
 ```
 
-## 核心特性
+## 主要特性
 
-- **AI/ML 原生支持**: 直接支持 PyTorch (.pt/.pth)、Safetensors (.safetensors)、NumPy (.npy/.npz) 和 MATLAB (.mat) 文件
+- **AI/ML原生支持**: 直接支持PyTorch (.pt/.pth)、Safetensors (.safetensors)、NumPy (.npy/.npz)和MATLAB (.mat)文件
 - **张量分析**: 自动计算张量统计（均值、标准差、最小值、最大值、形状、内存使用）
-- **全面ML分析**: 针对PyTorch/Safetensors文件自动执行30+分析功能（量子化、架构、内存、收敛、异常检测、部署就绪性等） - 全部默认启用
-- **科学数据支持**: 支持复数的 NumPy 数组和 MATLAB 矩阵
-- **纯 Rust 实现**: 无系统依赖，在 Windows/Linux/macOS 上无需额外安装即可运行
-- **多种输出格式**: 彩色 CLI、用于 MLOps 集成的 JSON、人类可读的 YAML 报告
-- **快速且内存高效**: 使用 Rust 构建，高效处理大型模型文件
+- **全面ML分析**: 30+分析功能包括量化、架构、内存、收敛、异常检测和部署就绪性 - 默认全部启用
+- **科学数据支持**: NumPy数组和MATLAB矩阵，支持复数
+- **纯Rust实现**: 无系统依赖，在Windows/Linux/macOS上无需额外安装即可工作
+- **多种输出格式**: 彩色CLI、用于MLOps集成的JSON、用于人类可读报告的YAML
+- **快速且内存高效**: 用Rust构建，高效处理大型模型文件
 
-## 为什么选择 diffai？
+## 为什么选择diffai？
 
-传统差异工具不适合 AI/ML 工作流程：
+传统diff工具不适合AI/ML工作流：
 
 | 挑战 | 传统工具 | diffai |
-|------|----------|--------|
-| **二进制模型文件** | "Binary files differ" | 张量级分析和统计 |
-| **大文件 (GB+)** | 内存问题或失败 | 高效流式处理和分块处理 |
-| **统计变化** | 无语义理解 | 均值/标准差/形状比较和显著性分析 |
-| **ML 特定格式** | 不支持 | 原生 PyTorch/Safetensors/NumPy/MATLAB |
-| **科学工作流程** | 仅文本比较 | 数值数组分析和可视化 |
+|------|----------|---------|
+| **二进制模型文件** | "二进制文件不同" | 带统计的张量级分析 |
+| **大文件(GB+)** | 内存问题或失败 | 高效流式和分块处理 |
+| **统计变化** | 无语义理解 | 均值/标准差/形状比较及显著性 |
+| **ML专用格式** | 不支持 | 原生PyTorch/Safetensors/NumPy/MATLAB |
+| **科学工作流** | 仅文本比较 | 数值数组分析和可视化 |
 
-### diffai vs MLOps 工具
+### diffai vs MLOps工具
 
-diffai 通过专注于**结构化比较**来补充现有的 MLOps 工具，而非实验管理：
+diffai通过专注于**结构比较**而非实验管理来补充现有MLOps工具：
 
 | 方面 | diffai | MLflow / DVC / ModelDB |
 |------|--------|------------------------|
-| **焦点** | "让不可比较的东西变得可比较" | 系统化、可复现性、CI/CD 集成 |
-| **数据假设** | 来源未知的文件／黑盒生成产物 | 有记录和跟踪的数据 |
-| **操作性** | 结构化和可视化比较优化 | 版本控制和实验跟踪专业化 |
-| **适用范围** | 包括 JSON/YAML/模型文件等"模糊结构"的可视化 | 实验元数据、版本管理、可复现性 |
+| **焦点** | "使不可比较的事物变得可比较" | 系统化、可重现性、CI/CD集成 |
+| **数据假设** | 未知来源文件/黑盒生成工件 | 有充分文档和跟踪的数据 |
+| **操作** | 结构和视觉比较优化 | 版本控制和实验跟踪专业化 |
+| **范围** | "模糊结构"可视化，包括JSON/YAML/模型文件 | 实验元数据、版本管理、可重现性 |
 
 ## 安装
 
-### 从 crates.io 安装（推荐）
+### 从crates.io安装（推荐）
 
 ```bash
 cargo install diffai
 ```
 
-### 从源码构建
+### 从源码安装
 
 ```bash
 git clone https://github.com/kako-jun/diffai.git
@@ -82,51 +82,85 @@ cargo build --release
 ### 基本模型比较
 
 ```bash
-# 比较 PyTorch 模型（默认全面分析）
+# 比较PyTorch模型（默认完整分析）
 diffai model_old.pt model_new.pt
 
-# 比较 Safetensors（包含30+ML分析功能的综合分析）
+# 比较Safetensors，完整ML分析
 diffai checkpoint_v1.safetensors checkpoint_v2.safetensors
 
-# 比较 NumPy 数组
+# 比较NumPy数组
 diffai data_v1.npy data_v2.npy
 
-# 比较 MATLAB 文件
+# 比较MATLAB文件
 diffai experiment_v1.mat experiment_v2.mat
 ```
 
-### 自动ML分析
+### ML分析功能
 
 ```bash
-# PyTorch/Safetensors文件自动执行完整ML分析
+# 对PyTorch/Safetensors自动运行完整ML分析
 diffai baseline.safetensors finetuned.safetensors
-# 输出：量子化、架构、内存分析等30+类型分析
+# 输出：30+分析类型，包括量化、架构、内存等
 
-# 自动化用JSON输出
+# 用于自动化的JSON输出
 diffai model_v1.safetensors model_v2.safetensors --output json
 
-# 带详细诊断信息的verbose模式
+# 详细模式的详细诊断信息
 diffai model_v1.safetensors model_v2.safetensors --verbose
 
-# 人类可读报告用YAML输出
+# 用于人类可读报告的YAML输出
 diffai model_v1.safetensors model_v2.safetensors --output yaml
 ```
 
+## 📚 文档
+
+- **[工作示例和演示](docs/examples/)** - 查看diffai的实际输出
+- **[API文档](https://docs.rs/diffai-core)** - Rust库文档
+- **[用户指南](docs/user-guide.md)** - 综合使用指南
+- **[ML分析指南](docs/ml-analysis-guide.md)** - ML特定功能深入指南
+
 ## 支持的文件格式
 
-### ML 模型格式
-- **Safetensors** (.safetensors) - HuggingFace 标准格式，推荐用于高效安全的模型存储
-- **PyTorch** (.pt/.pth) - PyTorch 原生格式，通过 Candle 库集成
-- **NumPy** (.npy/.npz) - 科学计算数据格式，支持所有数据类型
-- **MATLAB** (.mat) - MATLAB 矩阵格式，支持复数和变量名
+### ML模型格式
+- **Safetensors** (.safetensors) - HuggingFace标准格式
+- **PyTorch** (.pt, .pth) - 与Candle集成的PyTorch模型文件
+
+### 科学数据格式
+- **NumPy** (.npy, .npz) - 带完整统计分析的NumPy数组
+- **MATLAB** (.mat) - 支持复数的MATLAB矩阵
 
 ### 结构化数据格式
-- **JSON** (.json) - 用于配置和 API 响应
-- **YAML** (.yaml/.yml) - 用于配置文件和文档
-- **TOML** (.toml) - 用于 Rust 项目配置
-- **XML** (.xml) - 用于数据交换
-- **INI** (.ini) - 用于传统配置文件
-- **CSV** (.csv) - 用于表格数据
+- **JSON** (.json) - JavaScript对象表示法
+- **YAML** (.yaml, .yml) - YAML不是标记语言
+- **TOML** (.toml) - Tom的明显最小语言
+- **XML** (.xml) - 可扩展标记语言
+- **INI** (.ini) - 配置文件
+- **CSV** (.csv) - 逗号分隔值
+
+## ML分析功能
+
+### 自动综合分析（v0.3.4）
+比较PyTorch或Safetensors文件时，diffai自动运行30+ML分析功能：
+
+**自动功能包括：**
+- **统计分析**: 详细张量统计（均值、标准差、最小值、最大值、形状、内存）
+- **量化分析**: 分析量化效果和效率
+- **架构比较**: 比较模型架构和结构变化
+- **内存分析**: 分析内存使用和优化机会
+- **异常检测**: 检测模型参数中的数值异常
+- **收敛分析**: 分析模型参数中的收敛模式
+- **梯度分析**: 可用时分析梯度信息
+- **部署就绪性**: 评估生产部署就绪性
+- **回归测试**: 自动性能降级检测
+- **加上20+其他专业功能**
+
+### 未来增强
+- TensorFlow格式支持（.pb, .h5, SavedModel）
+- ONNX格式支持
+- 高级可视化和图表功能
+
+### 设计理念
+diffai默认为ML模型提供全面分析，消除选择困难。用户无需记住或指定数十个分析标志即可获得所有相关洞察。
 
 ## 调试和诊断
 
@@ -134,101 +168,108 @@ diffai model_v1.safetensors model_v2.safetensors --output yaml
 获取用于调试和性能分析的综合诊断信息：
 
 ```bash
-# 基本详细输出（ML分析功能自动执行）
+# 基本详细输出
 diffai model1.safetensors model2.safetensors --verbose
 
-# 结构化数据的详细输出
+# 带结构化数据过滤的详细输出
 diffai data1.json data2.json --verbose --epsilon 0.001 --ignore-keys-regex "^id$"
 ```
 
-**详细输出包含信息：**
-- **配置诊断**: 活动的ML功能、格式设置、过滤器
-- **文件分析**: 路径、大小、检测的格式、处理上下文
+**详细输出包括：**
+- **配置诊断**: 格式设置、过滤器、分析模式
+- **文件分析**: 路径、大小、检测到的格式、处理上下文
 - **性能指标**: 处理时间、差异计数、优化状态
-- **目录统计**: 文件计数、比较摘要（使用`--recursive`时）
+- **目录统计**: 文件计数、比较摘要（使用`--recursive`）
 
 **详细输出示例：**
 ```
-=== diffai verbose mode enabled ===
-Configuration:
-  Input format: None
-  Output format: Cli
-  ML analysis features: statistics, architecture_comparison
-  Epsilon tolerance: 0.001
+=== diffai详细模式已启用 ===
+配置：
+  输入格式：Safetensors
+  输出格式：Cli
+  ML分析：已启用完整分析（全部30个功能）
+  Epsilon容差：0.001
 
-File analysis:
-  Input 1: model1.safetensors
-  Input 2: model2.safetensors
-  Detected format: Safetensors
-  File 1 size: 1048576 bytes
-  File 2 size: 1048576 bytes
+文件分析：
+  输入1：model1.safetensors
+  输入2：model2.safetensors
+  检测到的格式：Safetensors
+  文件1大小：1048576字节
+  文件2大小：1048576字节
 
-Processing results:
-  Total processing time: 1.234ms
-  Differences found: 15
-  ML/Scientific data analysis completed
+处理结果：
+  总处理时间：1.234ms
+  发现差异：15
+  ML/科学数据分析完成
 ```
 
-📚 **详细信息请参见[详细输出指南](docs/user-guide/verbose-output_zh.md)**
+📚 **详细用法请参见[详细输出指南](docs/user-guide/verbose-output.md)**
 
-## ML分析功能
+## 输出格式
 
-### 自动全面分析 (v0.3.4)
-比较PyTorch或Safetensors文件时，diffai自动执行30+ML分析功能：
+### CLI输出（默认）
+带有直观符号的彩色、人类可读输出：
+- `~` 已更改的张量/数组，带统计比较
+- `+` 已添加的张量/数组，带元数据
+- `-` 已删除的张量/数组，带元数据
 
-**自动功能包括：**
-- **统计分析**: 详细的张量统计（均值、标准差、最小值、最大值、形状、内存）
-- **量子化分析**: 分析量子化效果和效率
-- **架构比较**: 比较模型架构和结构变化
-- **内存分析**: 分析内存使用和优化机会
-- **异常检测**: 检测模型参数中的数值异常
-- **收敛分析**: 分析模型参数中的收敛模式
-- **梯度分析**: 分析梯度信息（如可用）
-- **部署就绪性**: 评估生产部署就绪状态
-- **回归测试**: 自动性能退化检测
-- **其他20+专业功能**
-
-### 未来增强
-- TensorFlow格式支持 (.pb, .h5, SavedModel)
-- ONNX格式支持
-- 高级可视化和图表功能
-
-### 设计理念
-diffai默认为ML模型提供全面分析，消除选择困难。用户无需记住或指定数十个分析标志，即可获得所有相关洞察。
-
-
-## 使用示例
-
-### 训练监控
-
+### JSON输出
+用于MLOps集成和自动化的结构化输出：
 ```bash
-# 监控学习进度和收敛（自动完整分析）
-diffai checkpoint_old.safetensors checkpoint_new.safetensors
-# 输出：学习进度、收敛分析、异常检测等30+分析
+diffai model1.safetensors model2.safetensors --output json | jq .
 ```
 
-### 生产部署
-
+### YAML输出
+用于文档的人类可读结构化输出：
 ```bash
-# 部署前评估（自动完整分析）
-diffai current_prod.safetensors candidate.safetensors
-# 输出：部署就绪性、风险评估、回归测试等30+分析
+diffai model1.safetensors model2.safetensors --output yaml
 ```
 
-### 研究分析
+## 实际用例
 
+### 研究与开发
 ```bash
-# 模型实验比较（自动完整分析）
-diffai baseline.safetensors experiment.safetensors
-# 输出：架构比较、嵌入分析、全面报告等30+分析
+# 比较微调前后的模型（自动完整分析）
+diffai pretrained_model.safetensors finetuned_model.safetensors
+# 输出：学习进度、收敛分析、参数统计和27项更多分析
+
+# 开发过程中分析架构变化
+diffai baseline_architecture.pt improved_architecture.pt
+# 输出：架构比较、参数效率分析和完整ML分析
 ```
 
-### 量化验证
-
+### MLOps和CI/CD
 ```bash
-# 量化效果评估（自动完整分析）
-diffai fp32.safetensors quantized.safetensors
-# 输出：量化分析、内存分析、性能影响估计等30+分析
+# CI/CD中的自动化模型验证（综合分析）
+diffai production_model.safetensors candidate_model.safetensors
+# 输出：部署就绪性、回归测试、风险评估和27项更多分析
+
+# 带JSON输出的性能影响评估用于自动化
+diffai original_model.pt optimized_model.pt --output json
+# 输出：量化分析、内存分析、性能影响估计等
+```
+
+### 科学计算
+```bash
+# 比较NumPy实验结果
+diffai baseline_results.npy new_results.npy
+
+# 分析MATLAB仿真数据
+diffai simulation_v1.mat simulation_v2.mat
+
+# 比较压缩的NumPy存档
+diffai dataset_v1.npz dataset_v2.npz
+```
+
+### 实验跟踪
+```bash
+# 生成综合报告
+diffai experiment_baseline.safetensors experiment_improved.safetensors \
+  --generate-report --markdown-output --review-friendly
+
+# A/B测试分析
+diffai model_a.safetensors model_b.safetensors \
+  --statistical-significance --hyperparameter-comparison
 ```
 
 ## 命令行选项
@@ -238,34 +279,14 @@ diffai fp32.safetensors quantized.safetensors
 - `-o, --output <OUTPUT>` - 选择输出格式（cli, json, yaml）
 - `-r, --recursive` - 递归比较目录
 
-**注意：** 对于ML模型（PyTorch/Safetensors），包含统计的综合分析会自动运行
+**注意：** 对于ML模型（PyTorch/Safetensors），包括统计的综合分析自动运行
 
 ### 高级选项
 - `--path <PATH>` - 按特定路径过滤差异
 - `--ignore-keys-regex <REGEX>` - 忽略匹配正则表达式模式的键
-- `--epsilon <FLOAT>` - 设置浮点数比较的容差
-- `--array-id-key <KEY>` - 指定数组元素标识键
+- `--epsilon <FLOAT>` - 设置浮点比较的容差
+- `--array-id-key <KEY>` - 指定数组元素标识的键
 - `--sort-by-change-magnitude` - 按变化幅度排序
-
-## 输出格式
-
-### CLI 输出（默认）
-带有直观符号的彩色人类可读输出：
-- `~` 变更的张量/数组及统计比较
-- `+` 添加的张量/数组及元数据
-- `-` 删除的张量/数组及元数据
-
-### JSON 输出
-用于MLOps集成和自动化的结构化输出：
-```bash
-diffai model1.safetensors model2.safetensors --output json | jq .
-```
-
-### YAML 输出
-用于文档的人类可读结构化输出：
-```bash
-diffai model1.safetensors model2.safetensors --output yaml
-```
 
 ## 示例
 
@@ -287,7 +308,7 @@ regression_test: passed=true, degradation=-2.5%, severity=low
   ~ fc3.weight: mean=-0.0035->-0.0010, std=0.0990->0.1113
 ```
 
-### 自动化用JSON输出
+### 用于自动化的JSON输出
 ```bash
 $ diffai baseline.safetensors improved.safetensors --output json
 {
@@ -296,7 +317,7 @@ $ diffai baseline.safetensors improved.safetensors --output json
   "deployment_readiness": {"readiness": 0.92, "strategy": "blue_green"},
   "quantization_analysis": {"compression": "0.0%", "speedup": "1.8x"},
   "regression_test": {"passed": true, "degradation": "-2.5%"}
-  // ... 其他25+分析功能
+  // ... 加上25+其他分析功能
 }
 ```
 
@@ -313,220 +334,47 @@ $ diffai simulation_v1.mat simulation_v2.mat
   + new_variable: var=new_variable, shape=[100], dtype=single, elements=100, size=0.39KB
 ```
 
-## 实际应用场景
+## 性能
 
-### 研究开发
-```bash
-# 微调前后的模型比较（自动完整分析）
-diffai pretrained_model.safetensors finetuned_model.safetensors
-# 输出：学习进度、收敛分析、参数统计，以及其他27+分析
+diffai针对大文件和科学工作流进行了优化：
 
-# 开发中的架构变化分析
-diffai baseline_architecture.pt improved_architecture.pt
-# 输出：架构比较、参数效率分析和完整ML分析
-```
-
-### MLOps & CI/CD
-```bash
-# CI/CD中的自动模型验证（综合分析）
-diffai production_model.safetensors candidate_model.safetensors
-# 输出：部署就绪性、回归测试、风险评估以及其他27+分析
-
-# 自动化性能影响评估（JSON输出）
-diffai original_model.pt optimized_model.pt --output json
-# 输出：量子化分析、内存分析、性能影响估计等
-```
-
-### 科学计算
-```bash
-# NumPy实验结果比较
-diffai baseline_results.npy new_results.npy
-
-# MATLAB仿真数据分析
-diffai simulation_v1.mat simulation_v2.mat
-
-# 压缩NumPy归档比较
-diffai dataset_v1.npz dataset_v2.npz
-```
-
-### 实验跟踪
-```bash
-# 生成综合报告
-diffai experiment_baseline.safetensors experiment_improved.safetensors \
-  --generate-report --markdown-output --review-friendly
-
-# A/B测试分析
-diffai model_a.safetensors model_b.safetensors \
-  --statistical-significance --hyperparameter-comparison
-```
-
-## 实际应用场景
-
-### 训练进度监控
-```bash
-# 比较训练检查点
-diffai checkpoint_epoch_10.safetensors checkpoint_epoch_20.safetensors
-
-# 输出分析学习趋势和收敛速度
-+ learning_progress: trend=improving, magnitude=0.0543, speed=0.80
-```
-
-### 模型微调分析
-```bash
-# 分析微调前后的变化
-diffai pretrained_bert.safetensors finetuned_bert.safetensors
-
-# 显示统计变化
-~ bert.encoder.layer.11.attention.self.query.weight: mean=-0.0001→0.0023
-~ classifier.weight: mean=0.0000→0.0145, std=0.0200→0.0890
-```
-
-### 量化影响评估
-```bash
-# 评估量化对模型的影响
-diffai fp32_model.safetensors int8_model.safetensors
-
-# 分析压缩效果
-quantization_analysis: compression=75.0%, speedup=2.5x, precision_loss=2.0%, suitability=good
-```
-
-### 部署准备度检查
-```bash
-# 检查模型是否准备好部署
-diffai production.safetensors candidate.safetensors
-
-# 评估部署风险
-deployment_readiness: readiness=0.75, strategy=gradual, risk=medium
-```
-
-## 集成示例
-
-### MLflow 集成
-```python
-import subprocess
-import json
-import mlflow
-
-def log_model_diff(model1_path, model2_path):
-    # 运行 diffai 比较
-    result = subprocess.run([
-        'diffai', model1_path, model2_path, '--output', 'json'
-    ], capture_output=True, text=True)
-    
-    diff_data = json.loads(result.stdout)
-    
-    # 记录到 MLflow
-    with mlflow.start_run():
-        mlflow.log_dict(diff_data, "model_comparison.json")
-        mlflow.log_metric("total_changes", len(diff_data))
-```
-
-### CI/CD 管道
-```yaml
-name: Model Validation
-on: [push, pull_request]
-
-jobs:
-  model-diff:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install diffai
-        run: cargo install diffai
-        
-      - name: Compare models
-        run: |
-          diffai models/baseline.safetensors models/candidate.safetensors \
-            --output json > model_diff.json
-            
-      - name: Analyze changes
-        run: |
-          # 如果关键层发生变化则失败
-          if jq -e '.[] | select(.TensorShapeChanged and (.TensorShapeChanged[0] | contains("classifier")))' model_diff.json; then
-            echo "CRITICAL: Critical layer shape changes detected"
-            exit 1
-          fi
-```
-
-## 性能考量
-
-### 内存使用优化
-```bash
-# 对于大型模型，使用 epsilon 减少内存使用
-diffai large1.safetensors large2.safetensors --epsilon 1e-3
-
-# 限制分析到特定路径
-diffai model1.pt model2.pt --path "classifier"
-```
-
-### 速度优化提示
-1. **使用 epsilon**: 忽略小的差异以加快处理速度
-2. **路径过滤**: 只比较必要的部分
-3. **适当的输出格式**: 根据用途选择最优格式
-
-## 故障排除
-
-### 常见问题
-
-#### "Failed to parse" 错误
-```bash
-# 显式指定文件格式
-diffai --format safetensors model1.safetensors model2.safetensors
-
-# 检查文件完整性
-file model.safetensors
-```
-
-#### 内存不足错误
-```bash
-# 使用更大的 epsilon
-diffai --epsilon 1e-3 large1.pt large2.pt
-
-# 只分析特定层
-diffai --path "classifier" model1.pt model2.pt
-```
-
-#### 权限错误
-```bash
-# 检查读取权限
-ls -la model.safetensors
-
-# 必要时更改权限
-chmod 644 model.safetensors
-```
-
+- **内存高效**: 对GB+文件进行流式处理
+- **快速**: Rust实现，优化的张量操作
+- **可扩展**: 处理具有数百万/数十亿参数的模型
+- **跨平台**: 在Windows、Linux和macOS上无依赖运行
 
 ## 贡献
 
-欢迎贡献！请查看 [CONTRIBUTING](CONTRIBUTING.md) 了解详细信息。
+我们欢迎贡献！请参见[CONTRIBUTING](CONTRIBUTING.md)获取指南。
 
 ### 开发设置
+
 ```bash
-# 克隆仓库
 git clone https://github.com/kako-jun/diffai.git
 cd diffai
+cargo build
+cargo test
+```
 
-# 运行测试
+### 运行测试
+
+```bash
+# 运行所有测试
 cargo test
 
-# 构建发布版本
-cargo build --release
+# 运行特定测试类别
+cargo test --test integration
+cargo test --test ml_analysis
 ```
 
 ## 许可证
 
-本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件。
+本项目在MIT许可证下授权 - 详情请参见[LICENSE](LICENSE)文件。
 
 ## 相关项目
 
-- [diffx](https://github.com/kako-jun/diffx) - 通用结构化数据差异工具（diffai 的兄弟项目）
+- **[diffx](https://github.com/kako-jun/diffx)** - 通用结构化数据diff工具（diffai的兄弟项目）
+- **[safetensors](https://github.com/huggingface/safetensors)** - 存储和分发张量的简单、安全方式
+- **[PyTorch](https://pytorch.org/)** - 机器学习框架
+- **[NumPy](https://numpy.org/)** - Python科学计算基础包
 
-## 支持
-
-- 📖 [文档](https://github.com/kako-jun/diffai/tree/main/docs/index.md)
-- 🐛 [问题报告](https://github.com/kako-jun/diffai/issues)
-- 💬 [讨论](https://github.com/kako-jun/diffai/discussions)
-
----
-
-**diffai** - 为 AI/ML 时代设计的智能差异工具 🚀

@@ -112,6 +112,13 @@ diffai model_v1.safetensors model_v2.safetensors --verbose
 diffai model_v1.safetensors model_v2.safetensors --output yaml
 ```
 
+## 📚 ドキュメント
+
+- **[実動例とデモンストレーション](docs/examples/)** - 実際の出力でdiffaiを確認
+- **[APIドキュメント](https://docs.rs/diffai-core)** - Rustライブラリドキュメント
+- **[ユーザーガイド](docs/user-guide.md)** - 包括的使用ガイド
+- **[ML分析ガイド](docs/ml-analysis-guide.md)** - ML特化機能の詳細ガイド
+
 ## 対応ファイル形式
 
 ### MLモデル形式
@@ -371,4 +378,3 @@ cargo test --test ml_analysis
 - **[safetensors](https://github.com/huggingface/safetensors)** - テンソル保存・配布のためのシンプルで安全な方法
 - **[PyTorch](https://pytorch.org/)** - 機械学習フレームワーク
 - **[NumPy](https://numpy.org/)** - Pythonでの科学計算のための基盤パッケージ
-

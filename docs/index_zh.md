@@ -28,6 +28,3 @@ diffai 是专为 AI/ML 和科学计算工作流程设计的专业差异工具。
 - **科学家**: 参阅 [科学数据分析](user-guide/scientific-data_zh.md) 了解 NumPy 和 MATLAB 支持
 - **开发者**: 阅读 [设计原则](architecture/design-principles_zh.md) 和 [实现状态](architecture/implementation_zh.md)
 
-## 贡献
-
-有关如何为 diffai 做出贡献的信息，请参阅主要的 [贡献指南](../CONTRIBUTING.md)。
