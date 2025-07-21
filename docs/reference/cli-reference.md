@@ -145,7 +145,7 @@ Disable colored output for better compatibility with scripts, pipelines, or term
 
 ```bash
 $ diffai model_v1.safetensors model_v2.safetensors
-anomalydectionnamely_detection: type=none, severity=none, action="continue_training"
+anomaly_detection: type=none, severity=none, action="continue_training"
 architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
 convergence_analysis: status=converging, stability=0.92
 gradient_analysis: flow_health=healthy, norm=0.021069

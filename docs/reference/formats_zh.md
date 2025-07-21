@@ -142,3 +142,4 @@ diffai按以下优先级顺序检测格式：
 - [CLI参考](cli-reference_zh.md) - 完整的命令行选项
 - [ML分析功能](ml-analysis_zh.md) - 机器学习专用功能
 - [输出格式](output-formats_zh.md) - 输出格式规范
+

@@ -89,10 +89,18 @@ diffai - config.json < input.json
 - **例**: `--array-id-key "id"`
 - **用途**: 構造化配列の比較
 
-#### `--sort-by-change-magnitude`
-変更の大きさでソート（MLモデルのみ）
+#### `-v, --verbose`
+パフォーマンス指標、設定詳細、診断出力を含む詳細な処理情報を表示します。
 
-- **例**: `diffai model1.pt model2.pt --sort-by-change-magnitude`
+- **例**: `diffai model1.safetensors model2.safetensors --verbose`
+- **用途**: 分析プロセスとパフォーマンスのデバッグ
+
+#### `--no-color`
+スクリプト、パイプライン、ANSIカラーをサポートしていない端末との互換性を向上させるため、カラー出力を無効にします。
+
+- **例**: `diffai config.json config.new.json --no-color`
+- **用途**: カラーフォーマットなしのプレーンテキスト出力
+- **注記**: CI/CD環境や自動化スクリプトで特に有用
 
 ## ML分析機能
 
@@ -136,7 +144,7 @@ diffai - config.json < input.json
 
 ```bash
 $ diffai model_v1.safetensors model_v2.safetensors
-anomalydectionnamely_detection: type=none, severity=none, action="continue_training"
+anomaly_detection: type=none, severity=none, action="continue_training"
 architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
 convergence_analysis: status=converging, stability=0.92
 gradient_analysis: flow_health=healthy, norm=0.021069
