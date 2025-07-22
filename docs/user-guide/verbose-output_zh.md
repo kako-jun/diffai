@@ -1,29 +1,29 @@
-# 详细输出指南
+# Verbose Output Guide
 
-diffai中的`--verbose`标志提供综合诊断信息，帮助用户理解处理详情、调试问题和分析性能。本指南解释如何有效使用详细模式。
+The `--verbose` flag in diffai provides comprehensive diagnostic information to help users understand processing details, debug issues, and analyze performance. This guide explains how to use verbose mode effectively.
 
-## 概述
+## Overview
 
-详细模式显示以下详细信息：
-- 配置设置和启用的功能
-- 文件分析和格式检测
-- 处理时间和性能指标
-- ML特定的分析状态
-- 目录比较统计
+Verbose mode displays detailed information about:
+- Configuration settings and enabled features
+- File analysis and format detection
+- Processing time and performance metrics
+- ML-specific analysis status
+- Directory comparison statistics
 
-## 基本用法
+## Basic Usage
 
-### 启用详细模式
+### Enable Verbose Mode
 
 ```bash
-# 基本详细输出
+# Basic verbose output
 diffai file1.json file2.json --verbose
 
-# 简写形式
+# Short form
 diffai file1.json file2.json -v
 ```
 
-### 输出示例
+### Example Output
 
 ```
 === diffai verbose mode enabled ===
@@ -45,16 +45,16 @@ Processing results:
   Format-specific analysis: Json
 ```
 
-## 配置诊断
+## Configuration Diagnostics
 
-详细模式显示所有活动的配置选项：
+Verbose mode displays all active configuration options:
 
-### 基本配置
-- **输入格式**: 明确设置或自动检测的格式
-- **输出格式**: CLI、JSON、YAML或统一diff
-- **递归模式**: 是否启用目录比较
+### Basic Configuration
+- **Input format**: Explicitly set or auto-detected format
+- **Output format**: CLI, JSON, YAML, or unified diff
+- **Recursive mode**: Whether directory comparison is enabled
 
-### 高级选项
+### Advanced Options
 ```bash
 diffai file1.json file2.json --verbose \
   --epsilon 0.001 \
@@ -62,7 +62,7 @@ diffai file1.json file2.json --verbose \
   --path "config.users"
 ```
 
-输出包括：
+Output includes:
 ```
 Configuration:
   Input format: None
@@ -73,8 +73,8 @@ Configuration:
   Path filter: config.users
 ```
 
-### ML分析功能
-当ML分析选项启用时，详细模式显示哪些功能处于活动状态：
+### ML Analysis Features
+When ML analysis options are enabled, verbose mode shows which features are active:
 
 ```bash
 diffai model1.safetensors model2.safetensors --verbose \
@@ -84,22 +84,22 @@ diffai model1.safetensors model2.safetensors --verbose \
   --anomaly-detection
 ```
 
-输出：
+Output:
 ```
 Configuration:
   ML analysis features: statistics, architecture_comparison, memory_analysis, anomaly_detection
 ```
 
-## 文件分析信息
+## File Analysis Information
 
-### 文件元数据
-详细模式提供详细的文件信息：
+### File Metadata
+Verbose mode provides detailed file information:
 
-- **文件路径**: 输入文件的完整路径
-- **文件大小**: 每个文件的确切字节数
-- **格式检测**: diffai如何识别文件格式
+- **File paths**: Full paths to input files
+- **File sizes**: Exact byte counts for each file
+- **Format detection**: How diffai identified the file format
 
-示例：
+Example:
 ```
 File analysis:
   Input 1: /path/to/model1.safetensors
@@ -109,17 +109,17 @@ File analysis:
   File 2 size: 1048576 bytes
 ```
 
-### 格式检测过程
-详细模式解释如何确定文件格式：
+### Format Detection Process
+Verbose mode explains how file formats were determined:
 
-1. **明确格式**: 当指定`--format`时
-2. **自动检测**: 基于文件扩展名
-3. **回退逻辑**: 当格式无法推断时
+1. **Explicit format**: When `--format` is specified
+2. **Auto-detection**: Based on file extensions
+3. **Fallback logic**: When format cannot be inferred
 
-## 性能指标
+## Performance Metrics
 
-### 处理时间
-详细模式以微秒精度测量和报告处理时间：
+### Processing Time
+Verbose mode measures and reports processing time with microsecond precision:
 
 ```
 Processing results:
@@ -127,8 +127,8 @@ Processing results:
   Differences found: 15
 ```
 
-### ML/科学数据分析
-对于ML和科学数据文件，详细模式指示完成状态：
+### ML/Scientific Data Analysis
+For ML and scientific data files, verbose mode indicates completion status:
 
 ```
 Processing results:
@@ -136,15 +136,15 @@ Processing results:
   ML/Scientific data analysis completed
 ```
 
-## 目录比较
+## Directory Comparison
 
-在使用`--recursive`进行目录比较时，详细模式提供额外的统计信息：
+When using `--recursive` for directory comparison, verbose mode provides additional statistics:
 
 ```bash
 diffai dir1/ dir2/ --verbose --recursive
 ```
 
-示例输出：
+Example output:
 ```
 Configuration:
   Recursive mode: true
@@ -160,47 +160,47 @@ Directory comparison summary:
   Total files processed: 16
 ```
 
-## 使用场景
+## Use Cases
 
-### 调试处理问题
+### Debugging Processing Issues
 
-当diffai表现异常时，详细模式帮助识别：
+When diffai behaves unexpectedly, verbose mode helps identify:
 
-1. **格式检测问题**: 检查是否检测到正确的格式
-2. **配置冲突**: 验证所有选项是否正确应用
-3. **性能瓶颈**: 识别缓慢的处理步骤
-4. **文件访问问题**: 确认文件可读且大小符合预期
+1. **Format detection problems**: Check if the correct format was detected
+2. **Configuration conflicts**: Verify all options are applied correctly
+3. **Performance bottlenecks**: Identify slow processing steps
+4. **File access issues**: Confirm files are readable and sizes are expected
 
-调试会话示例：
+Example debugging session:
 ```bash
-# 检查格式检测是否正确
+# Check if format detection is correct
 diffai problematic_file1.dat problematic_file2.dat --verbose
 
-# 验证ML分析功能（ML模型自动执行）
+# Verify ML analysis features (automatic for ML models)
 diffai model1.pt model2.pt --verbose
 
-# 分析目录比较行为
+# Analyze directory comparison behavior
 diffai dir1/ dir2/ --verbose --recursive
 ```
 
-### 性能分析
+### Performance Analysis
 
-使用详细模式了解处理性能：
+Use verbose mode to understand processing performance:
 
 ```bash
-# 测量不同格式的处理时间
+# Measure processing time for different formats
 diffai large_model1.safetensors large_model2.safetensors --verbose
 
-# 比较不同选项的性能
+# Compare performance with different options
 diffai data1.json data2.json --verbose --epsilon 0.0001
 ```
 
-### 配置验证
+### Configuration Validation
 
-验证复杂配置是否正确应用：
+Verify that complex configurations are applied correctly:
 
 ```bash
-# 检查多个过滤器和选项
+# Check multiple filters and options
 diffai config1.yaml config2.yaml --verbose \
   --ignore-keys-regex "^(id|timestamp)$" \
   --path "application.settings" \
@@ -208,65 +208,65 @@ diffai config1.yaml config2.yaml --verbose \
   --output json
 ```
 
-## 技巧和最佳实践
+## Tips and Best Practices
 
-### 1. 调试时始终使用详细模式
-遇到意外行为时，始终添加`--verbose`来理解diffai在做什么。
+### 1. Always Use Verbose for Debugging
+When encountering unexpected behavior, always add `--verbose` to understand what diffai is doing.
 
-### 2. 性能监控
-使用详细模式监控大文件的处理时间并相应优化。
+### 2. Performance Monitoring
+Use verbose mode to monitor processing time for large files and optimize accordingly.
 
-### 3. 配置验证
-在运行批处理操作之前，在单个文件上使用详细模式验证配置。
+### 3. Configuration Verification
+Before running batch operations, use verbose mode on a single file to verify configuration.
 
-### 4. 学习文件格式
-使用详细模式了解diffai如何检测和处理不同的文件格式。
+### 4. Learning File Formats
+Use verbose mode to understand how diffai detects and processes different file formats.
 
-### 5. ML分析优化
-使用多个ML分析功能时，详细模式帮助识别哪些功能处于活动状态及其对处理时间的影响。
+### 5. ML Analysis Optimization
+When using multiple ML analysis features, verbose mode helps identify which features are active and their impact on processing time.
 
-## 输出重定向
+## Output Redirection
 
-### 分离详细输出和结果
-详细信息发送到stderr，允许您将其与结果分离：
+### Separate Verbose from Results
+Verbose information is sent to stderr, allowing you to separate it from results:
 
 ```bash
-# 将结果保存到文件，在屏幕上显示详细输出
+# Save results to file, show verbose on screen
 diffai file1.json file2.json --verbose --output json > results.json
 
-# 保存结果和详细输出
+# Save both results and verbose output
 diffai file1.json file2.json --verbose > results.txt 2> verbose.log
 
-# 仅显示详细信息
+# Show only verbose information
 diffai file1.json file2.json --verbose 2>&1 >/dev/null
 ```
 
-## 与其他工具集成
+## Integration with Other Tools
 
-### CI/CD流水线
-在CI/CD中使用详细模式进行调试：
+### CI/CD Pipelines
+Use verbose mode in CI/CD for debugging:
 
 ```bash
-# 在GitHub Actions或类似工具中
-- name: 使用详细输出比较模型
+# In GitHub Actions or similar
+- name: Compare models with verbose output
   run: diffai baseline.safetensors new_model.safetensors --verbose
 ```
 
-### 脚本和自动化
-解析详细输出进行自动化：
+### Scripts and Automation
+Parse verbose output for automation:
 
 ```bash
 #!/bin/bash
 output=$(diffai file1.json file2.json --verbose 2>&1)
 if echo "$output" | grep -q "Differences found: 0"; then
-    echo "文件相同"
+    echo "Files are identical"
 else
-    echo "文件不同"
+    echo "Files differ"
 fi
 ```
 
-## 相关命令
+## Related Commands
 
-- [`--help`](basic-usage.md#help): 显示所有可用选项
-- [`--output`](output-formats.md): 控制输出格式
-- [`--recursive`](directory-comparison.md): 启用目录比较
+- [`--help`](basic-usage.md#help): Show all available options
+- [`--output`](output-formats.md): Control output format
+- [`--recursive`](directory-comparison.md): Enable directory comparison

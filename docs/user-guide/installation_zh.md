@@ -1,40 +1,40 @@
-# 安装指南
+# Installation
 
-在各种环境中安装 diffai 的完整指南。
+Complete installation guide for diffai in various environments.
 
-## 先决条件
+## Prerequisites
 
-- **Rust 1.75+**: 从 [rustup.rs](https://rustup.rs/) 安装
-- **操作系统**: Linux、macOS 或 Windows
-- **内存**: 推荐 4GB+ 用于大型模型文件
+- **Rust 1.75+**: Install from [rustup.rs](https://rustup.rs/)
+- **Operating System**: Linux, macOS, or Windows
+- **Memory**: 4GB+ recommended for large model files
 
-## 安装方法
+## Installation Methods
 
-### 方法 1: 从 crates.io 安装（推荐）
+### Method 1: From crates.io (Recommended)
 
 ```bash
 cargo install diffai
 ```
 
-**注意**: 一旦 diffai 发布到 crates.io，此方法将可用。
+**Note**: This method will be available once diffai is published to crates.io.
 
-### 方法 2: 从源码构建（当前）
+### Method 2: From Source (Current)
 
 ```bash
-# 克隆仓库
+# Clone the repository
 git clone https://github.com/kako-jun/diffai.git
 cd diffai
 
-# 构建并安装
+# Build and install
 cargo install --path diffai-cli
 
-# 验证安装
+# Verify installation
 diffai --version
 ```
 
-### 方法 3: 从 GitHub 发布页面
+### Method 3: From GitHub Releases
 
-从 [GitHub 发布页面](https://github.com/kako-jun/diffai/releases) 下载预构建的二进制文件：
+Download pre-built binaries from the [GitHub releases page](https://github.com/kako-jun/diffai/releases):
 
 - **Linux (x86_64)**: `diffai-linux-x86_64.tar.gz`
 - **macOS (x86_64)**: `diffai-macos-x86_64.tar.gz`
@@ -42,31 +42,31 @@ diffai --version
 - **Windows (x86_64)**: `diffai-windows-x86_64.zip`
 
 ```bash
-# 解压并移动到 PATH
+# Extract and move to PATH
 tar -xzf diffai-linux-x86_64.tar.gz
 sudo mv diffai /usr/local/bin/
 ```
 
-## 平台特定说明
+## Platform-Specific Instructions
 
 ### Linux
 
 #### Ubuntu/Debian
 ```bash
-# 如果尚未安装 Rust，请先安装
+# Install Rust if not already installed
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source ~/.cargo/env
 
-# 安装 diffai
+# Install diffai
 cargo install diffai
 ```
 
 #### Arch Linux
 ```bash
-# 使用 AUR（当可用时）
+# Using AUR (when available)
 yay -S diffai
 
-# 或从源码构建
+# Or from source
 git clone https://github.com/kako-jun/diffai.git
 cd diffai
 cargo install --path diffai-cli
@@ -74,216 +74,216 @@ cargo install --path diffai-cli
 
 #### CentOS/RHEL/Fedora
 ```bash
-# 安装 Rust
+# Install Rust
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source ~/.cargo/env
 
-# 安装 diffai
+# Install diffai
 cargo install diffai
 ```
 
 ### macOS
 
-#### 使用 Homebrew（计划中）
+#### Using Homebrew (Planned)
 ```bash
-# 这将在将来可用
+# This will be available in the future
 brew install diffai
 ```
 
-#### 手动安装
+#### Manual Installation
 ```bash
-# 如果需要，请安装 Rust
+# Install Rust if needed
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source ~/.cargo/env
 
-# 安装 diffai
+# Install diffai
 cargo install diffai
 ```
 
 ### Windows
 
-#### 使用 Cargo
+#### Using Cargo
 ```powershell
-# 从 https://rustup.rs/ 安装 Rust
-# 然后安装 diffai
+# Install Rust from https://rustup.rs/
+# Then install diffai
 cargo install diffai
 ```
 
-#### 使用 Scoop（计划中）
+#### Using Scoop (Planned)
 ```powershell
-# 这将在将来可用
+# This will be available in the future
 scoop install diffai
 ```
 
-## 容器安装
+## Container Installation
 
 ### Docker
 
 ```bash
-# 拉取镜像（当可用时）
+# Pull the image (when available)
 docker pull ghcr.io/kako-jun/diffai:latest
 
-# 在容器中运行 diffai
+# Run diffai in a container
 docker run --rm -v $(pwd):/workspace ghcr.io/kako-jun/diffai:latest \
   model1.safetensors model2.safetensors
 ```
 
-### 构建 Docker 镜像
+### Building Docker Image
 
 ```bash
 git clone https://github.com/kako-jun/diffai.git
 cd diffai
 
-# 构建 Docker 镜像
+# Build the Docker image
 docker build -t diffai .
 
-# 运行
+# Run
 docker run --rm -v $(pwd):/workspace diffai \
   model1.safetensors model2.safetensors
 ```
 
-## 验证
+## Verification
 
-安装后，验证 diffai 是否正常工作：
+After installation, verify that diffai is working correctly:
 
 ```bash
-# 检查版本
+# Check version
 diffai --version
 
-# 运行帮助
+# Run help
 diffai --help
 
-# 使用示例文件测试
+# Test with sample files
 echo '{"a": 1}' > test1.json
 echo '{"a": 2}' > test2.json
 diffai test1.json test2.json
 
-# 预期输出：
+# Expected output:
 # ~ a: 1 -> 2
 
-# 清理
+# Clean up
 rm test1.json test2.json
 ```
 
-## 开发安装
+## Development Installation
 
-对于开发工作，您需要额外的工具：
+For development work, you'll need additional tools:
 
 ```bash
-# 克隆仓库
+# Clone the repository
 git clone https://github.com/kako-jun/diffai.git
 cd diffai
 
-# 安装开发依赖
+# Install development dependencies
 cargo install cargo-watch
 cargo install criterion
 
-# 开发模式构建
+# Build in development mode
 cargo build
 
-# 运行测试
+# Run tests
 cargo test
 
-# 运行基准测试
+# Run benchmarks
 cargo bench
 
-# 本地安装以进行测试
+# Install locally for testing
 cargo install --path diffai-cli
 ```
 
-## 故障排除
+## Troubleshooting
 
-### 常见问题
+### Common Issues
 
-#### 1. 找不到 Rust
+#### 1. Rust Not Found
 ```bash
-# 安装 Rust
+# Install Rust
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source ~/.cargo/env
 ```
 
-#### 2. 编译错误
+#### 2. Compilation Errors
 ```bash
-# 更新 Rust 到最新版本
+# Update Rust to latest version
 rustup update
 
-# 清理并重新构建
+# Clean and rebuild
 cargo clean
 cargo build
 ```
 
-#### 3. 权限被拒绝（Linux/macOS）
+#### 3. Permission Denied (Linux/macOS)
 ```bash
-# 改为安装到用户目录
+# Install to user directory instead
 cargo install --path diffai-cli --root ~/.local
 
-# 添加到 PATH
+# Add to PATH
 echo 'export PATH=$HOME/.local/bin:$PATH' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-#### 4. 大型模型文件
-对于非常大的模型文件（>1GB），请确保有足够的内存：
+#### 4. Large Model Files
+For very large model files (>1GB), ensure you have sufficient memory:
 
 ```bash
-# 检查可用内存
+# Check available memory
 free -h  # Linux
 vm_stat  # macOS
 
-# 对于大文件，考虑使用流式模式（未来功能）
+# For large files, consider using streaming mode (future feature)
 diffai --stream large_model1.safetensors large_model2.safetensors
 ```
 
-## 性能考虑
+## Performance Considerations
 
-### 内存需求
+### Memory Requirements
 
-| 模型大小 | 推荐内存 |
-|----------|----------|
-| < 100MB  | 1GB      |
-| 100MB-1GB | 4GB     |
-| 1GB-10GB | 16GB     |
-| > 10GB   | 32GB+    |
+| Model Size | Recommended RAM |
+|------------|----------------|
+| < 100MB    | 1GB            |
+| 100MB-1GB  | 4GB            |
+| 1GB-10GB   | 16GB           |
+| > 10GB     | 32GB+          |
 
-### 优化提示
+### Optimization Tips
 
-1. **使用 SSD 存储** 以获得更快的文件 I/O
-2. **比较大型模型时关闭其他应用程序**
-3. **使用 epsilon 容差** 忽略微小的浮点差异
-4. **使用 `--path` 或 `--ignore-keys-regex` 过滤结果** 进行集中分析
+1. **Use SSD storage** for faster file I/O
+2. **Close other applications** when comparing large models
+3. **Use epsilon tolerance** to ignore minor floating-point differences
+4. **Filter results** using `--path` or `--ignore-keys-regex` for focused analysis
 
-## 更新
+## Updating
 
-### 从 crates.io 更新
+### From crates.io
 ```bash
 cargo install diffai --force
 ```
 
-### 从源码更新
+### From Source
 ```bash
 cd diffai
 git pull origin main
 cargo install --path diffai-cli --force
 ```
 
-## 卸载
+## Uninstallation
 
 ```bash
-# 移除二进制文件
+# Remove binary
 cargo uninstall diffai
 
-# 或手动移除
+# Or manually remove
 rm $(which diffai)
 ```
 
-## 获取帮助
+## Getting Help
 
-如果您遇到安装问题：
+If you encounter installation issues:
 
-1. 查看 [GitHub Issues](https://github.com/kako-jun/diffai/issues)
-2. 加入 [GitHub Discussions](https://github.com/kako-jun/diffai/discussions)
-3. 查看 [贡献指南](../../CONTRIBUTING.md) 了解开发设置
+1. Check the [GitHub Issues](https://github.com/kako-jun/diffai/issues)
+2. Join the [GitHub Discussions](https://github.com/kako-jun/diffai/discussions)
+3. Review the [Contributing Guide](../../CONTRIBUTING.md) for development setup
 
-## 下一步
+## Next Steps
 
-安装后，请参阅 [基本用法](basic-usage_zh.md) 开始使用 diffai。
+After installation, see [Basic Usage](basic-usage.md) to get started with diffai.

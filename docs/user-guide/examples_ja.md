@@ -1,25 +1,25 @@
-# 実例集
+# Examples
 
-このページでは、様々なシナリオでのdiffaiの使用例を紹介し、AI駆動の分析機能を実際のケースで解説します。
+This page provides comprehensive examples of using diffai in various scenarios, demonstrating its AI-powered analysis capabilities.
 
-## 基本的な使用例
+## Basic Usage Examples
 
-### JSON設定ファイル
+### JSON Configuration Files
 
-アプリケーション設定ファイルをAIの洞察と共に比較：
+Compare application configuration files with AI insights:
 
 ```bash
-# 基本的なJSON比較
+# Basic JSON comparison
 diffai config-dev.json config-prod.json
 
-# ML分析付きの詳細出力
+# Output with ML analysis
 diffai --verbose config-dev.json config-prod.json
 
-# 特定の設定パスに焦点を当てる
+# Focus on specific configuration paths
 diffai --path "database.settings" config-dev.json config-prod.json
 ```
 
-**サンプルファイル:**
+**Example files:**
 ```json
 // config-dev.json
 {
@@ -28,429 +28,220 @@ diffai --path "database.settings" config-dev.json config-prod.json
   "database": {
     "host": "localhost",
     "port": 5432,
-    "ssl": false,
-    "pool_size": 10
+    "name": "dev_db"
   },
-  "features": {
-    "debug_mode": true,
-    "cache_enabled": false,
-    "rate_limiting": false
-  }
+  "debug": true
 }
 
-// config-prod.json
+// config-prod.json  
 {
   "app_name": "myapp",
   "version": "1.0.1",
   "database": {
-    "host": "db.production.com",
+    "host": "prod-server.com",
     "port": 5432,
-    "ssl": true,
-    "pool_size": 50
+    "name": "prod_db"
   },
-  "features": {
-    "debug_mode": false,
-    "cache_enabled": true,
-    "rate_limiting": true
-  }
+  "debug": false
 }
 ```
 
-**出力例:**
-```
-configuration_risk_assessment: environment_appropriate
-  ~ version: "1.0.0" -> "1.0.1"
-  ~ database.host: "localhost" -> "db.production.com"
-  ~ database.ssl: false -> true
-  ~ database.pool_size: 10 -> 50 (5x increase - production scaling)
-  ~ features.debug_mode: true -> false (production-safe)
-  ~ features.cache_enabled: false -> true (performance optimization)
-  ~ features.rate_limiting: false -> true (security hardening)
-```
-
-### YAML Kubernetesマニフェスト
-
-デプロイメント設定の変更を分析：
+### YAML Docker Compose Files
 
 ```bash
-# 基本的な比較
-diffai k8s-deployment-v1.yaml k8s-deployment-v2.yaml
+# Compare Docker Compose configurations
+diffai docker-compose.yml docker-compose.prod.yml
 
-# セキュリティ影響の分析付き
-diffai --security-analysis k8s-deployment-v1.yaml k8s-deployment-v2.yaml
-
-# 特定のコンテナに焦点
-diffai --path "spec.containers[0]" k8s-deployment-v1.yaml k8s-deployment-v2.yaml
+# Ignore timestamp-related changes
+diffai --ignore-keys-regex "created_at|updated_at" docker-compose.yml docker-compose.new.yml
 ```
 
-**サンプルファイル:**
-```yaml
-# k8s-deployment-v1.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: web-app
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: app
-        image: myapp:1.0
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "100m"
-          limits:
-            memory: "256Mi"
-            cpu: "200m"
+### CSV Data Analysis
 
-# k8s-deployment-v2.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: web-app
-spec:
-  replicas: 5
-  template:
-    spec:
-      containers:
-      - name: app
-        image: myapp:1.1
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "200m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-```
-
-**AI分析出力:**
-```
-scaling_analysis: horizontal_and_vertical_scaling_detected
-  ~ spec.replicas: 3 -> 5 (66% increase)
-  ~ spec.template.spec.containers[0].image: "myapp:1.0" -> "myapp:1.1"
-  ~ resources.requests.memory: "128Mi" -> "256Mi" (2x increase)
-  ~ resources.limits.cpu: "200m" -> "500m" (2.5x increase)
-AI Insight: リソース要求の大幅な増加。パフォーマンステストの実施を推奨
-```
-
-## 高度な使用例
-
-### MLモデル比較
-
-#### PyTorchチェックポイント
-
-学習の進行状況を追跡：
+Compare datasets with statistical analysis:
 
 ```bash
-# エポック間の比較
-diffai checkpoint_epoch_10.pt checkpoint_epoch_20.pt
+# Compare sales data with ML insights
+diffai --verbose --epsilon 0.05 sales-q1.csv sales-q2.csv
 
-# 詳細な統計分析
-diffai --detailed-stats checkpoint_epoch_10.pt checkpoint_epoch_20.pt
-
-# 特定のレイヤーに焦点
-diffai --layer-filter "transformer.encoder" model_v1.pt model_v2.pt
+# Focus on specific columns
+diffai --path "revenue,profit" financial-data-old.csv financial-data-new.csv
 ```
 
-**出力例:**
-```
-model_evolution_analysis: converging_normally
-training_progress: healthy
-  ~ transformer.encoder.layer_0.weight:
-    mean: -0.002 -> -0.001 (stabilizing)
-    std: 0.045 -> 0.032 (variance reduction)
-  ~ optimizer.learning_rate: 0.001 -> 0.0001 (scheduled decay)
-AI Insight: モデルは正常に収束中。学習率の調整が適切
-```
+## Advanced AI Analysis Examples
 
-#### Safetensorsモデル
-
-量子化の影響を分析：
+### Anomaly Detection
 
 ```bash
-# 量子化前後の比較
-diffai model_fp32.safetensors model_int8.safetensors
+# Detect anomalies in user behavior data
+diffai --epsilon 0.01 --verbose user-metrics-baseline.json user-metrics-current.json
 
-# 詳細な量子化分析
-diffai --quantization-analysis model_fp32.safetensors model_int8.safetensors
+# Array comparison with intelligent ID matching
+diffai --array-id-key "user_id" users-jan.json users-feb.json
 ```
 
-**出力例:**
-```
-quantization_impact_analysis:
-  compression_ratio: 4.0x
-  accuracy_impact: minimal (-0.2%)
-  inference_speedup: 2.8x
-  memory_reduction: 75%
-推奨: エッジデバイスへのデプロイメントに適している
-```
-
-### データ移行検証
-
-#### CSVデータの整合性チェック
+### Machine Learning Model Comparison
 
 ```bash
-# ID列を使用した比較
-diffai old_users.csv new_users.csv --array-id-key "user_id"
+# Compare ML model configurations
+diffai --verbose --path "hyperparameters" model-v1.json model-v2.json
 
-# 許容誤差を設定した数値比較
-diffai financial_data_old.csv financial_data_new.csv \
-  --array-id-key "transaction_id" \
-  --epsilon 0.01
+# Compare training results with statistical tolerance
+diffai --epsilon 0.001 training-results-baseline.json training-results-new.json
 ```
 
-**サンプルデータ:**
-```csv
-# old_users.csv
-user_id,name,email,status
-1,Alice,alice@example.com,active
-2,Bob,bob@example.com,active
-3,Charlie,charlie@example.com,inactive
-
-# new_users.csv
-user_id,name,email,status,created_at
-1,Alice,alice@example.com,active,2024-01-01
-2,Bob,bob@company.com,active,2024-01-01
-4,David,david@example.com,active,2024-03-15
-```
-
-**出力例:**
-```
-data_migration_analysis: partial_migration_with_changes
-  ~ [user_id=2].email: "bob@example.com" -> "bob@company.com"
-  - [user_id=3]: Charlie (レコード削除)
-  + [user_id=4]: David (新規レコード)
-  + 全レコードに created_at カラムが追加
-警告: 3件中1件のレコードが削除されています
-```
-
-### API応答比較
-
-#### RESTful APIレスポンス
-
-バージョン間の互換性チェック：
+### Scientific Data Analysis
 
 ```bash
-# タイムスタンプを無視して比較
-diffai api_v1_response.json api_v2_response.json \
-  --ignore-keys-regex "timestamp|request_id"
+# Compare experimental datasets
+diffai --verbose --epsilon 0.01 experiment-control.csv experiment-test.csv
 
-# 破壊的変更の検出
-diffai --breaking-changes api_v1_response.json api_v2_response.json
+# Recursive comparison of research directories
+diffai --recursive --output analysis-report.json research-v1/ research-v2/
 ```
 
-**サンプルレスポンス:**
-```json
-// api_v1_response.json
-{
-  "status": "success",
-  "data": {
-    "users": [
-      {"id": 1, "name": "Alice", "role": "admin"},
-      {"id": 2, "name": "Bob", "role": "user"}
-    ],
-    "total": 2
-  },
-  "timestamp": "2024-01-01T10:00:00Z"
-}
+## Format-Specific Examples
 
-// api_v2_response.json
-{
-  "status": "success",
-  "data": {
-    "users": [
-      {"id": 1, "username": "Alice", "role": "admin", "permissions": ["read", "write"]},
-      {"id": 2, "username": "Bob", "role": "user", "permissions": ["read"]}
-    ],
-    "total_count": 2,
-    "page_info": {"page": 1, "per_page": 10}
-  },
-  "timestamp": "2024-03-01T10:00:00Z"
-}
-```
-
-**互換性分析:**
-```
-api_compatibility_analysis: breaking_changes_detected
-  ! data.users[].name -> data.users[].username (フィールド名変更)
-  + data.users[].permissions (新規必須フィールド)
-  ! data.total -> data.total_count (フィールド名変更)
-  + data.page_info (新規オブジェクト - 後方互換性あり)
-推奨: クライアントコードの更新が必要
-```
-
-## 実践的なワークフロー
-
-### CI/CDパイプライン統合
-
-#### GitHub Actions
-
-```yaml
-name: Configuration Drift Detection
-on:
-  pull_request:
-    paths:
-      - 'config/**'
-
-jobs:
-  config-check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Install diffai
-        run: cargo install diffai
-      
-      - name: Compare configurations
-        run: |
-          diffai config/production.json config/staging.json \
-            --output json \
-            --threshold 0.1 > config_diff.json
-          
-      - name: Post analysis comment
-        if: always()
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const fs = require('fs');
-            const diff = JSON.parse(fs.readFileSync('config_diff.json', 'utf8'));
-            
-            let comment = '## 設定差分分析\n\n';
-            if (diff.risk_level === 'high') {
-              comment += '⚠️ **高リスクの変更が検出されました**\n\n';
-            }
-            
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: comment + '```json\n' + JSON.stringify(diff, null, 2) + '\n```'
-            });
-```
-
-### 監視とアラート
-
-#### 設定ドリフト検出
+### XML Configuration Files
 
 ```bash
-#!/bin/bash
-# config-drift-monitor.sh
+# Compare Spring Boot configurations
+diffai application-dev.xml application-prod.xml
 
-BASELINE="/etc/myapp/config.json"
-CURRENT="/tmp/current-config.json"
+# Maven POM file comparison
+diffai pom.xml pom.xml.backup
+```
 
-# 現在の設定を取得
-kubectl get configmap myapp-config -o json | jq '.data' > "$CURRENT"
+### TOML Cargo Files
 
-# 比較実行
-DIFF_OUTPUT=$(diffai "$BASELINE" "$CURRENT" --output json)
+```bash
+# Compare Rust project dependencies
+diffai Cargo.toml Cargo.toml.new
 
-# リスクレベルをチェック
-RISK=$(echo "$DIFF_OUTPUT" | jq -r '.risk_assessment.level')
+# Focus on dependency changes only
+diffai --path "dependencies" Cargo.toml Cargo.toml.updated
+```
 
-if [ "$RISK" = "high" ]; then
-  # アラート送信
-  curl -X POST "$SLACK_WEBHOOK" \
-    -H 'Content-Type: application/json' \
-    -d "{
-      \"text\": \"⚠️ 設定ドリフト検出: 高リスクの変更\",
-      \"attachments\": [{
-        \"color\": \"danger\",
-        \"text\": \`\`\`$DIFF_OUTPUT\`\`\`
-      }]
-    }"
+### INI Configuration Files
+
+```bash
+# Compare application settings
+diffai app.ini app-new.ini
+
+# Database configuration comparison
+diffai database.ini database-backup.ini
+```
+
+## Integration Examples
+
+### CI/CD Pipeline Integration
+
+```bash
+#\!/bin/bash
+# Automated configuration drift detection
+diffai --format json --output config-drift.json \
+  production-config.json staging-config.json
+
+# Exit with error if significant changes detected
+if [ $(jq '.changes | length' config-drift.json) -gt 10 ]; then
+  echo "Significant configuration drift detected\!"
+  exit 1
 fi
 ```
 
-### データ品質保証
-
-#### ETLパイプライン検証
-
-```python
-# etl_validation.py
-import subprocess
-import json
-import sys
-
-def validate_etl_output(source_file, target_file):
-    """ETL処理の出力を検証"""
-    
-    # diffaiを使用して比較
-    result = subprocess.run([
-        'diffai',
-        source_file,
-        target_file,
-        '--output', 'json',
-        '--array-id-key', 'record_id',
-        '--epsilon', '0.001'
-    ], capture_output=True, text=True)
-    
-    diff_data = json.loads(result.stdout)
-    
-    # データ品質メトリクスをチェック
-    if diff_data.get('data_quality', {}).get('missing_records', 0) > 0:
-        print(f"エラー: {diff_data['data_quality']['missing_records']}件のレコードが欠落")
-        return False
-    
-    if diff_data.get('data_quality', {}).get('type_mismatches', 0) > 0:
-        print(f"警告: {diff_data['data_quality']['type_mismatches']}件の型不一致")
-    
-    return True
-
-if __name__ == "__main__":
-    if not validate_etl_output(sys.argv[1], sys.argv[2]):
-        sys.exit(1)
-```
-
-## パフォーマンス最適化
-
-### 大規模ファイルの処理
+### API Response Monitoring
 
 ```bash
-# ストリーミングモードで大規模ファイルを比較
-diffai large_dataset1.json large_dataset2.json \
-  --streaming \
-  --memory-limit 1GB
+# Compare API responses for regression testing
+diffai --ignore-keys-regex "timestamp|request_id" \
+  api-response-baseline.json api-response-current.json
 
-# 並列処理を有効化
-diffai data_dir1/ data_dir2/ \
-  --recursive \
-  --parallel 8
-
-# 結果をキャッシュして再実行を高速化
-diffai --cache-dir /tmp/diffai-cache \
-  model1.safetensors model2.safetensors
+# Focus on data payload changes only
+diffai --path "data" api-v1-response.json api-v2-response.json
 ```
 
-## トラブルシューティング例
-
-### メモリ不足エラー
+### Database Schema Evolution
 
 ```bash
-# 問題: メモリ不足エラー
-# Error: Out of memory
+# Compare database schema exports
+diffai --verbose schema-v1.json schema-v2.json
 
-# 解決策1: チャンク処理
-diffai huge_file1.json huge_file2.json \
-  --chunk-size 100MB
-
-# 解決策2: 特定のパスのみ比較
-diffai huge_file1.json huge_file2.json \
-  --path "data.important_section"
+# Track migration changes
+diffai --recursive migrations-old/ migrations-new/
 ```
 
-### エンコーディング問題
+## Output Format Examples
+
+### JSON Output for Automation
 
 ```bash
-# 問題: 文字化け
-# 解決策: エンコーディングを明示的に指定
-diffai --encoding utf-8 japanese_file1.json japanese_file2.json
+# Generate machine-readable reports
+diffai --format json --output report.json dataset1.csv dataset2.csv
 
-# BOM付きUTF-8の場合
-diffai --encoding utf-8-sig file1.json file2.json
+# Pipe to jq for processing
+diffai --format json file1.json file2.json | jq '.summary.change_count'
 ```
 
-これらの例を参考に、あなたのユースケースに合わせてdiffaiを活用してください。より詳細な情報は[CLIリファレンス](../reference/cli-reference_ja.md)をご覧ください。
+### YAML Output for Human Review
+
+```bash
+# Human-friendly reports
+diffai --format yaml --verbose config1.yml config2.yml > changes-report.yml
+```
+
+### Verbose Analysis Reports
+
+```bash
+# Comprehensive ML analysis
+diffai --verbose --epsilon 0.01 \
+  --output detailed-analysis.json \
+  large-dataset-before.csv large-dataset-after.csv
+```
+
+## Real-World Scenarios
+
+### Monitoring System Configuration
+
+```bash
+# Daily configuration drift check
+diffai --recursive --format json \
+  /etc/production-config/ /etc/staging-config/ > daily-drift-report.json
+```
+
+### Data Quality Assurance
+
+```bash
+# Compare data quality metrics
+diffai --verbose --epsilon 0.05 \
+  quality-metrics-baseline.json quality-metrics-current.json
+```
+
+### Performance Regression Testing
+
+```bash
+# Compare performance benchmarks
+diffai --epsilon 0.1 --path "performance_metrics" \
+  benchmark-baseline.json benchmark-current.json
+```
+
+## Tips and Best Practices
+
+### Choosing the Right Options
+
+- Use `--epsilon` for numerical tolerance in scientific data
+- Use `--ignore-keys-regex` for dynamic fields like timestamps
+- Use `--path` to focus analysis on specific data sections
+- Use `--array-id-key` for intelligent array element matching
+
+### Performance Optimization
+
+- Start with basic comparison, add `--verbose` only when needed
+- Use `--format json` for large datasets to reduce memory usage
+- Consider `--path` filtering for very large files
+
+### Integration Patterns
+
+- Combine with `jq` for JSON output processing
+- Use exit codes in scripts for automated decision making
+- Generate reports in CI/CD for change tracking
+

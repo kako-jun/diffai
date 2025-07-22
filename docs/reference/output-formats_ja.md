@@ -1,35 +1,35 @@
-# 出力形式
+# Output Formats
 
-diffaiがサポートする出力形式とその仕様。
+Output formats supported by diffai and their specifications.
 
-## 概要
+## Overview
 
-diffaiは、さまざまな用途に適した4つの異なる出力形式をサポートします：
+diffai supports four different output formats to suit various use cases:
 
-1. **CLI** - 人間可読形式（デフォルト）
-2. **JSON** - 機械処理と自動化
-3. **YAML** - 設定ファイルと人間可読構造化データ
-4. **Unified** - Git統合と従来のdiff形式
+1. **CLI** - Human-readable format (default)
+2. **JSON** - Machine processing and automation
+3. **YAML** - Configuration files and human-readable structured data
+4. **Unified** - Git integration and traditional diff format
 
-## CLI出力形式
+## CLI Output Format
 
-### 概要
-デフォルトで使用される人間可読なカラー出力形式。
+### Overview
+Human-readable colored output format used by default.
 
-### 機能
-- **カラー表示**: 変更タイプ別の色分け
-- **シンボル表示**: 直感的なシンボル（`+`, `-`, `~`, `□`）
-- **階層表示**: ネスト構造の表現
-- **ML専用シンボル**: ML分析結果の専用表示
+### Features
+- **Colored display**: Color-coded by change type
+- **Symbol display**: Intuitive symbols (`+`, `-`, `~`, `□`)
+- **Hierarchical display**: Nested structure representation
+- **ML-specific symbols**: Specialized display for ML analysis results
 
-### 使用方法
+### Usage
 ```bash
 diffai model1.safetensors model2.safetensors --output cli
-# または
-diffai model1.safetensors model2.safetensors  # デフォルト
+# or
+diffai model1.safetensors model2.safetensors  # default
 ```
 
-### 出力例
+### Example Output
 ```
 ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
 ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
@@ -38,44 +38,44 @@ diffai model1.safetensors model2.safetensors  # デフォルト
 [CRITICAL] anomaly_detection: type=gradient_explosion, severity=critical, affected=2 layers
 ```
 
-### シンボル意味
+### Symbol Meanings
 
-#### 基本シンボル
-| シンボル | 意味 | 色 | 説明 |
-|----------|------|----|----- |
-| `~` | 変更 | 青 | 値は変更されたが構造は同じ |
-| `+` | 追加 | 緑 | 新しい要素が追加 |
-| `-` | 削除 | 赤 | 要素が削除 |
-| `□` | 形状変更 | 黄 | テンソル形状が変更 |
+#### Basic Symbols
+| Symbol | Meaning | Color | Description |
+|--------|---------|-------|-------------|
+| `~` | Modified | Blue | Value changed but structure same |
+| `+` | Added | Green | New element added |
+| `-` | Removed | Red | Element removed |
+| `□` | Shape Changed | Yellow | Tensor shape changed |
 
-#### ML分析シンボル
-| シンボル | 意味 | 色 | 説明 |
-|----------|------|----|----- |
-| `◦` | 分析結果 | シアン | ML分析機能結果 |
-| `[CRITICAL]` | 重大アラート | 赤 | 重大な問題を検出 |
-| `[WARNING]` | 警告 | 黄 | 注意が必要 |
-| `[ALERT]` | アラート | 赤 | 閾値を超過 |
-| `[HIGH]` | 高優先度 | 赤 | 高優先度の問題 |
-| `[HOLD]` | デプロイ保留 | 赤 | デプロイ保留を推奨 |
-| `[GRADUAL]` | 段階的デプロイ | 黄 | 段階的デプロイを推奨 |
+#### ML Analysis Symbols
+| Symbol | Meaning | Color | Description |
+|--------|---------|-------|-------------|
+| `◦` | Analysis Result | Cyan | ML analysis function result |
+| `[CRITICAL]` | Critical Alert | Red | Critical issue detected |
+| `[WARNING]` | Warning | Yellow | Attention needed |
+| `[ALERT]` | Alert | Red | Threshold exceeded |
+| `[HIGH]` | High Priority | Red | High priority issue |
+| `[HOLD]` | Hold Deployment | Red | Deployment hold recommended |
+| `[GRADUAL]` | Gradual Deployment | Yellow | Gradual deployment recommended |
 
-## JSON出力形式
+## JSON Output Format
 
-### 概要
-機械処理と自動化に適した構造化データ形式。
+### Overview
+Structured data format suitable for machine processing and automation.
 
-### 機能
-- **構造化データ**: プログラムによる解析が容易
-- **型情報**: 完全な型情報を保持
-- **API統合**: RESTful APIとの統合が容易
-- **自動化**: CI/CDとスクリプトに最適
+### Features
+- **Structured data**: Easy to parse programmatically
+- **Type information**: Complete type information preserved
+- **API integration**: Easy integration with RESTful APIs
+- **Automation**: Optimal for CI/CD and scripting
 
-### 使用方法
+### Usage
 ```bash
 diffai model1.safetensors model2.safetensors --output json
 ```
 
-### 出力例
+### Example Output
 ```json
 [
   {
@@ -105,43 +105,43 @@ diffai model1.safetensors model2.safetensors --output json
 ]
 ```
 
-### データ構造タイプ
+### Data Structure Types
 
-#### 基本変更タイプ
-- **Added**: `["key", value]` - 追加された要素
-- **Removed**: `["key", value]` - 削除された要素
-- **Modified**: `["key", old_value, new_value]` - 変更された要素
-- **TypeChanged**: `["key", old_type, new_type]` - 型が変更
+#### Basic Change Types
+- **Added**: `["key", value]` - Added element
+- **Removed**: `["key", value]` - Removed element
+- **Modified**: `["key", old_value, new_value]` - Modified element
+- **TypeChanged**: `["key", old_type, new_type]` - Type changed
 
-#### ML専用タイプ
-- **TensorStatsChanged**: テンソル統計変更
-- **TensorShapeChanged**: テンソル形状変更
-- **TensorAdded**: テンソル追加
-- **TensorRemoved**: テンソル削除
-- **LearningProgress**: 学習進捗分析
-- **ConvergenceAnalysis**: 収束分析
-- **AnomalyDetection**: 異常検出
-- **MemoryAnalysis**: メモリ分析
-- **DeploymentReadiness**: デプロイ準備度
-- **RiskAssessment**: リスク評価
+#### ML-Specific Types
+- **TensorStatsChanged**: Tensor statistics changed
+- **TensorShapeChanged**: Tensor shape changed
+- **TensorAdded**: Tensor added
+- **TensorRemoved**: Tensor removed
+- **LearningProgress**: Learning progress analysis
+- **ConvergenceAnalysis**: Convergence analysis
+- **AnomalyDetection**: Anomaly detection
+- **MemoryAnalysis**: Memory analysis
+- **DeploymentReadiness**: Deployment readiness
+- **RiskAssessment**: Risk assessment
 
-## YAML出力形式
+## YAML Output Format
 
-### 概要
-設定ファイルとドキュメント化に適した人間可読構造化データ形式。
+### Overview
+Human-readable structured data format suitable for configuration files and documentation.
 
-### 機能
-- **可読性**: 人間に優しい形式
-- **コメント**: コメントサポート
-- **階層構造**: 明確な階層表現
-- **設定ファイル**: 設定ファイルとして使用可能
+### Features
+- **Readability**: Human-friendly format
+- **Comments**: Comment support
+- **Hierarchical structure**: Clear hierarchy representation
+- **Configuration files**: Can be used as configuration files
 
-### 使用方法
+### Usage
 ```bash
 diffai model1.safetensors model2.safetensors --output yaml
 ```
 
-### 出力例
+### Example Output
 ```yaml
 - TensorStatsChanged:
   - fc1.bias
@@ -166,23 +166,23 @@ diffai model1.safetensors model2.safetensors --output yaml
     recommended_action: Reduce learning rate
 ```
 
-## Unified出力形式
+## Unified Output Format
 
-### 概要
-Git統合と従来のdiffツールとの互換性。
+### Overview
+Git integration and compatibility with traditional diff tools.
 
-### 機能
-- **Git統合**: git diffとの互換性
-- **マージツール**: 3-wayマージツールとの連携
-- **従来形式**: 既存のdiffツールとの互換性
-- **パッチ適用**: git applyで適用可能
+### Features
+- **Git integration**: Compatible with git diff
+- **Merge tools**: Works with 3-way merge tools
+- **Traditional format**: Compatible with existing diff tools
+- **Patch application**: Can be applied with git apply
 
-### 使用方法
+### Usage
 ```bash
 diffai config1.json config2.json --output unified
 ```
 
-### 出力例
+### Example Output
 ```diff
 --- config1.json
 +++ config2.json
@@ -197,60 +197,60 @@ diffai config1.json config2.json --output unified
  }
 ```
 
-## 出力形式選択ガイドライン
+## Output Format Selection Guidelines
 
-### 用途別
+### By Use Case
 
-| 用途 | 推奨形式 | 理由 |
-|------|----------|------|
-| 人間によるレビュー | CLI | カラー、直感的シンボル |
-| 自動化/スクリプト | JSON | 機械処理可能 |
-| 設定ファイル | YAML | 可読性、コメントサポート |
-| ドキュメント化 | YAML | 人間に優しい |
-| Git統合 | Unified | 既存ツールとの互換性 |
-| API統合 | JSON | 標準データ交換形式 |
-| レポート生成 | JSON | 構造化データ処理 |
+| Use Case | Recommended Format | Reason |
+|----------|-------------------|---------|
+| Human review | CLI | Colored, intuitive symbols |
+| Automation/scripting | JSON | Machine processable |
+| Configuration files | YAML | Readability, comment support |
+| Documentation | YAML | Human-friendly |
+| Git integration | Unified | Existing tool compatibility |
+| API integration | JSON | Standard data exchange format |
+| Report generation | JSON | Structured data processing |
 
-### 環境別
+### By Environment
 
-| 環境 | 推奨形式 | 理由 |
-|------|----------|------|
-| 対話的コマンドライン | CLI | 即座の理解 |
-| CI/CDパイプライン | JSON | 自動チェック |
-| 開発環境 | CLI | 迅速なデバッグ |
-| 本番環境 | JSON | ログとモニタリング |
-| 研究/実験 | YAML | 結果ドキュメント化 |
+| Environment | Recommended Format | Reason |
+|-------------|-------------------|---------|
+| Interactive command line | CLI | Immediate understanding |
+| CI/CD pipeline | JSON | Automated checks |
+| Development environment | CLI | Quick debugging |
+| Production environment | JSON | Logging and monitoring |
+| Research/experiments | YAML | Result documentation |
 
-## 高度な使用例
+## Advanced Usage Examples
 
-### パイプライン処理
+### Pipeline Processing
 ```bash
-# JSONを出力してjqで処理
+# Output JSON and process with jq
 diffai model1.safetensors model2.safetensors --output json | \
   jq '.[] | select(.TensorStatsChanged)'
 
-# YAMLを出力してファイル保存
+# Output YAML and save to file
 diffai config1.yaml config2.yaml --output yaml > changes.yaml
 ```
 
-### 条件分岐
+### Conditional Logic
 ```bash
-# 変更が存在するかチェック
+# Check if changes exist
 if diffai model1.safetensors model2.safetensors --output json | jq -e 'length > 0'; then
   echo "Changes detected"
 fi
 ```
 
-### 複数形式生成
+### Multiple Format Generation
 ```bash
-# 人間用と機械用の両方の形式を生成
+# Generate both human and machine readable formats
 diffai model1.safetensors model2.safetensors > human_readable.txt
 diffai model1.safetensors model2.safetensors --output json > machine_readable.json
 ```
 
-## 設定とカスタマイズ
+## Configuration and Customization
 
-### 設定ファイル
+### Configuration File
 ```toml
 [output]
 default = "cli"
@@ -267,7 +267,7 @@ warning = "yellow"
 error = "red"
 ```
 
-### 環境変数
+### Environment Variables
 ```bash
 export DIFFAI_OUTPUT_FORMAT="json"
 export DIFFAI_CLI_COLORS="true"
@@ -275,8 +275,9 @@ export DIFFAI_JSON_PRETTY="true"
 export DIFFAI_YAML_FLOW="false"
 ```
 
-## 関連ドキュメント
+## Related Documentation
 
-- [CLIリファレンス](cli-reference_ja.md) - 完全なコマンドラインオプション
-- [サポート形式](formats_ja.md) - 入力ファイル形式
-- [ML分析機能](ml-analysis_ja.md) - 機械学習分析機能
+- [CLI Reference](cli-reference.md) - Complete command-line options
+- [Supported Formats](formats.md) - Input file formats
+- [ML Analysis Functions](ml-analysis.md) - Machine learning analysis functions
+

@@ -1,6 +1,6 @@
-# CLIリファレンス
+# CLI リファレンス
 
-diffai v0.3.4のコマンドライン完全リファレンス - 簡素化されたインターフェースを持つAI/ML特化差分ツール
+diffai v0.3.4 の完全コマンドラインリファレンス - シンプルインターフェースのAI/ML特化diffツール。
 
 ## 概要
 
@@ -10,25 +10,25 @@ diffai [OPTIONS] <INPUT1> <INPUT2>
 
 ## 説明
 
-diffaiは、AI/MLワークフローに特化した差分ツールで、モデル構造、テンソル統計、科学データを理解します。PyTorchモデル、Safetensorsファイル、NumPy配列、MATLAB行列、構造化データファイルを比較し、フォーマットの違いではなく意味的な変更に焦点を当てます。
+diffaiはモデル構造、テンソル統計、科学データを理解するAI/MLワークフロー専用のdiffツールです。PyTorchモデル、Safetensorsファイル、NumPy配列、MATLAB行列、構造化データファイルを比較し、書式の違いではなく意味的な変化に焦点を当てます。
 
 ## 引数
 
 ### 必須引数
 
 #### `<INPUT1>`
-比較する最初の入力ファイルまたはディレクトリ
+比較する最初の入力ファイルまたはディレクトリ。
 
-- **型**: ファイルパスまたはディレクトリパス
+- **タイプ**: ファイルパスまたはディレクトリパス
 - **形式**: PyTorch (.pt/.pth)、Safetensors (.safetensors)、NumPy (.npy/.npz)、MATLAB (.mat)、JSON、YAML、TOML、XML、INI、CSV
-- **特殊**: 標準入力には`-`を使用
+- **特殊**: stdinを使用する場合は`-`
 
 #### `<INPUT2>`
-比較する2番目の入力ファイルまたはディレクトリ
+比較する2番目の入力ファイルまたはディレクトリ。
 
-- **型**: ファイルパスまたはディレクトリパス
+- **タイプ**: ファイルパスまたはディレクトリパス
 - **形式**: INPUT1と同じ
-- **特殊**: 標準入力には`-`を使用
+- **特殊**: stdinを使用する場合は`-`
 
 **例**:
 ```bash
@@ -39,108 +39,109 @@ diffai config.json config_new.json
 diffai - config.json < input.json
 ```
 
-## オプション
+## Options
 
-### 基本オプション
+### Basic Options
 
 #### `-f, --format <FORMAT>`
-入力ファイル形式を明示的に指定
+Specify input file format explicitly.
 
-- **可能な値**: `json`, `yaml`, `toml`, `ini`, `xml`, `csv`, `safetensors`, `pytorch`, `numpy`, `npz`, `matlab`
-- **デフォルト**: ファイル拡張子から自動検出
-- **例**: `--format safetensors`
+- **Possible values**: `json`, `yaml`, `toml`, `ini`, `xml`, `csv`, `safetensors`, `pytorch`, `numpy`, `npz`, `matlab`
+- **Default**: Auto-detected from file extension
+- **Example**: `--format safetensors`
 
 #### `-o, --output <OUTPUT>`
-出力形式を選択
+Choose output format.
 
-- **可能な値**: `cli`, `json`, `yaml`, `unified`
-- **デフォルト**: `cli`
-- **例**: `--output json`
+- **Possible values**: `cli`, `json`, `yaml`, `unified`
+- **Default**: `cli`
+- **Example**: `--output json`
 
 #### `-r, --recursive`
-ディレクトリを再帰的に比較
+Compare directories recursively.
 
-- **例**: `diffai dir1/ dir2/ --recursive`
+- **Example**: `diffai dir1/ dir2/ --recursive`
 
 
-### 高度なオプション
+### Advanced Options
 
 #### `--path <PATH>`
-特定のパスで差分をフィルタリング
+Filter differences by a specific path.
 
-- **例**: `--path "config.users[0].name"`
-- **形式**: JSONPath風の構文
+- **Example**: `--path "config.users[0].name"`
+- **Format**: JSONPath-like syntax
 
 #### `--ignore-keys-regex <REGEX>`
-正規表現にマッチするキーを無視
+Ignore keys matching a regular expression.
 
-- **例**: `--ignore-keys-regex "^id$"`
-- **形式**: 標準正規表現パターン
+- **Example**: `--ignore-keys-regex "^id$"`
+- **Format**: Standard regex pattern
 
 #### `--epsilon <FLOAT>`
-浮動小数点比較の許容値を設定
+Set tolerance for float comparisons.
 
-- **例**: `--epsilon 0.001`
-- **デフォルト**: マシンイプシロン
+- **Example**: `--epsilon 0.001`
+- **Default**: Machine epsilon
 
 #### `--array-id-key <KEY>`
-配列要素識別用のキーを指定
+Specify key for identifying array elements.
 
-- **例**: `--array-id-key "id"`
-- **用途**: 構造化配列の比較
+- **Example**: `--array-id-key "id"`
+- **Usage**: For structured array comparison
 
 #### `-v, --verbose`
-パフォーマンス指標、設定詳細、診断出力を含む詳細な処理情報を表示します。
+Show verbose processing information including performance metrics, configuration details, and diagnostic output.
 
-- **例**: `diffai model1.safetensors model2.safetensors --verbose`
-- **用途**: 分析プロセスとパフォーマンスのデバッグ
+- **Example**: `diffai model1.safetensors model2.safetensors --verbose`
+- **Usage**: Debug analysis process and performance
 
 #### `--no-color`
-スクリプト、パイプライン、ANSIカラーをサポートしていない端末との互換性を向上させるため、カラー出力を無効にします。
+Disable colored output for better compatibility with scripts, pipelines, or terminals that don't support ANSI colors.
 
-- **例**: `diffai config.json config.new.json --no-color`
-- **用途**: カラーフォーマットなしのプレーンテキスト出力
-- **注記**: CI/CD環境や自動化スクリプトで特に有用
+- **Example**: `diffai config.json config.new.json --no-color`
+- **Usage**: Plain text output without color formatting
+- **Note**: Particularly useful for CI/CD environments and automated scripts
 
-## ML分析機能
 
-### ML分析（PyTorch/Safetensorsファイルで自動実行）
+## ML Analysis Functions
 
-**PyTorch（.pt/.pth）およびSafetensors（.safetensors）ファイルに対して、diffaiは自動的に以下を含む包括的な分析を実行します：**
+### ML Analysis (Automatic for PyTorch/Safetensors)
 
-#### 包括的分析スイート（30以上の機能）
+**For PyTorch (.pt/.pth) and Safetensors (.safetensors) files, diffai automatically performs comprehensive analysis including:**
 
-- **基本統計**: 各テンソルの平均、標準偏差、最小/最大値、形状、データ型
-- **量子化分析**: 圧縮率、精度損失分析
-- **アーキテクチャ比較**: 構造検出、レイヤー深度比較、移行評価
-- **メモリ分析**: メモリデルタ、ピーク使用量推定、最適化推奨
-- **異常検出**: NaN/Inf検出、勾配爆発・消失分析
-- **収束分析**: パラメータ安定性、早期停止推奨
-- **勾配分析**: 勾配フロー健全性、ノルム推定、問題レイヤー
-- **変更サマリ**: 変更幅度分析、パターン、レイヤーランキング
-- **類似度行列**: レイヤー間類似度、クラスタリング係数
-- **デプロイ準備**: 本番デプロイメント安全性評価
-- **リスク評価**: 変更影響評価
-- **パフォーマンス影響**: 速度と効率分析
-- **パラメータ効率**: 最適化機会
-- **回帰テスト**: 品質保証検証
-- **学習進度**: トレーニング進度追跡
-- **埋め込み分析**: セマンティックドリフト検出
-- **アテンション分析**: Transformerアテンションパターン分析
-- **統計的有意性**: 変更有意性テスト
-- **転移学習分析**: ファインチューニング効果
-- **アンサンブル分析**: 複数モデル比較
-- **ハイパーパラメータ影響**: 設定変更効果
-- **学習率分析**: 最適化スケジュール効果
-- **その他多数...**
+#### Comprehensive Analysis Suite (30+ Features)
 
-**🎯 フラグ不要** - 最適なユーザー体験のため、すべての分析が自動的に実行されます。
+- **Basic Statistics**: Mean, standard deviation, min/max, shape, dtype for each tensor
+- **Quantization Analysis**: Compression ratio, precision loss analysis  
+- **Architecture Comparison**: Structure detection, layer depth comparison, migration assessment
+- **Memory Analysis**: Memory delta, peak usage estimation, optimization recommendations
+- **Anomaly Detection**: NaN/Inf detection, gradient explosion/vanishing analysis
+- **Convergence Analysis**: Parameter stability, early stopping recommendations
+- **Gradient Analysis**: Gradient flow health, norm estimation, problematic layers
+- **Change Summary**: Magnitude analysis, patterns, layer rankings
+- **Similarity Matrix**: Layer-to-layer similarities, clustering coefficient
+- **Deployment Readiness**: Production deployment safety assessment
+- **Risk Assessment**: Change impact evaluation
+- **Performance Impact**: Speed and efficiency analysis
+- **Parameter Efficiency**: Optimization opportunities
+- **Regression Testing**: Quality assurance validation
+- **Learning Progress**: Training progress tracking
+- **Embedding Analysis**: Semantic drift detection
+- **Attention Analysis**: Transformer attention pattern analysis
+- **Statistical Significance**: Change significance testing
+- **Transfer Learning Analysis**: Fine-tuning effectiveness
+- **Ensemble Analysis**: Multi-model comparison
+- **Hyperparameter Impact**: Configuration change effects
+- **Learning Rate Analysis**: Optimization schedule effectiveness
+- **And more...**
 
-**例**: `diffai model1.safetensors model2.safetensors` を実行するだけで包括的な分析が得られます。
+**🎯 No flags required** - all analysis is performed automatically for optimal user experience.
 
-## 出力例
+**Example**: Simply run `diffai model1.safetensors model2.safetensors` to get comprehensive analysis.
 
-### CLI出力（デフォルト - 完全分析）
+## Output Examples
+
+### CLI Output (Default - Full Analysis)
 
 ```bash
 $ diffai model_v1.safetensors model_v2.safetensors
@@ -160,21 +161,21 @@ deployment_readiness: readiness=0.92, risk=low, timeline=ready_for_immediate_dep
   ~ fc3.weight: mean=-0.0035->-0.0010, std=0.0990->0.1113
 ```
 
-### 包括的分析の利点
+### Comprehensive Analysis Benefits
 
-- **30以上の分析機能**が自動実行
-- **オプション選択不要** - デフォルトですべての洞察を取得
-- **同じ処理時間** - パフォーマンス負荷なし
-- **本番対応の洞察** - デプロイ準備、リスク評価など
+- **30+ analysis functions** run automatically
+- **No option selection needed** - get all insights by default
+- **Same processing time** - no performance penalty
+- **Production-ready insights** - deployment readiness, risk assessment, etc.
 
-### 科学データ分析（自動）
+### Scientific Data Analysis (Automatic)
 
 ```bash
 $ diffai experiment_data_v1.npy experiment_data_v2.npy
   ~ data: shape=[1000, 256], mean=0.1234->0.1456, std=0.9876->0.9654, dtype=float64
 ```
 
-### MATLABファイル比較（自動）
+### MATLAB File Comparison (Automatic)
 
 ```bash
 $ diffai simulation_v1.mat simulation_v2.mat
@@ -182,7 +183,7 @@ $ diffai simulation_v1.mat simulation_v2.mat
   + new_variable: var=new_variable, shape=[100], dtype=single, elements=100, size=0.39KB
 ```
 
-### JSON出力
+### JSON Output
 
 ```bash
 $ diffai model_v1.safetensors model_v2.safetensors --output json
@@ -197,7 +198,7 @@ $ diffai model_v1.safetensors model_v2.safetensors --output json
 ]
 ```
 
-### YAML出力
+### YAML Output
 
 ```bash
 $ diffai model_v1.safetensors model_v2.safetensors --output yaml
@@ -213,44 +214,43 @@ $ diffai model_v1.safetensors model_v2.safetensors --output yaml
     dtype: f32
 ```
 
-## 終了コード
+## Exit Codes
 
-- **0**: 成功 - 差分が見つかったまたは差分なし
-- **1**: エラー - 無効な引数またはファイルアクセス問題
-- **2**: 致命的エラー - 内部処理失敗
+- **0**: Success - differences found or no differences
+- **1**: Error - invalid arguments or file access issues
+- **2**: Fatal error - internal processing failure
 
-## 環境変数
+## Environment Variables
 
-- **DIFFAI_LOG_LEVEL**: ログレベル (error, warn, info, debug)
-- **DIFFAI_MAX_MEMORY**: 最大メモリ使用量 (MB単位)
+diffai does not use environment variables for configuration. All settings are controlled through command-line options.
 
-## パフォーマンス考慮事項
+## Performance Considerations
 
-- **大容量ファイル**: diffaiはGB+ファイルにストリーミング処理を使用
-- **メモリ使用量**: `DIFFAI_MAX_MEMORY`で設定可能なメモリ制限
-- **並列処理**: 複数ファイル比較の自動並列化
-- **キャッシュ**: 繰り返し比較のためのインテリジェントキャッシュ
+- **Large Files**: diffai uses streaming processing for GB+ files
+- **Memory Usage**: Automatic memory optimization for large files
+- **Parallel Processing**: Automatic parallelization for multi-file comparisons
+- **Caching**: Intelligent caching for repeated comparisons
 
-## トラブルシューティング
+## Troubleshooting
 
-### 一般的な問題
+### Common Issues
 
-1. **"Binary files differ"メッセージ**: `--format`でファイル型を指定
-2. **メモリ不足**: `DIFFAI_MAX_MEMORY`環境変数を設定
-3. **処理が遅い**: 分析は大きなモデルに対して自動的に最適化されます
-4. **依存関係不足**: Rustツールチェーンが適切にインストールされていることを確認
+1. **"Binary files differ" message**: Use `--format` to specify file type
+2. **Out of memory**: Memory optimization is automatic for large files
+3. **Slow processing**: Analysis is optimized for large models automatically
+4. **Missing dependencies**: Ensure Rust toolchain is properly installed
 
-### デバッグモード
+### Debug Mode
 
-デバッグ出力を有効にする：
+Enable debug output with the `--verbose` option:
 ```bash
-DIFFAI_LOG_LEVEL=debug diffai model1.safetensors model2.safetensors
+diffai model1.safetensors model2.safetensors --verbose
 ```
 
-## 関連項目
+## See Also
 
-- [基本使用ガイド](../user-guide/basic-usage_ja.md)
-- [MLモデル比較ガイド](../user-guide/ml-model-comparison_ja.md)
-- [科学データ分析ガイド](../user-guide/scientific-data_ja.md)
-- [出力フォーマットリファレンス](output-formats_ja.md)
-- [サポートフォーマットリファレンス](formats_ja.md)
+- [Basic Usage Guide](../user-guide/basic-usage.md)
+- [ML Model Comparison Guide](../user-guide/ml-model-comparison.md)
+- [Scientific Data Analysis Guide](../user-guide/scientific-data.md)
+- [Output Format Reference](output-formats.md)
+- [Supported Formats Reference](formats.md)

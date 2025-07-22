@@ -1,19 +1,19 @@
-# 基本的な使用方法
+# 基本使用法
 
-diffai - AI/ML特化diffツールの基本操作を学習します。
+diffai - AI/ML特化diffツールの基本操作を学びましょう。
 
 ## クイックスタート
 
-### 基本的なファイル比較
+### 基本ファイル比較
 
 ```bash
-# 2つのモデルファイルを比較（包括的分析が自動実行）
+# 2つのモデルファイルを比較（包括解析自動）
 diffai model1.safetensors model2.safetensors
 
 # JSON形式で出力
 diffai model1.safetensors model2.safetensors --output json
 
-# YAML形式で出力
+# YAML形式で出力  
 diffai model1.safetensors model2.safetensors --output yaml
 ```
 
@@ -23,7 +23,7 @@ diffai model1.safetensors model2.safetensors --output yaml
 # ディレクトリ全体を再帰的に比較
 diffai dir1/ dir2/ --recursive
 
-# 特定のファイル形式で比較
+# 特定ファイル形式で比較
 diffai models_v1/ models_v2/ --format safetensors --recursive
 ```
 
@@ -32,17 +32,17 @@ diffai models_v1/ models_v2/ --format safetensors --recursive
 ### PyTorchモデル比較
 
 ```bash
-# PyTorchモデルファイルを比較（完全分析が自動実行）
+# PyTorchモデルファイルを比較（完全解析自動）
 diffai model1.pt model2.pt
 
-# 学習チェックポイントの比較
+# 訓練チェックポイントを比較  
 diffai checkpoint_epoch_1.pt checkpoint_epoch_10.pt
 
-# ベースラインと改良モデルの比較
+# Compare baseline vs improved model
 diffai baseline_model.pt improved_model.pt
 ```
 
-**出力例（完全分析）：**
+**Example Output (Full Analysis):**
 ```
 anomaldy_detection: type=none, severity=none, action="continue_training"
 architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
@@ -57,54 +57,54 @@ deployment_readiness: readiness=0.92, risk=low
   ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
 ```
 
-### Safetensorsファイル比較
+### Safetensors File Comparison
 
 ```bash
-# Safetensorsファイルを比較（包括的分析が自動実行）
+# Compare Safetensors files (comprehensive analysis automatic)
 diffai model1.safetensors model2.safetensors
 
-# 本番デプロイ検証用
+# For production deployment validation
 diffai baseline.safetensors candidate.safetensors
 ```
 
-### 科学データ比較
+### Scientific Data Comparison
 
 ```bash
-# NumPy配列を比較（自動統計）
+# Compare NumPy arrays (automatic statistics)
 diffai data_v1.npy data_v2.npy
 
-# MATLABファイルを比較（自動統計）
+# Compare MATLAB files (automatic statistics)
 diffai simulation_v1.mat simulation_v2.mat
 
-# 圧縮NumPyアーカイブを比較（自動統計）
+# Compare compressed NumPy archives (automatic statistics)
 diffai dataset_v1.npz dataset_v2.npz
 ```
 
-## コマンドオプション
+## Command Options
 
-### 基本オプション
+### Basic Options
 
-| オプション | 説明 | 例 |
-|-----------|------|---|
-| `-f, --format` | 入力ファイル形式を指定 | `--format safetensors` |
-| `-o, --output` | 出力形式を選択 | `--output json` |
-| `-r, --recursive` | ディレクトリを再帰的に比較 | `--recursive` |
-| `-v, --verbose` | 詳細な処理情報を表示 | `--verbose` |
+| Option | Description | Example |
+|--------|-------------|---------|
+| `-f, --format` | Specify input file format | `--format safetensors` |
+| `-o, --output` | Choose output format | `--output json` |
+| `-r, --recursive` | Compare directories recursively | `--recursive` |
+| `-v, --verbose` | Show verbose processing info | `--verbose` |
 
-### 高度なオプション
+### Advanced Options
 
-| オプション | 説明 | 例 |
-|-----------|------|---|
-| `--path` | 特定のパスでフィルタ | `--path "config.model"` |
-| `--ignore-keys-regex` | 正規表現にマッチするキーを無視 | `--ignore-keys-regex "^id$"` |
-| `--epsilon` | 浮動小数点比較の許容誤差 | `--epsilon 0.001` |
-| `--array-id-key` | 配列要素の識別 | `--array-id-key "id"` |
+| Option | Description | Example |
+|--------|-------------|---------|
+| `--path` | Filter by specific path | `--path "config.model"` |
+| `--ignore-keys-regex` | Ignore keys matching regex | `--ignore-keys-regex "^id$"` |
+| `--epsilon` | Float comparison tolerance | `--epsilon 0.001` |
+| `--array-id-key` | Array element identification | `--array-id-key "id"` |
 
-## 出力形式
+## Output Formats
 
-### CLI出力（デフォルト - 完全分析）
+### CLI Output (Default - Full Analysis)
 
-包括的分析付きの人間可読カラー出力：
+Human-readable colored output with comprehensive analysis:
 
 ```bash
 $ diffai model_v1.safetensors model_v2.safetensors
@@ -121,7 +121,7 @@ deployment_readiness: readiness=0.92, risk=low
   ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
 ```
 
-### JSON出力
+### JSON Output
 
 ```bash
 diffai model1.safetensors model2.safetensors --output json
@@ -139,7 +139,7 @@ diffai model1.safetensors model2.safetensors --output json
 ]
 ```
 
-### YAML出力
+### YAML Output
 
 ```bash
 diffai model1.safetensors model2.safetensors --output yaml
@@ -159,19 +159,19 @@ diffai model1.safetensors model2.safetensors --output yaml
 ```
 
 
-## 実践的な例
+## Practical Examples
 
-### 実験比較
+### Experiment Comparison
 
 ```bash
-# 2つの実験結果を比較
+# Compare two experiment results
 diffai experiment_v1/ experiment_v2/ --recursive
 
-# モデルチェックポイントを比較（自動学習分析）
+# Compare model checkpoints (automatic learning analysis)
 diffai checkpoints/epoch_10.safetensors checkpoints/epoch_20.safetensors
 ```
 
-### CI/CD使用
+### CI/CD Usage
 
 ```yaml
 - name: Compare models
@@ -183,32 +183,33 @@ diffai checkpoints/epoch_10.safetensors checkpoints/epoch_20.safetensors
     diffai baseline/model.safetensors candidate/model.safetensors
 ```
 
-### 科学データ分析
+### Scientific Data Analysis
 
 ```bash
-# NumPy実験結果を比較（自動統計）
+# Compare NumPy experiment results (automatic statistics)
 diffai baseline_results.npy new_results.npy
 
-# MATLABシミュレーションデータを比較
+# Compare MATLAB simulation data
 diffai simulation_v1.mat simulation_v2.mat
 ```
 
-## サポートされているファイル形式
+## Supported File Formats
 
-### MLモデル形式
-- **Safetensors** (.safetensors) - HuggingFace標準形式
-- **PyTorch** (.pt, .pth) - PyTorchモデルファイル
+### ML Model Formats
+- **Safetensors** (.safetensors) - HuggingFace standard format
+- **PyTorch** (.pt, .pth) - PyTorch model files
 
-### 科学データ形式
-- **NumPy** (.npy, .npz) - 統計分析付きNumPy配列
-- **MATLAB** (.mat) - 複素数サポート付きMATLAB行列
+### Scientific Data Formats
+- **NumPy** (.npy, .npz) - NumPy arrays with statistical analysis
+- **MATLAB** (.mat) - MATLAB matrices with complex number support
 
-### 構造化データ形式
+### Structured Data Formats
 - **JSON** (.json), **YAML** (.yaml, .yml), **TOML** (.toml)
 - **XML** (.xml), **INI** (.ini), **CSV** (.csv)
 
-## 次のステップ
+## Next Steps
 
-- [MLモデル比較](ml-model-comparison_ja.md) - 高度なMLモデル分析
-- [科学データ分析](scientific-data_ja.md) - NumPyとMATLABファイル比較
-- [CLIリファレンス](../reference/cli-reference_ja.md) - 完全なコマンドリファレンス
+- [ML Model Comparison](ml-model-comparison.md) - Advanced ML model analysis
+- [Scientific Data Analysis](scientific-data.md) - NumPy and MATLAB file comparison
+- [CLI Reference](../reference/cli-reference.md) - Complete command reference
+
