@@ -1,48 +1,48 @@
-# 基本用法
+# Basic Usage
 
-学习 diffai - AI/ML 专用差异工具的基本操作。
+Learn the fundamental operations of diffai - AI/ML specialized diff tool.
 
-## 快速开始
+## Quick Start
 
-### 基本文件比较
+### Basic File Comparison
 
 ```bash
-# 比较两个模型文件（自动进行综合分析）
+# Compare two model files (comprehensive analysis automatic)
 diffai model1.safetensors model2.safetensors
 
-# 以 JSON 格式输出
+# Output in JSON format
 diffai model1.safetensors model2.safetensors --output json
 
-# 以 YAML 格式输出
+# Output in YAML format  
 diffai model1.safetensors model2.safetensors --output yaml
 ```
 
-### 目录比较
+### Directory Comparison
 
 ```bash
-# 递归比较整个目录
+# Compare entire directories recursively
 diffai dir1/ dir2/ --recursive
 
-# 指定特定文件格式进行比较
+# Compare with specific file format
 diffai models_v1/ models_v2/ --format safetensors --recursive
 ```
 
-## AI/ML 专用功能
+## AI/ML Specialized Features
 
-### PyTorch 模型比较
+### PyTorch Model Comparison
 
 ```bash
-# 比较 PyTorch 模型文件（自动进行完整分析）
+# Compare PyTorch model files (full analysis automatic)
 diffai model1.pt model2.pt
 
-# 比较训练检查点
+# Compare training checkpoints  
 diffai checkpoint_epoch_1.pt checkpoint_epoch_10.pt
 
-# 比较基线与改进模型
+# Compare baseline vs improved model
 diffai baseline_model.pt improved_model.pt
 ```
 
-**示例输出（完整分析）：**
+**Example Output (Full Analysis):**
 ```
 anomaldy_detection: type=none, severity=none, action="continue_training"
 architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
@@ -57,54 +57,54 @@ deployment_readiness: readiness=0.92, risk=low
   ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
 ```
 
-### Safetensors 文件比较
+### Safetensors File Comparison
 
 ```bash
-# 比较 Safetensors 文件（自动进行综合分析）
+# Compare Safetensors files (comprehensive analysis automatic)
 diffai model1.safetensors model2.safetensors
 
-# 用于生产部署验证
+# For production deployment validation
 diffai baseline.safetensors candidate.safetensors
 ```
 
-### 科学数据比较
+### Scientific Data Comparison
 
 ```bash
-# 比较 NumPy 数组（自动统计）
+# Compare NumPy arrays (automatic statistics)
 diffai data_v1.npy data_v2.npy
 
-# 比较 MATLAB 文件（自动统计）
+# Compare MATLAB files (automatic statistics)
 diffai simulation_v1.mat simulation_v2.mat
 
-# 比较压缩的 NumPy 归档（自动统计）
+# Compare compressed NumPy archives (automatic statistics)
 diffai dataset_v1.npz dataset_v2.npz
 ```
 
-## 命令选项
+## Command Options
 
-### 基本选项
+### Basic Options
 
-| 选项 | 描述 | 示例 |
-|------|------|------|
-| `-f, --format` | 指定输入文件格式 | `--format safetensors` |
-| `-o, --output` | 选择输出格式 | `--output json` |
-| `-r, --recursive` | 递归比较目录 | `--recursive` |
-| `-v, --verbose` | 显示详细处理信息 | `--verbose` |
+| Option | Description | Example |
+|--------|-------------|---------|
+| `-f, --format` | Specify input file format | `--format safetensors` |
+| `-o, --output` | Choose output format | `--output json` |
+| `-r, --recursive` | Compare directories recursively | `--recursive` |
+| `-v, --verbose` | Show verbose processing info | `--verbose` |
 
-### 高级选项
+### Advanced Options
 
-| 选项 | 描述 | 示例 |
-|------|------|------|
-| `--path` | 按特定路径过滤 | `--path "config.model"` |
-| `--ignore-keys-regex` | 忽略匹配正则表达式的键 | `--ignore-keys-regex "^id$"` |
-| `--epsilon` | 浮点比较容差 | `--epsilon 0.001` |
-| `--array-id-key` | 数组元素标识 | `--array-id-key "id"` |
+| Option | Description | Example |
+|--------|-------------|---------|
+| `--path` | Filter by specific path | `--path "config.model"` |
+| `--ignore-keys-regex` | Ignore keys matching regex | `--ignore-keys-regex "^id$"` |
+| `--epsilon` | Float comparison tolerance | `--epsilon 0.001` |
+| `--array-id-key` | Array element identification | `--array-id-key "id"` |
 
-## 输出格式
+## Output Formats
 
-### CLI 输出（默认 - 完整分析）
+### CLI Output (Default - Full Analysis)
 
-带有综合分析的人类可读彩色输出：
+Human-readable colored output with comprehensive analysis:
 
 ```bash
 $ diffai model_v1.safetensors model_v2.safetensors
@@ -121,7 +121,7 @@ deployment_readiness: readiness=0.92, risk=low
   ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
 ```
 
-### JSON 输出
+### JSON Output
 
 ```bash
 diffai model1.safetensors model2.safetensors --output json
@@ -139,7 +139,7 @@ diffai model1.safetensors model2.safetensors --output json
 ]
 ```
 
-### YAML 输出
+### YAML Output
 
 ```bash
 diffai model1.safetensors model2.safetensors --output yaml
@@ -159,19 +159,19 @@ diffai model1.safetensors model2.safetensors --output yaml
 ```
 
 
-## 实际示例
+## Practical Examples
 
-### 实验比较
+### Experiment Comparison
 
 ```bash
-# 比较两个实验结果
+# Compare two experiment results
 diffai experiment_v1/ experiment_v2/ --recursive
 
-# 比较模型检查点（自动学习分析）
+# Compare model checkpoints (automatic learning analysis)
 diffai checkpoints/epoch_10.safetensors checkpoints/epoch_20.safetensors
 ```
 
-### CI/CD 用法
+### CI/CD Usage
 
 ```yaml
 - name: Compare models
@@ -183,32 +183,33 @@ diffai checkpoints/epoch_10.safetensors checkpoints/epoch_20.safetensors
     diffai baseline/model.safetensors candidate/model.safetensors
 ```
 
-### 科学数据分析
+### Scientific Data Analysis
 
 ```bash
-# 比较 NumPy 实验结果（自动统计）
+# Compare NumPy experiment results (automatic statistics)
 diffai baseline_results.npy new_results.npy
 
-# 比较 MATLAB 仿真数据
+# Compare MATLAB simulation data
 diffai simulation_v1.mat simulation_v2.mat
 ```
 
-## 支持的文件格式
+## Supported File Formats
 
-### ML 模型格式
-- **Safetensors** (.safetensors) - HuggingFace 标准格式
-- **PyTorch** (.pt, .pth) - PyTorch 模型文件
+### ML Model Formats
+- **Safetensors** (.safetensors) - HuggingFace standard format
+- **PyTorch** (.pt, .pth) - PyTorch model files
 
-### 科学数据格式
-- **NumPy** (.npy, .npz) - 带统计分析的 NumPy 数组
-- **MATLAB** (.mat) - 支持复数的 MATLAB 矩阵
+### Scientific Data Formats
+- **NumPy** (.npy, .npz) - NumPy arrays with statistical analysis
+- **MATLAB** (.mat) - MATLAB matrices with complex number support
 
-### 结构化数据格式
+### Structured Data Formats
 - **JSON** (.json), **YAML** (.yaml, .yml), **TOML** (.toml)
 - **XML** (.xml), **INI** (.ini), **CSV** (.csv)
 
-## 下一步
+## Next Steps
 
-- [ML 模型比较](ml-model-comparison_zh.md) - 高级 ML 模型分析
-- [科学数据分析](scientific-data_zh.md) - NumPy 和 MATLAB 文件比较
-- [CLI 参考](../reference/cli-reference_zh.md) - 完整命令参考
+- [ML Model Comparison](ml-model-comparison.md) - Advanced ML model analysis
+- [Scientific Data Analysis](scientific-data.md) - NumPy and MATLAB file comparison
+- [CLI Reference](../reference/cli-reference.md) - Complete command reference
+

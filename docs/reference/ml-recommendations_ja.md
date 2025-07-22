@@ -1,64 +1,64 @@
 # ML推奨システム
 
-> **11軸評価による AI/ML モデル分析用インテリジェント推奨システム**
+> **11軸評価を伴うAI/MLモデル解析用インテリジェント推奨システム**
 
-ML推奨システムは、モデル分析結果に基づいて実行可能な洞察を提供し、差異が検出された際にユーザーが取るべき行動を理解するのを支援します。
+ML推奨システムは、モデル解析結果に基づいて実行可能な洞察を提供し、差異が検出された際にユーザーが取るべき行動を理解するのを支援します。
 
-## 概要
+## Overview
 
-MLモデル（PyTorch、Safetensors）を比較する際、diffaiは以下に基づいて自動的にインテリジェントな推奨を生成します：
+When comparing ML models (PyTorch, Safetensors), diffai automatically generates intelligent recommendations based on:
 
-- **11の評価軸** MLワークフローの全側面をカバー
-- **3つの優先度レベル** (CRITICAL、WARNING、RECOMMENDATIONS)
-- **33の事前定義された自然な英語メッセージ** 動的値埋め込み対応
-- **業界のベストプラクティス** 閾値と行動指針
+- **11 evaluation axes** covering all aspects of ML workflows
+- **3 priority levels** (CRITICAL, WARNING, RECOMMENDATIONS)
+- **33 predefined natural English messages** with dynamic value embedding
+- **Industry best practices** for thresholds and actions
 
-## 評価マトリックス
+## Evaluation Matrix
 
-### 11の評価軸
+### 11 Evaluation Axes
 
-1. **精度・性能の劣化** - モデル精度、推論速度、メモリ使用量
-2. **過学習・汎化性能** - 訓練/検証ギャップ、汎化能力
-3. **再現性・実験管理** - シード一貫性、決定論的操作
-4. **本番デプロイのリスク** - 安定性、破壊的変更、デプロイ準備度
-5. **データドリフト・分布シフト** - 入力分布変化、セマンティックドリフト
-6. **計算効率・コスト** - 訓練コスト、GPU使用量、パラメータ効率
-7. **モデルの解釈性** - 注意パターン、特徴重要度の安定性
-8. **互換性・統合** - ONNX出力、量子化、API変更
-9. **セキュリティ・プライバシー** - データ記憶化リスク、モデルサイズ増加
-10. **MLOpsワークフロー** - CI/CD統合、モデル管理、収束
-11. **ファインチューニング特有** - 破滅的忘却、転移学習効果
+1. **Performance Degradation** - Model accuracy, inference speed, memory usage
+2. **Overfitting & Generalization** - Training/validation gaps, generalization ability
+3. **Reproducibility & Experiment Management** - Seed consistency, deterministic operations
+4. **Production Deployment Risk** - Stability, breaking changes, deployment readiness
+5. **Data Drift & Distribution Shift** - Input distribution changes, semantic drift
+6. **Computational Efficiency & Cost** - Training cost, GPU usage, parameter efficiency
+7. **Model Interpretability** - Attention patterns, feature importance stability
+8. **Compatibility & Integration** - ONNX export, quantization, API changes
+9. **Security & Privacy** - Data memorization risks, model size increases
+10. **MLOps Workflow** - CI/CD integration, model management, convergence
+11. **Fine-tuning Specific** - Catastrophic forgetting, transfer learning effectiveness
 
-### 3つの優先度レベル
+### 3 Priority Levels
 
-#### [CRITICAL] - 即座の対応が必要
-- **性能劣化**: >10%（重要度：critical）
-- **推論速度**: >3.0倍遅く
-- **メモリ使用量**: >1000MB増加
-- **過学習リスク**: >90%
-- **再現性**: <50%スコア
-- **勾配問題**: 勾配爆発・消失
-- **デプロイ**: ブロック状態
+#### [CRITICAL] - Immediate Action Required
+- **Performance degradation**: >10% with critical severity
+- **Inference speed**: >3.0x slower
+- **Memory usage**: >1000MB increase
+- **Overfitting risk**: >90%
+- **Reproducibility**: <50% score
+- **Gradient issues**: Exploding/dead gradients
+- **Deployment**: Blocked status
 
-#### [WARNING] - 計画的対応が必要
-- **性能劣化**: >5%低下
-- **推論速度**: >1.5倍遅く
-- **メモリ使用量**: >500MB増加
-- **過学習リスク**: >70%
-- **再現性**: <80%スコア
-- **デプロイ準備度**: <60%
+#### [WARNING] - Planned Action Needed
+- **Performance degradation**: >5% drop
+- **Inference speed**: >1.5x slower
+- **Memory usage**: >500MB increase
+- **Overfitting risk**: >70%
+- **Reproducibility**: <80% score
+- **Deployment readiness**: <60%
 
-#### [RECOMMENDATIONS] - 改善提案
-- **性能劣化**: >2%変化
-- **推論速度**: >1.2倍遅く
-- **メモリ使用量**: >200MB増加
-- **過学習リスク**: >50%
-- **再現性**: <95%スコア
-- **パラメータ効率**: <80%
+#### [RECOMMENDATIONS] - Improvement Suggested
+- **Performance degradation**: >2% change
+- **Inference speed**: >1.2x slower
+- **Memory usage**: >200MB increase
+- **Overfitting risk**: >50%
+- **Reproducibility**: <95% score
+- **Parameter efficiency**: <80%
 
-## 出力例
+## Example Output
 
-### クリティカル問題
+### Critical Issues
 ```
 [CRITICAL]
 • Model performance severely degraded by 15.2%. Stop deployment and investigate root cause.
@@ -66,7 +66,7 @@ MLモデル（PyTorch、Safetensors）を比較する際、diffaiは以下に基
 • Memory usage increased critically (+1200MB). Risk of GPU memory exhaustion.
 ```
 
-### 警告レベル
+### Warning Level
 ```
 [WARNING]
 • Performance regression detected (7.3% drop). Run comprehensive validation before proceeding.
@@ -74,7 +74,7 @@ MLモデル（PyTorch、Safetensors）を比較する際、diffaiは以下に基
 • High overfitting risk (80%). Implement early stopping or increase regularization.
 ```
 
-### 推奨事項
+### Recommendations
 ```
 [RECOMMENDATIONS]
 • Minor performance change (3.1%). Monitor metrics and validate on holdout set.
@@ -82,112 +82,112 @@ MLモデル（PyTorch、Safetensors）を比較する際、diffaiは以下に基
 • Parameter efficiency could be improved (75%). Consider optimization techniques.
 ```
 
-## 閾値設定
+## Threshold Configuration
 
-### 業界基準の閾値
+### Industry-Based Thresholds
 
-閾値はAI/ML業界のベストプラクティスに基づいて設定されています：
+The thresholds are set based on AI/ML industry best practices:
 
-| メトリック | CRITICAL | WARNING | RECOMMENDATIONS |
-|-----------|----------|---------|-----------------|
-| **性能低下** | >10% | >5% | >2% |
-| **推論速度** | >3.0倍 | >1.5倍 | >1.2倍 |
-| **メモリ増加** | >1000MB | >500MB | >200MB |
-| **過学習リスク** | >90% | >70% | >50% |
-| **再現性** | <50% | <80% | <95% |
-| **パラメータ効率** | <30% | <60% | <80% |
-| **注意一貫性** | <40% | <70% | <85% |
-| **セマンティックドリフト** | >80% | >40% | >20% |
-| **精度損失** | >10% | >3% | >1% |
-| **パラメータ更新** | >80% | >50% | >30% |
-| **デプロイ準備度** | hold | <60% | <80% |
+| Metric | CRITICAL | WARNING | RECOMMENDATIONS |
+|--------|----------|---------|-----------------|
+| **Performance Drop** | >10% | >5% | >2% |
+| **Inference Speed** | >3.0x | >1.5x | >1.2x |
+| **Memory Increase** | >1000MB | >500MB | >200MB |
+| **Overfitting Risk** | >90% | >70% | >50% |
+| **Reproducibility** | <50% | <80% | <95% |
+| **Parameter Efficiency** | <30% | <60% | <80% |
+| **Attention Consistency** | <40% | <70% | <85% |
+| **Semantic Drift** | >80% | >40% | >20% |
+| **Precision Loss** | >10% | >3% | >1% |
+| **Parameter Updates** | >80% | >50% | >30% |
+| **Deployment Readiness** | hold | <60% | <80% |
 
-## 出力形式
+## Output Format
 
-### CLIのみ
-推奨事項は**CLI出力形式でのみ**表示され、構造化データ形式（JSON/YAML）の純粋性を保ちます。
+### CLI Only
+Recommendations are displayed **only in CLI output format** to maintain the purity of structured data formats (JSON/YAML).
 
-### メッセージ構造
-各推奨事項は以下のパターンに従います：
+### Message Structure
+Each recommendation follows the pattern:
 ```
 [LEVEL]
-• 具体的な値を含む問題の説明。技術的詳細を含む推奨行動。
+• Problem description with specific values. Recommended action with technical details.
 ```
 
-### 動的値埋め込み
-メッセージには文脈情報が含まれます：
-- **パーセンテージ**: 性能変化、効率比
-- **絶対値**: メモリ使用量、パラメータ数
-- **倍率**: 速度比、圧縮率
-- **カウント**: 影響レイヤー数、異常インスタンス
+### Dynamic Value Embedding
+Messages include contextual information:
+- **Percentages**: Performance changes, efficiency ratios
+- **Absolute values**: Memory usage, parameter counts
+- **Multipliers**: Speed ratios, compression factors
+- **Counts**: Affected layers, anomaly instances
 
-## MLワークフローとの統合
+## Integration with ML Workflows
 
-### CI/CD統合
+### CI/CD Integration
 ```bash
-# 終了コードは最高優先レベルを反映
+# Exit codes reflect highest priority level
 diffai baseline.safetensors candidate.safetensors
-echo $?  # 0=問題なし、1=推奨、2=警告、3=クリティカル
+echo $?  # 0=no issues, 1=recommendations, 2=warnings, 3=critical
 ```
 
-### MLOpsパイプライン
+### MLOps Pipeline
 ```bash
-# 自動処理用JSON出力
+# JSON output for automated processing
 diffai model_v1.pt model_v2.pt --output json | jq '.recommendations[]'
 ```
 
-### 開発ワークフロー
+### Development Workflow
 ```bash
-# 推奨付きの通常モデル比較
+# Regular model comparison with recommendations
 diffai checkpoint_epoch_10.pt checkpoint_epoch_20.pt
-# モデル開発進捗の即座フィードバック取得
+# Get immediate feedback on model development progress
 ```
 
-## 技術実装
+## Technical Implementation
 
-### メッセージ事前定義
-33のメッセージテンプレートがすべて自然な英語で事前定義され、以下を保証します：
-- **一貫性**: 統一されたメッセージ構造とトーン
-- **明確性**: 専門的で実行可能な言語
-- **完全性**: 問題説明 + 解決ガイダンス
+### Message Predefinition
+All 33 message templates are predefined in natural English to ensure:
+- **Consistency**: Uniform message structure and tone
+- **Clarity**: Professional, actionable language
+- **Completeness**: Problem description + solution guidance
 
-### 評価順序
-1. **分析結果収集** モデル比較から
-2. **閾値評価** 全11軸にわたって
-3. **優先度レベル決定** (CRITICAL > WARNING > RECOMMENDATIONS)
-4. **メッセージ生成** 動的値埋め込みで
-5. **出力形式化** 色付き重要度インジケーター付き
+### Evaluation Order
+1. **Analysis results collection** from model comparison
+2. **Threshold evaluation** across all 11 axes
+3. **Priority level determination** (CRITICAL > WARNING > RECOMMENDATIONS)
+4. **Message generation** with dynamic value embedding
+5. **Output formatting** with colored severity indicators
 
-### 性能考慮事項
-- **推奨生成なしの場合はゼロオーバーヘッド**
-- **閾値評価の最小処理**
-- **メッセージ生成の効率的文字列形式化**
-- **可読性のため上位5推奨に限定**
+### Performance Considerations
+- **Zero overhead** when no recommendations are generated
+- **Minimal processing** for threshold evaluation
+- **Efficient string formatting** for message generation
+- **Limited output** to top 5 recommendations for readability
 
-## ベストプラクティス
+## Best Practices
 
-### ユーザー向け
-1. **CRITICALな問題は即座に確認** - これらはブロッキング問題を示します
-2. **WARNING問題は計画的に** - 次の開発サイクルで対応
-3. **RECOMMENDATIONSを検討** - リソースが許す範囲で実装
-4. **トレンドを監視** - 時間経過による推奨パターンを追跡
+### For Users
+1. **Review CRITICAL issues immediately** - These indicate blocking problems
+2. **Plan for WARNING issues** - Address in next development cycle
+3. **Consider RECOMMENDATIONS** - Implement when resources allow
+4. **Monitor trends** - Track recommendation patterns over time
 
-### 自動化向け
-1. **CI/CD閾値設定** リスク許容度に基づいて
-2. **推奨ログ記録** トレンド分析用
-3. **アラートシステム統合** CRITICAL問題用
-4. **構造化出力使用** プログラマティック処理用
+### For Automation
+1. **Set CI/CD thresholds** based on your risk tolerance
+2. **Log recommendations** for trend analysis
+3. **Integrate with alerting** systems for CRITICAL issues
+4. **Use structured output** for programmatic processing
 
-## カスタマイゼーション
+## Customization
 
-### 閾値調整
-現在、閾値は業界ベストプラクティスに基づいてハードコードされています。将来バージョンでは以下をサポート予定：
-- カスタム閾値用設定ファイル
-- ドメイン固有閾値プロファイル
-- モデル特性に基づく適応閾値
+### Threshold Adjustment
+Currently, thresholds are hardcoded based on industry best practices. Future versions may support:
+- Configuration files for custom thresholds
+- Domain-specific threshold profiles
+- Adaptive thresholds based on model characteristics
 
-### メッセージカスタマイゼーション
-システムは事前定義英語メッセージを使用します。将来の拡張には以下を含む予定：
-- 多言語サポート
-- カスタムメッセージテンプレート
-- 組織固有の専門用語
+### Message Customization
+The system uses predefined English messages. Future enhancements may include:
+- Multi-language support
+- Custom message templates
+- Organization-specific terminology

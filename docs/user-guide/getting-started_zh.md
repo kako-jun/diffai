@@ -1,143 +1,182 @@
-# 开始使用 diffai
+# Getting Started with diffai
 
-本综合指南将帮助您快速有效地开始使用 `diffai`。
+This comprehensive guide will help you get up and running with `diffai` quickly and effectively.
 
-## 什么是 diffai？
+## What is diffai?
 
-`diffai` 是一个AI驱动的差异工具，超越了传统比较。它结合语义理解和机器学习能力，为结构化数据文件之间的变化提供智能洞察。
+`diffai` is an AI-powered diff tool that goes beyond traditional comparison. It combines semantic understanding with machine learning capabilities to provide intelligent insights into changes between structured data files.
 
-### 主要优势
+### Key Benefits
 
-- **AI增强分析**: 使用机器学习检测变化中的模式和异常
-- **语义理解**: 理解数据变化的含义和上下文
-- **多种格式**: 支持JSON、YAML、TOML、XML、CSV等
-- **智能洞察**: 提供变化模式的ML驱动分析
-- **高级统计**: 数据分布和趋势的统计分析
+- **AI-Enhanced Analysis**: Uses machine learning to detect patterns and anomalies in changes
+- **Semantic Understanding**: Understands the meaning and context of data changes
+- **Multiple Formats**: Supports JSON, YAML, TOML, XML, CSV, and more
+- **Intelligent Insights**: Provides ML-driven analysis of change patterns
+- **Advanced Statistics**: Statistical analysis of data distributions and trends
 
-## 先决条件
+## Prerequisites
 
-开始之前，请确保已安装 `diffai`。详细说明请参见[安装指南](installation.md)。
+Before starting, make sure you have `diffai` installed. See the [Installation Guide](installation.md) for detailed instructions.
 
-快速安装:
+Quick install:
 ```bash
 cargo install diffai
 ```
 
-## 基本用法
+## Basic Usage
 
-### 简单文件比较
+### Simple File Comparison
 
-最基本的用法是比较两个文件：
+The most basic usage is comparing two files:
 
 ```bash
-# 使用AI分析比较JSON文件
+# Compare JSON files with AI analysis
 diffai config_v1.json config_v2.json
 
-# 使用ML洞察比较YAML文件
+# Compare YAML files with ML insights
 diffai docker-compose.yml docker-compose.new.yml
 
-# 比较TOML文件
+# Compare TOML files
 diffai Cargo.toml Cargo.toml.backup
 
-# 比较XML文件
+# Compare XML files
 diffai settings.xml settings.new.xml
 
-# 使用统计分析比较CSV文件
+# Compare CSV files with statistical analysis
 diffai data.csv data_updated.csv
 ```
 
-### 输出格式
+### Output Formats
 
-控制结果显示方式：
+Control how results are displayed:
 
 ```bash
-# 用于API集成的JSON输出
+# JSON output for API integration
 diffai --format json file1.json file2.json
 
-# 用于人类可读性的YAML输出
+# YAML output for human readability
 diffai --format yaml config1.yml config2.yml
 
-# 带有ML分析详情的详细输出
+# Verbose output with ML analysis details
 diffai --verbose data1.csv data2.csv
 ```
 
-### 递归目录比较
+### Recursive Directory Comparison
 
-比较整个目录结构：
+Compare entire directory structures:
 
 ```bash
-# 比较目录中的所有文件
+# Compare all files in directories
 diffai --recursive dir1/ dir2/
 
-# 将结果保存到文件
+# Save results to file
 diffai --recursive --output results.json dir1/ dir2/
 ```
 
-## 高级功能
+## Advanced Features
 
-### 机器学习分析
+### Machine Learning Analysis
 
-启用AI驱动的分析以获得更深入的洞察：
+Enable AI-powered analysis for deeper insights:
 
 ```bash
-# 启用ML异常检测
+# Enable ML anomaly detection
 diffai --epsilon 0.01 dataset1.json dataset2.json
 
-# 使用智能ID匹配进行数组比较
+# Array comparison with intelligent ID matching
 diffai --array-id-key id users1.json users2.json
 
-# 使用正则表达式忽略特定模式
+# Ignore specific patterns with regex
 diffai --ignore-keys-regex "timestamp|temp_" log1.json log2.json
 ```
 
-## 常见用例
+### Path-specific Analysis
 
-### 配置管理
+Focus on specific data paths:
 
 ```bash
-# 比较应用程序配置
+# Analyze specific configuration paths
+diffai --path "database.config" app1.json app2.json
+
+# Multiple path analysis
+diffai --path "users[].preferences" user_data1.json user_data2.json
+```
+
+### Statistical Insights
+
+Get statistical analysis of your data changes:
+
+```bash
+# Verbose mode shows statistical summaries
+diffai --verbose financial_q1.csv financial_q2.csv
+
+# Focus on numerical changes with epsilon tolerance
+diffai --epsilon 0.001 metrics1.json metrics2.json
+```
+
+## Common Use Cases
+
+### Configuration Management
+
+```bash
+# Compare application configurations
 diffai app-config-dev.json app-config-prod.json
 
-# 跟踪基础设施变化
+# Track infrastructure changes
 diffai --recursive infrastructure/dev/ infrastructure/prod/
 ```
 
-### 数据分析
+### Data Analysis
 
 ```bash
-# 使用ML洞察比较数据集
+# Compare datasets with ML insights
 diffai --verbose --epsilon 0.05 dataset_before.csv dataset_after.csv
 
-# 跟踪用户行为变化
+# Track user behavior changes
 diffai --array-id-key user_id users_jan.json users_feb.json
 ```
 
-## 获取帮助
-
-有关特定功能的详细信息：
+### API Response Comparison
 
 ```bash
-# 显示所有可用选项
+# Compare API responses
+diffai --ignore-keys-regex "timestamp|request_id" api_v1.json api_v2.json
+
+# Focus on data payload only
+diffai --path "data" response1.json response2.json
+```
+
+## Getting Help
+
+For more detailed information about specific features:
+
+```bash
+# Show all available options
 diffai --help
 
-# 获取版本信息
+# Get version information
 diffai --version
 ```
 
-## 下一步
+## Next Steps
 
-- 了解高级AI分析的[ML工作流程](ml-workflows.md)
-- 探索[科学数据](scientific-data.md)分析功能
-- 查看详细报告的[详细输出](verbose-output.md)
-- 查看更多示例的[基本用法](basic-usage.md)
+- Learn about [ML Workflows](ml-workflows.md) for advanced AI analysis
+- Explore [Scientific Data](scientific-data.md) analysis capabilities  
+- Check out [Verbose Output](verbose-output.md) for detailed reporting
+- Review [Basic Usage](basic-usage.md) for more examples
 
-## 故障排除
+## Troubleshooting
 
-### 常见问题
+### Common Issues
 
-**大文件**: 对于非常大的文件，考虑使用 `--path` 专注于特定部分。
+**Large Files**: For very large files, consider using `--path` to focus on specific sections.
 
-**内存使用**: 对于大型数据集，使用 `--format json` 以提高内存效率。
+**Memory Usage**: Use `--format json` for better memory efficiency with large datasets.
 
-**性能**: 只有在需要详细ML分析时才启用详细模式。
+**Performance**: Enable verbose mode only when you need detailed ML analysis.
 
+### Performance Tips
+
+- Use `--ignore-keys-regex` to skip irrelevant fields
+- Specify `--path` for targeted analysis
+- Consider `--epsilon` for numerical tolerance in large datasets

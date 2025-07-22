@@ -1,110 +1,110 @@
-# サポートされている形式
+# サポート形式
 
 diffaiがサポートするファイル形式とその仕様。
 
 ## 概要
 
-diffaiは、機械学習モデルから科学データ、構造化設定ファイルまで、さまざまな用途に最適化された幅広いファイル形式をサポートします。
+diffaiは機械学習モデルから科学データ、構造化設定ファイルまで、さまざまな用途に最適化された幅広いファイル形式をサポートします。
 
 ## 機械学習モデル形式
 
-### PyTorchモデル
-- **拡張子**: `.pt`, `.pth`
-- **形式**: CandleライブラリとのPickle形式統合
-- **サポート**: テンソル統計、形状変更、パラメータ追加/削除
-- **データ型**: F32, F64, F16, BF16, I64, U32, U8
+### PyTorch Models
+- **Extensions**: `.pt`, `.pth`
+- **Format**: Pickle format with Candle library integration
+- **Support**: Tensor statistics, shape changes, parameter additions/deletions
+- **Data Types**: F32, F64, F16, BF16, I64, U32, U8
 
-**例**:
+**Example**:
 ```bash
 diffai model1.pt model2.pt
 ```
 
-### Safetensorsモデル
-- **拡張子**: `.safetensors`
-- **形式**: HuggingFace Safetensors形式（推奨）
-- **サポート**: 高速読み込み、メモリ効率、セキュア
-- **データ型**: F32, F64, F16, BF16, I64, U32, U8
+### Safetensors Models
+- **Extension**: `.safetensors`
+- **Format**: HuggingFace Safetensors format (recommended)
+- **Support**: Fast loading, memory efficient, secure
+- **Data Types**: F32, F64, F16, BF16, I64, U32, U8
 
-**例**:
+**Example**:
 ```bash
 diffai model1.safetensors model2.safetensors
 ```
 
-## 科学データ形式
+## Scientific Data Formats
 
-### NumPy配列
-- **拡張子**: `.npy`, `.npz`
-- **形式**: NumPy配列形式
-- **サポート**: 統計分析、形状比較、データ型検証
-- **データ型**: 全NumPyデータ型
+### NumPy Arrays
+- **Extensions**: `.npy`, `.npz`
+- **Format**: NumPy array format
+- **Support**: Statistical analysis, shape comparison, data type validation
+- **Data Types**: All NumPy data types
 
-**例**:
+**Example**:
 ```bash
 diffai data1.npy data2.npy
 diffai archive1.npz archive2.npz
 ```
 
-### MATLAB行列
-- **拡張子**: `.mat`
-- **形式**: MATLAB行列ファイル
-- **サポート**: 複素数、変数名、多次元配列
-- **データ型**: double, single, int8-64, uint8-64, logical
+### MATLAB Matrices
+- **Extension**: `.mat`
+- **Format**: MATLAB matrix files
+- **Support**: Complex numbers, variable names, multi-dimensional arrays
+- **Data Types**: double, single, int8-64, uint8-64, logical
 
-**例**:
+**Example**:
 ```bash
 diffai simulation1.mat simulation2.mat
 ```
 
-## 構造化データ形式
+## Structured Data Formats
 
 ### JSON
-- **拡張子**: `.json`
-- **形式**: JavaScript Object Notation
-- **サポート**: ネストされたオブジェクト、配列、基本データ型
-- **用途**: 設定ファイル、APIレスポンス、実験結果
+- **Extension**: `.json`
+- **Format**: JavaScript Object Notation
+- **Support**: Nested objects, arrays, basic data types
+- **Use Cases**: Configuration files, API responses, experiment results
 
 ### YAML
-- **拡張子**: `.yaml`, `.yml`
-- **形式**: YAML Ain't Markup Language
-- **サポート**: 階層構造、コメント、複数ドキュメント
-- **用途**: 設定ファイル、CI/CD、Kubernetes
+- **Extensions**: `.yaml`, `.yml`
+- **Format**: YAML Ain't Markup Language
+- **Support**: Hierarchical structure, comments, multiple documents
+- **Use Cases**: Configuration files, CI/CD, Kubernetes
 
 ### TOML
-- **拡張子**: `.toml`
-- **形式**: Tom's Obvious, Minimal Language
-- **サポート**: 型安全、設定指向構造
-- **用途**: Rust設定、プロジェクト設定
+- **Extension**: `.toml`
+- **Format**: Tom's Obvious, Minimal Language
+- **Support**: Type-safe, configuration-oriented structure
+- **Use Cases**: Rust configuration, project settings
 
 ### XML
-- **拡張子**: `.xml`
-- **形式**: eXtensible Markup Language
-- **サポート**: 属性、名前空間、階層構造
-- **用途**: 設定ファイル、データ交換
+- **Extension**: `.xml`
+- **Format**: eXtensible Markup Language
+- **Support**: Attributes, namespaces, hierarchical structure
+- **Use Cases**: Configuration files, data exchange
 
 ### INI
-- **拡張子**: `.ini`
-- **形式**: Initialization file
-- **サポート**: セクション、キー値ペア
-- **用途**: 設定ファイル、レガシーアプリケーション
+- **Extension**: `.ini`
+- **Format**: Initialization file
+- **Support**: Sections, key-value pairs
+- **Use Cases**: Configuration files, legacy applications
 
 ### CSV
-- **拡張子**: `.csv`
-- **形式**: Comma-Separated Values
-- **サポート**: 表形式データ、ヘッダー行
-- **用途**: データ分析、スプレッドシート
+- **Extension**: `.csv`
+- **Format**: Comma-Separated Values
+- **Support**: Tabular data, header rows
+- **Use Cases**: Data analysis, spreadsheets
 
-## 形式自動検出
+## Format Auto-Detection
 
-diffaiは以下の優先順位で形式を検出します：
+diffai detects formats in the following priority order:
 
-1. **--format** オプション（明示的指定）
-2. **ファイル拡張子** ベースの自動検出
-3. **設定ファイル** デフォルト形式
-4. **エラー**（判定不可能な場合）
+1. **--format** option (explicit specification)
+2. **File extension** based auto-detection
+3. **Configuration file** default format
+4. **Error** (if unable to determine)
 
-## 実装状況
+## Implementation Status
 
-### フェーズ1-2（完了）
+### Phase 1-2 (Completed)
 - ✅ PyTorch (.pt, .pth)
 - ✅ Safetensors (.safetensors)
 - ✅ NumPy (.npy, .npz)
@@ -116,30 +116,30 @@ diffaiは以下の優先順位で形式を検出します：
 - ✅ INI (.ini)
 - ✅ CSV (.csv)
 
-### フェーズ3（計画中）
+### Phase 3 (Planned)
 - ⏳ TensorFlow (.pb, .h5, SavedModel)
 - ⏳ ONNX (.onnx)
 - ⏳ HDF5 (.h5, .hdf5)
 
-## 形式比較
+## Format Comparison
 
-### MLモデル形式
+### ML Model Formats
 
-| 形式 | 速度 | セキュリティ | メモリ効率 | 推奨 |
-|------|------|------------|-----------|------|
-| Safetensors | 高 | 高 | 高 | 推奨 |
-| PyTorch | 中 | 低 | 中 | 利用可能 |
+| Format | Speed | Security | Memory Efficiency | Recommendation |
+|--------|-------|----------|------------------|----------------|
+| Safetensors | High | High | High | Recommended |
+| PyTorch | Medium | Low | Medium | Available |
 
-### 科学データ形式
+### Scientific Data Formats
 
-| 形式 | 精度 | 圧縮 | 複素数 | 推奨用途 |
-|------|------|------|--------|----------|
-| NumPy | 高 | 中 | サポート | Python科学計算 |
-| MATLAB | 高 | 低 | サポート | MATLAB環境 |
+| Format | Precision | Compression | Complex Numbers | Recommended Use |
+|--------|-----------|-------------|-----------------|-----------------|
+| NumPy | High | Medium | Supported | Python scientific computing |
+| MATLAB | High | Low | Supported | MATLAB environment |
 
-## 関連ドキュメント
+## Related Documentation
 
-- [CLIリファレンス](cli-reference_ja.md) - 完全なコマンドラインオプション
-- [ML分析機能](ml-analysis_ja.md) - 機械学習特化機能
-- [出力形式](output-formats_ja.md) - 出力形式仕様
+- [CLI Reference](cli-reference.md) - Complete command-line options
+- [ML Analysis Functions](ml-analysis.md) - Machine learning specialized functions
+- [Output Formats](output-formats.md) - Output format specifications
 

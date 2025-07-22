@@ -1,120 +1,120 @@
-# ML/AI工作流
+# ML/AI Workflows
 
-机器学习和AI开发中diffai集成指南。
+Integration guide for machine learning and AI development with diffai.
 
-## ML开发用例
+## ML Development Use Cases
 
-### 1. 模型开发与改进
+### 1. Model Development & Improvement
 
 ```bash
-# 比较新架构与基线（自动综合分析）
+# Compare new architecture with baseline (comprehensive analysis automatic)
 diffai baseline/resnet18.pth experiment/resnet34.pth
 
-# 微调前后比较（自动综合分析）
+# Before/after fine-tuning comparison (comprehensive analysis automatic)
 diffai pretrained/model.pth finetuned/model.pth
 ```
 
-### 2. 实验管理
+### 2. Experiment Management
 
 ```bash
-# 比较实验结果
+# Compare experiment results
 diffai experiment_001/ experiment_002/ --recursive --include "*.json"
 
-# 检查超参数差异
+# Check hyperparameter differences
 diffai config/baseline.yaml config/experiment.yaml
 ```
 
-### 3. 模型优化
+### 3. Model Optimization
 
 ```bash
-# 比较量化前后
+# Compare before/after quantization
 diffai original/model.pth quantized/model.pth --show-structure
 
-# 检查剪枝效果
+# Check pruning effects
 diffai full/model.pth pruned/model.pth --diff-only
 ```
 
-## 典型工作流
+## Typical Workflow
 
-### 实验循环
+### Experiment Cycle
 
 ```bash
-# 1. 运行基线实验
+# 1. Run baseline experiment
 python train.py --config baseline.yaml --output baseline/
 
-# 2. 运行新实验
+# 2. Run new experiment
 python train.py --config experiment.yaml --output experiment/
 
-# 3. 比较结果
+# 3. Compare results
 diffai baseline/ experiment/ --recursive --include "*.json" --include "*.pth"
 
-# 4. 详细分析（自动综合分析）
+# 4. Detailed analysis (comprehensive analysis automatic)
 diffai baseline/model.pth experiment/model.pth
 ```
 
-### 模型比较报告
+### Model Comparison Report
 
 ```bash
-# 生成全面比较报告（30+分析功能自动）
+# Generate comprehensive comparison report (30+ analysis features automatic)
 diffai baseline/model.pth experiment/model.pth --output json > comparison.json
 
-# 可视化报告
+# Visualize report
 python scripts/visualize_comparison.py comparison.json
 ```
 
-## 实际示例
+## Practical Examples
 
-### PyTorch模型演进跟踪
+### PyTorch Model Evolution Tracking
 
 ```bash
-# 跨轮次跟踪模型变化
+# Track model changes across epochs
 for checkpoint in checkpoints/epoch_*.pth; do
-  echo "=== 轮次 $(basename $checkpoint .pth | cut -d_ -f2) ==="
+  echo "=== Epoch $(basename $checkpoint .pth | cut -d_ -f2) ==="
   diffai checkpoints/epoch_1.pth $checkpoint --show-structure --diff-only
 done
 ```
 
-**示例输出：**
+**Example Output:**
 ```
-=== 轮次 5 ===
-模型变化：
-  无结构变化
-  参数：11,689,512 -> 11,689,512（0%变化）
-  权重更新：94.3%的参数已修改
+=== Epoch 5 ===
+Model Changes:
+  No structural changes
+  Parameters: 11,689,512 -> 11,689,512 (0% change)
+  Weight updates: 94.3% of parameters modified
 
-=== 轮次 10 ===
-模型变化：
-  无结构变化  
-  参数：11,689,512 -> 11,689,512（0%变化）
-  权重更新：87.1%的参数已修改
+=== Epoch 10 ===
+Model Changes:
+  No structural changes  
+  Parameters: 11,689,512 -> 11,689,512 (0% change)
+  Weight updates: 87.1% of parameters modified
 ```
 
-### Safetensors格式比较
+### Safetensors Format Comparison
 
 ```bash
-# 比较Hugging Face格式模型
+# Compare Hugging Face format models
 diffai model_v1/model.safetensors model_v2/model.safetensors --tensor-details
 
-# 专注于特定层
+# Focus on specific layers
 diffai model_v1/model.safetensors model_v2/model.safetensors --filter "attention.*"
 ```
 
-### 数据集变化跟踪
+### Dataset Change Tracking
 
 ```bash
-# 跟踪数据集变化
+# Track dataset changes
 diffai dataset_v1.csv dataset_v2.csv --format json
 
-# 比较训练/验证数据分布
+# Compare train/validation data distributions
 diffai train.csv val.csv --show-distribution
 ```
 
-## 持续集成
+## Continuous Integration
 
-### GitHub Actions集成
+### GitHub Actions Integration
 
 ```yaml
-name: ML模型比较
+name: ML Model Comparison
 
 on:
   pull_request:
@@ -128,33 +128,33 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: 安装diffai
+    - name: Install diffai
       run: cargo install diffai
     
-    - name: 比较模型
+    - name: Compare models
       run: |
-        # 比较PR分支模型与main分支模型
+        # Compare PR branch model with main branch model
         git checkout main
         cp models/current.pth /tmp/main_model.pth
         git checkout -
         
         diffai /tmp/main_model.pth models/current.pth --format json > model_diff.json
         
-    - name: 评论PR
+    - name: Comment PR
       uses: actions/github-script@v6
       with:
         script: |
           const fs = require('fs');
           const diff = JSON.parse(fs.readFileSync('model_diff.json', 'utf8'));
           
-          const comment = `## 模型比较报告
+          const comment = `## Model Comparison Report
           
-          **参数数量：** ${diff.comparison.param_diff}
-          **结构变化：** ${diff.comparison.structure_changes}
-          **重大变化：** ${diff.comparison.significant_changes}
+          **Parameter Count:** ${diff.comparison.param_diff}
+          **Structure Changes:** ${diff.comparison.structure_changes}
+          **Significant Changes:** ${diff.comparison.significant_changes}
           
           <details>
-          <summary>详细比较</summary>
+          <summary>Detailed Comparison</summary>
           
           \`\`\`json
           ${JSON.stringify(diff, null, 2)}
@@ -169,7 +169,7 @@ jobs:
           });
 ```
 
-### MLflow集成
+### MLflow Integration
 
 ```python
 # mlflow_integration.py
@@ -178,9 +178,9 @@ import subprocess
 import json
 
 def compare_models_with_mlflow(run_id1, run_id2):
-    """比较MLflow运行之间的模型"""
+    """Compare models between MLflow runs"""
     
-    # 从MLflow下载模型
+    # Download models from MLflow
     model1_path = mlflow.artifacts.download_artifacts(
         run_id=run_id1, artifact_path="model/model.pth"
     )
@@ -188,14 +188,14 @@ def compare_models_with_mlflow(run_id1, run_id2):
         run_id=run_id2, artifact_path="model/model.pth"
     )
     
-    # 使用diffai比较
+    # Compare with diffai
     result = subprocess.run([
         "diffai", model1_path, model2_path, "--format", "json"
     ], capture_output=True, text=True)
     
     comparison = json.loads(result.stdout)
     
-    # 将结果记录到MLflow
+    # Log results to MLflow
     with mlflow.start_run():
         mlflow.log_dict(comparison, "model_comparison.json")
         mlflow.log_metric("param_count_diff", comparison["param_diff"])
@@ -203,35 +203,35 @@ def compare_models_with_mlflow(run_id1, run_id2):
     return comparison
 ```
 
-## 性能分析
+## Performance Analysis
 
-### 模型大小跟踪
+### Model Size Tracking
 
 ```bash
-# 跟踪模型大小变化
+# Track model size changes
 diffai baseline/model.pth optimized/model.pth --show-size-reduction
 
-# 比较多个模型大小
+# Compare multiple model sizes
 for model in models/*.pth; do
   size=$(stat -f%z "$model")
   name=$(basename "$model")
-  echo "$name: $size 字节"
+  echo "$name: $size bytes"
 done | sort -k2 -n
 ```
 
-### 量化影响评估
+### Quantization Impact Assessment
 
 ```bash
-# 比较量化前后
+# Compare before/after quantization
 diffai full_precision/model.pth quantized/model.pth --quantization-analysis
 
-# 检查精度影响
+# Check accuracy impact
 diffai full_precision/results.json quantized/results.json --metric-comparison
 ```
 
-## 最佳实践
+## Best Practices
 
-### 1. 比较自动化
+### 1. Comparison Automation
 
 ```bash
 # comparison_script.sh
@@ -241,34 +241,34 @@ BASELINE="baseline/model.pth"
 EXPERIMENT="experiment/model.pth"
 REPORT="comparison_report.json"
 
-# 基本比较
+# Basic comparison
 diffai $BASELINE $EXPERIMENT --format json > $REPORT
 
-# 检查结构变化
+# Check for structural changes
 if diffai $BASELINE $EXPERIMENT --diff-only --quiet; then
-    echo "未检测到结构变化"
+    echo "No structural changes detected"
 else
-    echo "警告：发现结构变化 - 需要审查"
+    echo "WARNING: Structural changes found - review required"
     diffai $BASELINE $EXPERIMENT --show-structure
 fi
 
-# 检查参数数量变化
+# Check parameter count changes
 python scripts/check_param_changes.py $REPORT
 ```
 
-### 2. 团队协作
+### 2. Team Collaboration
 
 ```bash
-# 生成团队比较报告
+# Generate team comparison report
 diffai model1.pth model2.pth --output json > team_comparison.json
 
-# 通过Slack通知团队
+# Notify team via Slack
 curl -X POST -H 'Content-type: application/json' \
-  --data '{"text":"模型比较已完成：查看附件报告"}' \
+  --data '{"text":"Model comparison completed: see attached report"}' \
   $SLACK_WEBHOOK_URL
 ```
 
-## 与ML工具集成
+## Integration with ML Tools
 
 ### Weights & Biases
 
@@ -278,7 +278,7 @@ import subprocess
 import json
 
 def log_model_comparison(run1, run2):
-    # 比较wandb中的两个模型
+    # Compare two models from wandb
     comparison = subprocess.run([
         "diffai", f"wandb_models/{run1}.pth", f"wandb_models/{run2}.pth", 
         "--format", "json"
@@ -308,8 +308,9 @@ def log_comparison_to_tensorboard(model1, model2, step):
     writer.close()
 ```
 
-## 下一步
+## Next Steps
 
-- [配置](configuration.md) - 高级配置
-- [API参考](../api/cli.md) - 完整命令参考
-- [示例](../examples/) - 实际使用示例
+- [Configuration](configuration.md) - Advanced configuration
+- [API Reference](../api/cli.md) - Complete command reference
+- [Examples](../examples/) - Practical usage examples
+

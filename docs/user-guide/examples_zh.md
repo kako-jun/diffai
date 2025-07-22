@@ -1,25 +1,25 @@
-# 示例
+# Examples
 
-本页面提供了在各种场景中使用diffai的综合示例，展示其AI驱动的分析能力。
+This page provides comprehensive examples of using diffai in various scenarios, demonstrating its AI-powered analysis capabilities.
 
-## 基本用法示例
+## Basic Usage Examples
 
-### JSON配置文件
+### JSON Configuration Files
 
-使用AI洞察比较应用程序配置文件：
+Compare application configuration files with AI insights:
 
 ```bash
-# 基本JSON比较
+# Basic JSON comparison
 diffai config-dev.json config-prod.json
 
-# 带有ML分析的输出
+# Output with ML analysis
 diffai --verbose config-dev.json config-prod.json
 
-# 专注于特定配置路径
+# Focus on specific configuration paths
 diffai --path "database.settings" config-dev.json config-prod.json
 ```
 
-**示例文件:**
+**Example files:**
 ```json
 // config-dev.json
 {
@@ -46,146 +46,202 @@ diffai --path "database.settings" config-dev.json config-prod.json
 }
 ```
 
-### YAML Docker Compose文件
+### YAML Docker Compose Files
 
 ```bash
-# 比较Docker Compose配置
+# Compare Docker Compose configurations
 diffai docker-compose.yml docker-compose.prod.yml
 
-# 忽略时间戳相关的更改
+# Ignore timestamp-related changes
 diffai --ignore-keys-regex "created_at|updated_at" docker-compose.yml docker-compose.new.yml
 ```
 
-### CSV数据分析
+### CSV Data Analysis
 
-使用统计分析比较数据集：
+Compare datasets with statistical analysis:
 
 ```bash
-# 使用ML洞察比较销售数据
+# Compare sales data with ML insights
 diffai --verbose --epsilon 0.05 sales-q1.csv sales-q2.csv
 
-# 专注于特定列
+# Focus on specific columns
 diffai --path "revenue,profit" financial-data-old.csv financial-data-new.csv
 ```
 
-## 高级AI分析示例
+## Advanced AI Analysis Examples
 
-### 异常检测
+### Anomaly Detection
 
 ```bash
-# 检测用户行为数据中的异常
+# Detect anomalies in user behavior data
 diffai --epsilon 0.01 --verbose user-metrics-baseline.json user-metrics-current.json
 
-# 使用智能ID匹配进行数组比较
+# Array comparison with intelligent ID matching
 diffai --array-id-key "user_id" users-jan.json users-feb.json
 ```
 
-### 机器学习模型比较
+### Machine Learning Model Comparison
 
 ```bash
-# 比较ML模型配置
+# Compare ML model configurations
 diffai --verbose --path "hyperparameters" model-v1.json model-v2.json
 
-# 使用统计容差比较训练结果
+# Compare training results with statistical tolerance
 diffai --epsilon 0.001 training-results-baseline.json training-results-new.json
 ```
 
-### 科学数据分析
+### Scientific Data Analysis
 
 ```bash
-# 比较实验数据集
+# Compare experimental datasets
 diffai --verbose --epsilon 0.01 experiment-control.csv experiment-test.csv
 
-# 研究目录的递归比较
+# Recursive comparison of research directories
 diffai --recursive --output analysis-report.json research-v1/ research-v2/
 ```
 
-## 格式特定示例
+## Format-Specific Examples
 
-### XML配置文件
+### XML Configuration Files
 
 ```bash
-# 比较Spring Boot配置
+# Compare Spring Boot configurations
 diffai application-dev.xml application-prod.xml
 
-# Maven POM文件比较
+# Maven POM file comparison
 diffai pom.xml pom.xml.backup
 ```
 
-### TOML Cargo文件
+### TOML Cargo Files
 
 ```bash
-# 比较Rust项目依赖项
+# Compare Rust project dependencies
 diffai Cargo.toml Cargo.toml.new
 
-# 仅关注依赖项更改
+# Focus on dependency changes only
 diffai --path "dependencies" Cargo.toml Cargo.toml.updated
 ```
 
-## 集成示例
+### INI Configuration Files
 
-### CI/CD管道集成
+```bash
+# Compare application settings
+diffai app.ini app-new.ini
+
+# Database configuration comparison
+diffai database.ini database-backup.ini
+```
+
+## Integration Examples
+
+### CI/CD Pipeline Integration
 
 ```bash
 #\!/bin/bash
-# 自动化配置漂移检测
+# Automated configuration drift detection
 diffai --format json --output config-drift.json \
   production-config.json staging-config.json
 
-# 如果检测到重大更改则以错误退出
+# Exit with error if significant changes detected
 if [ $(jq '.changes | length' config-drift.json) -gt 10 ]; then
-  echo "检测到重大配置漂移！"
+  echo "Significant configuration drift detected\!"
   exit 1
 fi
 ```
 
-### API响应监控
+### API Response Monitoring
 
 ```bash
-# 回归测试的API响应比较
+# Compare API responses for regression testing
 diffai --ignore-keys-regex "timestamp|request_id" \
   api-response-baseline.json api-response-current.json
 
-# 仅关注数据负载更改
+# Focus on data payload changes only
 diffai --path "data" api-v1-response.json api-v2-response.json
 ```
 
-## 现实世界场景
-
-### 系统配置监控
+### Database Schema Evolution
 
 ```bash
-# 日常配置漂移检查
+# Compare database schema exports
+diffai --verbose schema-v1.json schema-v2.json
+
+# Track migration changes
+diffai --recursive migrations-old/ migrations-new/
+```
+
+## Output Format Examples
+
+### JSON Output for Automation
+
+```bash
+# Generate machine-readable reports
+diffai --format json --output report.json dataset1.csv dataset2.csv
+
+# Pipe to jq for processing
+diffai --format json file1.json file2.json | jq '.summary.change_count'
+```
+
+### YAML Output for Human Review
+
+```bash
+# Human-friendly reports
+diffai --format yaml --verbose config1.yml config2.yml > changes-report.yml
+```
+
+### Verbose Analysis Reports
+
+```bash
+# Comprehensive ML analysis
+diffai --verbose --epsilon 0.01 \
+  --output detailed-analysis.json \
+  large-dataset-before.csv large-dataset-after.csv
+```
+
+## Real-World Scenarios
+
+### Monitoring System Configuration
+
+```bash
+# Daily configuration drift check
 diffai --recursive --format json \
   /etc/production-config/ /etc/staging-config/ > daily-drift-report.json
 ```
 
-### 数据质量保证
+### Data Quality Assurance
 
 ```bash
-# 比较数据质量指标
+# Compare data quality metrics
 diffai --verbose --epsilon 0.05 \
   quality-metrics-baseline.json quality-metrics-current.json
 ```
 
-## 提示和最佳实践
+### Performance Regression Testing
 
-### 选择正确的选项
+```bash
+# Compare performance benchmarks
+diffai --epsilon 0.1 --path "performance_metrics" \
+  benchmark-baseline.json benchmark-current.json
+```
 
-- 对科学数据中的数值容差使用`--epsilon`
-- 对时间戳等动态字段使用`--ignore-keys-regex`
-- 使用`--path`将分析集中在特定数据部分
-- 对智能数组元素匹配使用`--array-id-key`
+## Tips and Best Practices
 
-### 性能优化
+### Choosing the Right Options
 
-- 从基本比较开始，仅在需要时添加`--verbose`
-- 对大型数据集使用`--format json`以减少内存使用
-- 对于非常大的文件考虑使用`--path`过滤
+- Use `--epsilon` for numerical tolerance in scientific data
+- Use `--ignore-keys-regex` for dynamic fields like timestamps
+- Use `--path` to focus analysis on specific data sections
+- Use `--array-id-key` for intelligent array element matching
 
-### 集成模式
+### Performance Optimization
 
-- 与`jq`结合进行JSON输出处理
-- 在脚本中使用退出代码进行自动化决策
-- 在CI/CD中生成报告以进行变更跟踪
+- Start with basic comparison, add `--verbose` only when needed
+- Use `--format json` for large datasets to reduce memory usage
+- Consider `--path` filtering for very large files
+
+### Integration Patterns
+
+- Combine with `jq` for JSON output processing
+- Use exit codes in scripts for automated decision making
+- Generate reports in CI/CD for change tracking
 

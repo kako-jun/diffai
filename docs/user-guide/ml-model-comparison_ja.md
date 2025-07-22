@@ -1,64 +1,68 @@
-# MLモデル比較ガイド
+# ML Model Comparison Guide
 
-PyTorchやSafetensorsファイルなど、機械学習モデルを比較するためのdiffaiの特別な機能について説明します。
+This guide covers diffai's specialized features for comparing machine learning models, including PyTorch and Safetensors files.
 
-## 概要
+## Overview
 
-diffaiはAI/MLモデル形式をネイティブサポートし、モデルをバイナリファイルとしてではなくテンソルレベルで比較できます。これにより、学習、ファインチューニング、量子化、デプロイメント中のモデル変化の意味のある分析が可能になります。
+diffai provides native support for AI/ML model formats, allowing you to compare models at the tensor level rather than just as binary files. This enables meaningful analysis of model changes during training, fine-tuning, quantization, and deployment.
 
-## サポートされているML形式
+## Supported ML Formats
 
-### PyTorchモデル
-- **`.pt` ファイル**: PyTorchモデルファイル（Candle統合付きpickle形式）
-- **`.pth` ファイル**: PyTorchモデルファイル（代替拡張子）
+### PyTorch Models
+- **`.pt` files**: PyTorch model files (pickle format with Candle integration)
+- **`.pth` files**: PyTorch model files (alternative extension)
 
-### Safetensorsモデル
-- **`.safetensors` ファイル**: HuggingFace Safetensors形式（推奨）
+### Safetensors Models
+- **`.safetensors` files**: HuggingFace Safetensors format (recommended)
 
-### 将来のサポート（フェーズ3）
-- **`.onnx` ファイル**: ONNX形式
-- **`.h5` ファイル**: Keras/TensorFlow HDF5形式
-- **`.pb` ファイル**: TensorFlow Protocol Buffer形式
+### Future Support (Phase 3)
+- **`.onnx` files**: ONNX format
+- **`.h5` files**: Keras/TensorFlow HDF5 format
+- **`.pb` files**: TensorFlow Protocol Buffer format
 
-## diffaiが分析する内容
+## What diffai Analyzes
 
-### テンソル統計
-モデル内の各テンソルについて、diffaiは以下を計算・比較します：
+### Tensor Statistics
+For each tensor in the model, diffai calculates and compares:
 
-- **平均値**: 全パラメータの平均値
-- **標準偏差**: パラメータ分散の指標
-- **最小値**: 最小パラメータ値
-- **最大値**: 最大パラメータ値
-- **形状**: テンソルの次元と大きさ
-- **データ型**: 精度レベル（f16、f32、f64など）
+- **Mean**: Average value of all parameters
+- **Standard Deviation**: Measure of parameter variance
+- **Minimum**: Smallest parameter value
+- **Maximum**: Largest parameter value
+- **Shape**: Tensor dimensions
+- **Data Type**: Parameter precision (f32, f64, etc.)
+- **Total Parameters**: Number of parameters in the tensor
 
-### 構造的変化
-- **レイヤー追加/削除**: アーキテクチャの変更
-- **形状変更**: テンソル次元の変更
-- **名前変更**: パラメータの名前変更
+### Model Architecture
+- **Parameter count changes**: Total model parameters
+- **Layer additions/removals**: New or deleted layers
+- **Shape changes**: Modified layer dimensions
 
-### 学習進捗分析
-- **パラメータドリフト**: 時間経過によるパラメータ変化
-- **収束指標**: 学習の安定性指標
-- **勾配流**: 勾配の健全性評価
+## Basic Model Comparison
 
-## 基本的な使用法
-
-### シンプルなモデル比較
+### Simple Comparison
 
 ```bash
-# 2つのSafetensorsファイルを比較（包括的分析が自動実行）
+# Compare two PyTorch models (comprehensive analysis automatic)
+diffai model1.pt model2.pt
+
+# Compare Safetensors models (recommended, comprehensive analysis automatic)
 diffai model1.safetensors model2.safetensors
+
+# Automatic format detection with full analysis
+diffai pretrained.safetensors finetuned.safetensors
 ```
 
-**出力例（完全分析）**:
-```
-anomaldy_detection: type=none, severity=none, action="continue_training"
+### Example Output
+
+```bash
+$ diffai model_v1.safetensors model_v2.safetensors
+anomaly_detection: type=none, severity=none, action="continue_training"
 architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
 convergence_analysis: status=converging, stability=0.92
 gradient_analysis: flow_health=healthy, norm=0.021069
 memory_analysis: delta=+0.0MB, efficiency=1.000000
-quantization_analysis: compression=0.25, speedup=1.8x, precision_loss=minimal
+quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%
 regression_test: passed=true, degradation=-2.5%, severity=low
 deployment_readiness: readiness=0.92, risk=low
   ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
@@ -66,257 +70,527 @@ deployment_readiness: readiness=0.92, risk=low
   ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
 ```
 
-### PyTorchモデル比較
+### Output Symbols
+
+| Symbol | Meaning | Description |
+|--------|---------|-------------|
+| `~` | Statistics Changed | Tensor values changed but shape remained same |
+| `+` | Added | New tensor/layer added |
+| `-` | Removed | Tensor/layer removed |
+
+## Advanced Options
+
+### Epsilon Tolerance
+
+Use epsilon to ignore minor floating-point differences:
 
 ```bash
-# PyTorchモデルファイルを比較（完全分析が自動実行）
-diffai model1.pt model2.pt
+# Ignore differences smaller than 1e-6
+diffai model1.safetensors model2.safetensors --epsilon 1e-6
 
-# 学習チェックポイントの比較
-diffai checkpoint_epoch_1.pt checkpoint_epoch_10.pt
+# Useful for quantization analysis
+diffai fp32_model.safetensors int8_model.safetensors --epsilon 0.1
 ```
 
-### 出力形式
-
-#### JSON出力
-```bash
-diffai model1.safetensors model2.safetensors --output json
-```
-
-```json
-[
-  {
-    "TensorStatsChanged": [
-      "fc1.bias",
-      {"mean": 0.0018, "std": 0.0518, "shape": [64], "dtype": "f32"},
-      {"mean": 0.0017, "std": 0.0647, "shape": [64], "dtype": "f32"}
-    ]
-  }
-]
-```
-
-#### YAML出力
-```bash
-diffai model1.safetensors model2.safetensors --output yaml
-```
-
-```yaml
-- TensorStatsChanged:
-  - fc1.bias
-  - mean: 0.0018
-    std: 0.0518
-    shape: [64]
-    dtype: f32
-  - mean: 0.0017
-    std: 0.0647
-    shape: [64]
-    dtype: f32
-```
-
-## 高度な分析機能
-
-### 1. テンソル統計分析（自動実行）
-
-学習進捗の詳細監視：
+### Output Formats
 
 ```bash
-# テンソル統計は自動的に含まれる
-diffai checkpoint_1.safetensors checkpoint_2.safetensors
+# JSON output for automation
+diffai model1.pt model2.pt --output json
+
+# YAML output for readability
+diffai model1.pt model2.pt --output yaml
+
+# Pipe to file for processing
+diffai model1.pt model2.pt --output json > changes.json
 ```
 
-### 2. 量子化分析
-
-量子化効果の分析：
+### Filtering Results
 
 ```bash
-diffai fp32_model.safetensors quantized_model.safetensors --quantization-analysis
+# Focus on specific layers
+diffai model1.safetensors model2.safetensors --path "classifier"
+
+# Ignore timestamp or metadata
+diffai model1.safetensors model2.safetensors --ignore-keys-regex "^(timestamp|_metadata)"
 ```
 
-**出力**:
-```
-quantization_analysis: compression=0.25, speedup=1.8x, precision_loss=minimal
-```
+## Common Use Cases
 
-### 3. 変化量ソート
+### 1. Fine-tuning Analysis
 
-最大の変化を優先表示：
+Compare a pre-trained model with its fine-tuned version:
 
 ```bash
-diffai model1.safetensors model2.safetensors --sort-by-change-magnitude
+diffai pretrained_bert.safetensors finetuned_bert.safetensors
+
+# Expected output: Comprehensive analysis with attention layer changes
+# anomaly_detection: type=none, severity=none
+# architecture_comparison: type=transformer, deployment_readiness=ready
+# convergence_analysis: status=converged, stability=0.95
+# ~ bert.encoder.layer.11.attention.self.query.weight: mean=-0.0001→0.0023
+# ~ classifier.weight: mean=0.0000→0.0145, std=0.0200→0.0890
 ```
 
-### 4. レイヤー影響分析
+**Analysis**: 
+- Small changes in early layers (feature extraction remains similar)
+- Larger changes in final layers (task-specific adaptation)
 
-レイヤー別変化の分析：
+### 2. Quantization Impact Assessment
+
+Compare FP32 and quantized models:
 
 ```bash
-diffai baseline.safetensors modified.safetensors --show-layer-impact
+diffai model_fp32.safetensors model_int8.safetensors --epsilon 0.1
+
+# Expected output: Controlled precision loss
+# ~ conv1.weight: mean=0.0045→0.0043, std=0.2341→0.2298
+# No differences found (within epsilon tolerance)
 ```
 
-### 5. アーキテクチャ比較
+**Analysis**:
+- Small statistical changes indicate successful quantization
+- Large changes may suggest quality loss
 
-モデル構造の分析：
+### 3. Training Progress Tracking
+
+Compare checkpoints during training:
 
 ```bash
-diffai model1.safetensors model2.safetensors --architecture-comparison
+diffai checkpoint_epoch_10.pt checkpoint_epoch_50.pt
+
+# Expected output: Convergence patterns
+# ~ layers.0.weight: mean=-0.0012→0.0034, std=1.2341→0.8907
+# ~ layers.1.bias: mean=0.1234→0.0567, std=0.4567→0.3210
 ```
 
-**出力**:
-```
-architecture_comparison: transformer->transformer, complexity=similar_complexity, migration=easy
-```
+**Analysis**:
+- Decreasing standard deviation suggests convergence
+- Mean shifts show learning direction
 
-### 6. メモリ分析
+### 4. Architecture Comparison
 
-メモリ使用量の分析：
+Compare different model architectures:
 
 ```bash
-diffai model1.safetensors model2.safetensors --memory-analysis
+diffai resnet50.safetensors efficientnet_b0.safetensors
+
+# Expected output: Structural differences
+# ~ features.conv1.weight: shape=[64, 3, 7, 7] -> [32, 3, 3, 3]
+# + features.mbconv.expand_conv.weight: shape=[96, 32, 1, 1]
+# - features.layer4.2.downsample.0.weight: shape=[2048, 1024, 1, 1]
 ```
 
-**出力**:
-```
-memory_analysis: delta=+12.5MB, peak=156.3MB, efficiency=0.85, recommendation=optimal
-```
+**Analysis**:
+- Shape changes indicate different layer sizes
+- Added/removed tensors show architectural innovations
 
-### 7. 異常検出
+## Performance Optimization
 
-数値異常の検出：
+### Memory Considerations
+
+For large models (>1GB), consider:
 
 ```bash
-diffai model1.safetensors model2.safetensors --anomaly-detection
+# Use recursive mode for directory comparison
+diffai --recursive model_dir1/ model_dir2/
+
+# Focus analysis on specific parts
+diffai model1.safetensors model2.safetensors --path "tensor.classifier"
+
+# Use higher epsilon for faster comparison
+diffai model1.safetensors model2.safetensors --epsilon 1e-3
 ```
 
-**出力**:
-```
-anomaldy_detection: type=none, severity=none, affected_layers=[], confidence=0.95
-```
-
-## 実践的なワークフロー
-
-### 学習監視
+### Speed Optimization
 
 ```bash
-# 各エポック後のモデル変化を監視
-diffai epoch_10.safetensors epoch_11.safetensors
+# Use verbose mode for detailed processing info
+diffai --verbose model1.safetensors model2.safetensors
 
-# 最大の変化に焦点を当てる
-diffai epoch_10.safetensors epoch_11.safetensors --sort-by-change-magnitude
+# Focus on architecture differences only
+diffai --architecture-comparison model1.safetensors model2.safetensors
 ```
 
-### ファインチューニング分析
+## Integration Examples
 
-```bash
-# ベースモデルとファインチューニング済みモデルを比較
-diffai base_model.safetensors finetuned_model.safetensors --show-layer-impact
-```
+### MLflow Integration
 
-### 量子化検証
+```python
+import subprocess
+import json
+import mlflow
 
-```bash
-# 量子化前後の品質評価
-diffai original.safetensors quantized.safetensors --quantization-analysis
-```
-
-### デプロイメント検証
-
-```bash
-# 本番環境への展開前検証
-diffai current_prod.safetensors candidate.safetensors
-```
-
-## 学習中の使用
-
-### 過学習検出
-
-```bash
-# バリデーション損失が上昇し始めた時点でのモデル比較
-diffai best_val_model.safetensors current_model.safetensors
-```
-
-### 収束分析
-
-```bash
-# 連続するエポック間の変化を分析
-diffai epoch_95.safetensors epoch_100.safetensors --convergence-analysis
-```
-
-### 勾配健全性チェック
-
-```bash
-# 勾配爆発/消失の検出
-diffai prev_checkpoint.safetensors current_checkpoint.safetensors --gradient-analysis
-```
-
-## MLOpsとの統合
-
-### CI/CDパイプライン
-
-```yaml
-- name: Model regression test
-  run: |
-    diffai baseline/model.safetensors candidate/model.safetensors --output json > model_diff.json
+def log_model_diff(model1_path, model2_path):
+    # Run diffai comparison
+    result = subprocess.run([
+        'diffai', model1_path, model2_path, '--output', 'json'
+    ], capture_output=True, text=True)
     
-- name: Quantization validation
-  run: |
-    diffai fp32/model.safetensors quantized/model.safetensors --quantization-analysis
+    diff_data = json.loads(result.stdout)
+    
+    # Log to MLflow
+    with mlflow.start_run():
+        mlflow.log_dict(diff_data, "model_comparison.json")
+        mlflow.log_metric("total_changes", len(diff_data))
+        
+        # Count change types
+        stats_changes = len([d for d in diff_data if 'TensorStatsChanged' in d])
+        shape_changes = len([d for d in diff_data if 'TensorShapeChanged' in d])
+        
+        mlflow.log_metric("stats_changes", stats_changes)
+        mlflow.log_metric("shape_changes", shape_changes)
 ```
 
-### 実験管理
+### CI/CD Pipeline
+
+```yaml
+name: Model Validation
+on: [push, pull_request]
+
+jobs:
+  model-diff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install diffai
+        run: cargo install diffai
+        
+      - name: Compare models
+        run: |
+          diffai models/baseline.safetensors models/candidate.safetensors \
+            --output json > model_diff.json
+            
+      - name: Analyze changes
+        run: |
+          # Fail if critical layers changed
+          if jq -e '.[] | select(.TensorShapeChanged and (.TensorShapeChanged[0] | contains("classifier")))' model_diff.json; then
+            echo "CRITICAL: Critical layer shape changes detected"
+            exit 1
+          fi
+          
+          # Warn if many parameters changed
+          changes=$(jq length model_diff.json)
+          if [ "$changes" -gt 10 ]; then
+            echo "WARNING: Many parameter changes detected: $changes"
+          fi
+```
+
+### Git Pre-commit Hook
 
 ```bash
-# 実験結果の比較
-diffai experiments/baseline.safetensors experiments/variant_a.safetensors
+#!/bin/bash
+# .git/hooks/pre-commit
 
-# 複数の実験候補の比較
-for model in experiments/*.safetensors; do
-  diffai baseline.safetensors "$model" --output json >> comparison_results.jsonl
+model_files=$(git diff --cached --name-only | grep -E '\.(pt|pth|safetensors)$')
+
+for file in $model_files; do
+    if [ -f "$file" ]; then
+        echo "Analyzing model changes in $file"
+        
+        # Compare with previous version
+        git show HEAD:"$file" > /tmp/old_model
+        
+        diffai /tmp/old_model "$file" --output json > /tmp/model_diff.json
+        
+        # Check for significant changes
+        shape_changes=$(jq '[.[] | select(.TensorShapeChanged)] | length' /tmp/model_diff.json)
+        
+        if [ "$shape_changes" -gt 0 ]; then
+            echo "WARNING: Architecture changes detected in $file"
+            diffai /tmp/old_model "$file"
+            
+            read -p "Continue with commit? (y/N) " -n 1 -r
+            echo
+            if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                exit 1
+            fi
+        fi
+        
+        rm -f /tmp/old_model /tmp/model_diff.json
+    fi
 done
 ```
 
-### A/Bテスト
+## Troubleshooting
+
+### Common Issues
+
+#### 1. "Failed to parse" Errors
 
 ```bash
-# 本番モデルと候補モデルの比較
-diffai production_v1.safetensors candidate_v2.safetensors
+# Check file format
+file model.safetensors
+
+# Show detailed statistics for single model analysis
+diffai model.safetensors model.safetensors
+
+# Try with explicit format
+diffai --format safetensors model1.safetensors model2.safetensors
 ```
 
-## トラブルシューティング
+#### 2. Memory Issues with Large Models
 
-### よくある問題
-
-#### テンソル形状の不一致
 ```bash
-# 構造変更の詳細分析
-diffai old_model.safetensors new_model.safetensors --architecture-comparison
+# Use higher epsilon to reduce precision
+diffai --epsilon 1e-3 large1.safetensors large2.safetensors
+
+# Focus on specific layers
+diffai --path "tensor.classifier" large1.safetensors large2.safetensors
 ```
 
-#### 数値不安定性
+#### 3. Binary File Errors
+
 ```bash
-# NaN/Inf値の検出
-diffai stable_model.safetensors unstable_model.safetensors --anomaly-detection
+# Ensure files are actual model files, not corrupted
+ls -la model*.safetensors
+
+# Check if files are compressed
+file model.safetensors
+
+# Try extracting if compressed
+gunzip model.safetensors.gz
 ```
 
-#### メモリ使用量の問題
+## Best Practices
+
+### 1. Choosing Epsilon Values
+
+| Use Case | Recommended Epsilon | Reason |
+|----------|-------------------|---------|
+| Exact comparison | No epsilon | Detect all changes |
+| Training progress | 1e-6 | Ignore numerical noise |
+| Quantization analysis | 0.01-0.1 | Account for precision loss |
+| Architecture check | 1e-3 | Focus on structural changes |
+
+### 2. Output Format Selection
+
+- **CLI**: Human review and debugging
+- **JSON**: Automation and scripting
+- **YAML**: Configuration files and documentation
+
+### 3. Performance Tips
+
+- Use `--path` to focus analysis on relevant layers
+- Set appropriate epsilon values to avoid noise
+- Consider model size when choosing comparison strategy
+
+## ML Analysis Features
+
+### Comprehensive Analysis (Automatic)
+
+diffai now provides automatic comprehensive analysis with 30+ features for ML models:
+
+### Automatic Analysis Features
+
+All analysis is performed automatically when comparing PyTorch/Safetensors files:
+
 ```bash
-# メモリ効率の分析
-diffai small_model.safetensors large_model.safetensors --memory-analysis
+# Single command triggers comprehensive analysis
+diffai checkpoint_epoch_10.safetensors checkpoint_epoch_20.safetensors
+
+# Output includes:
+# - Anomaly detection
+# - Architecture comparison
+# - Convergence analysis
+# - Gradient analysis
+# - Memory analysis
+# - Quantization analysis
+# - Regression testing
+# - Deployment readiness
+# - Statistical analysis
+# - And 20+ more features
 ```
 
-## 最適化ヒント
+**Analysis Information (Automatic):**
+- **Statistical metrics**: mean, std, min/max, shape, dtype
+- **Architecture analysis**: model type, complexity, migration difficulty
+- **Performance metrics**: memory usage, quantization impact, speedup
+- **Training insights**: convergence status, gradient health, stability
+- **Deployment readiness**: risk assessment, compatibility, optimization
 
-### パフォーマンス
-- 大きなモデルの場合、`--format safetensors`を明示的に指定
-- JSON出力は自動化処理に最適
-- レイヤー影響分析は詳細だが時間がかかる場合がある
+**Use Cases:**
+- Monitor complete training progress
+- Validate production deployment readiness
+- Comprehensive model comparison
+- Automated quality assurance
 
-### 精度
-- 浮動小数点比較には`--epsilon`を調整
-- 量子化モデルには適切な許容誤差を設定
+## Simplified Usage Guide
 
-## 関連項目
+**For Training Monitoring:**
+```bash
+# Comprehensive analysis automatic
+diffai checkpoint_old.safetensors checkpoint_new.safetensors
+```
 
-- [基本使用ガイド](basic-usage_ja.md) - diffaiの基本操作
-- [科学データ分析](scientific-data_ja.md) - NumPyとMATLABファイル比較
-- [CLIリファレンス](../reference/cli-reference_ja.md) - 完全なコマンドリファレンス
-- [ML分析機能](../reference/ml-analysis_ja.md) - 詳細な分析機能説明
+**For Production Deployment:**
+```bash
+# Full deployment readiness analysis automatic
+diffai current_prod.safetensors candidate.safetensors
+```
+
+**For Research Analysis:**
+```bash
+# Complete experimental comparison automatic
+diffai baseline.safetensors experiment.safetensors
+```
+
+**For Quantization Validation:**
+```bash
+# Automatic quantization impact assessment
+diffai fp32.safetensors quantized.safetensors
+```
+
+## Advanced Features (Integrated)
+
+### Core Analysis Features (Automatic)
+
+#### Architecture Comparison (`--architecture-comparison`)
+Compare model architectures and detect structural changes:
+
+```bash
+diffai model1.safetensors model2.safetensors --architecture-comparison
+
+# Output example:
+# architecture_comparison: transformer->transformer, complexity=similar_complexity, migration=easy
+```
+
+**Analysis Information:**
+- **Architecture type detection**: Transformer, CNN, RNN, or feedforward
+- **Layer depth comparison**: Number of layers and structural changes
+- **Parameter count analysis**: Size ratios and complexity assessment
+- **Migration difficulty**: Assessment of upgrade complexity
+- **Compatibility evaluation**: Cross-architecture compatibility
+
+#### Memory Analysis (`--memory-analysis`) 
+Analyze memory usage and optimization opportunities:
+
+```bash
+diffai model1.safetensors model2.safetensors --memory-analysis
+
+# Output example:
+# memory_analysis: delta=+12.5MB, peak=156.3MB, efficiency=0.85, recommendation=optimal
+```
+
+**Analysis Information:**
+- **Memory delta**: Exact memory change between models
+- **Peak usage estimation**: Including gradients and activations
+- **GPU utilization**: Estimated GPU memory usage
+- **Optimization opportunities**: Gradient checkpointing, mixed precision
+- **Memory leak detection**: Unusually large tensors identification
+
+#### Anomaly Detection (`--anomaly-detection`)
+Detect numerical anomalies in model parameters:
+
+```bash
+diffai model1.safetensors model2.safetensors --anomaly-detection
+
+# Output example:
+# anomaly_detection: type=none, severity=none, affected_layers=[], confidence=0.95
+```
+
+**Analysis Information:**
+- **NaN/Inf detection**: Numerical instability identification
+- **Gradient explosion/vanishing**: Parameter change magnitude analysis
+- **Dead neurons**: Zero variance detection
+- **Root cause analysis**: Suggested causes and solutions
+- **Recovery probability**: Likelihood of training recovery
+
+#### Change Summary (`--change-summary`)
+Generate detailed change summaries:
+
+```bash
+diffai model1.safetensors model2.safetensors --change-summary
+
+# Output example:
+# change_summary: layers_changed=6, magnitude=0.15, patterns=[weight_updates, bias_adjustments]
+```
+
+**Analysis Information:**
+- **Change magnitude**: Overall parameter change intensity
+- **Change patterns**: Types of modifications detected
+- **Most changed layers**: Ranking by modification intensity
+- **Structural vs parameter changes**: Classification of change types
+- **Change distribution**: By layer type and function
+
+### Phase 3B: Advanced Analysis Features
+
+#### Convergence Analysis (`--convergence-analysis`)
+Analyze convergence patterns in model parameters:
+
+```bash
+diffai model1.safetensors model2.safetensors --convergence-analysis
+
+# Output example:
+# convergence_analysis: status=converging, stability=0.92, early_stopping=continue
+```
+
+**Analysis Information:**
+- **Convergence status**: Converged, converging, plateaued, or diverging
+- **Parameter stability**: How stable parameters are between iterations
+- **Plateau detection**: Identification of training plateaus
+- **Early stopping recommendation**: When to stop training
+- **Remaining iterations**: Estimated iterations to convergence
+
+#### Gradient Analysis (`--gradient-analysis`)
+Analyze gradient information estimated from parameter changes:
+
+```bash
+diffai model1.safetensors model2.safetensors --gradient-analysis
+
+# Output example:
+# gradient_analysis: flow_health=healthy, norm=0.021, ratio=2.11, clipping=none
+```
+
+**Analysis Information:**
+- **Gradient flow health**: Overall gradient quality assessment
+- **Gradient norm estimation**: Magnitude of parameter updates
+- **Problematic layers**: Layers with gradient issues
+- **Clipping recommendation**: Suggested gradient clipping values
+- **Learning rate suggestions**: Adaptive LR recommendations
+
+#### Similarity Matrix (`--similarity-matrix`)
+Generate similarity matrix for model comparison:
+
+```bash
+diffai model1.safetensors model2.safetensors --similarity-matrix
+
+# Output example:
+# similarity_matrix: dimensions=(6,6), mean_similarity=0.65, clustering=0.73
+```
+
+**Analysis Information:**
+- **Layer-to-layer similarities**: Cosine similarity matrix
+- **Clustering coefficient**: How clustered the similarities are
+- **Outlier detection**: Layers with unusual similarity patterns
+- **Matrix quality score**: Overall similarity matrix quality
+- **Correlation patterns**: Block diagonal, hierarchical structures
+
+### Combined Analysis Examples
+
+```bash
+# Comprehensive Phase 3 analysis
+diffai baseline.safetensors experiment.safetensors \
+  --architecture-comparison \
+  --memory-analysis \
+  --anomaly-detection \
+  --change-summary \
+  --convergence-analysis \
+  --gradient-analysis \
+  --similarity-matrix
+
+# JSON output for MLOps integration
+diffai model1.safetensors model2.safetensors \
+  --architecture-comparison \
+  --memory-analysis \
+  --output json
+```
+
+### Design Philosophy
+diffai follows UNIX philosophy: simple, composable tools that do one thing well. Phase 3 features are orthogonal and can be combined for powerful analysis workflows.
+
+## Next Steps
+
+- [Basic Usage](basic-usage.md) - Learn fundamental operations
+- [Scientific Data Analysis](scientific-data.md) - NumPy and MATLAB file comparison
+- [CLI Reference](../reference/cli-reference.md) - Complete command reference

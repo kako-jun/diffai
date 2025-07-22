@@ -1,34 +1,34 @@
 # 设计原则
 
-diffai背后的核心设计理念和原则。
+diffai 背后的核心设计理念和原则。
 
 ## 核心设计原则
 
-### 1. AI/ML专业化聚焦
+### 1. AI/ML 专业化焦点
 
-**原则：** 设计为AI/ML开发的专业化工具，而非通用差分工具
+**原则:** 专为 AI/ML 开发设计的专用工具，而非通用 diff 工具
 
 ```rust
-// 示例：PyTorch模型专业化处理
+// Example: PyTorch model specialized processing
 impl ModelComparison for PyTorchModel {
     fn compare_structure(&self, other: &Self) -> StructuralDiff {
-        // 模型结构的语义比较
+        // Semantic comparison of model structures
         self.layers.compare_semantically(&other.layers)
     }
 }
 ```
 
 **优势：**
-- 针对ML开发者需求定制功能
-- 使用领域知识进行高级分析
-- 传统diff工具无法实现的功能
+- 为 ML 开发者需求量身定制的功能
+- 利用领域知识进行高级分析
+- 传统 diff 工具无法实现的功能
 
 ### 2. 性能优先
 
-**原则：** 设计为高效处理大型模型文件
+**原则:** 专为高效处理大型模型文件而设计
 
 ```rust
-// 示例：并行处理和内存效率
+// Example: Parallel processing and memory efficiency
 use rayon::prelude::*;
 
 impl TensorComparison {
@@ -40,40 +40,40 @@ impl TensorComparison {
 }
 ```
 
-**技术实现：**
-- Rust所有权系统确保内存安全
-- 并行处理提高速度
-- 流式处理降低内存使用
+**Technical Implementation:**
+- Rust ownership system for memory safety
+- Parallel processing for speed
+- Streaming processing to reduce memory usage
 
-### 3. 扩展性和模块化
+### 3. Extensibility and Modularity
 
-**原则：** 易于添加新格式和ML框架
+**Principle:** Easy to add new formats and ML frameworks
 
 ```rust
-// 示例：基于trait的可扩展设计
+// Example: Trait-based extensible design
 trait ModelFormat {
     fn parse(&self, data: &[u8]) -> Result<Model, ParseError>;
     fn compare(&self, model1: &Model, model2: &Model) -> ComparisonResult;
 }
 
-// 添加新格式
+// Adding new formats
 struct TensorFlowFormat;
 impl ModelFormat for TensorFlowFormat {
-    // 实现...
+    // Implementation...
 }
 ```
 
-**扩展点：**
-- 新模型格式
-- 自定义比较算法
-- 附加输出格式
+**Extension Points:**
+- New model formats
+- Custom comparison algorithms
+- Additional output formats
 
-### 4. 类型安全
+### 4. Type Safety
 
-**原则：** 编译时捕获错误，最小化运行时错误
+**Principle:** Catch errors at compile time, minimize runtime errors
 
 ```rust
-// 示例：类型安全的配置系统
+// Example: Type-safe configuration system
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
     pub pytorch: PyTorchConfig,
@@ -83,42 +83,42 @@ pub struct Config {
 
 impl Config {
     pub fn validate(&self) -> Result<(), ConfigError> {
-        // 编译时验证配置
+        // Validate configuration at compile time
     }
 }
 ```
 
-**效果：**
-- 早期bug检测
-- 安全且可预测的行为
-- 提高开发者生产力
+**Effects:**
+- Early bug detection
+- Safe and predictable behavior
+- Improved developer productivity
 
-## 架构设计决策
+## Architectural Design Decisions
 
-### 1. 模块化而非单体化设计
+### 1. Modular, Not Monolithic Design
 
 ```
 diffai/
-├── core/           # 核心功能
-│   ├── comparison/ # 比较引擎
-│   ├── parsing/    # 文件解析
-│   └── output/     # 输出处理
-├── formats/        # 格式特定处理
-│   ├── pytorch/    # PyTorch支持
-│   ├── safetensors/ # Safetensors支持
-│   └── tensorflow/ # TensorFlow支持（计划中）
-└── cli/           # CLI接口
+├── core/           # Core functionality
+│   ├── comparison/ # Comparison engine
+│   ├── parsing/    # File parsing
+│   └── output/     # Output processing
+├── formats/        # Format-specific processing
+│   ├── pytorch/    # PyTorch support
+│   ├── safetensors/ # Safetensors support
+│   └── tensorflow/ # TensorFlow support (planned)
+└── cli/           # CLI interface
 ```
 
-**原因：**
-- 利用格式特定的专业知识
-- 分离依赖关系
-- 更容易测试
+**Reasons:**
+- Leverage format-specific expertise
+- Separate dependencies
+- Easier testing
 
-### 2. 配置驱动架构
+### 2. Configuration-Driven Architecture
 
 ```rust
-// 通过配置控制行为
+// Control behavior through configuration
 #[derive(Config)]
 pub struct DiffaiConfig {
     #[serde(default = "default_comparison_engine")]
@@ -132,76 +132,76 @@ pub struct DiffaiConfig {
 }
 ```
 
-**优势：**
-- 根据用户需求定制
-- 配置可重用性
-- 一致的配置管理
+**Benefits:**
+- Customization for user needs
+- Configuration reusability
+- Consistent configuration management
 
-### 3. 错误处理策略
+### 3. Error Handling Strategy
 
 ```rust
-// 使用Result类型显式错误处理
+// Explicit error handling using Result types
 pub type Result<T> = std::result::Result<T, DiffaiError>;
 
 #[derive(Debug, thiserror::Error)]
 pub enum DiffaiError {
-    #[error("解析错误: {0}")]
+    #[error("Parse error: {0}")]
     ParseError(String),
     
-    #[error("IO错误: {0}")]
+    #[error("IO error: {0}")]
     IoError(#[from] std::io::Error),
     
-    #[error("比较错误: {0}")]
+    #[error("Comparison error: {0}")]
     ComparisonError(String),
 }
 ```
 
-**方法：**
-- 显式错误处理
-- 区分可恢复和不可恢复错误
-- 用户友好的错误消息
+**Approach:**
+- Explicit error handling
+- Separation of recoverable and unrecoverable errors
+- User-friendly error messages
 
-## 用户体验原则
+## User Experience Principles
 
-### 1. 直观界面
+### 1. Intuitive Interface
 
 ```bash
-# 直观且清晰的命令（综合ML分析自动执行）
-diffai model1.pth model2.pth              # 综合ML分析（30+功能自动）
-diffai model1.pth model2.pth --verbose    # 详细诊断 + 综合分析
-diffai models/ --recursive                # 目录比较
+# Intuitive and clear commands with automatic comprehensive analysis
+diffai model1.pth model2.pth              # Comprehensive ML analysis (30+ features automatic)
+diffai model1.pth model2.pth --verbose    # Detailed diagnostics + comprehensive analysis
+diffai models/ --recursive                # Directory comparison
 ```
 
-**设计指导：**
-- 用最少参数实现最多功能（默认综合）
-- 通过自动功能启用消除选择困难
-- 仅为必要控制保持一致的选项命名
+**Design Guidelines:**
+- Maximum functionality with minimum arguments (comprehensive by default)
+- Eliminate choice paralysis through automatic feature enablement
+- Consistent option naming for essential controls only
 
-### 2. 默认综合，渐进式详细控制
+### 2. Comprehensive by Default, Progressive Detail Control
 
 ```bash
-# 综合ML分析（自动）
+# Comprehensive ML analysis (automatic)
 diffai model1.pth model2.pth
-# → 自动显示所有30+ML分析功能
+# → Shows all 30+ ML analysis features automatically
 
-# 详细诊断 + 综合分析
+# Detailed diagnostics + comprehensive analysis
 diffai model1.pth model2.pth --verbose
-# → 相同综合分析 + 调试信息
+# → Same comprehensive analysis + debugging information
 
-# 输出格式控制
+# Output format control
 diffai model1.pth model2.pth --output json
-# → 用于自动化的JSON格式综合分析
+# → Comprehensive analysis in JSON format for automation
 ```
 
-**新哲学：**
-- 默认提供综合分析（无需功能选择）
-- 控制输出详细度和格式，而非功能选择
-- 消除ML分析功能的学习曲线
+**New Philosophy:**
+- Provide comprehensive analysis by default (no feature selection needed)
+- Control output detail and format, not feature selection
+- Eliminate learning curve for ML analysis features
 
-### 3. 高质量输出
+### 3. High-Quality Output
 
 ```rust
-// 提升输出质量
+// Improve output quality
 pub struct OutputFormatter {
     pub use_color: bool,
     pub use_unicode: bool,
@@ -210,23 +210,23 @@ pub struct OutputFormatter {
 
 impl OutputFormatter {
     pub fn format_diff(&self, diff: &ModelDiff) -> String {
-        // 生成美观且可读的输出
+        // Generate beautiful and readable output
         self.format_with_highlighting(diff)
     }
 }
 ```
 
-**关注领域：**
-- 可读性
-- 视觉清晰度
-- 一致的格式化
+**Focus Areas:**
+- Readability
+- Visual clarity
+- Consistent formatting
 
-## 持续改进
+## Continuous Improvement
 
-### 1. 内置反馈循环
+### 1. Built-in Feedback Loop
 
 ```rust
-// 收集使用统计（考虑隐私）
+// Collect usage statistics (with privacy consideration)
 pub struct UsageMetrics {
     pub command_usage: HashMap<String, u64>,
     pub performance_metrics: Vec<PerformanceMetric>,
@@ -234,83 +234,84 @@ pub struct UsageMetrics {
 
 impl UsageMetrics {
     pub fn collect_anonymized_metrics(&self) -> Option<AnonymizedMetrics> {
-        // 仅在用户同意下收集
+        // Collect only with user consent
     }
 }
 ```
 
-**目的：**
-- 理解实际使用模式
-- 识别性能问题
-- 功能优先级排序
+**Purpose:**
+- Understand actual usage patterns
+- Identify performance issues
+- Prioritize features
 
-### 2. 向后兼容性
+### 2. Backward Compatibility
 
 ```rust
-// 版本管理和迁移
+// Version management and migration
 pub struct ConfigMigrator {
     pub supported_versions: Vec<Version>,
 }
 
 impl ConfigMigrator {
     pub fn migrate_config(&self, old_config: &str, version: &Version) -> Result<String> {
-        // 将旧配置转换为新格式
+        // Convert old configuration to new format
     }
 }
 ```
 
-**方法：**
-- 最小化破坏性更改
-- 清晰的弃用过程
-- 提供迁移指南
+**Approach:**
+- Minimize breaking changes
+- Clear deprecation process
+- Provide migration guides
 
-### 3. 社区驱动开发
+### 3. Community-Driven Development
 
 ```rust
-// 插件系统
+// Plugin system
 pub trait DiffaiPlugin {
     fn name(&self) -> &str;
     fn version(&self) -> &str;
     fn process(&self, input: &InputData) -> Result<OutputData>;
 }
 
-// 动态插件加载
+// Dynamic plugin loading
 pub struct PluginManager {
     plugins: Vec<Box<dyn DiffaiPlugin>>,
 }
 ```
 
-**理念：**
-- 利用开源力量
-- 鼓励社区贡献
-- 满足多样化需求
+**Philosophy:**
+- Leverage open source power
+- Encourage community contributions
+- Address diverse needs
 
-## 未来愿景
+## Realized Vision: Simplified ML Analysis
 
-### 1. 可扩展性
+### 1. Interface Simplification Achievement
 
-- 支持大型模型（数百GB）
-- 与分布式处理系统集成
-- 云原生设计
+- **Choice Paralysis Elimination**: Reduced 35+ ML flags to automatic comprehensive analysis
+- **Cognitive Load Reduction**: Users no longer need to remember or choose between dozens of analysis options
+- **Default Excellence**: 30+ ML analysis features run automatically for PyTorch/Safetensors files
 
-### 2. 新技术采用
+### 2. User Experience Evolution
 
-- 支持新的ML框架
-- 量子机器学习支持
-- 边缘AI设备集成
+- **Comprehensive by Default**: All relevant ML analysis runs automatically
+- **Progressive Enhancement**: Advanced users can control output format and verbosity
+- **Zero Configuration**: Works optimally out-of-the-box for ML workflows
 
-### 3. 高级分析功能
+### 3. Future Enhancements
 
-- 语义差分分析
-- 性能影响预测
-- 自动优化建议
+- **Scalability**: Support for larger models and distributed processing
+- **New Technology**: Support for emerging ML frameworks and quantum ML
+- **Advanced Features**: Semantic analysis and optimization suggestions
 
-## 设计文档
+## Design Documentation
 
-详细设计文档请参考：
+For detailed design documentation, see:
 
-- [核心功能](core-features.md) - 主要功能详情
-- [扩展性](extensibility.md) - 插件系统和定制化
-- [API参考](../api/) - 开发者API
+- [Core Features](core-features.md) - Main functionality details
+- [Extensibility](extensibility.md) - Plugin system and customization
+- [API Reference](../api/) - Developer API
 
-这些设计原则将diffai定位为AI/ML开发的必需工具，并确保长期成功。
+These design principles position diffai as an essential tool for AI/ML development and ensure long-term success.
+

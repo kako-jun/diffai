@@ -1,29 +1,29 @@
-# 詳細出力ガイド
+# Verbose Output Guide
 
-diffaiの`--verbose`フラグは、処理の詳細を理解し、問題をデバッグし、パフォーマンスを分析するための包括的な診断情報を提供します。このガイドでは、詳細モードを効果的に使用する方法について説明します。
+The `--verbose` flag in diffai provides comprehensive diagnostic information to help users understand processing details, debug issues, and analyze performance. This guide explains how to use verbose mode effectively.
 
-## 概要
+## Overview
 
-詳細モードでは以下の詳細情報が表示されます：
-- 設定とアクティブな機能
-- ファイル解析とフォーマット検出
-- 処理時間とパフォーマンス指標
-- ML固有の解析状況
-- ディレクトリ比較統計
+Verbose mode displays detailed information about:
+- Configuration settings and enabled features
+- File analysis and format detection
+- Processing time and performance metrics
+- ML-specific analysis status
+- Directory comparison statistics
 
-## 基本的な使用方法
+## Basic Usage
 
-### 詳細モードの有効化
+### Enable Verbose Mode
 
 ```bash
-# 基本的な詳細出力
+# Basic verbose output
 diffai file1.json file2.json --verbose
 
-# 短縮形
+# Short form
 diffai file1.json file2.json -v
 ```
 
-### 出力例
+### Example Output
 
 ```
 === diffai verbose mode enabled ===
@@ -45,16 +45,16 @@ Processing results:
   Format-specific analysis: Json
 ```
 
-## 設定診断
+## Configuration Diagnostics
 
-詳細モードでは、すべてのアクティブな設定オプションが表示されます：
+Verbose mode displays all active configuration options:
 
-### 基本設定
-- **入力フォーマット**: 明示的に設定されたか自動検出されたフォーマット
-- **出力フォーマット**: CLI、JSON、YAML、または統一diff
-- **再帰モード**: ディレクトリ比較が有効かどうか
+### Basic Configuration
+- **Input format**: Explicitly set or auto-detected format
+- **Output format**: CLI, JSON, YAML, or unified diff
+- **Recursive mode**: Whether directory comparison is enabled
 
-### 高度なオプション
+### Advanced Options
 ```bash
 diffai file1.json file2.json --verbose \
   --epsilon 0.001 \
@@ -62,7 +62,7 @@ diffai file1.json file2.json --verbose \
   --path "config.users"
 ```
 
-出力には以下が含まれます：
+Output includes:
 ```
 Configuration:
   Input format: None
@@ -73,8 +73,8 @@ Configuration:
   Path filter: config.users
 ```
 
-### ML解析機能
-ML解析オプションが有効な場合、詳細モードではどの機能がアクティブかが表示されます：
+### ML Analysis Features
+When ML analysis options are enabled, verbose mode shows which features are active:
 
 ```bash
 diffai model1.safetensors model2.safetensors --verbose \
@@ -84,22 +84,22 @@ diffai model1.safetensors model2.safetensors --verbose \
   --anomaly-detection
 ```
 
-出力：
+Output:
 ```
 Configuration:
   ML analysis features: statistics, architecture_comparison, memory_analysis, anomaly_detection
 ```
 
-## ファイル解析情報
+## File Analysis Information
 
-### ファイルメタデータ
-詳細モードでは詳細なファイル情報が提供されます：
+### File Metadata
+Verbose mode provides detailed file information:
 
-- **ファイルパス**: 入力ファイルのフルパス
-- **ファイルサイズ**: 各ファイルの正確なバイト数
-- **フォーマット検出**: diffaiがファイルフォーマットを識別した方法
+- **File paths**: Full paths to input files
+- **File sizes**: Exact byte counts for each file
+- **Format detection**: How diffai identified the file format
 
-例：
+Example:
 ```
 File analysis:
   Input 1: /path/to/model1.safetensors
@@ -109,17 +109,17 @@ File analysis:
   File 2 size: 1048576 bytes
 ```
 
-### フォーマット検出プロセス
-詳細モードでは、ファイルフォーマットがどのように決定されたかが説明されます：
+### Format Detection Process
+Verbose mode explains how file formats were determined:
 
-1. **明示的フォーマット**: `--format`が指定された場合
-2. **自動検出**: ファイル拡張子に基づく
-3. **フォールバックロジック**: フォーマットが推測できない場合
+1. **Explicit format**: When `--format` is specified
+2. **Auto-detection**: Based on file extensions
+3. **Fallback logic**: When format cannot be inferred
 
-## パフォーマンス指標
+## Performance Metrics
 
-### 処理時間
-詳細モードでは処理時間をマイクロ秒精度で測定・報告します：
+### Processing Time
+Verbose mode measures and reports processing time with microsecond precision:
 
 ```
 Processing results:
@@ -127,8 +127,8 @@ Processing results:
   Differences found: 15
 ```
 
-### ML/科学データ解析
-MLおよび科学データファイルの場合、詳細モードでは完了状況が示されます：
+### ML/Scientific Data Analysis
+For ML and scientific data files, verbose mode indicates completion status:
 
 ```
 Processing results:
@@ -136,15 +136,15 @@ Processing results:
   ML/Scientific data analysis completed
 ```
 
-## ディレクトリ比較
+## Directory Comparison
 
-ディレクトリ比較で`--recursive`を使用する際、詳細モードでは追加の統計が提供されます：
+When using `--recursive` for directory comparison, verbose mode provides additional statistics:
 
 ```bash
 diffai dir1/ dir2/ --verbose --recursive
 ```
 
-出力例：
+Example output:
 ```
 Configuration:
   Recursive mode: true
@@ -160,47 +160,47 @@ Directory comparison summary:
   Total files processed: 16
 ```
 
-## 使用例
+## Use Cases
 
-### 処理問題のデバッグ
+### Debugging Processing Issues
 
-diffaiが予期しない動作をする場合、詳細モードで以下を特定できます：
+When diffai behaves unexpectedly, verbose mode helps identify:
 
-1. **フォーマット検出の問題**: 正しいフォーマットが検出されたかチェック
-2. **設定の競合**: すべてのオプションが正しく適用されているか確認
-3. **パフォーマンスボトルネック**: 遅い処理ステップの特定
-4. **ファイルアクセス問題**: ファイルが読み取り可能で期待されるサイズかを確認
+1. **Format detection problems**: Check if the correct format was detected
+2. **Configuration conflicts**: Verify all options are applied correctly
+3. **Performance bottlenecks**: Identify slow processing steps
+4. **File access issues**: Confirm files are readable and sizes are expected
 
-デバッグセッション例：
+Example debugging session:
 ```bash
-# フォーマット検出が正しいかチェック
+# Check if format detection is correct
 diffai problematic_file1.dat problematic_file2.dat --verbose
 
-# ML解析機能確認（MLモデルでは自動実行）
+# Verify ML analysis features (automatic for ML models)
 diffai model1.pt model2.pt --verbose
 
-# ディレクトリ比較動作を解析
+# Analyze directory comparison behavior
 diffai dir1/ dir2/ --verbose --recursive
 ```
 
-### パフォーマンス分析
+### Performance Analysis
 
-詳細モードを使用して処理パフォーマンスを理解：
+Use verbose mode to understand processing performance:
 
 ```bash
-# 異なるフォーマットの処理時間を測定
+# Measure processing time for different formats
 diffai large_model1.safetensors large_model2.safetensors --verbose
 
-# 異なるオプションでのパフォーマンスを比較
+# Compare performance with different options
 diffai data1.json data2.json --verbose --epsilon 0.0001
 ```
 
-### 設定検証
+### Configuration Validation
 
-複雑な設定が正しく適用されているかを確認：
+Verify that complex configurations are applied correctly:
 
 ```bash
-# 複数のフィルターとオプションをチェック
+# Check multiple filters and options
 diffai config1.yaml config2.yaml --verbose \
   --ignore-keys-regex "^(id|timestamp)$" \
   --path "application.settings" \
@@ -208,65 +208,65 @@ diffai config1.yaml config2.yaml --verbose \
   --output json
 ```
 
-## ヒントとベストプラクティス
+## Tips and Best Practices
 
-### 1. デバッグには常に詳細モードを使用
-予期しない動作に遭遇した場合は、diffaiが何をしているかを理解するために常に`--verbose`を追加してください。
+### 1. Always Use Verbose for Debugging
+When encountering unexpected behavior, always add `--verbose` to understand what diffai is doing.
 
-### 2. パフォーマンス監視
-大きなファイルの処理時間を監視し、それに応じて最適化するために詳細モードを使用してください。
+### 2. Performance Monitoring
+Use verbose mode to monitor processing time for large files and optimize accordingly.
 
-### 3. 設定確認
-バッチ操作を実行する前に、単一ファイルで詳細モードを使用して設定を確認してください。
+### 3. Configuration Verification
+Before running batch operations, use verbose mode on a single file to verify configuration.
 
-### 4. ファイルフォーマットの学習
-詳細モードを使用して、diffaiが異なるファイルフォーマットをどのように検出・処理するかを理解してください。
+### 4. Learning File Formats
+Use verbose mode to understand how diffai detects and processes different file formats.
 
-### 5. ML解析の最適化
-複数のML解析機能を使用する場合、詳細モードでどの機能がアクティブで、処理時間への影響を特定できます。
+### 5. ML Analysis Optimization
+When using multiple ML analysis features, verbose mode helps identify which features are active and their impact on processing time.
 
-## 出力リダイレクト
+## Output Redirection
 
-### 詳細出力と結果の分離
-詳細情報はstderrに送信されるため、結果から分離できます：
+### Separate Verbose from Results
+Verbose information is sent to stderr, allowing you to separate it from results:
 
 ```bash
-# 結果をファイルに保存、詳細出力を画面に表示
+# Save results to file, show verbose on screen
 diffai file1.json file2.json --verbose --output json > results.json
 
-# 結果と詳細出力の両方を保存
+# Save both results and verbose output
 diffai file1.json file2.json --verbose > results.txt 2> verbose.log
 
-# 詳細情報のみを表示
+# Show only verbose information
 diffai file1.json file2.json --verbose 2>&1 >/dev/null
 ```
 
-## 他のツールとの統合
+## Integration with Other Tools
 
-### CI/CDパイプライン
-CI/CDでデバッグのために詳細モードを使用：
+### CI/CD Pipelines
+Use verbose mode in CI/CD for debugging:
 
 ```bash
-# GitHub Actionsなどで
-- name: 詳細出力でモデル比較
+# In GitHub Actions or similar
+- name: Compare models with verbose output
   run: diffai baseline.safetensors new_model.safetensors --verbose
 ```
 
-### スクリプトと自動化
-自動化のために詳細出力を解析：
+### Scripts and Automation
+Parse verbose output for automation:
 
 ```bash
 #!/bin/bash
 output=$(diffai file1.json file2.json --verbose 2>&1)
 if echo "$output" | grep -q "Differences found: 0"; then
-    echo "ファイルは同一です"
+    echo "Files are identical"
 else
-    echo "ファイルが異なります"
+    echo "Files differ"
 fi
 ```
 
-## 関連コマンド
+## Related Commands
 
-- [`--help`](basic-usage.md#help): 利用可能なすべてのオプションを表示
-- [`--output`](output-formats.md): 出力フォーマットの制御
-- [`--recursive`](directory-comparison.md): ディレクトリ比較の有効化
+- [`--help`](basic-usage.md#help): Show all available options
+- [`--output`](output-formats.md): Control output format
+- [`--recursive`](directory-comparison.md): Enable directory comparison

@@ -1,75 +1,358 @@
-# ML分析功能（35项功能）
+# ML分析功能（35种）
 
-diffai机器学习分析功能的综合指南：专为模型比较和分析而设计。
+用于模型比较和分析的 diffai 机器学习分析功能的全面指南。
 
 ## 概述
 
-diffai提供35个专门为机器学习模型比较和分析设计的特殊分析功能。这些功能有助于研究开发、MLOps和部署工作流程。
+diffai 提供 35 种专为机器学习模型比较和分析设计的专业分析功能。这些功能帮助研究开发、MLOps 和部署工作流。
 
-## 自动综合分析（v0.3.4+）
+## 自动全面分析（v0.3.4+）
 
-### 一体化ML分析
-diffai自动为PyTorch和Safetensors文件提供综合分析。无需标志，30多个分析功能默认运行。
+### 一体化 ML 分析
+Diffai 为 PyTorch 和 Safetensors 文件自动提供全面分析。无需标志 - 所有 30+ 分析功能默认运行。
 
-### 1. 张量统计分析
-提供详细的张量统计。
+**用法**:
+```bash
+diffai model1.safetensors model2.safetensors
+```
+
+**输出**:
+```
+  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
+  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
+```
+
+**分析字段**:
+- **mean**: 参数平均值
+- **std**: 参数标准差
+- **min/max**: 参数值范围
+- **shape**: 张量维度
+- **dtype**: 数据类型精度
+
+**使用场景**:
+- 监控训练过程中的参数变化
+- 检测模型权重的统计偏移
+- 验证模型一致性
 
 ### 2. `--quantization-analysis` 量化分析
 分析量化效果和效率。
 
-### 3. `--sort-by-change-magnitude` 变化幅度排序
-按变化幅度排序差异。
+**用法**:
+```bash
+diffai fp32_model.safetensors quantized_model.safetensors --quantization-analysis
+```
 
-### 4. `--show-layer-impact` 层影响分析
-分析层级影响。
+**输出**:
+```
+quantization_analysis: compression=0.25, precision_loss=minimal
+```
 
-# 综合模型分析
-diffai checkpoint_v1.safetensors checkpoint_v2.safetensors
+**Analysis Fields**:
+- **compression**: Model size reduction ratio
+- **precision_loss**: Accuracy impact assessment
+- **efficiency**: Performance vs quality trade-offs
 
-# 用于自动化的JSON输出
-diffai model1.safetensors model2.safetensors --output json
+**Use Cases**:
+- Validate quantization quality
+- Optimize deployment size
+- Compare compression techniques
 
-## 功能选择指南
+### 3. `--sort-by-change-magnitude` Change Magnitude Sorting
+Sorts differences by magnitude for prioritization.
 
-### 5. `--architecture-comparison` 架构比较
-分析架构差异。
+**Usage**:
+```bash
+diffai model1.safetensors model2.safetensors --sort-by-change-magnitude
+```
 
-### 6. `--memory-analysis` 内存分析
-分析内存使用。
+**Output**: Results are sorted with largest changes first
 
-### 7. `--anomaly-detection` 异常检测
-检测异常模式。
+**Use Cases**:
+- Focus on most significant changes
+- Prioritize debugging efforts
+- Identify critical parameter shifts
 
-### 8. `--change-summary` 变更摘要
-生成详细的变更摘要。
+### 4. `--show-layer-impact` Layer Impact Analysis
+Analyzes layer-by-layer impact of changes.
 
-### 9. `--convergence-analysis` 收敛分析
-分析收敛模式。
+**Usage**:
+```bash
+diffai baseline.safetensors modified.safetensors --show-layer-impact
+```
 
-### 10. `--gradient-analysis` 梯度分析
-分析梯度信息。
+**Output**: Per-layer change analysis
 
-### 11. `--similarity-matrix` 相似性矩阵
-生成相似性矩阵。
+**Use Cases**:
+- Understand which layers changed most
+- Guide fine-tuning strategies
+- Analyze architectural modifications
 
-## 第3阶段功能（现已可用）
+## Combined Analysis
 
-上述7个新功能（5-11）代表第3阶段功能，现已完全实现并可使用。
+Combine multiple features for comprehensive analysis:
 
-## 设计理念
+```bash
+# Comprehensive model analysis
+diffai checkpoint_v1.safetensors checkpoint_v2.safetensors \
+  \
+  --quantization-analysis \
+  --sort-by-change-magnitude \
+  --show-layer-impact
 
-diffai遵循UNIX哲学：简单、可组合的工具，专注做好一件事。
+# JSON output for automation
+diffai model1.safetensors model2.safetensors \
+  --output json
+```
 
-## 集成示例
+## Feature Selection Guide
 
-### MLflow集成
-展示MLflow集成示例。
+**For Training Monitoring**:
+```bash
+diffai checkpoint_old.safetensors checkpoint_new.safetensors \
+  --sort-by-change-magnitude
+```
 
-### CI/CD管道
-展示CI/CD管道使用示例。
+**For Production Deployment**:
+```bash
+diffai current_prod.safetensors candidate.safetensors \
+  --quantization-analysis
+```
 
-## 相关内容
+**For Research Analysis**:
+```bash
+diffai baseline.safetensors experiment.safetensors \
+  --show-layer-impact
+```
 
-- [CLI参考](cli-reference_zh.md) - 完整命令参考
-- [基本使用指南](../user-guide/basic-usage_zh.md) - diffai入门
-- [ML模型比较指南](../user-guide/ml-model-comparison_zh.md) - 高级模型比较技术
+**For Quantization Validation**:
+```bash
+diffai fp32.safetensors quantized.safetensors \
+  --quantization-analysis
+```
+
+### 5. `--architecture-comparison` Architecture Comparison
+Compare model architectures and detect structural changes.
+
+**Usage**:
+```bash
+diffai model1.safetensors model2.safetensors --architecture-comparison
+```
+
+**Output**:
+```
+architecture_comparison: transformer->transformer, complexity=similar_complexity, migration=easy
+```
+
+**Analysis Fields**:
+- **Architecture type detection**: Transformer, CNN, RNN, or feedforward
+- **Layer depth comparison**: Number of layers and structural changes
+- **Parameter count analysis**: Size ratios and complexity assessment
+- **Migration difficulty**: Assessment of upgrade complexity
+- **Compatibility evaluation**: Cross-architecture compatibility
+
+**Use Cases**:
+- Compare different model architectures
+- Assess architectural upgrade complexity
+- Analyze structural model changes
+
+### 6. `--memory-analysis` Memory Analysis
+Analyze memory usage and optimization opportunities.
+
+**Usage**:
+```bash
+diffai model1.safetensors model2.safetensors --memory-analysis
+```
+
+**Output**:
+```
+memory_analysis: delta=+12.5MB, peak=156.3MB, efficiency=0.85, recommendation=optimal
+```
+
+**Analysis Fields**:
+- **Memory delta**: Exact memory change between models
+- **Peak usage estimation**: Including gradients and activations
+- **GPU utilization**: Estimated GPU memory usage
+- **Optimization opportunities**: Gradient checkpointing, mixed precision
+- **Memory leak detection**: Unusually large tensors identification
+
+**Use Cases**:
+- Optimize memory usage for deployment
+- Detect memory inefficiencies
+- Plan GPU resource allocation
+
+### 7. `--anomaly-detection` Anomaly Detection
+Detect numerical anomalies in model parameters.
+
+**Usage**:
+```bash
+diffai model1.safetensors model2.safetensors --anomaly-detection
+```
+
+**Output**:
+```
+anomaly_detection: type=none, severity=none, affected_layers=[], confidence=0.95
+```
+
+**Analysis Fields**:
+- **NaN/Inf detection**: Numerical instability identification
+- **Gradient explosion/vanishing**: Parameter change magnitude analysis
+- **Dead neurons**: Zero variance detection
+- **Root cause analysis**: Suggested causes and solutions
+- **Recovery probability**: Likelihood of training recovery
+
+**Use Cases**:
+- Debug training instabilities
+- Detect numerical issues early
+- Validate model health
+
+### 8. `--change-summary` Change Summary
+Generate detailed change summaries.
+
+**Usage**:
+```bash
+diffai model1.safetensors model2.safetensors --change-summary
+```
+
+**Output**:
+```
+change_summary: layers_changed=6, magnitude=0.15, patterns=[weight_updates, bias_adjustments]
+```
+
+**Analysis Fields**:
+- **Change magnitude**: Overall parameter change intensity
+- **Change patterns**: Types of modifications detected
+- **Most changed layers**: Ranking by modification intensity
+- **Structural vs parameter changes**: Classification of change types
+- **Change distribution**: By layer type and function
+
+**Use Cases**:
+- Summarize model evolution
+- Track training progress
+- Generate reports for stakeholders
+
+### 9. `--convergence-analysis` Convergence Analysis
+Analyze convergence patterns in model parameters.
+
+**Usage**:
+```bash
+diffai model1.safetensors model2.safetensors --convergence-analysis
+```
+
+**Output**:
+```
+convergence_analysis: status=converging, stability=0.92, early_stopping=continue
+```
+
+**Analysis Fields**:
+- **Convergence status**: Converged, converging, plateaued, or diverging
+- **Parameter stability**: How stable parameters are between iterations
+- **Plateau detection**: Identification of training plateaus
+- **Early stopping recommendation**: When to stop training
+- **Remaining iterations**: Estimated iterations to convergence
+
+**Use Cases**:
+- Optimize training duration
+- Detect convergence issues
+- Make early stopping decisions
+
+### 10. `--gradient-analysis` Gradient Analysis
+Analyze gradient information estimated from parameter changes.
+
+**Usage**:
+```bash
+diffai model1.safetensors model2.safetensors --gradient-analysis
+```
+
+**Output**:
+```
+gradient_analysis: flow_health=healthy, norm=0.021, ratio=2.11, clipping=none
+```
+
+**Analysis Fields**:
+- **Gradient flow health**: Overall gradient quality assessment
+- **Gradient norm estimation**: Magnitude of parameter updates
+- **Problematic layers**: Layers with gradient issues
+- **Clipping recommendation**: Suggested gradient clipping values
+- **Learning rate suggestions**: Adaptive LR recommendations
+
+**Use Cases**:
+- Debug gradient flow problems
+- Optimize learning rates
+- Detect vanishing/exploding gradients
+
+### 11. `--similarity-matrix` Similarity Matrix
+Generate similarity matrix for model comparison.
+
+**Usage**:
+```bash
+diffai model1.safetensors model2.safetensors --similarity-matrix
+```
+
+**Output**:
+```
+similarity_matrix: dimensions=(6,6), mean_similarity=0.65, clustering=0.73
+```
+
+**Analysis Fields**:
+- **Layer-to-layer similarities**: Cosine similarity matrix
+- **Clustering coefficient**: How clustered the similarities are
+- **Outlier detection**: Layers with unusual similarity patterns
+- **Matrix quality score**: Overall similarity matrix quality
+- **Correlation patterns**: Block diagonal, hierarchical structures
+
+**Use Cases**:
+- Analyze model relationships
+- Detect redundant layers
+- Compare model families
+
+## Phase 3 Features (Now Available)
+
+The above 7 new functions (5-11) represent Phase 3 features that are now fully implemented and available for use.
+
+## Design Philosophy
+
+diffai follows UNIX philosophy: simple, composable tools that do one thing well. Features are orthogonal and can be combined for powerful analysis workflows.
+
+## Integration Examples
+
+### MLflow Integration
+```python
+import subprocess
+import json
+import mlflow
+
+def log_model_diff(model1_path, model2_path):
+    result = subprocess.run([
+    ], capture_output=True, text=True)
+    
+    diff_data = json.loads(result.stdout)
+    
+    with mlflow.start_run():
+        mlflow.log_dict(diff_data, "model_comparison.json")
+        mlflow.log_metric("total_changes", len(diff_data))
+```
+
+### CI/CD Pipeline
+```yaml
+name: Model Validation
+on: [push, pull_request]
+
+jobs:
+  model-diff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install diffai
+        run: cargo install diffai
+        
+      - name: Compare models
+        run: |
+          diffai models/baseline.safetensors models/candidate.safetensors \
+            --output json > model_diff.json
+```
+
+## See Also
+
+- [CLI Reference](cli-reference.md) - Complete command reference
+- [Basic Usage Guide](../user-guide/basic-usage.md) - Get started with diffai
+- [ML Model Comparison Guide](../user-guide/ml-model-comparison.md) - Advanced model comparison techniques

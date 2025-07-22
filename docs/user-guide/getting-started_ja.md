@@ -1,212 +1,182 @@
-# diffaiを始める
+# Getting Started with diffai
 
-このガイドでは、`diffai`を素早く効果的に使い始める方法を詳しく解説します。
+This comprehensive guide will help you get up and running with `diffai` quickly and effectively.
 
-## diffaiとは
+## What is diffai?
 
-`diffai`は、AI技術を活用した次世代の差分比較ツールです。従来の単純な差分表示を超えて、機械学習による意味理解と高度な分析機能を組み合わせ、構造化データファイルの変更に対する深い洞察を提供します。
+`diffai` is an AI-powered diff tool that goes beyond traditional comparison. It combines semantic understanding with machine learning capabilities to provide intelligent insights into changes between structured data files.
 
-### 主な特徴
+### Key Benefits
 
-- **AI駆動の分析**: 機械学習により変更パターンや異常を自動検出
-- **意味的理解**: データ変更の文脈と意味を理解して分析
-- **幅広いフォーマット対応**: JSON、YAML、TOML、XML、CSV等に対応
-- **インテリジェントな洞察**: 変更パターンをML技術で深く分析
-- **高度な統計機能**: データ分布とトレンドの詳細な統計分析
+- **AI-Enhanced Analysis**: Uses machine learning to detect patterns and anomalies in changes
+- **Semantic Understanding**: Understands the meaning and context of data changes
+- **Multiple Formats**: Supports JSON, YAML, TOML, XML, CSV, and more
+- **Intelligent Insights**: Provides ML-driven analysis of change patterns
+- **Advanced Statistics**: Statistical analysis of data distributions and trends
 
-## 事前準備
+## Prerequisites
 
-始める前に、`diffai`がインストールされていることを確認してください。詳しいインストール方法は[インストールガイド](installation_ja.md)をご覧ください。
+Before starting, make sure you have `diffai` installed. See the [Installation Guide](installation.md) for detailed instructions.
 
-クイックインストール:
+Quick install:
 ```bash
 cargo install diffai
 ```
 
-## 基本的な使い方
+## Basic Usage
 
-### シンプルなファイル比較
+### Simple File Comparison
 
-最も基本的な使い方は、2つのファイルを比較することです：
-
-```bash
-diffai file1.json file2.json
-```
-
-このコマンドは変更点を色分けして表示します：
-- **緑**: 追加された内容
-- **赤**: 削除された内容
-- **黄**: 変更された内容
-
-### 出力例
+The most basic usage is comparing two files:
 
 ```bash
-$ diffai config_old.json config_new.json
-  ~ version: "1.0.0" -> "1.1.0"
-  + features.new_feature: true
-  - features.deprecated_feature
-  ~ settings.timeout: 30 -> 60
+# Compare JSON files with AI analysis
+diffai config_v1.json config_v2.json
+
+# Compare YAML files with ML insights
+diffai docker-compose.yml docker-compose.new.yml
+
+# Compare TOML files
+diffai Cargo.toml Cargo.toml.backup
+
+# Compare XML files
+diffai settings.xml settings.new.xml
+
+# Compare CSV files with statistical analysis
+diffai data.csv data_updated.csv
 ```
 
-## 実践的な例
+### Output Formats
 
-### 設定ファイルの比較
-
-開発環境と本番環境の設定を比較：
+Control how results are displayed:
 
 ```bash
-diffai config/development.json config/production.json
+# JSON output for API integration
+diffai --format json file1.json file2.json
+
+# YAML output for human readability
+diffai --format yaml config1.yml config2.yml
+
+# Verbose output with ML analysis details
+diffai --verbose data1.csv data2.csv
 ```
 
-### APIレスポンスの検証
+### Recursive Directory Comparison
 
-APIのバージョン間の変更を確認：
+Compare entire directory structures:
 
 ```bash
-diffai api/v1/response.json api/v2/response.json --output json
+# Compare all files in directories
+diffai --recursive dir1/ dir2/
+
+# Save results to file
+diffai --recursive --output results.json dir1/ dir2/
 ```
 
-### データ移行の確認
+## Advanced Features
 
-データベースエクスポートの整合性チェック：
+### Machine Learning Analysis
+
+Enable AI-powered analysis for deeper insights:
 
 ```bash
-diffai old_export.csv new_export.csv --array-id-key "user_id"
+# Enable ML anomaly detection
+diffai --epsilon 0.01 dataset1.json dataset2.json
+
+# Array comparison with intelligent ID matching
+diffai --array-id-key id users1.json users2.json
+
+# Ignore specific patterns with regex
+diffai --ignore-keys-regex "timestamp|temp_" log1.json log2.json
 ```
 
-## 高度な使用方法
+### Path-specific Analysis
 
-### 特定のキーを無視
-
-タイムスタンプなど、比較したくないフィールドを除外：
+Focus on specific data paths:
 
 ```bash
-diffai file1.json file2.json --ignore-keys-regex "timestamp|updated_at"
+# Analyze specific configuration paths
+diffai --path "database.config" app1.json app2.json
+
+# Multiple path analysis
+diffai --path "users[].preferences" user_data1.json user_data2.json
 ```
 
-### 浮動小数点の許容誤差
+### Statistical Insights
 
-数値の微小な差異を許容：
+Get statistical analysis of your data changes:
 
 ```bash
-diffai data1.json data2.json --epsilon 0.001
+# Verbose mode shows statistical summaries
+diffai --verbose financial_q1.csv financial_q2.csv
+
+# Focus on numerical changes with epsilon tolerance
+diffai --epsilon 0.001 metrics1.json metrics2.json
 ```
 
-### 配列要素の追跡
+## Common Use Cases
 
-IDベースで配列要素を比較：
+### Configuration Management
 
 ```bash
-diffai users_old.json users_new.json --array-id-key "id"
+# Compare application configurations
+diffai app-config-dev.json app-config-prod.json
+
+# Track infrastructure changes
+diffai --recursive infrastructure/dev/ infrastructure/prod/
 ```
 
-## 出力形式
-
-### JSON形式での出力
-
-プログラムで処理しやすい形式：
+### Data Analysis
 
 ```bash
-diffai file1.json file2.json --output json > diff_result.json
+# Compare datasets with ML insights
+diffai --verbose --epsilon 0.05 dataset_before.csv dataset_after.csv
+
+# Track user behavior changes
+diffai --array-id-key user_id users_jan.json users_feb.json
 ```
 
-### YAML形式での出力
-
-人間が読みやすい構造化形式：
+### API Response Comparison
 
 ```bash
-diffai file1.json file2.json --output yaml
+# Compare API responses
+diffai --ignore-keys-regex "timestamp|request_id" api_v1.json api_v2.json
+
+# Focus on data payload only
+diffai --path "data" response1.json response2.json
 ```
 
-## MLモデル比較（特別機能）
+## Getting Help
 
-### Safetensorsモデルの比較
+For more detailed information about specific features:
 
 ```bash
-diffai model_v1.safetensors model_v2.safetensors
+# Show all available options
+diffai --help
+
+# Get version information
+diffai --version
 ```
 
-自動的に以下の分析が実行されます：
-- テンソル統計の比較
-- 量子化分析
-- アーキテクチャ比較
-- 異常検出
-- メモリ効率分析
+## Next Steps
 
-### PyTorchモデルの比較
+- Learn about [ML Workflows](ml-workflows.md) for advanced AI analysis
+- Explore [Scientific Data](scientific-data.md) analysis capabilities  
+- Check out [Verbose Output](verbose-output.md) for detailed reporting
+- Review [Basic Usage](basic-usage.md) for more examples
 
-```bash
-diffai checkpoint_epoch_10.pt checkpoint_epoch_20.pt
-```
+## Troubleshooting
 
-## トラブルシューティング
+### Common Issues
 
-### よくある問題
+**Large Files**: For very large files, consider using `--path` to focus on specific sections.
 
-**Q: ファイルが大きすぎてメモリ不足になる**
-A: `--streaming`オプションを使用してください：
-```bash
-diffai large_file1.json large_file2.json --streaming
-```
+**Memory Usage**: Use `--format json` for better memory efficiency with large datasets.
 
-**Q: 日本語を含むファイルで文字化けする**
-A: UTF-8エンコーディングを確認してください。diffaiはUTF-8を標準でサポートしています。
+**Performance**: Enable verbose mode only when you need detailed ML analysis.
 
-**Q: 特定の差分だけを見たい**
-A: `--path`オプションで特定のパスに絞り込めます：
-```bash
-diffai file1.json file2.json --path "config.database"
-```
+### Performance Tips
 
-## 次のステップ
-
-基本的な使い方を理解したら、以下のガイドでさらに詳しく学びましょう：
-
-1. [基本使用ガイド](basic-usage_ja.md) - より詳細な使用方法
-2. [MLモデル比較ガイド](ml-model-comparison_ja.md) - 機械学習モデルの高度な比較
-3. [科学データ分析](scientific-data_ja.md) - NumPyやMATLABファイルの比較
-4. [CLIリファレンス](../reference/cli-reference_ja.md) - 全コマンドオプションの詳細
-
-## ヒントとベストプラクティス
-
-### 1. 設定ファイルの活用
-
-頻繁に使用するオプションは`.diffai.toml`に保存：
-
-```toml
-[default]
-ignore_keys_regex = "timestamp|_id"
-epsilon = 0.001
-output = "json"
-```
-
-### 2. CI/CDへの統合
-
-GitHub Actionsでの使用例：
-
-```yaml
-- name: Compare configurations
-  run: |
-    diffai config/prod.json config/staging.json --output json > diff.json
-    if [ -s diff.json ]; then
-      echo "設定に差異があります"
-      cat diff.json
-      exit 1
-    fi
-```
-
-### 3. パフォーマンスの最適化
-
-大規模ファイルの比較時：
-- `--parallel`オプションで並列処理を有効化
-- `--cache`オプションで結果をキャッシュ
-- 必要に応じて`--memory-limit`でメモリ使用量を制限
-
-## コミュニティとサポート
-
-- **ドキュメント**: https://diffai.dev/docs
-- **GitHub**: https://github.com/your-org/diffai
-- **問題報告**: GitHubのIssuesページへ
-- **ディスカッション**: GitHubのDiscussionsで質問や提案を共有
-
-diffaiを使って、より効率的で洞察に富んだデータ比較を始めましょう！
+- Use `--ignore-keys-regex` to skip irrelevant fields
+- Specify `--path` for targeted analysis
+- Consider `--epsilon` for numerical tolerance in large datasets
