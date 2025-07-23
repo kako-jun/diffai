@@ -286,4 +286,4 @@ If you encounter installation issues:
 
 ## Next Steps
 
-After installation, see [Basic Usage](basic-usage.md) to get started with diffai.
+After installation, see [Basic Usage](basic-usage_zh.md) to get started with diffai.

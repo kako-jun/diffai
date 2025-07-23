@@ -310,7 +310,7 @@ def log_comparison_to_tensorboard(model1, model2, step):
 
 ## Next Steps
 
-- [Configuration](configuration.md) - Advanced configuration
-- [API Reference](../api/cli.md) - Complete command reference
+- [Configuration](configuration_zh.md) - Advanced configuration
+- [API参考](../api/cli_zh.md) - Complete command reference
 - [Examples](../examples/) - Practical usage examples
 

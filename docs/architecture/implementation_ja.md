@@ -409,7 +409,7 @@ cargo bench
 
 ## Related Documentation
 
-- [Design Principles](design-principles.md) - Design philosophy and principles
-- [CLI Reference](../reference/cli-reference.md) - Command-line specifications
-- [ML Analysis Functions](../reference/ml-analysis.md) - Machine learning analysis functions
+- [Design Principles](design-principles_ja.md) - Design philosophy and principles
+- [CLIリファレンス](../reference/cli-reference_ja.md) - Command-line specifications
+- [ML Analysis Functions](../reference/ml-analysis_ja.md) - Machine learning analysis functions
 

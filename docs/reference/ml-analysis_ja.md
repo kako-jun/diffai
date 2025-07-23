@@ -353,6 +353,6 @@ jobs:
 
 ## See Also
 
-- [CLI Reference](cli-reference.md) - Complete command reference
-- [Basic Usage Guide](../user-guide/basic-usage.md) - Get started with diffai
-- [ML Model Comparison Guide](../user-guide/ml-model-comparison.md) - Advanced model comparison techniques
+- [CLIリファレンス](cli-reference_ja.md) - Complete command reference
+- [Basic Usage Guide](../user-guide/basic-usage_ja.md) - Get started with diffai
+- [ML Model Comparison Guide](../user-guide/ml-model-comparison_ja.md) - Advanced model comparison techniques

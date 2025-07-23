@@ -365,6 +365,6 @@ diffai data_v1.npy data_v2.npy --epsilon 1e-8
 
 ## Next Steps
 
-- [Basic Usage](basic-usage.md) - Learn fundamental operations
-- [ML Model Comparison](ml-model-comparison.md) - PyTorch and Safetensors analysis
-- [CLI Reference](../reference/cli-reference.md) - Complete command reference
+- [Basic Usage](basic-usage_ja.md) - Learn fundamental operations
+- [ML Model Comparison](ml-model-comparison_ja.md) - PyTorch and Safetensors analysis
+- [CLIリファレンス](../reference/cli-reference_ja.md) - Complete command reference

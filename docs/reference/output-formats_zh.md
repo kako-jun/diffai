@@ -277,7 +277,7 @@ export DIFFAI_YAML_FLOW="false"
 
 ## Related Documentation
 
-- [CLI Reference](cli-reference.md) - Complete command-line options
-- [Supported Formats](formats.md) - Input file formats
-- [ML Analysis Functions](ml-analysis.md) - Machine learning analysis functions
+- [CLI参考](cli-reference_zh.md) - Complete command-line options
+- [Supported Formats](formats_zh.md) - Input file formats
+- [ML Analysis Functions](ml-analysis_zh.md) - Machine learning analysis functions
 

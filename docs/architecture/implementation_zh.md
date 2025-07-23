@@ -149,6 +149,6 @@ diffai/
 ## 下一步
 
 参见各个用户指南了解具体功能使用：
-- [基本使用](../user-guide/basic-usage.md)
-- [ML 模型比较](../user-guide/ml-model-comparison.md)
-- [科学数据分析](../user-guide/scientific-data.md)
+- [基本使用](../user-guide/basic-usage_zh.md)
+- [ML 模型比較](../user-guide/ml-model-comparison_zh.md)
+- [科学数据分析](../user-guide/scientific-data_zh.md)

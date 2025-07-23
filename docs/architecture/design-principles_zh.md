@@ -309,9 +309,9 @@ pub struct PluginManager {
 
 For detailed design documentation, see:
 
-- [Core Features](core-features.md) - Main functionality details
-- [Extensibility](extensibility.md) - Plugin system and customization
-- [API Reference](../api/) - Developer API
+- [Core Features](core-features_zh.md) - Main functionality details
+- [Extensibility](extensibility_zh.md) - Plugin system and customization
+- [API参考](../api/) - Developer API
 
 These design principles position diffai as an essential tool for AI/ML development and ensure long-term success.
 
