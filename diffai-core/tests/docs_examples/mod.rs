@@ -9,8 +9,5 @@ pub mod ml_recommendations_examples;
 pub mod ml_workflows_examples;
 pub mod output_formats_examples;
 pub mod readme_examples;
-pub mod reference_cli_options;
 pub mod scientific_data_examples;
-pub mod user_guide_basic_usage;
-pub mod user_guide_ml_workflows;
 pub mod verbose_output_examples;
