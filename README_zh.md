@@ -3,8 +3,12 @@
 > **PyTorch、Safetensors、NumPy、MATLAB文件专用的AI/ML特化diff工具**
 
 [![CI](https://github.com/kako-jun/diffai/actions/workflows/ci.yml/badge.svg)](https://github.com/kako-jun/diffai/actions/workflows/ci.yml)
-[![Crates.io](https://img.shields.io/crates/v/diffai.svg)](https://crates.io/crates/diffai)
-[![Documentation](https://img.shields.io/badge/docs-GitHub-blue)](https://github.com/kako-jun/diffai/tree/main/docs/index_zh.md)
+[![Crates.io CLI](https://img.shields.io/crates/v/diffai.svg?label=diffai-cli)](https://crates.io/crates/diffai)
+[![Docs.rs Core](https://docs.rs/diffai-core/badge.svg)](https://docs.rs/diffai-core)
+[![npm](https://img.shields.io/npm/v/diffai-js.svg?label=diffai-js)](https://www.npmjs.com/package/diffai-js)
+[![PyPI](https://img.shields.io/pypi/v/diffai-python.svg?label=diffai-python)](https://pypi.org/project/diffai-python/)
+[![Documentation](https://img.shields.io/badge/📚%20User%20Guide-Documentation-green)](https://github.com/kako-jun/diffai/tree/main/docs/index_zh.md)
+[![API Reference](https://img.shields.io/badge/🔧%20API%20Reference-docs.rs-blue)](https://docs.rs/diffai-core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 专为**AI/ML和科学计算工作流**设计的下一代diff工具，能够理解模型结构、张量统计和数值数据，而不仅仅是文本变化。原生支持PyTorch、Safetensors、NumPy数组、MATLAB文件和结构化数据。
