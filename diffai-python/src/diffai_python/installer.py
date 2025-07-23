@@ -45,7 +45,7 @@ def get_platform_info():
             raise RuntimeError(f"Unsupported Darwin architecture: {machine}")
     elif system == "windows":  # Windows systems
         if machine in ("x86_64", "amd64"):
-            return "windows-x86_64", "diffai.exe"
+            return "windows-x86_64", "diffai_python.exe"
         else:
             raise RuntimeError(f"Unsupported Windows architecture: {machine}")
     else:

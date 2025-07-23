@@ -229,7 +229,7 @@ def diff(
     **kwargs
 ) -> DiffResult:
     """
-    Compare two files using diffai.
+    Compare two files using diffai_python.
     
     Args:
         input1: Path to first input file

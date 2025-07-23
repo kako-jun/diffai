@@ -15,7 +15,7 @@ from pathlib import Path
 # Add src to Python path for testing
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-import diffai
+import diffai_python
 
 
 class TestDiffaiIntegration(unittest.TestCase):
@@ -69,27 +69,27 @@ class TestDiffaiIntegration(unittest.TestCase):
             binary_path = _find_diffai_binary()
             self.assertTrue(os.path.exists(binary_path))
             print(f"✅ diffai binary found at: {binary_path}")
-        except diffai.DiffaiError:
+        except diffai_python.DiffaiError:
             self.skipTest("diffai binary not found")
     
     def test_basic_diff(self):
         """Test basic file comparison."""
         try:
-            result = diffai.diff(self.json1_path, self.json2_path)
-            self.assertIsInstance(result, diffai.DiffResult)
+            result = diffai_python.diff(self.json1_path, self.json2_path)
+            self.assertIsInstance(result, diffai_python.DiffResult)
             self.assertEqual(result.return_code, 0)
             self.assertTrue(len(result.raw_output) > 0)
             print(f"✅ Basic diff completed: {len(result.raw_output)} chars output")
-        except diffai.DiffaiError:
+        except diffai_python.DiffaiError:
             self.skipTest("diffai binary not found")
     
     def test_json_output(self):
         """Test JSON output format."""
         try:
-            result = diffai.diff(
+            result = diffai_python.diff(
                 self.json1_path, 
                 self.json2_path,
-                output_format=diffai.OutputFormat.JSON
+                output_format=diffai_python.OutputFormat.JSON
             )
             
             self.assertTrue(result.is_json)
@@ -100,22 +100,22 @@ class TestDiffaiIntegration(unittest.TestCase):
             
             print(f"✅ JSON output test passed: {len(result.data)} changes detected")
             
-        except diffai.DiffaiError:
+        except diffai_python.DiffaiError:
             self.skipTest("diffai binary not found")
     
     def test_diff_options(self):
         """Test DiffOptions configuration."""
         try:
-            options = diffai.DiffOptions(
-                output_format=diffai.OutputFormat.JSON,
+            options = diffai_python.DiffOptions(
+                output_format=diffai_python.OutputFormat.JSON,
                 recursive=False
             )
             
-            result = diffai.diff(self.json1_path, self.json2_path, options)
+            result = diffai_python.diff(self.json1_path, self.json2_path, options)
             self.assertTrue(result.is_json)
             print("✅ DiffOptions test passed")
             
-        except diffai.DiffaiError:
+        except diffai_python.DiffaiError:
             self.skipTest("diffai binary not found")
     
     def test_string_comparison(self):
@@ -138,10 +138,10 @@ class TestDiffaiIntegration(unittest.TestCase):
                 temp2 = f2.name
             
             try:
-                result = diffai.diff(
+                result = diffai_python.diff(
                     temp1, 
                     temp2,
-                    output_format=diffai.OutputFormat.JSON
+                    output_format=diffai_python.OutputFormat.JSON
                 )
                 
                 self.assertTrue(result.is_json)
@@ -151,19 +151,19 @@ class TestDiffaiIntegration(unittest.TestCase):
                 os.unlink(temp1)
                 os.unlink(temp2)
             
-        except diffai.DiffaiError:
+        except diffai_python.DiffaiError:
             self.skipTest("diffai binary not found")
     
     def test_error_handling(self):
         """Test error handling for invalid inputs."""
         try:
             # Test with non-existent files
-            with self.assertRaises(diffai.DiffaiError):
-                diffai.diff("nonexistent1.json", "nonexistent2.json")
+            with self.assertRaises(diffai_python.DiffaiError):
+                diffai_python.diff("nonexistent1.json", "nonexistent2.json")
             
             print("✅ Error handling test passed")
             
-        except diffai.DiffaiError:
+        except diffai_python.DiffaiError:
             self.skipTest("diffai binary not found")
     
     def test_binary_not_found_error(self):
@@ -174,7 +174,7 @@ class TestDiffaiIntegration(unittest.TestCase):
             binary_path = _find_diffai_binary()
             self.assertTrue(os.path.exists(binary_path))
             print("✅ BinaryNotFoundError handling test passed")
-        except diffai.DiffaiError as e:
+        except diffai_python.DiffaiError as e:
             if "binary not found" in str(e) or "BinaryNotFoundError" in str(e):
                 print("✅ BinaryNotFoundError correctly raised")
                 self.skipTest("diffai binary not found - this is expected behavior")
@@ -185,22 +185,22 @@ class TestDiffaiIntegration(unittest.TestCase):
         """Test ML-specific analysis options."""
         try:
             # Test with ML analysis options (even on JSON files)
-            options = diffai.DiffOptions(
+            options = diffai_python.DiffOptions(
                 stats=True,
                 architecture_comparison=True,
                 memory_analysis=True
             )
             
-            result = diffai.diff(self.json1_path, self.json2_path, options)
+            result = diffai_python.diff(self.json1_path, self.json2_path, options)
             self.assertEqual(result.return_code, 0)
             print("✅ ML analysis options test passed")
             
-        except diffai.DiffaiError:
+        except diffai_python.DiffaiError:
             self.skipTest("diffai binary not found")
     
     def test_version_access(self):
         """Test version access."""
-        version = diffai.__version__
+        version = diffai_python.__version__
         self.assertIsInstance(version, str)
         self.assertTrue(len(version) > 0)
         print(f"✅ Version access test passed: {version}")
@@ -221,10 +221,10 @@ class TestDiffaiWithoutBinary(unittest.TestCase):
     
     def test_diff_options_creation(self):
         """Test DiffOptions object creation."""
-        options = diffai.DiffOptions(
+        options = diffai_python.DiffOptions(
             stats=True,
             architecture_comparison=True,
-            output_format=diffai.OutputFormat.JSON
+            output_format=diffai_python.OutputFormat.JSON
         )
         
         args = options.to_args()
@@ -236,23 +236,23 @@ class TestDiffaiWithoutBinary(unittest.TestCase):
     
     def test_output_format_enum(self):
         """Test OutputFormat enum."""
-        self.assertEqual(diffai.OutputFormat.JSON.value, "json")
-        self.assertEqual(diffai.OutputFormat.YAML.value, "yaml")
-        self.assertEqual(diffai.OutputFormat.CLI.value, "cli")
+        self.assertEqual(diffai_python.OutputFormat.JSON.value, "json")
+        self.assertEqual(diffai_python.OutputFormat.YAML.value, "yaml")
+        self.assertEqual(diffai_python.OutputFormat.CLI.value, "cli")
         print("✅ OutputFormat enum test passed")
     
     def test_diff_result_properties(self):
         """Test DiffResult properties."""
         # Test with JSON data
         json_output = '[{"path": "test", "type": "modified"}]'
-        result = diffai.DiffResult(json_output, "json", 0)
+        result = diffai_python.DiffResult(json_output, "json", 0)
         
         self.assertTrue(result.is_json)
         self.assertIsInstance(result.data, list)
         
         # Test with non-JSON data
         text_output = "Some diff output"
-        result2 = diffai.DiffResult(text_output, "cli", 0)
+        result2 = diffai_python.DiffResult(text_output, "cli", 0)
         
         self.assertFalse(result2.is_json)
         self.assertEqual(result2.data, text_output)
@@ -264,7 +264,7 @@ def run_tests():
     """Run all tests and display results."""
     print("🧪 Running diffai Python package integration tests...")
     print(f"Python version: {sys.version}")
-    print(f"diffai package version: {diffai.__version__}")
+    print(f"diffai package version: {diffai_python.__version__}")
     
     # Create test suite
     loader = unittest.TestLoader()
