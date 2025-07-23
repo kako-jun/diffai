@@ -22,6 +22,7 @@ quick-xml = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_yml = { workspace = true }
+serde_yaml = { workspace = true }
 toml = { workspace = true }
 regex = { workspace = true }
 # AI/ML dependencies
@@ -35,8 +36,7 @@ ndarray = { workspace = true }
 # hdf5 = { workspace = true }  # Requires system HDF5 libraries
 zip = { workspace = true }
 matfile = { workspace = true }
-# Cross-project integration
-diffx-core = { workspace = true }
+# Cross-project integration removed - using unified API only
 
 [dev-dependencies]
 criterion = { workspace = true }
