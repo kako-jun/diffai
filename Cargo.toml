@@ -33,6 +33,7 @@ quick-xml = { version = "0.31", features = ["serialize"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde_yml = "0.0.12"
+serde_yaml = "0.9"
 toml = "0.8"
 walkdir = "2.5"
 dirs = "5.0"
@@ -54,8 +55,7 @@ ndarray = "0.16"
 zip = "2.2"
 matfile = "0.1"  # MATLAB .mat file support
 # Python bindings (removed - now using binary distribution)
-# Cross-project integration  
-diffx-core = "0.1"
+# Cross-project integration removed - using unified API only
 
 [profile.release]
 lto = true

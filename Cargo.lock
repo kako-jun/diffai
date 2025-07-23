@@ -540,7 +540,6 @@ dependencies = [
  "clap",
  "colored",
  "diffai-core",
- "diffx-core",
  "predicates",
  "regex",
  "serde",
@@ -563,7 +562,6 @@ dependencies = [
  "configparser",
  "criterion",
  "csv",
- "diffx-core",
  "matfile",
  "ndarray",
  "quick-xml",
@@ -571,6 +569,7 @@ dependencies = [
  "safetensors",
  "serde",
  "serde_json",
+ "serde_yaml",
  "serde_yml",
  "toml",
  "zip 2.4.2",
@@ -581,18 +580,6 @@ name = "difflib"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6184e33543162437515c2e2b48714794e37845ec9851711914eec9d308f6ebe8"
-
-[[package]]
-name = "diffx-core"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cfc53fb18d6be391cc64c122811410c3de7955c50e89598a57459a90e4317037"
-dependencies = [
- "serde",
- "serde_json",
- "serde_yaml",
- "toml",
-]
 
 [[package]]
 name = "digest"
