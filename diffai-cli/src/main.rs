@@ -18,7 +18,7 @@ use walkdir::WalkDir;
 /// Color helper functions to support --no-color option
 mod color_utils {
     use colored::*;
-    
+
     pub fn apply_color<T: Colorize>(text: T, no_color: bool) -> ColoredString {
         if no_color {
             text.clear()
@@ -26,57 +26,109 @@ mod color_utils {
             text.normal()
         }
     }
-    
+
     pub fn blue(text: &str, no_color: bool) -> ColoredString {
-        if no_color { text.normal() } else { text.blue() }
+        if no_color {
+            text.normal()
+        } else {
+            text.blue()
+        }
     }
-    
+
     pub fn yellow(text: &str, no_color: bool) -> ColoredString {
-        if no_color { text.normal() } else { text.yellow() }
+        if no_color {
+            text.normal()
+        } else {
+            text.yellow()
+        }
     }
-    
+
     pub fn cyan(text: &str, no_color: bool) -> ColoredString {
-        if no_color { text.normal() } else { text.cyan() }
+        if no_color {
+            text.normal()
+        } else {
+            text.cyan()
+        }
     }
-    
+
     pub fn magenta(text: &str, no_color: bool) -> ColoredString {
-        if no_color { text.normal() } else { text.magenta() }
+        if no_color {
+            text.normal()
+        } else {
+            text.magenta()
+        }
     }
-    
+
     pub fn green(text: &str, no_color: bool) -> ColoredString {
-        if no_color { text.normal() } else { text.green() }
+        if no_color {
+            text.normal()
+        } else {
+            text.green()
+        }
     }
-    
+
     pub fn red(text: &str, no_color: bool) -> ColoredString {
-        if no_color { text.normal() } else { text.red() }
+        if no_color {
+            text.normal()
+        } else {
+            text.red()
+        }
     }
-    
+
     pub fn bright_red(text: &str, no_color: bool) -> ColoredString {
-        if no_color { text.normal() } else { text.bright_red() }
+        if no_color {
+            text.normal()
+        } else {
+            text.bright_red()
+        }
     }
-    
+
     pub fn bright_green(text: &str, no_color: bool) -> ColoredString {
-        if no_color { text.normal() } else { text.bright_green() }
+        if no_color {
+            text.normal()
+        } else {
+            text.bright_green()
+        }
     }
-    
+
     pub fn bright_blue(text: &str, no_color: bool) -> ColoredString {
-        if no_color { text.normal() } else { text.bright_blue() }
+        if no_color {
+            text.normal()
+        } else {
+            text.bright_blue()
+        }
     }
-    
+
     pub fn bright_cyan(text: &str, no_color: bool) -> ColoredString {
-        if no_color { text.normal() } else { text.bright_cyan() }
+        if no_color {
+            text.normal()
+        } else {
+            text.bright_cyan()
+        }
     }
-    
+
     pub fn bright_yellow(text: &str, no_color: bool) -> ColoredString {
-        if no_color { text.normal() } else { text.bright_yellow() }
+        if no_color {
+            text.normal()
+        } else {
+            text.bright_yellow()
+        }
     }
-    
+
     pub fn bright_magenta(text: &str, no_color: bool) -> ColoredString {
-        if no_color { text.normal() } else { text.bright_magenta() }
+        if no_color {
+            text.normal()
+        } else {
+            text.bright_magenta()
+        }
     }
-    
+
     pub fn bright_purple(text: &str, no_color: bool) -> ColoredString {
-        if no_color { text.normal() } else { text.bright_purple() }
+        if no_color {
+            text.normal()
+        } else {
+            text.bright_purple()
+        }
     }
 }
 
@@ -283,7 +335,7 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool, n
             }
             DiffResult::ModelArchitectureChanged(_, info1, info2) => {
                 // Calculate magnitude of parameter count change
-                (info1.total_parameters as f64 - info2.total_parameters as f64).abs()
+                (info1.total_params as f64 - info2.total_params as f64).abs()
             }
             DiffResult::LearningProgress(_, progress) => {
                 // Use parameter update magnitude as sort key
@@ -514,7 +566,7 @@ fn print_cli_output(mut differences: Vec<DiffResult>, sort_by_magnitude: bool, n
             }
             DiffResult::ModelArchitectureChanged(k, info1, info2) => {
                 format!("! {}: params={}->{}, layers={}->{} (architecture)",
-                    k, info1.total_parameters, info2.total_parameters,
+                    k, info1.total_params, info2.total_params,
                     info1.layer_count, info2.layer_count).magenta()
             }
             DiffResult::LearningProgress(k, progress) => {
@@ -1631,8 +1683,7 @@ fn generate_ml_recommendations(differences: &[DiffResult]) {
 
             // 9. セキュリティ・プライバシー (Security & Privacy)
             DiffResult::ModelArchitectureChanged(_, info1, info2) => {
-                let param_growth =
-                    (info2.total_parameters as f64 / info1.total_parameters as f64) - 1.0;
+                let param_growth = (info2.total_params as f64 / info1.total_params as f64) - 1.0;
                 if param_growth > 0.5 {
                     has_warning = true;
                     recommendations.push(format!("Large model size increase ({:.0}%). Audit for potential data memorization risks.", param_growth * 100.0));

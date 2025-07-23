@@ -11,12 +11,14 @@ fn parse_json(json_str: &str) -> Value {
 fn test_core_comprehensive_analysis() {
     let v1 = parse_json(r#"{"fc1": {"bias": 0.0018, "weight": -0.0002}}"#);
     let v2 = parse_json(r#"{"fc1": {"bias": 0.0017, "weight": -0.0001}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
+
     let has_bias_diff = results.iter().any(|r| format!("{:?}", r).contains("bias"));
-    let has_weight_diff = results.iter().any(|r| format!("{:?}", r).contains("weight"));
+    let has_weight_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("weight"));
     assert!(has_bias_diff);
     assert!(has_weight_diff);
 }
@@ -26,11 +28,13 @@ fn test_core_comprehensive_analysis() {
 fn test_core_architecture_comparison() {
     let v1 = parse_json(r#"{"architecture": {"type": "transformer", "layers": 12}}"#);
     let v2 = parse_json(r#"{"architecture": {"type": "transformer", "layers": 24}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
-    let has_layers_diff = results.iter().any(|r| format!("{:?}", r).contains("layers"));
+
+    let has_layers_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("layers"));
     assert!(has_layers_diff);
 }
 
@@ -39,10 +43,12 @@ fn test_core_architecture_comparison() {
 fn test_core_json_automation() {
     let v1 = parse_json(r#"{"analysis": {"features": 30, "enabled": true}}"#);
     let v2 = parse_json(r#"{"analysis": {"features": 35, "enabled": true}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
-    let has_features_diff = results.iter().any(|r| format!("{:?}", r).contains("features"));
+
+    let has_features_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("features"));
     assert!(has_features_diff);
 }
