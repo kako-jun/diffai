@@ -268,5 +268,5 @@ fi
 ## Related Commands
 
 - [`--help`](basic-usage.md#help): Show all available options
-- [`--output`](output-formats.md): Control output format
-- [`--recursive`](directory-comparison.md): Enable directory comparison
+- [`--output`](../reference/output-formats_ja.md): Control output format
+- [`--recursive`](directory-comparison_ja.md): Enable directory comparison

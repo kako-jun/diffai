@@ -16,7 +16,7 @@ This comprehensive guide will help you get up and running with `diffai` quickly 
 
 ## Prerequisites
 
-Before starting, make sure you have `diffai` installed. See the [Installation Guide](installation.md) for detailed instructions.
+Before starting, make sure you have `diffai` installed. See the [安装指南](installation_zh.md) for detailed instructions.
 
 Quick install:
 ```bash
@@ -160,8 +160,8 @@ diffai --version
 
 ## Next Steps
 
-- Learn about [ML Workflows](ml-workflows.md) for advanced AI analysis
-- Explore [Scientific Data](scientific-data.md) analysis capabilities  
+- Learn about [ML Workflows](ml-workflows_zh.md) for advanced AI analysis
+- Explore [Scientific Data](scientific-data_zh.md) analysis capabilities  
 - Check out [Verbose Output](verbose-output.md) for detailed reporting
 - Review [Basic Usage](basic-usage.md) for more examples
 

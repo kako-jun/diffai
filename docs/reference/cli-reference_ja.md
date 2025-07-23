@@ -249,8 +249,8 @@ diffai model1.safetensors model2.safetensors --verbose
 
 ## See Also
 
-- [Basic Usage Guide](../user-guide/basic-usage.md)
-- [ML Model Comparison Guide](../user-guide/ml-model-comparison.md)
-- [Scientific Data Analysis Guide](../user-guide/scientific-data.md)
-- [Output Format Reference](output-formats.md)
-- [Supported Formats Reference](formats.md)
+- [Basic Usage Guide](../user-guide/basic-usage_ja.md)
+- [ML Model Comparison Guide](../user-guide/ml-model-comparison_ja.md)
+- [Scientific Data Analysis Guide](../user-guide/scientific-data_ja.md)
+- [Output Format Reference](output-formats_ja.md)
+- [Supported Formats Reference](formats_ja.md)

@@ -591,6 +591,6 @@ diffai follows UNIX philosophy: simple, composable tools that do one thing well.
 
 ## Next Steps
 
-- [Basic Usage](basic-usage.md) - Learn fundamental operations
-- [Scientific Data Analysis](scientific-data.md) - NumPy and MATLAB file comparison
-- [CLI Reference](../reference/cli-reference.md) - Complete command reference
+- [Basic Usage](basic-usage_zh.md) - Learn fundamental operations
+- [Scientific Data Analysis](scientific-data_zh.md) - NumPy and MATLAB file comparison
+- [CLI参考](../reference/cli-reference_zh.md) - Complete command reference

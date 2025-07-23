@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/kako-jun/diffai/actions/workflows/ci.yml/badge.svg)](https://github.com/kako-jun/diffai/actions/workflows/ci.yml)
 [![Crates.io](https://img.shields.io/crates/v/diffai.svg)](https://crates.io/crates/diffai)
-[![Documentation](https://img.shields.io/badge/docs-GitHub-blue)](https://github.com/kako-jun/diffai/tree/main/docs/index.md)
+[![Documentation](https://img.shields.io/badge/docs-GitHub-blue)](https://github.com/kako-jun/diffai/tree/main/docs/index_zh.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 专为**AI/ML和科学计算工作流**设计的下一代diff工具，能够理解模型结构、张量统计和数值数据，而不仅仅是文本变化。原生支持PyTorch、Safetensors、NumPy数组、MATLAB文件和结构化数据。
@@ -116,8 +116,8 @@ diffai model_v1.safetensors model_v2.safetensors --output yaml
 
 - **[实用示例和演示](docs/examples/)** - 查看带有真实输出的diffai实际操作
 - **[API文档](https://docs.rs/diffai-core)** - Rust库文档
-- **[用户指南](docs/user-guide.md)** - 全面的使用指南
-- **[ML分析指南](docs/ml-analysis-guide.md)** - ML专用功能的深入介绍
+- **[用户指南](docs/user-guide/getting-started_zh.md)** - 全面的使用指南
+- **[ML分析指南](docs/reference/ml-analysis_zh.md)** - ML专用功能的深入介绍
 
 ## 支持的文件格式
 
@@ -203,7 +203,7 @@ Processing results:
   ML/Scientific data analysis completed
 ```
 
-📚 **See [Verbose Output Guide](docs/user-guide/verbose-output.md) for detailed usage**
+📚 **See [Verbose Output Guide](docs/user-guide/verbose-output_zh.md) for detailed usage**
 
 ## Output Formats
 

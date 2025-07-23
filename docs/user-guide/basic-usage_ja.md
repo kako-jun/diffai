@@ -209,7 +209,7 @@ diffai simulation_v1.mat simulation_v2.mat
 
 ## Next Steps
 
-- [ML Model Comparison](ml-model-comparison.md) - Advanced ML model analysis
-- [Scientific Data Analysis](scientific-data.md) - NumPy and MATLAB file comparison
-- [CLI Reference](../reference/cli-reference.md) - Complete command reference
+- [ML Model Comparison](ml-model-comparison_ja.md) - Advanced ML model analysis
+- [Scientific Data Analysis](scientific-data_ja.md) - NumPy and MATLAB file comparison
+- [CLIリファレンス](../reference/cli-reference_ja.md) - Complete command reference
 

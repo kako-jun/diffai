@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/kako-jun/diffai/actions/workflows/ci.yml/badge.svg)](https://github.com/kako-jun/diffai/actions/workflows/ci.yml)
 [![Crates.io](https://img.shields.io/crates/v/diffai.svg)](https://crates.io/crates/diffai)
-[![Documentation](https://img.shields.io/badge/docs-GitHub-blue)](https://github.com/kako-jun/diffai/tree/main/docs/index.md)
+[![Documentation](https://img.shields.io/badge/docs-GitHub-blue)](https://github.com/kako-jun/diffai/tree/main/docs/index_ja.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 モデル構造、テンソル統計、数値データを理解する**AI/ML・科学計算ワークフロー**専用の次世代diffツール。単なるテキスト変更ではなく、PyTorch、Safetensors、NumPy配列、MATLABファイル、構造化データをネイティブサポート。
@@ -116,8 +116,8 @@ diffai model_v1.safetensors model_v2.safetensors --output yaml
 
 - **[実用例・デモンストレーション](docs/examples/)** - 実際の出力付きdiffaiの動作確認
 - **[APIドキュメント](https://docs.rs/diffai-core)** - Rustライブラリドキュメント
-- **[ユーザーガイド](docs/user-guide.md)** - 包括的な使用ガイド
-- **[ML解析ガイド](docs/ml-analysis-guide.md)** - ML特化機能の詳細解説
+- **[ユーザーガイド](docs/user-guide/getting-started_ja.md)** - 包括的な使用ガイド
+- **[ML解析ガイド](docs/reference/ml-analysis_ja.md)** - ML特化機能の詳細解説
 
 ## サポートされるファイル形式
 
@@ -203,7 +203,7 @@ Processing results:
   ML/Scientific data analysis completed
 ```
 
-📚 **See [Verbose Output Guide](docs/user-guide/verbose-output.md) for detailed usage**
+📚 **See [Verbose Output Guide](docs/user-guide/verbose-output_ja.md) for detailed usage**
 
 ## Output Formats
 

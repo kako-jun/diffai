@@ -139,7 +139,7 @@ diffai detects formats in the following priority order:
 
 ## Related Documentation
 
-- [CLI Reference](cli-reference.md) - Complete command-line options
-- [ML Analysis Functions](ml-analysis.md) - Machine learning specialized functions
-- [Output Formats](output-formats.md) - Output format specifications
+- [CLIリファレンス](cli-reference_ja.md) - Complete command-line options
+- [ML Analysis Functions](ml-analysis_ja.md) - Machine learning specialized functions
+- [Output Formats](output-formats_ja.md) - Output format specifications
 
