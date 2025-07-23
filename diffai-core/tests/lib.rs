@@ -1,2 +1,16 @@
-pub mod docs_examples;
+// Documentation example tests - moved to tests/ root for direct cargo test execution
+pub mod basic_usage_examples;
+pub mod cli_reference_examples;
+pub mod design_principles_examples;
+pub mod formats_examples;
+pub mod implementation_examples;
+pub mod ml_analysis_examples;
+pub mod ml_model_comparison_examples;
+pub mod ml_recommendations_examples;
+pub mod ml_workflows_examples;
+pub mod output_formats_examples;
+pub mod readme_examples;
+pub mod scientific_data_examples;
+pub mod verbose_output_examples;
+
 pub mod unit;
