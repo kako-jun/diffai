@@ -11,12 +11,16 @@ fn parse_json(json_str: &str) -> Value {
 fn test_core_deployment_recommendations() {
     let v1 = parse_json(r#"{"model": {"performance": 0.85, "memory": 512}}"#);
     let v2 = parse_json(r#"{"model": {"performance": 0.75, "memory": 1024}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
-    let has_performance_diff = results.iter().any(|r| format!("{:?}", r).contains("performance"));
-    let has_memory_diff = results.iter().any(|r| format!("{:?}", r).contains("memory"));
+
+    let has_performance_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("performance"));
+    let has_memory_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("memory"));
     assert!(has_performance_diff);
     assert!(has_memory_diff);
 }
@@ -26,10 +30,10 @@ fn test_core_deployment_recommendations() {
 fn test_core_json_recommendations() {
     let v1 = parse_json(r#"{"recommendations": {"enabled": true, "level": "high"}}"#);
     let v2 = parse_json(r#"{"recommendations": {"enabled": true, "level": "critical"}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
+
     let has_level_diff = results.iter().any(|r| format!("{:?}", r).contains("level"));
     assert!(has_level_diff);
 }
@@ -39,13 +43,15 @@ fn test_core_json_recommendations() {
 fn test_core_training_progress() {
     let v1 = parse_json(r#"{"epoch": 10, "loss": 0.5, "accuracy": 0.80}"#);
     let v2 = parse_json(r#"{"epoch": 20, "loss": 0.3, "accuracy": 0.85}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
+
     let has_epoch_diff = results.iter().any(|r| format!("{:?}", r).contains("epoch"));
     let has_loss_diff = results.iter().any(|r| format!("{:?}", r).contains("loss"));
-    let has_accuracy_diff = results.iter().any(|r| format!("{:?}", r).contains("accuracy"));
+    let has_accuracy_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("accuracy"));
     assert!(has_epoch_diff);
     assert!(has_loss_diff);
     assert!(has_accuracy_diff);

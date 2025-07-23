@@ -142,10 +142,12 @@ pub struct MatlabArrayStats {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ModelInfo {
-    pub total_parameters: usize,
+    pub total_params: usize,
+    pub trainable_params: usize,
+    pub model_size_mb: f64,
+    pub architecture_hash: String,
     pub layer_count: usize,
-    pub layer_types: HashMap<String, usize>,
-    pub model_size_bytes: usize,
+    pub layer_types: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]

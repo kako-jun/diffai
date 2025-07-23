@@ -1,8 +1,10 @@
+#[allow(unused_imports)]
 use assert_cmd::prelude::*;
+#[allow(unused_imports)]
 use predicates::prelude::*;
+use std::io::Write;
 use std::process::Command;
 use tempfile::NamedTempFile;
-use std::io::Write;
 
 // Helper function to get the diffai command
 fn diffai_cmd() -> Command {
@@ -21,14 +23,14 @@ fn create_temp_file(content: &str, suffix: &str) -> NamedTempFile {
 fn test_basic_comprehensive_analysis() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(r#"{"model": {"layers": 2, "params": 1000}}"#, ".json");
     let file2 = create_temp_file(r#"{"model": {"layers": 3, "params": 1500}}"#, ".json");
-    
+
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path()).arg(file2.path());
     cmd.assert()
         .code(1)
         .stdout(predicates::str::contains("layers"))
         .stdout(predicates::str::contains("params"));
-    
+
     Ok(())
 }
 
@@ -37,13 +39,16 @@ fn test_basic_comprehensive_analysis() -> Result<(), Box<dyn std::error::Error>>
 fn test_json_output() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(r#"{"tensor": {"mean": 0.5, "std": 0.1}}"#, ".json");
     let file2 = create_temp_file(r#"{"tensor": {"mean": 0.6, "std": 0.2}}"#, ".json");
-    
+
     let mut cmd = diffai_cmd();
-    cmd.arg(file1.path()).arg(file2.path()).arg("--output").arg("json");
+    cmd.arg(file1.path())
+        .arg(file2.path())
+        .arg("--output")
+        .arg("json");
     cmd.assert()
         .code(1)
         .stdout(predicates::str::is_match(r#"\[.*\]"#).unwrap());
-    
+
     Ok(())
 }
 
@@ -52,13 +57,14 @@ fn test_json_output() -> Result<(), Box<dyn std::error::Error>> {
 fn test_yaml_output() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(r#"{"weights": {"layer1": 0.5}}"#, ".json");
     let file2 = create_temp_file(r#"{"weights": {"layer1": 0.7}}"#, ".json");
-    
+
     let mut cmd = diffai_cmd();
-    cmd.arg(file1.path()).arg(file2.path()).arg("--output").arg("yaml");
-    cmd.assert()
-        .code(1)
-        .stdout(predicates::str::contains("-"));
-    
+    cmd.arg(file1.path())
+        .arg(file2.path())
+        .arg("--output")
+        .arg("yaml");
+    cmd.assert().code(1).stdout(predicates::str::contains("-"));
+
     Ok(())
 }
 
@@ -67,13 +73,13 @@ fn test_yaml_output() -> Result<(), Box<dyn std::error::Error>> {
 fn test_recursive_directory_comparison() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(r#"{"config": {"version": "1.0"}}"#, ".json");
     let file2 = create_temp_file(r#"{"config": {"version": "2.0"}}"#, ".json");
-    
+
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path()).arg(file2.path()).arg("--recursive");
     cmd.assert()
         .code(1)
         .stdout(predicates::str::contains("version"));
-    
+
     Ok(())
 }
 
@@ -81,14 +87,21 @@ fn test_recursive_directory_comparison() -> Result<(), Box<dyn std::error::Error
 #[test]
 fn test_recursive_with_format() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(r#"{"model": {"type": "safetensors"}}"#, ".json");
-    let file2 = create_temp_file(r#"{"model": {"type": "safetensors", "version": 2}}"#, ".json");
-    
+    let file2 = create_temp_file(
+        r#"{"model": {"type": "safetensors", "version": 2}}"#,
+        ".json",
+    );
+
     let mut cmd = diffai_cmd();
-    cmd.arg(file1.path()).arg(file2.path()).arg("--format").arg("safetensors").arg("--recursive");
+    cmd.arg(file1.path())
+        .arg(file2.path())
+        .arg("--format")
+        .arg("safetensors")
+        .arg("--recursive");
     cmd.assert()
         .code(1)
         .stdout(predicates::str::contains("model"));
-    
+
     Ok(())
 }
 
@@ -96,14 +109,17 @@ fn test_recursive_with_format() -> Result<(), Box<dyn std::error::Error>> {
 #[test]
 fn test_pytorch_model_comparison() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(r#"{"state_dict": {"layer1.weight": [0.1, 0.2]}}"#, ".json");
-    let file2 = create_temp_file(r#"{"state_dict": {"layer1.weight": [0.15, 0.25]}}"#, ".json");
-    
+    let file2 = create_temp_file(
+        r#"{"state_dict": {"layer1.weight": [0.15, 0.25]}}"#,
+        ".json",
+    );
+
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path()).arg(file2.path());
     cmd.assert()
         .code(1)
         .stdout(predicates::str::contains("state_dict"));
-    
+
     Ok(())
 }
 
@@ -112,13 +128,13 @@ fn test_pytorch_model_comparison() -> Result<(), Box<dyn std::error::Error>> {
 fn test_training_checkpoint_comparison() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(r#"{"epoch": 1, "loss": 0.8, "accuracy": 0.6}"#, ".json");
     let file2 = create_temp_file(r#"{"epoch": 10, "loss": 0.3, "accuracy": 0.9}"#, ".json");
-    
+
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path()).arg(file2.path());
     cmd.assert()
         .code(1)
         .stdout(predicates::str::contains("epoch"));
-    
+
     Ok(())
 }
 
@@ -127,13 +143,13 @@ fn test_training_checkpoint_comparison() -> Result<(), Box<dyn std::error::Error
 fn test_baseline_vs_improved() -> Result<(), Box<dyn std::error::Error>> {
     let baseline = create_temp_file(r#"{"performance": 0.85, "params": 1000000}"#, ".json");
     let improved = create_temp_file(r#"{"performance": 0.92, "params": 1200000}"#, ".json");
-    
+
     let mut cmd = diffai_cmd();
     cmd.arg(baseline.path()).arg(improved.path());
     cmd.assert()
         .code(1)
         .stdout(predicates::str::contains("performance"));
-    
+
     Ok(())
 }
 
@@ -142,13 +158,13 @@ fn test_baseline_vs_improved() -> Result<(), Box<dyn std::error::Error>> {
 fn test_safetensors_comprehensive() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(r#"{"tensors": {"fc1.bias": {"shape": [64]}}}"#, ".json");
     let file2 = create_temp_file(r#"{"tensors": {"fc1.bias": {"shape": [128]}}}"#, ".json");
-    
+
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path()).arg(file2.path());
     cmd.assert()
         .code(1)
         .stdout(predicates::str::contains("tensors"));
-    
+
     Ok(())
 }
 
@@ -156,44 +172,59 @@ fn test_safetensors_comprehensive() -> Result<(), Box<dyn std::error::Error>> {
 #[test]
 fn test_deployment_validation() -> Result<(), Box<dyn std::error::Error>> {
     let baseline = create_temp_file(r#"{"deployment": {"ready": true, "risk": "low"}}"#, ".json");
-    let candidate = create_temp_file(r#"{"deployment": {"ready": true, "risk": "medium"}}"#, ".json");
-    
+    let candidate = create_temp_file(
+        r#"{"deployment": {"ready": true, "risk": "medium"}}"#,
+        ".json",
+    );
+
     let mut cmd = diffai_cmd();
     cmd.arg(baseline.path()).arg(candidate.path());
     cmd.assert()
         .code(1)
         .stdout(predicates::str::contains("deployment"));
-    
+
     Ok(())
 }
 
 /// Test case 11: diffai data_v1.npy data_v2.npy
 #[test]
 fn test_numpy_array_comparison() -> Result<(), Box<dyn std::error::Error>> {
-    let file1 = create_temp_file(r#"{"array": {"data": [1.0, 2.0, 3.0], "shape": [3]}}"#, ".json");
-    let file2 = create_temp_file(r#"{"array": {"data": [1.1, 2.1, 3.1], "shape": [3]}}"#, ".json");
-    
+    let file1 = create_temp_file(
+        r#"{"array": {"data": [1.0, 2.0, 3.0], "shape": [3]}}"#,
+        ".json",
+    );
+    let file2 = create_temp_file(
+        r#"{"array": {"data": [1.1, 2.1, 3.1], "shape": [3]}}"#,
+        ".json",
+    );
+
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path()).arg(file2.path());
     cmd.assert()
         .code(1)
         .stdout(predicates::str::contains("array"));
-    
+
     Ok(())
 }
 
 /// Test case 12: diffai simulation_v1.mat simulation_v2.mat
 #[test]
 fn test_matlab_file_comparison() -> Result<(), Box<dyn std::error::Error>> {
-    let file1 = create_temp_file(r#"{"simulation": {"time": 100, "results": [0.5, 0.6]}}"#, ".json");
-    let file2 = create_temp_file(r#"{"simulation": {"time": 150, "results": [0.7, 0.8]}}"#, ".json");
-    
+    let file1 = create_temp_file(
+        r#"{"simulation": {"time": 100, "results": [0.5, 0.6]}}"#,
+        ".json",
+    );
+    let file2 = create_temp_file(
+        r#"{"simulation": {"time": 150, "results": [0.7, 0.8]}}"#,
+        ".json",
+    );
+
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path()).arg(file2.path());
     cmd.assert()
         .code(1)
         .stdout(predicates::str::contains("simulation"));
-    
+
     Ok(())
 }
 
@@ -202,13 +233,13 @@ fn test_matlab_file_comparison() -> Result<(), Box<dyn std::error::Error>> {
 fn test_compressed_numpy_archives() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(r#"{"dataset": {"train": 1000, "test": 200}}"#, ".json");
     let file2 = create_temp_file(r#"{"dataset": {"train": 1200, "test": 250}}"#, ".json");
-    
+
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path()).arg(file2.path());
     cmd.assert()
         .code(1)
         .stdout(predicates::str::contains("dataset"));
-    
+
     Ok(())
 }
 
@@ -217,13 +248,13 @@ fn test_compressed_numpy_archives() -> Result<(), Box<dyn std::error::Error>> {
 fn test_experiment_comparison() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(r#"{"experiment": {"id": "v1", "accuracy": 0.85}}"#, ".json");
     let file2 = create_temp_file(r#"{"experiment": {"id": "v2", "accuracy": 0.90}}"#, ".json");
-    
+
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path()).arg(file2.path()).arg("--recursive");
     cmd.assert()
         .code(1)
         .stdout(predicates::str::contains("experiment"));
-    
+
     Ok(())
 }
 
@@ -232,27 +263,36 @@ fn test_experiment_comparison() -> Result<(), Box<dyn std::error::Error>> {
 fn test_checkpoint_learning_analysis() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(r#"{"checkpoint": {"epoch": 10, "loss": 0.5}}"#, ".json");
     let file2 = create_temp_file(r#"{"checkpoint": {"epoch": 20, "loss": 0.3}}"#, ".json");
-    
+
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path()).arg(file2.path());
     cmd.assert()
         .code(1)
         .stdout(predicates::str::contains("checkpoint"));
-    
+
     Ok(())
 }
 
 /// Test case 16: diffai baseline/model.safetensors new/model.safetensors --output json > model_diff.json
 #[test]
 fn test_cicd_model_comparison() -> Result<(), Box<dyn std::error::Error>> {
-    let baseline = create_temp_file(r#"{"model": {"version": "baseline", "accuracy": 0.85}}"#, ".json");
-    let new = create_temp_file(r#"{"model": {"version": "new", "accuracy": 0.88}}"#, ".json");
-    
+    let baseline = create_temp_file(
+        r#"{"model": {"version": "baseline", "accuracy": 0.85}}"#,
+        ".json",
+    );
+    let new = create_temp_file(
+        r#"{"model": {"version": "new", "accuracy": 0.88}}"#,
+        ".json",
+    );
+
     let mut cmd = diffai_cmd();
-    cmd.arg(baseline.path()).arg(new.path()).arg("--output").arg("json");
+    cmd.arg(baseline.path())
+        .arg(new.path())
+        .arg("--output")
+        .arg("json");
     cmd.assert()
         .code(1)
         .stdout(predicates::str::is_match(r#"\[.*\]"#).unwrap());
-    
+
     Ok(())
 }

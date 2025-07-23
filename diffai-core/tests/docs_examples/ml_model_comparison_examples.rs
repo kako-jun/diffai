@@ -11,11 +11,13 @@ fn parse_json(json_str: &str) -> Value {
 fn test_core_pytorch_models_comprehensive() {
     let v1 = parse_json(r#"{"state_dict": {"fc1.weight": [0.1, 0.2], "fc1.bias": [0.01]}}"#);
     let v2 = parse_json(r#"{"state_dict": {"fc1.weight": [0.15, 0.25], "fc1.bias": [0.02]}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
-    let has_state_dict_diff = results.iter().any(|r| format!("{:?}", r).contains("state_dict"));
+
+    let has_state_dict_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("state_dict"));
     assert!(has_state_dict_diff);
 }
 
@@ -24,11 +26,13 @@ fn test_core_pytorch_models_comprehensive() {
 fn test_core_safetensors_models_comprehensive() {
     let v1 = parse_json(r#"{"tensors": {"layer1.weight": {"shape": [64, 32]}}}"#);
     let v2 = parse_json(r#"{"tensors": {"layer1.weight": {"shape": [64, 64]}}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
-    let has_tensors_diff = results.iter().any(|r| format!("{:?}", r).contains("tensors"));
+
+    let has_tensors_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("tensors"));
     assert!(has_tensors_diff);
 }
 
@@ -37,11 +41,13 @@ fn test_core_safetensors_models_comprehensive() {
 fn test_core_automatic_format_detection() {
     let v1 = parse_json(r#"{"model": {"pretrained": true, "accuracy": 0.85}}"#);
     let v2 = parse_json(r#"{"model": {"pretrained": false, "accuracy": 0.92}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
-    let has_accuracy_diff = results.iter().any(|r| format!("{:?}", r).contains("accuracy"));
+
+    let has_accuracy_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("accuracy"));
     assert!(has_accuracy_diff);
 }
 
@@ -50,11 +56,13 @@ fn test_core_automatic_format_detection() {
 fn test_core_epsilon_tolerance_minor() {
     let v1 = parse_json(r#"{"weights": {"layer1": 0.1000000}}"#);
     let v2 = parse_json(r#"{"weights": {"layer1": 0.1000001}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
-    let has_weights_diff = results.iter().any(|r| format!("{:?}", r).contains("weights"));
+
+    let has_weights_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("weights"));
     assert!(has_weights_diff);
 }
 
@@ -63,11 +71,13 @@ fn test_core_epsilon_tolerance_minor() {
 fn test_core_quantization_analysis_epsilon() {
     let v1 = parse_json(r#"{"model": {"precision": "fp32", "weights": [0.123, 0.456]}}"#);
     let v2 = parse_json(r#"{"model": {"precision": "int8", "weights": [0.12, 0.46]}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
-    let has_precision_diff = results.iter().any(|r| format!("{:?}", r).contains("precision"));
+
+    let has_precision_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("precision"));
     assert!(has_precision_diff);
 }
 
@@ -76,11 +86,13 @@ fn test_core_quantization_analysis_epsilon() {
 fn test_core_json_output_automation() {
     let v1 = parse_json(r#"{"layers": {"conv1": {"filters": 32}}}"#);
     let v2 = parse_json(r#"{"layers": {"conv1": {"filters": 64}}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
-    let has_layers_diff = results.iter().any(|r| format!("{:?}", r).contains("layers"));
+
+    let has_layers_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("layers"));
     assert!(has_layers_diff);
 }
 
@@ -89,11 +101,13 @@ fn test_core_json_output_automation() {
 fn test_core_yaml_output_readability() {
     let v1 = parse_json(r#"{"parameters": {"learning_rate": 0.01}}"#);
     let v2 = parse_json(r#"{"parameters": {"learning_rate": 0.001}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
-    let has_parameters_diff = results.iter().any(|r| format!("{:?}", r).contains("parameters"));
+
+    let has_parameters_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("parameters"));
     assert!(has_parameters_diff);
 }
 
@@ -102,11 +116,13 @@ fn test_core_yaml_output_readability() {
 fn test_core_pipe_to_file() {
     let v1 = parse_json(r#"{"metrics": {"loss": 0.5}}"#);
     let v2 = parse_json(r#"{"metrics": {"loss": 0.3}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
-    let has_metrics_diff = results.iter().any(|r| format!("{:?}", r).contains("metrics"));
+
+    let has_metrics_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("metrics"));
     assert!(has_metrics_diff);
 }
 
@@ -115,11 +131,13 @@ fn test_core_pipe_to_file() {
 fn test_core_focus_specific_layers() {
     let v1 = parse_json(r#"{"classifier": {"weight": [0.1, 0.2]}}"#);
     let v2 = parse_json(r#"{"classifier": {"weight": [0.15, 0.25]}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
-    let has_classifier_diff = results.iter().any(|r| format!("{:?}", r).contains("classifier"));
+
+    let has_classifier_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("classifier"));
     assert!(has_classifier_diff);
 }
 
@@ -128,23 +146,29 @@ fn test_core_focus_specific_layers() {
 fn test_core_ignore_metadata() {
     let v1 = parse_json(r#"{"timestamp": "2024-01-01", "weights": {"layer1": 0.5}}"#);
     let v2 = parse_json(r#"{"timestamp": "2024-01-02", "weights": {"layer1": 0.6}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
-    let has_weights_diff = results.iter().any(|r| format!("{:?}", r).contains("weights"));
+
+    let has_weights_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("weights"));
     assert!(has_weights_diff);
 }
 
 /// Test case 11: Core library finetuning analysis
 #[test]
 fn test_core_finetuning_analysis() {
-    let v1 = parse_json(r#"{"bert": {"encoder": {"attention": {"query": {"weight": [0.001]}}}}, "classifier": {"weight": [0.0]}}"#);
-    let v2 = parse_json(r#"{"bert": {"encoder": {"attention": {"query": {"weight": [0.0023]}}}}, "classifier": {"weight": [0.0145]}}"#);
-    
+    let v1 = parse_json(
+        r#"{"bert": {"encoder": {"attention": {"query": {"weight": [0.001]}}}}, "classifier": {"weight": [0.0]}}"#,
+    );
+    let v2 = parse_json(
+        r#"{"bert": {"encoder": {"attention": {"query": {"weight": [0.0023]}}}}, "classifier": {"weight": [0.0145]}}"#,
+    );
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
+
     let has_bert_diff = results.iter().any(|r| format!("{:?}", r).contains("bert"));
     assert!(has_bert_diff);
 }
@@ -154,10 +178,10 @@ fn test_core_finetuning_analysis() {
 fn test_core_quantization_impact_assessment() {
     let v1 = parse_json(r#"{"conv1": {"weight": {"mean": 0.0045, "std": 0.2341}}}"#);
     let v2 = parse_json(r#"{"conv1": {"weight": {"mean": 0.0043, "std": 0.2298}}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
+
     let has_conv1_diff = results.iter().any(|r| format!("{:?}", r).contains("conv1"));
     assert!(has_conv1_diff);
 }
@@ -165,26 +189,38 @@ fn test_core_quantization_impact_assessment() {
 /// Test case 13: Core library training progress tracking
 #[test]
 fn test_core_training_progress_tracking() {
-    let v1 = parse_json(r#"{"layers": {"0": {"weight": {"mean": -0.0012, "std": 1.2341}}, "1": {"bias": {"mean": 0.1234, "std": 0.4567}}}}"#);
-    let v2 = parse_json(r#"{"layers": {"0": {"weight": {"mean": 0.0034, "std": 0.8907}}, "1": {"bias": {"mean": 0.0567, "std": 0.3210}}}}"#);
-    
+    let v1 = parse_json(
+        r#"{"layers": {"0": {"weight": {"mean": -0.0012, "std": 1.2341}}, "1": {"bias": {"mean": 0.1234, "std": 0.4567}}}}"#,
+    );
+    let v2 = parse_json(
+        r#"{"layers": {"0": {"weight": {"mean": 0.0034, "std": 0.8907}}, "1": {"bias": {"mean": 0.0567, "std": 0.3210}}}}"#,
+    );
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
-    let has_layers_diff = results.iter().any(|r| format!("{:?}", r).contains("layers"));
+
+    let has_layers_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("layers"));
     assert!(has_layers_diff);
 }
 
 /// Test case 14: Core library architecture comparison
 #[test]
 fn test_core_architecture_comparison() {
-    let v1 = parse_json(r#"{"features": {"conv1": {"weight": {"shape": [64, 3, 7, 7]}}, "layer4": {"2": {"downsample": {"0": {"weight": {"shape": [2048, 1024, 1, 1]}}}}}}}"#);
-    let v2 = parse_json(r#"{"features": {"conv1": {"weight": {"shape": [32, 3, 3, 3]}}, "mbconv": {"expand_conv": {"weight": {"shape": [96, 32, 1, 1]}}}}}"#);
-    
+    let v1 = parse_json(
+        r#"{"features": {"conv1": {"weight": {"shape": [64, 3, 7, 7]}}, "layer4": {"2": {"downsample": {"0": {"weight": {"shape": [2048, 1024, 1, 1]}}}}}}}"#,
+    );
+    let v2 = parse_json(
+        r#"{"features": {"conv1": {"weight": {"shape": [32, 3, 3, 3]}}, "mbconv": {"expand_conv": {"weight": {"shape": [96, 32, 1, 1]}}}}}"#,
+    );
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
-    let has_features_diff = results.iter().any(|r| format!("{:?}", r).contains("features"));
+
+    let has_features_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("features"));
     assert!(has_features_diff);
 }
 
@@ -193,11 +229,13 @@ fn test_core_architecture_comparison() {
 fn test_core_recursive_mode_large_models() {
     let v1 = parse_json(r#"{"large_model": {"size": "1GB", "parameters": 1000000}}"#);
     let v2 = parse_json(r#"{"large_model": {"size": "1.2GB", "parameters": 1200000}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
-    let has_large_model_diff = results.iter().any(|r| format!("{:?}", r).contains("large_model"));
+
+    let has_large_model_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("large_model"));
     assert!(has_large_model_diff);
 }
 
@@ -206,11 +244,13 @@ fn test_core_recursive_mode_large_models() {
 fn test_core_focus_analysis_specific_parts() {
     let v1 = parse_json(r#"{"tensor": {"classifier": {"weight": [0.1, 0.2]}}}"#);
     let v2 = parse_json(r#"{"tensor": {"classifier": {"weight": [0.15, 0.25]}}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
-    let has_classifier_diff = results.iter().any(|r| format!("{:?}", r).contains("classifier"));
+
+    let has_classifier_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("classifier"));
     assert!(has_classifier_diff);
 }
 
@@ -219,10 +259,10 @@ fn test_core_focus_analysis_specific_parts() {
 fn test_core_higher_epsilon_faster_comparison() {
     let v1 = parse_json(r#"{"model": {"precision": 0.001234}}"#);
     let v2 = parse_json(r#"{"model": {"precision": 0.001567}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
+
     let has_model_diff = results.iter().any(|r| format!("{:?}", r).contains("model"));
     assert!(has_model_diff);
 }
@@ -232,11 +272,13 @@ fn test_core_higher_epsilon_faster_comparison() {
 fn test_core_verbose_mode_processing_info() {
     let v1 = parse_json(r#"{"processing": {"stage": "training"}}"#);
     let v2 = parse_json(r#"{"processing": {"stage": "validation"}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
-    let has_processing_diff = results.iter().any(|r| format!("{:?}", r).contains("processing"));
+
+    let has_processing_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("processing"));
     assert!(has_processing_diff);
 }
 
@@ -245,11 +287,13 @@ fn test_core_verbose_mode_processing_info() {
 fn test_core_architecture_differences_only() {
     let v1 = parse_json(r#"{"architecture": {"type": "transformer", "layers": 12}}"#);
     let v2 = parse_json(r#"{"architecture": {"type": "transformer", "layers": 24}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
-    let has_architecture_diff = results.iter().any(|r| format!("{:?}", r).contains("architecture"));
+
+    let has_architecture_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("architecture"));
     assert!(has_architecture_diff);
 }
 
@@ -258,10 +302,10 @@ fn test_core_architecture_differences_only() {
 fn test_core_subprocess_run_json() {
     let v1 = parse_json(r#"{"model": {"version": "1.0"}}"#);
     let v2 = parse_json(r#"{"model": {"version": "2.0"}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
+
     let has_model_diff = results.iter().any(|r| format!("{:?}", r).contains("model"));
     assert!(has_model_diff);
 }
@@ -271,10 +315,10 @@ fn test_core_subprocess_run_json() {
 fn test_core_cicd_compare_models() {
     let v1 = parse_json(r#"{"model": {"type": "baseline", "accuracy": 0.85}}"#);
     let v2 = parse_json(r#"{"model": {"type": "candidate", "accuracy": 0.88}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
+
     let has_model_diff = results.iter().any(|r| format!("{:?}", r).contains("model"));
     assert!(has_model_diff);
 }
@@ -284,7 +328,7 @@ fn test_core_cicd_compare_models() {
 fn test_core_single_model_analysis() {
     let v1 = parse_json(r#"{"model": {"layers": 6, "parameters": 100000}}"#);
     let v2 = parse_json(r#"{"model": {"layers": 6, "parameters": 100000}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(results.is_empty());
 }
@@ -294,11 +338,13 @@ fn test_core_single_model_analysis() {
 fn test_core_explicit_format() {
     let v1 = parse_json(r#"{"safetensors": {"format": "explicit"}}"#);
     let v2 = parse_json(r#"{"safetensors": {"format": "explicit", "version": 2}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
-    let has_safetensors_diff = results.iter().any(|r| format!("{:?}", r).contains("safetensors"));
+
+    let has_safetensors_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("safetensors"));
     assert!(has_safetensors_diff);
 }
 
@@ -307,10 +353,10 @@ fn test_core_explicit_format() {
 fn test_core_memory_optimization_epsilon() {
     let v1 = parse_json(r#"{"large": {"tensor": [0.001, 0.002, 0.003]}}"#);
     let v2 = parse_json(r#"{"large": {"tensor": [0.0015, 0.0025, 0.0035]}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
+
     let has_large_diff = results.iter().any(|r| format!("{:?}", r).contains("large"));
     assert!(has_large_diff);
 }
@@ -320,11 +366,13 @@ fn test_core_memory_optimization_epsilon() {
 fn test_core_memory_optimization_path() {
     let v1 = parse_json(r#"{"tensor": {"classifier": {"weight": [0.1]}}}"#);
     let v2 = parse_json(r#"{"tensor": {"classifier": {"weight": [0.2]}}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
-    let has_classifier_diff = results.iter().any(|r| format!("{:?}", r).contains("classifier"));
+
+    let has_classifier_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("classifier"));
     assert!(has_classifier_diff);
 }
 
@@ -333,11 +381,13 @@ fn test_core_memory_optimization_path() {
 fn test_core_comprehensive_analysis_automatic() {
     let v1 = parse_json(r#"{"checkpoint": {"epoch": 10, "loss": 0.5, "accuracy": 0.8}}"#);
     let v2 = parse_json(r#"{"checkpoint": {"epoch": 20, "loss": 0.3, "accuracy": 0.9}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
-    let has_checkpoint_diff = results.iter().any(|r| format!("{:?}", r).contains("checkpoint"));
+
+    let has_checkpoint_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("checkpoint"));
     assert!(has_checkpoint_diff);
 }
 
@@ -346,10 +396,12 @@ fn test_core_comprehensive_analysis_automatic() {
 fn test_core_experimental_comparison_automatic() {
     let v1 = parse_json(r#"{"experiment": {"type": "baseline", "performance": 0.85}}"#);
     let v2 = parse_json(r#"{"experiment": {"type": "enhanced", "performance": 0.92}}"#);
-    
+
     let results = diff(&v1, &v2, None, None, None);
     assert!(!results.is_empty());
-    
-    let has_experiment_diff = results.iter().any(|r| format!("{:?}", r).contains("experiment"));
+
+    let has_experiment_diff = results
+        .iter()
+        .any(|r| format!("{:?}", r).contains("experiment"));
     assert!(has_experiment_diff);
 }

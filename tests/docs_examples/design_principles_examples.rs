@@ -1,8 +1,10 @@
+#[allow(unused_imports)]
 use assert_cmd::prelude::*;
+#[allow(unused_imports)]
 use predicates::prelude::*;
+use std::io::Write;
 use std::process::Command;
 use tempfile::NamedTempFile;
-use std::io::Write;
 
 // Helper function to get the diffai command
 fn diffai_cmd() -> Command {
@@ -21,13 +23,13 @@ fn create_temp_file(content: &str, suffix: &str) -> NamedTempFile {
 fn test_comprehensive_ml_analysis_automatic() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(r#"{"model": {"type": "pytorch", "layers": 5}}"#, ".json");
     let file2 = create_temp_file(r#"{"model": {"type": "pytorch", "layers": 8}}"#, ".json");
-    
+
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path()).arg(file2.path());
     cmd.assert()
         .code(1)
         .stdout(predicates::str::contains("layers:"));
-    
+
     Ok(())
 }
 
@@ -36,13 +38,13 @@ fn test_comprehensive_ml_analysis_automatic() -> Result<(), Box<dyn std::error::
 fn test_verbose_comprehensive_analysis() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(r#"{"diagnostics": {"enabled": true}}"#, ".json");
     let file2 = create_temp_file(r#"{"diagnostics": {"enabled": false}}"#, ".json");
-    
+
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path()).arg(file2.path()).arg("--verbose");
     cmd.assert()
         .code(1)
         .stderr(predicates::str::contains("verbose mode"));
-    
+
     Ok(())
 }
 
@@ -54,9 +56,8 @@ fn test_recursive_directory_comparison() -> Result<(), Box<dyn std::error::Error
     cmd.arg("tests/fixtures/dir1/")
         .arg("tests/fixtures/dir2/")
         .arg("--recursive");
-    cmd.assert()
-        .code(1); // Should find differences between directories
-    
+    cmd.assert().code(1); // Should find differences between directories
+
     Ok(())
 }
 
@@ -65,14 +66,14 @@ fn test_recursive_directory_comparison() -> Result<(), Box<dyn std::error::Error
 fn test_ml_analysis_automatic() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(r#"{"ml": {"features": 30, "accuracy": 0.85}}"#, ".json");
     let file2 = create_temp_file(r#"{"ml": {"features": 35, "accuracy": 0.90}}"#, ".json");
-    
+
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path()).arg(file2.path());
     cmd.assert()
         .code(1)
         .stdout(predicates::str::contains("features:"))
         .stdout(predicates::str::contains("accuracy:"));
-    
+
     Ok(())
 }
 
@@ -81,14 +82,14 @@ fn test_ml_analysis_automatic() -> Result<(), Box<dyn std::error::Error>> {
 fn test_verbose_ml_analysis() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(r#"{"debug": {"level": 1}}"#, ".json");
     let file2 = create_temp_file(r#"{"debug": {"level": 2}}"#, ".json");
-    
+
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path()).arg(file2.path()).arg("--verbose");
     cmd.assert()
         .code(1)
         .stderr(predicates::str::contains("verbose mode"))
         .stdout(predicates::str::contains("level:"));
-    
+
     Ok(())
 }
 
@@ -97,12 +98,15 @@ fn test_verbose_ml_analysis() -> Result<(), Box<dyn std::error::Error>> {
 fn test_json_comprehensive_analysis() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(r#"{"output": {"format": "cli"}}"#, ".json");
     let file2 = create_temp_file(r#"{"output": {"format": "json"}}"#, ".json");
-    
+
     let mut cmd = diffai_cmd();
-    cmd.arg(file1.path()).arg(file2.path()).arg("--output").arg("json");
+    cmd.arg(file1.path())
+        .arg(file2.path())
+        .arg("--output")
+        .arg("json");
     cmd.assert()
         .code(1)
         .stdout(predicates::str::is_match(r#"\[.*\]"#).unwrap()); // JSON array format
-    
+
     Ok(())
 }
