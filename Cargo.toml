@@ -2,7 +2,9 @@
 resolver = "2"
 members = [
     "diffai-core",
-    "diffai-cli"
+    "diffai-cli",
+    "diffai-python",
+    "diffai-js"
 ]
 
 [workspace.package]
@@ -54,8 +56,10 @@ ndarray = "0.16"
 # hdf5 = "0.8"  # Requires system HDF5 libraries
 zip = "2.2"
 matfile = "0.1"  # MATLAB .mat file support
-# Python bindings (removed - now using binary distribution)
-# Cross-project integration removed - using unified API only
+pyo3 = { version = "0.22", features = ["extension-module"] }
+napi = { version = "2.2", default-features = false, features = ["napi8", "serde-json"] }
+napi-derive = "2.2"
+napi-build = "2.2"
 
 [profile.release]
 lto = true
