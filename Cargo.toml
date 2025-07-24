@@ -26,6 +26,7 @@ exclude = [
 rust-version = "1.75"
 
 [workspace.dependencies]
+diffai-core = { version = "0.3.16", path = "diffai-core" }
 anyhow = "1.0"
 clap = { version = "4.0", features = ["derive", "cargo"] }
 colored = "3.0"

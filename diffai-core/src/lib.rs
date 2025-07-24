@@ -402,13 +402,18 @@ fn check_ml_number_changes(
 }
 
 // ============================================================================
-// UNIFIED API - Parser Functions  
+// PARSER FUNCTIONS - FOR INTERNAL USE ONLY
 // ============================================================================
+// These functions are public only for CLI and language bindings.
+// External users should use the main diff() function with file reading.
 
+/// Parse JSON content - FOR INTERNAL USE ONLY
+/// External users should read files themselves and use diff() function
 pub fn parse_json(content: &str) -> Result<Value> {
     serde_json::from_str(content).map_err(|e| anyhow!("JSON parse error: {}", e))
 }
 
+/// Parse CSV content - FOR INTERNAL USE ONLY
 pub fn parse_csv(content: &str) -> Result<Value> {
     let mut reader = ReaderBuilder::new()
         .has_headers(true)
@@ -433,10 +438,12 @@ pub fn parse_csv(content: &str) -> Result<Value> {
     Ok(Value::Array(records))
 }
 
+/// Parse YAML content - FOR INTERNAL USE ONLY
 pub fn parse_yaml(content: &str) -> Result<Value> {
     serde_yaml::from_str(content).map_err(|e| anyhow!("YAML parse error: {}", e))
 }
 
+/// Parse TOML content - FOR INTERNAL USE ONLY
 pub fn parse_toml(content: &str) -> Result<Value> {
     let toml_value: toml::Value = content.parse()?;
     toml_to_json_value(toml_value)
@@ -468,6 +475,7 @@ fn toml_to_json_value(toml_val: toml::Value) -> Result<Value> {
     }
 }
 
+/// Parse INI content - FOR INTERNAL USE ONLY
 pub fn parse_ini(content: &str) -> Result<Value> {
     let mut result = serde_json::Map::new();
     let mut current_section = String::new();
@@ -499,6 +507,7 @@ pub fn parse_ini(content: &str) -> Result<Value> {
     Ok(Value::Object(result))
 }
 
+/// Parse XML content - FOR INTERNAL USE ONLY
 pub fn parse_xml(content: &str) -> Result<Value> {
     // Simple XML parser - for production use, consider using quick-xml
     // This is a simplified implementation
@@ -509,6 +518,7 @@ pub fn parse_xml(content: &str) -> Result<Value> {
 // AI/ML SPECIFIC PARSERS
 // ============================================================================
 
+/// Parse PyTorch model file - FOR INTERNAL USE ONLY (diffai-specific)
 pub fn parse_pytorch_model(file_path: &Path) -> Result<Value> {
     // Parse PyTorch model file and convert to JSON representation
     let file = File::open(file_path)?;
@@ -525,6 +535,7 @@ pub fn parse_pytorch_model(file_path: &Path) -> Result<Value> {
     Ok(Value::Object(result))
 }
 
+/// Parse SafeTensors model file - FOR INTERNAL USE ONLY (diffai-specific)
 pub fn parse_safetensors_model(file_path: &Path) -> Result<Value> {
     let buffer = std::fs::read(file_path)?;
     let safetensors = SafeTensors::deserialize(&buffer)?;
@@ -550,6 +561,7 @@ pub fn parse_safetensors_model(file_path: &Path) -> Result<Value> {
     Ok(Value::Object(result))
 }
 
+/// Parse NumPy file - FOR INTERNAL USE ONLY (diffai-specific)
 pub fn parse_numpy_file(path: &Path) -> Result<Value> {
     // Simplified numpy file parsing
     let mut result = serde_json::Map::new();
@@ -559,6 +571,7 @@ pub fn parse_numpy_file(path: &Path) -> Result<Value> {
     Ok(Value::Object(result))
 }
 
+/// Parse MATLAB file - FOR INTERNAL USE ONLY (diffai-specific)
 pub fn parse_matlab_file(path: &Path) -> Result<Value> {
     let file = File::open(path)?;
     let mat_file = MatFile::parse(file)?;
@@ -575,9 +588,12 @@ pub fn parse_matlab_file(path: &Path) -> Result<Value> {
 }
 
 // ============================================================================
-// UNIFIED API - Utility Functions
+// UTILITY FUNCTIONS - FOR INTERNAL USE ONLY
 // ============================================================================
+// These functions are public only for CLI and language bindings.
+// External users should use the main diff() function.
 
+/// Get type name of a JSON value - FOR INTERNAL USE ONLY
 pub fn value_type_name(value: &Value) -> &str {
     match value {
         Value::Null => "null",
@@ -589,6 +605,7 @@ pub fn value_type_name(value: &Value) -> &str {
     }
 }
 
+/// Estimate memory usage of a JSON value - FOR INTERNAL USE ONLY
 pub fn estimate_memory_usage(value: &Value) -> usize {
     match value {
         Value::Null => 8,
@@ -606,6 +623,7 @@ pub fn estimate_memory_usage(value: &Value) -> usize {
     }
 }
 
+/// Check if values would exceed memory limit - FOR INTERNAL USE ONLY
 pub fn would_exceed_memory_limit(v1: &Value, v2: &Value) -> bool {
     const MAX_MEMORY_MB: usize = 100;
     const BYTES_PER_MB: usize = 1024 * 1024;
@@ -614,6 +632,7 @@ pub fn would_exceed_memory_limit(v1: &Value, v2: &Value) -> bool {
     total_size > MAX_MEMORY_MB * BYTES_PER_MB
 }
 
+/// Format output to string - FOR INTERNAL USE ONLY
 pub fn format_output<T: Serialize>(
     results: &[T],
     format: OutputFormat,

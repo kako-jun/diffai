@@ -174,25 +174,6 @@ pub struct Statistics {
 }
 ```
 
-## Utility Functions
-
-### Model Parser Functions
-
-```rust
-pub fn parse_pytorch_model(path: &Path) -> Result<Value, Error>
-pub fn parse_safetensors_model(path: &Path) -> Result<Value, Error>
-pub fn parse_numpy_file(path: &Path) -> Result<Value, Error>
-pub fn parse_matlab_file(path: &Path) -> Result<Value, Error>
-```
-
-### Analysis Functions
-
-```rust
-pub fn analyze_weight_distribution(tensor: &Value) -> Statistics
-pub fn detect_gradient_vanishing(model: &Value) -> Vec<String>
-pub fn calculate_model_similarity(old: &Value, new: &Value) -> f64
-pub fn extract_model_architecture(model: &Value) -> Architecture
-```
 
 ## Language Bindings
 
@@ -201,7 +182,7 @@ pub fn extract_model_architecture(model: &Value) -> Architecture
 ```python
 import diffai_python
 
-# Basic model comparison
+# Basic model comparison (users load models themselves)
 results = diffai_python.diff(old_model, new_model)
 
 # With ML-specific options
@@ -215,28 +196,31 @@ results = diffai_python.diff(
     scientific_precision=True
 )
 
-# Load and compare PyTorch models
-old_model = diffai_python.load_pytorch("model_epoch_1.pt")
-new_model = diffai_python.load_pytorch("model_epoch_10.pt")
-results = diffai_python.diff(old_model, new_model)
+# Users should load models using appropriate libraries (torch, etc.)
+# old_model = torch.load("model_epoch_1.pt")
+# new_model = torch.load("model_epoch_10.pt")
+# results = diffai_python.diff(old_model, new_model)
 ```
 
-### JavaScript
+### TypeScript/JavaScript
 
-```javascript
-const diffai = require('diffai-js');
+```typescript
+import { diff, DiffOptions } from 'diffai-js';
 
-// Basic usage
-const results = diffai.diff(oldModel, newModel);
+// Basic usage - users load models themselves
+const results = await diff(oldModel, newModel);
 
 // With ML-specific options
-const results = diffai.diff(oldModel, newModel, {
-    mlAnalysisEnabled: true,
-    tensorComparisonMode: "statistical",
-    weightThreshold: 1e-5,
-    statisticalSummary: true,
-    scientificPrecision: true
-});
+const options: DiffOptions = {
+    diffaiOptions: {
+        mlAnalysisEnabled: true,
+        tensorComparisonMode: 'statistical',
+        scientificPrecision: true
+    },
+    epsilon: 1e-5,
+    showTypes: true
+};
+const results = await diff(oldModel, newModel, options);
 ```
 
 ## Examples
@@ -244,10 +228,12 @@ const results = diffai.diff(oldModel, newModel, {
 ### Comparing PyTorch Models
 
 ```rust
-use diffai_core::{diff, parse_pytorch_model, DiffOptions};
+use diffai_core::{diff, DiffOptions};
+// Users should load model data using appropriate libraries (e.g., candle, tch)
 
-let old_model = parse_pytorch_model(Path::new("model_v1.pt"))?;
-let new_model = parse_pytorch_model(Path::new("model_v2.pt"))?;
+// Load models using external libraries
+let old_model = /* load using PyTorch/candle/tch library */;
+let new_model = /* load using PyTorch/candle/tch library */;
 
 let options = DiffOptions {
     ml_analysis_enabled: Some(true),
@@ -270,8 +256,9 @@ let options = DiffOptions {
 };
 
 // Compare checkpoints to see training progress
-let checkpoint_1 = parse_pytorch_model(Path::new("checkpoint_epoch_1.pt"))?;
-let checkpoint_10 = parse_pytorch_model(Path::new("checkpoint_epoch_10.pt"))?;
+// Users should load checkpoints using appropriate ML libraries
+let checkpoint_1 = /* load using PyTorch/candle/tch library */;
+let checkpoint_10 = /* load using PyTorch/candle/tch library */;
 
 let results = diff(&checkpoint_1, &checkpoint_10, Some(&options))?;
 ```
@@ -285,8 +272,9 @@ let options = DiffOptions {
     ..Default::default()
 };
 
-let float32_model = parse_pytorch_model(Path::new("model_fp32.pt"))?;
-let float16_model = parse_pytorch_model(Path::new("model_fp16.pt"))?;
+// Users should load models using appropriate ML libraries
+let float32_model = /* load using PyTorch/candle/tch library */;
+let float16_model = /* load using PyTorch/candle/tch library */;
 
 let results = diff(&float32_model, &float16_model, Some(&options))?;
 ```
