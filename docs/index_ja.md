@@ -13,9 +13,13 @@ diffai のドキュメント - PyTorch、Safetensors、NumPy、MATLAB ファイ�
 
 ### リファレンス
 - [**CLI リファレンス**](reference/cli-reference_ja.md) - 完全なコマンドラインオプション
+- [**API リファレンス**](reference/api-reference_ja.md) - Rust クレート API ドキュメント
 - [**サポート形式**](reference/formats_ja.md) - ファイル形式仕様
 - [**ML 解析機能**](reference/ml-analysis_ja.md) - 31 種類の専門解析機能
 - [**出力形式**](reference/output-formats_ja.md) - CLI、JSON、YAML 出力仕様
+
+### 言語バインディング
+- [**統一API リファレンス**](bindings/unified-api_ja.md) - diffai-python および diffai-js 言語バインディング
 
 ### アーキテクチャ
 - [**設計原則**](architecture/design-principles_ja.md) - diffai 設計哲学

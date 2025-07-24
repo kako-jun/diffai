@@ -13,9 +13,13 @@ diffai 的文档 - PyTorch、Safetensors、NumPy、MATLAB 文件专用的 AI/ML 
 
 ### 参考
 - [**CLI 参考**](reference/cli-reference_zh.md) - 完整的命令行选项
+- [**API 参考**](reference/api-reference_zh.md) - Rust crate API 文档
 - [**支持格式**](reference/formats_zh.md) - 文件格式规范
 - [**ML 分析功能**](reference/ml-analysis_zh.md) - 31 种专业分析功能
 - [**输出格式**](reference/output-formats_zh.md) - CLI、JSON、YAML 输出规范
+
+### 语言绑定
+- [**统一API参考**](bindings/unified-api_zh.md) - diffai-python 和 diffai-js 语言绑定
 
 ### 架构
 - [**设计原则**](architecture/design-principles_zh.md) - diffai 设计理念
