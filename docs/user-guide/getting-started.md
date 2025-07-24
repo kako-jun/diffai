@@ -61,17 +61,19 @@ diffai --format yaml config1.yml config2.yml
 diffai --verbose data1.csv data2.csv
 ```
 
-### Recursive Directory Comparison
+### Directory Comparison
 
-Compare entire directory structures:
+Compare entire directory structures with automatic detection:
 
 ```bash
-# Compare all files in directories
-diffai --recursive dir1/ dir2/
+# Compare all files in directories with ML analysis
+diffai dir1/ dir2/
 
 # Save results to file
-diffai --recursive --output results.json dir1/ dir2/
+diffai --output results.json dir1/ dir2/
 ```
+
+**Note**: When comparing directories (paths ending with `/`), diffai automatically detects and analyzes all supported file types within the directories, providing comprehensive ML-driven insights.
 
 ## Advanced Features
 
@@ -122,8 +124,8 @@ diffai --epsilon 0.001 metrics1.json metrics2.json
 # Compare application configurations
 diffai app-config-dev.json app-config-prod.json
 
-# Track infrastructure changes
-diffai --recursive infrastructure/dev/ infrastructure/prod/
+# Track infrastructure changes with automatic detection
+diffai infrastructure/dev/ infrastructure/prod/
 ```
 
 ### Data Analysis

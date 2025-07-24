@@ -20,12 +20,14 @@ diffai model1.safetensors model2.safetensors --output yaml
 ### Directory Comparison
 
 ```bash
-# Compare entire directories recursively
-diffai dir1/ dir2/ --recursive
+# Compare entire directories with automatic detection
+diffai dir1/ dir2/
 
 # Compare with specific file format
-diffai models_v1/ models_v2/ --format safetensors --recursive
+diffai models_v1/ models_v2/ --format safetensors
 ```
+
+**注意**: 当路径以 `/` 结尾时，会自动检测目录比较。该工具智能分析目录中的所有ML/AI文件，并提供全面的比较报告。
 
 ## AI/ML Specialized Features
 
@@ -88,7 +90,6 @@ diffai dataset_v1.npz dataset_v2.npz
 |--------|-------------|---------|
 | `-f, --format` | Specify input file format | `--format safetensors` |
 | `-o, --output` | Choose output format | `--output json` |
-| `-r, --recursive` | Compare directories recursively | `--recursive` |
 | `-v, --verbose` | Show verbose processing info | `--verbose` |
 
 ### Advanced Options
@@ -164,8 +165,8 @@ diffai model1.safetensors model2.safetensors --output yaml
 ### Experiment Comparison
 
 ```bash
-# Compare two experiment results
-diffai experiment_v1/ experiment_v2/ --recursive
+# 通过自动ML分析比较两个实验结果
+diffai experiment_v1/ experiment_v2/
 
 # Compare model checkpoints (automatic learning analysis)
 diffai checkpoints/epoch_10.safetensors checkpoints/epoch_20.safetensors

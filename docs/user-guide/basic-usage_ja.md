@@ -20,12 +20,14 @@ diffai model1.safetensors model2.safetensors --output yaml
 ### ディレクトリ比較
 
 ```bash
-# ディレクトリ全体を再帰的に比較
-diffai dir1/ dir2/ --recursive
+# ディレクトリ全体を自動検出で比較
+diffai dir1/ dir2/
 
 # 特定ファイル形式で比較
-diffai models_v1/ models_v2/ --format safetensors --recursive
+diffai models_v1/ models_v2/ --format safetensors
 ```
+
+**注意**: パスが `/` で終わる場合、ディレクトリ比較が自動的に検出されます。ツールはディレクトリ内のすべてのML/AIファイルをインテリジェントに分析し、包括的な比較レポートを提供します。
 
 ## AI/ML特化機能
 
@@ -88,7 +90,6 @@ diffai dataset_v1.npz dataset_v2.npz
 |--------|-------------|---------|
 | `-f, --format` | Specify input file format | `--format safetensors` |
 | `-o, --output` | Choose output format | `--output json` |
-| `-r, --recursive` | Compare directories recursively | `--recursive` |
 | `-v, --verbose` | Show verbose processing info | `--verbose` |
 
 ### Advanced Options
@@ -164,8 +165,8 @@ diffai model1.safetensors model2.safetensors --output yaml
 ### Experiment Comparison
 
 ```bash
-# Compare two experiment results
-diffai experiment_v1/ experiment_v2/ --recursive
+# 2つの実験結果を自動MLアナリシスで比較
+diffai experiment_v1/ experiment_v2/
 
 # Compare model checkpoints (automatic learning analysis)
 diffai checkpoints/epoch_10.safetensors checkpoints/epoch_20.safetensors
