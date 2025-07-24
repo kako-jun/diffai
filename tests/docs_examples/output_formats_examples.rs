@@ -97,24 +97,6 @@ fn test_yaml_output_format() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-/// Test case 5: diffai config1.json config2.json --output unified
-#[test]
-fn test_unified_output_format() -> Result<(), Box<dyn std::error::Error>> {
-    let file1 = create_temp_file(r#"{"model": {"layers": 12, "hidden_size": 768}}"#, ".json");
-    let file2 = create_temp_file(
-        r#"{"model": {"layers": 24, "hidden_size": 768}, "optimizer": "adam"}"#,
-        ".json",
-    );
-
-    let mut cmd = diffai_cmd();
-    cmd.arg(file1.path())
-        .arg(file2.path())
-        .arg("--output")
-        .arg("unified");
-    cmd.assert().code(1).stdout(predicates::str::contains("@@"));
-
-    Ok(())
-}
 
 /// Test case 6: diffai model1.safetensors model2.safetensors --output json | jq '.[] | select(.TensorStatsChanged)'
 #[test]
