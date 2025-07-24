@@ -183,7 +183,7 @@ diffai data1.json data2.json --verbose --epsilon 0.001 --ignore-keys-regex "^id$
 - **Configuration diagnostics**: Format settings, filters, analysis modes
 - **File analysis**: Paths, sizes, detected formats, processing context
 - **Performance metrics**: Processing time, difference counts, optimization status
-- **Directory statistics**: File counts, comparison summaries (with `--recursive`)
+- **Directory statistics**: File counts, comparison summaries (目录自动处理)
 
 **Example verbose output:**
 ```
@@ -279,9 +279,9 @@ diffai model_a.safetensors model_b.safetensors \
 ## Command-Line Options
 
 ### Basic Options
-- `-f, --format <FORMAT>` - Specify input file format
-- `-o, --output <OUTPUT>` - Choose output format (cli, json, yaml)
-- `-r, --recursive` - Compare directories recursively
+- `-f, --format <FORMAT>` - 指定输入文件格式
+- `-o, --output <OUTPUT>` - 选择输出格式 (cli, json, yaml)
+- **目录比较** - 提供目录时自动递归处理
 
 **Note:** For ML models (PyTorch/Safetensors), comprehensive analysis including statistics runs automatically
 

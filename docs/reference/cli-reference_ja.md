@@ -36,6 +36,7 @@ diffai model1.safetensors model2.safetensors
 diffai data_v1.npy data_v2.npy
 diffai experiment_v1.mat experiment_v2.mat
 diffai config.json config_new.json
+diffai dir1/ dir2/  # 自動再帰的ディレクトリ比較
 diffai - config.json < input.json
 ```
 
@@ -57,10 +58,12 @@ Choose output format.
 - **Default**: `cli`
 - **Example**: `--output json`
 
-#### `-r, --recursive`
-Compare directories recursively.
+#### ディレクトリ比較（自動）
+ディレクトリを比較する際、diffaiは自動的にすべてのファイルを再帰的に検出・比較します。
 
-- **Example**: `diffai dir1/ dir2/ --recursive`
+- **動作**: 自動再帰的ディレクトリ走査
+- **例**: `diffai dir1/ dir2/`（フラグ不要）
+- **注意**: ディレクトリパスが提供された場合、ディレクトリ比較が自動的に有効になります
 
 
 ### Advanced Options

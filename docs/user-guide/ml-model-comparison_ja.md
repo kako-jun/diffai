@@ -185,15 +185,38 @@ diffai resnet50.safetensors efficientnet_b0.safetensors
 - Shape changes indicate different layer sizes
 - Added/removed tensors show architectural innovations
 
-## Performance Optimization
+## ディレクトリベースモデル比較
 
-### Memory Considerations
+### 自動モデルディレクトリ処理
+
+MLモデルを含むディレクトリを比較する際、diffaiは自動的にモデルファイルを検出・処理します：
+
+```bash
+# モデルディレクトリを自動比較
+diffai models_v1/ models_v2/
+
+# PyTorchとSafetensorsファイルの自動検出
+diffai checkpoints_old/ checkpoints_new/
+
+# 特定のモデル形式でフィルタ
+diffai model_archive_A/ model_archive_B/ --include "*.safetensors"
+```
+
+**ディレクトリ比較機能：**
+- **自動モデル検出**: .pt、.pth、.safetensorsファイルを発見
+- **構造保持**: 比較でディレクトリ階層を維持
+- **バッチ分析**: 複数モデルを効率的に処理
+- **形式一貫性**: 同じ形式のモデルを自動比較
+
+## パフォーマンス最適化
+
+### メモリ考慮事項
 
 For large models (>1GB), consider:
 
 ```bash
-# Use recursive mode for directory comparison
-diffai --recursive model_dir1/ model_dir2/
+# Compare directories (automatic directory detection)
+diffai model_dir1/ model_dir2/
 
 # Focus analysis on specific parts
 diffai model1.safetensors model2.safetensors --path "tensor.classifier"

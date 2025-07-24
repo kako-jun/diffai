@@ -14,7 +14,7 @@
 Configuration:
   Input format: None
   Output format: Cli
-  Recursive mode: false
+  Directory processing: Auto-detected
 
 File analysis:
   Input 1: tests/fixtures/config_v1.json

@@ -36,7 +36,8 @@ ndarray = { workspace = true }
 # hdf5 = { workspace = true }  # Requires system HDF5 libraries
 zip = { workspace = true }
 matfile = { workspace = true }
-# Cross-project integration removed - using unified API only
+# Cross-project integration using local workspace
+diffx-core = { path = "../../diffx/diffx-core" }
 
 [dev-dependencies]
 criterion = { workspace = true }

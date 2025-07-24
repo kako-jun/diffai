@@ -169,7 +169,7 @@ pub enum DiffaiError {
 # Intuitive and clear commands with automatic comprehensive analysis
 diffai model1.pth model2.pth              # Comprehensive ML analysis (30+ features automatic)
 diffai model1.pth model2.pth --verbose    # Detailed diagnostics + comprehensive analysis
-diffai models/ --recursive                # Directory comparison
+diffai models/                            # Directory comparison (auto-detects directories)
 ```
 
 **Design Guidelines:**

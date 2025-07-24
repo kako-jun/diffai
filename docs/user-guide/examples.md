@@ -96,8 +96,8 @@ diffai --epsilon 0.001 training-results-baseline.json training-results-new.json
 # Compare experimental datasets
 diffai --verbose --epsilon 0.01 experiment-control.csv experiment-test.csv
 
-# Recursive comparison of research directories
-diffai --recursive --output analysis-report.json research-v1/ research-v2/
+# Compare research directories (automatic directory detection)
+diffai --output analysis-report.json research-v1/ research-v2/
 ```
 
 ## Format-Specific Examples
@@ -166,8 +166,8 @@ diffai --path "data" api-v1-response.json api-v2-response.json
 # Compare database schema exports
 diffai --verbose schema-v1.json schema-v2.json
 
-# Track migration changes
-diffai --recursive migrations-old/ migrations-new/
+# Track migration changes (automatic directory detection)
+diffai migrations-old/ migrations-new/
 ```
 
 ## Output Format Examples
@@ -203,8 +203,8 @@ diffai --verbose --epsilon 0.01 \
 ### Monitoring System Configuration
 
 ```bash
-# Daily configuration drift check
-diffai --recursive --format json \
+# Daily configuration drift check (automatic directory detection)
+diffai --format json \
   /etc/production-config/ /etc/staging-config/ > daily-drift-report.json
 ```
 
@@ -223,6 +223,29 @@ diffai --verbose --epsilon 0.05 \
 diffai --epsilon 0.1 --path "performance_metrics" \
   benchmark-baseline.json benchmark-current.json
 ```
+
+## Directory Comparison
+
+### Automatic Directory Detection
+
+diffai automatically detects when you provide directories instead of files and performs comprehensive recursive comparison:
+
+```bash
+# Automatic directory traversal - no flags needed
+diffai config-v1/ config-v2/
+
+# Includes all supported file types by default
+diffai project-old/ project-new/
+
+# Use --include to filter specific file types
+diffai experiment-A/ experiment-B/ --include "*.json" --include "*.yaml"
+```
+
+**Key Features:**
+- **Automatic recursion**: No need for `--recursive` flag
+- **Smart file matching**: Compares files with same relative paths
+- **Format detection**: Automatically handles different file formats
+- **Efficient processing**: Optimized for large directory structures
 
 ## Tips and Best Practices
 

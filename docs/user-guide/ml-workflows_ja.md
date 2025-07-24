@@ -17,8 +17,8 @@ diffai pretrained/model.pth finetuned/model.pth
 ### 2. Experiment Management
 
 ```bash
-# Compare experiment results
-diffai experiment_001/ experiment_002/ --recursive --include "*.json"
+# Compare experiment results (automatic directory detection)
+diffai experiment_001/ experiment_002/ --include "*.json"
 
 # Check hyperparameter differences
 diffai config/baseline.yaml config/experiment.yaml
@@ -34,9 +34,32 @@ diffai original/model.pth quantized/model.pth --show-structure
 diffai full/model.pth pruned/model.pth --diff-only
 ```
 
-## Typical Workflow
+## ディレクトリベース ML ワークフロー
 
-### Experiment Cycle
+### 自動ディレクトリ処理
+
+diffaiは特別なフラグを必要とせず、MLワークフローのディレクトリ比較を自動的に処理します：
+
+```bash
+# 実験ディレクトリ全体を比較
+diffai baseline_experiment/ new_experiment/
+
+# モデルファイル、設定、結果の自動検出
+diffai run_001/ run_002/
+
+# 特定のMLファイル形式をフィルタ
+diffai checkpoint_dir_A/ checkpoint_dir_B/ --include "*.pth" --include "*.safetensors"
+```
+
+**ML固有の利点：**
+- **モデルファイル検出**: .pth、.safetensors、.ptファイルを自動発見
+- **設定比較**: YAML/JSON設定ファイルを比較
+- **結果分析**: メトリクス、ログ、出力ファイルを処理
+- **バッチ処理**: 複数のモデルチェックポイントを効率的に処理
+
+## 典型的なワークフロー
+
+### 実験サイクル
 
 ```bash
 # 1. Run baseline experiment
@@ -45,8 +68,8 @@ python train.py --config baseline.yaml --output baseline/
 # 2. Run new experiment
 python train.py --config experiment.yaml --output experiment/
 
-# 3. Compare results
-diffai baseline/ experiment/ --recursive --include "*.json" --include "*.pth"
+# 3. Compare results (automatic directory detection)
+diffai baseline/ experiment/ --include "*.json" --include "*.pth"
 
 # 4. Detailed analysis (comprehensive analysis automatic)
 diffai baseline/model.pth experiment/model.pth
