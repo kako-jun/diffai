@@ -30,14 +30,39 @@ Second input file or directory to compare.
 - **Formats**: Same as INPUT1
 - **Special**: Use `-` for stdin
 
+**Stdin Support:**
+- **One stdin, one file**: `diffai - file.json` or `diffai file.json -`
+- **Both from stdin**: `diffai - -` (reads two data sets from stdin)
+  - **JSON**: Two JSON objects separated by newlines or concatenated
+  - **YAML**: Two YAML documents separated by `---`
+
 **Examples**:
 ```bash
+# Basic file comparison
 diffai model1.safetensors model2.safetensors
 diffai data_v1.npy data_v2.npy
 diffai experiment_v1.mat experiment_v2.mat
 diffai config.json config_new.json
-diffai dir1/ dir2/  # Automatic recursive directory comparison
-diffai - config.json < input.json
+
+# Directory comparison (automatic recursive)
+diffai dir1/ dir2/
+
+# Stdin with file
+cat config.json | diffai - config_new.json
+
+# Both from stdin (pipe both)
+echo '{"old": "data"}
+{"new": "data"}' | diffai - -
+
+# Two YAML documents from stdin
+echo 'name: Alice
+age: 25
+---
+name: Bob
+age: 30' | diffai - - --format yaml
+
+# API response comparison via stdin
+(curl -s https://api.example.com/v1/model; echo; curl -s https://api.example.com/v2/model) | diffai - -
 ```
 
 ## Options
