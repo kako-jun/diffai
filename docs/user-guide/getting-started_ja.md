@@ -61,17 +61,19 @@ diffai --format yaml config1.yml config2.yml
 diffai --verbose data1.csv data2.csv
 ```
 
-### Recursive Directory Comparison
+### ディレクトリ比較
 
-Compare entire directory structures:
+自動検出でディレクトリ構造全体を比較：
 
 ```bash
-# Compare all files in directories
-diffai --recursive dir1/ dir2/
+# ML分析でディレクトリ内のすべてのファイルを比較
+diffai dir1/ dir2/
 
-# Save results to file
-diffai --recursive --output results.json dir1/ dir2/
+# 結果をファイルに保存
+diffai --output results.json dir1/ dir2/
 ```
+
+**注意**: ディレクトリ比較（`/` で終わるパス）の場合、diffaiはディレクトリ内のすべてのサポートされたファイルタイプを自動的に検出・分析し、包括的なML主導の洞察を提供します。
 
 ## Advanced Features
 
@@ -122,8 +124,8 @@ diffai --epsilon 0.001 metrics1.json metrics2.json
 # Compare application configurations
 diffai app-config-dev.json app-config-prod.json
 
-# Track infrastructure changes
-diffai --recursive infrastructure/dev/ infrastructure/prod/
+# 自動検出でインフラ構造変更を追跡
+diffai infrastructure/dev/ infrastructure/prod/
 ```
 
 ### Data Analysis

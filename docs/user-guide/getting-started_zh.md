@@ -61,17 +61,19 @@ diffai --format yaml config1.yml config2.yml
 diffai --verbose data1.csv data2.csv
 ```
 
-### Recursive Directory Comparison
+### 目录比较
 
-Compare entire directory structures:
+通过自动检测比较整个目录结构：
 
 ```bash
-# Compare all files in directories
-diffai --recursive dir1/ dir2/
+# 使用ML分析比较目录中的所有文件
+diffai dir1/ dir2/
 
-# Save results to file
-diffai --recursive --output results.json dir1/ dir2/
+# 将结果保存到文件
+diffai --output results.json dir1/ dir2/
 ```
+
+**注意**: 在比较目录（以 `/` 结尾的路径）时，diffai 会自动检测并分析目录中所有支持的文件类型，提供全面的ML驱动的洞察。
 
 ## Advanced Features
 
@@ -122,8 +124,8 @@ diffai --epsilon 0.001 metrics1.json metrics2.json
 # Compare application configurations
 diffai app-config-dev.json app-config-prod.json
 
-# Track infrastructure changes
-diffai --recursive infrastructure/dev/ infrastructure/prod/
+# 通过自动检测追踪基础设施变化
+diffai infrastructure/dev/ infrastructure/prod/
 ```
 
 ### Data Analysis
