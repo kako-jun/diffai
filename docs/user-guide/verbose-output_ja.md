@@ -51,7 +51,7 @@ Verbose mode displays all active configuration options:
 
 ### Basic Configuration
 - **Input format**: Explicitly set or auto-detected format
-- **Output format**: CLI, JSON, YAML, or unified diff
+- **Output format**: diffai, JSON, or YAML
 - **Recursive mode**: Whether directory comparison is enabled
 
 ### Advanced Options
