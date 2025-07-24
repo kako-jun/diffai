@@ -89,10 +89,10 @@ warn_no_return = true
 warn_unreachable = true
 
 [tool.maturin]
-# This package includes both Python code and a binary (diffai CLI) in the wheel
+# PyO3 bindings for diffai-python
 python-source = "src"
 module-name = "diffai_python"
-bindings = "bin"
+bindings = "pyo3"
 # Find Python interpreters automatically
 find-interpreter = true
 # Use manylinux for PyPI compatibility
