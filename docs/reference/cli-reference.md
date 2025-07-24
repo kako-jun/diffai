@@ -36,6 +36,7 @@ diffai model1.safetensors model2.safetensors
 diffai data_v1.npy data_v2.npy
 diffai experiment_v1.mat experiment_v2.mat
 diffai config.json config_new.json
+diffai dir1/ dir2/  # Automatic recursive directory comparison
 diffai - config.json < input.json
 ```
 
@@ -57,10 +58,12 @@ Choose output format.
 - **Default**: `cli`
 - **Example**: `--output json`
 
-#### `-r, --recursive`
-Compare directories recursively.
+#### Directory Comparison (Automatic)
+When comparing directories, diffai automatically detects and compares all files recursively.
 
-- **Example**: `diffai dir1/ dir2/ --recursive`
+- **Behavior**: Automatic recursive directory traversal
+- **Example**: `diffai dir1/ dir2/` (no flag needed)
+- **Note**: Directory comparison is enabled automatically when directory paths are provided
 
 
 ### Advanced Options

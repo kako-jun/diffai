@@ -30,12 +30,13 @@ Second input file or directory to compare.
 - **Formats**: Same as INPUT1
 - **Special**: Use `-` for stdin
 
-**Examples**:
+**示例**:
 ```bash
 diffai model1.safetensors model2.safetensors
 diffai data_v1.npy data_v2.npy
 diffai experiment_v1.mat experiment_v2.mat
 diffai config.json config_new.json
+diffai dir1/ dir2/  # 自动递归目录比较
 diffai - config.json < input.json
 ```
 
@@ -57,10 +58,12 @@ Choose output format.
 - **Default**: `cli`
 - **Example**: `--output json`
 
-#### `-r, --recursive`
-Compare directories recursively.
+#### 目录比较（自动）
+比较目录时，diffai 会自动检测并递归比较所有文件。
 
-- **Example**: `diffai dir1/ dir2/ --recursive`
+- **行为**: 自动递归目录遍历
+- **示例**: `diffai dir1/ dir2/`（无需标志）
+- **注意**: 当提供目录路径时，会自动启用目录比较
 
 
 ### Advanced Options

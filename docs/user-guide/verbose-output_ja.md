@@ -138,16 +138,16 @@ Processing results:
 
 ## Directory Comparison
 
-When using `--recursive` for directory comparison, verbose mode provides additional statistics:
+ディレクトリ比較時（自動検出）、詳細モードは追加統計情報を提供します：
 
 ```bash
-diffai dir1/ dir2/ --verbose --recursive
+diffai dir1/ dir2/ --verbose
 ```
 
 Example output:
 ```
 Configuration:
-  Recursive mode: true
+  Directory mode: true (automatic)
 
 Directory scan results:
   Files in /path/to/dir1: 12
@@ -179,8 +179,8 @@ diffai problematic_file1.dat problematic_file2.dat --verbose
 # Verify ML analysis features (automatic for ML models)
 diffai model1.pt model2.pt --verbose
 
-# Analyze directory comparison behavior
-diffai dir1/ dir2/ --verbose --recursive
+# ディレクトリ比較動作を分析（自動検出）
+diffai dir1/ dir2/ --verbose
 ```
 
 ### Performance Analysis
@@ -269,4 +269,4 @@ fi
 
 - [`--help`](basic-usage.md#help): Show all available options
 - [`--output`](../reference/output-formats_ja.md): Control output format
-- [`--recursive`](directory-comparison_ja.md): Enable directory comparison
+- [ディレクトリ比較](directory-comparison_ja.md): 自動ディレクトリ検出
