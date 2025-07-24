@@ -79,8 +79,8 @@ Specify input file format explicitly.
 #### `-o, --output <OUTPUT>`
 Choose output format.
 
-- **Possible values**: `cli`, `json`, `yaml`, `unified`
-- **Default**: `cli`
+- **Possible values**: `diffai`, `json`, `yaml`
+- **Default**: `diffai`
 - **Example**: `--output json`
 
 #### ディレクトリ比較（自動）
