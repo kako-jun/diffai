@@ -4,14 +4,13 @@ Output formats supported by diffai and their specifications.
 
 ## Overview
 
-diffai supports four different output formats to suit various use cases:
+diffai supports three different output formats to suit various use cases:
 
-1. **CLI** - Human-readable format (default)
+1. **diffai** - Human-readable format (default)
 2. **JSON** - Machine processing and automation
 3. **YAML** - Configuration files and human-readable structured data
-4. **Unified** - Git integration and traditional diff format
 
-## CLI Output Format
+## diffai Output Format
 
 ### Overview
 Human-readable colored output format used by default.
@@ -24,7 +23,7 @@ Human-readable colored output format used by default.
 
 ### Usage
 ```bash
-diffai model1.safetensors model2.safetensors --output cli
+diffai model1.safetensors model2.safetensors --output diffai
 # or
 diffai model1.safetensors model2.safetensors  # default
 ```
@@ -166,36 +165,6 @@ diffai model1.safetensors model2.safetensors --output yaml
     recommended_action: Reduce learning rate
 ```
 
-## Unified Output Format
-
-### Overview
-Git integration and compatibility with traditional diff tools.
-
-### Features
-- **Git integration**: Compatible with git diff
-- **Merge tools**: Works with 3-way merge tools
-- **Traditional format**: Compatible with existing diff tools
-- **Patch application**: Can be applied with git apply
-
-### Usage
-```bash
-diffai config1.json config2.json --output unified
-```
-
-### Example Output
-```diff
---- config1.json
-+++ config2.json
-@@ -1,5 +1,6 @@
- {
-   "model": {
--    "layers": 12,
-+    "layers": 24,
-     "hidden_size": 768
-   },
-+  "optimizer": "adam"
- }
-```
 
 ## Output Format Selection Guidelines
 
@@ -203,11 +172,10 @@ diffai config1.json config2.json --output unified
 
 | Use Case | Recommended Format | Reason |
 |----------|-------------------|---------|
-| Human review | CLI | Colored, intuitive symbols |
+| Human review | diffai | Colored, intuitive symbols |
 | Automation/scripting | JSON | Machine processable |
 | Configuration files | YAML | Readability, comment support |
 | Documentation | YAML | Human-friendly |
-| Git integration | Unified | Existing tool compatibility |
 | API integration | JSON | Standard data exchange format |
 | Report generation | JSON | Structured data processing |
 
@@ -215,9 +183,9 @@ diffai config1.json config2.json --output unified
 
 | Environment | Recommended Format | Reason |
 |-------------|-------------------|---------|
-| Interactive command line | CLI | Immediate understanding |
+| Interactive command line | diffai | Immediate understanding |
 | CI/CD pipeline | JSON | Automated checks |
-| Development environment | CLI | Quick debugging |
+| Development environment | diffai | Quick debugging |
 | Production environment | JSON | Logging and monitoring |
 | Research/experiments | YAML | Result documentation |
 
@@ -253,11 +221,10 @@ diffai model1.safetensors model2.safetensors --output json > machine_readable.js
 ### Configuration File
 ```toml
 [output]
-default = "cli"
+default = "diffai"
 json_pretty = true
 yaml_flow = false
 cli_colors = true
-unified_context = 3
 
 [colors]
 added = "green"

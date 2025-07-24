@@ -22,7 +22,7 @@ Options:
   -f, --format <FORMAT>
           Input file format [possible values: json, yaml, toml, ini, xml, csv, safetensors, pytorch, numpy, npz, matlab]
   -o, --output <OUTPUT>
-          Output format [possible values: cli, json, yaml, unified]
+          Output format [possible values: diffai, json, yaml]
       --path <PATH>
           Filter differences by a specific path (e.g., "config.users\[0\].name")
       --ignore-keys-regex <IGNORE_KEYS_REGEX>

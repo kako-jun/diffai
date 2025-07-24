@@ -179,7 +179,6 @@ Git integration and compatibility with traditional diff tools.
 
 ### Usage
 ```bash
-diffai config1.json config2.json --output unified
 ```
 
 ### Example Output
@@ -257,7 +256,6 @@ default = "cli"
 json_pretty = true
 yaml_flow = false
 cli_colors = true
-unified_context = 3
 
 [colors]
 added = "green"
