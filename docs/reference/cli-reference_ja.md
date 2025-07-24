@@ -30,14 +30,39 @@ diffaiはモデル構造、テンソル統計、科学データを理解するAI
 - **形式**: INPUT1と同じ
 - **特殊**: stdinを使用する場合は`-`
 
+**標準入力サポート:**
+- **片方が標準入力、片方がファイル**: `diffai - file.json` または `diffai file.json -`
+- **両方が標準入力**: `diffai - -` (標準入力から2つのデータセットを読み取り)
+  - **JSON**: 改行で区切られた、または連結された2つのJSONオブジェクト
+  - **YAML**: `---`で区切られた2つのYAMLドキュメント
+
 **例**:
 ```bash
+# 基本的なファイル比較
 diffai model1.safetensors model2.safetensors
 diffai data_v1.npy data_v2.npy
 diffai experiment_v1.mat experiment_v2.mat
 diffai config.json config_new.json
-diffai dir1/ dir2/  # 自動再帰的ディレクトリ比較
-diffai - config.json < input.json
+
+# ディレクトリ比較（自動再帰的）
+diffai dir1/ dir2/
+
+# 標準入力とファイル
+cat config.json | diffai - config_new.json
+
+# 両方を標準入力から（パイプ両方）
+echo '{"old": "data"}
+{"new": "data"}' | diffai - -
+
+# 標準入力から2つのYAMLドキュメント
+echo 'name: Alice
+age: 25
+---
+name: Bob
+age: 30' | diffai - - --format yaml
+
+# APIレスポンス比較（標準入力経由）
+(curl -s https://api.example.com/v1/model; echo; curl -s https://api.example.com/v2/model) | diffai - -
 ```
 
 ## Options

@@ -30,14 +30,39 @@ Second input file or directory to compare.
 - **Formats**: Same as INPUT1
 - **Special**: Use `-` for stdin
 
+**标准输入支持:**
+- **一个标准输入，一个文件**: `diffai - file.json` 或 `diffai file.json -`
+- **两个都来自标准输入**: `diffai - -` (从标准输入读取两个数据集)
+  - **JSON**: 由换行符分隔或连接的两个 JSON 对象
+  - **YAML**: 由 `---` 分隔的两个 YAML 文档
+
 **示例**:
 ```bash
+# 基本文件比较
 diffai model1.safetensors model2.safetensors
 diffai data_v1.npy data_v2.npy
 diffai experiment_v1.mat experiment_v2.mat
 diffai config.json config_new.json
-diffai dir1/ dir2/  # 自动递归目录比较
-diffai - config.json < input.json
+
+# 目录比较（自动递归）
+diffai dir1/ dir2/
+
+# 标准输入和文件
+cat config.json | diffai - config_new.json
+
+# 两者都从标准输入（管道两者）
+echo '{"old": "data"}
+{"new": "data"}' | diffai - -
+
+# 从标准输入读取两个 YAML 文档
+echo 'name: Alice
+age: 25
+---
+name: Bob
+age: 30' | diffai - - --format yaml
+
+# API 响应比较（通过标准输入）
+(curl -s https://api.example.com/v1/model; echo; curl -s https://api.example.com/v2/model) | diffai - -
 ```
 
 ## Options
