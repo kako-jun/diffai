@@ -78,7 +78,7 @@ fn test_format_options() {
 #[test]
 fn test_output_options() {
     if let Ok((file1, file2)) = create_test_json_pair() {
-        for output_format in ["cli", "json", "yaml", "unified"] {
+        for output_format in ["diffai", "json", "yaml"] {
             let output = Command::new("cargo")
                 .args([
                     "run",

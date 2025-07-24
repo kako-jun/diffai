@@ -59,18 +59,3 @@ fn test_yaml_output_format() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-/// Test unified output format
-#[test]
-fn test_unified_output_format() -> Result<(), Box<dyn std::error::Error>> {
-    let mut cmd = diffai_cmd();
-    cmd.arg("../tests/fixtures/file1.json")
-        .arg("../tests/fixtures/file2.json")
-        .arg("--output")
-        .arg("unified");
-    cmd.assert()
-        .success()
-        .stdout(predicate::str::contains("-  \"age\": 30,"))
-        .stdout(predicate::str::contains("+  \"age\": 31,"))
-        .stdout(predicate::str::contains("-  \"city\": \"New York\","));
-    Ok(())
-}

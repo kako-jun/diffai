@@ -11,7 +11,7 @@ use std::fs;
 
 #[derive(Parser)]
 #[command(name = "diffai")]
-#[command(about = "A unified AI/ML diff tool for structured data and ML models")]
+#[command(about = "An AI/ML diff tool for structured data and ML models")]
 #[command(version)]
 struct Args {
     /// The first input file

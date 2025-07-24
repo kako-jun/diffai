@@ -44,13 +44,11 @@ pub enum OutputFormat {
     Json,
     #[serde(rename = "yaml")]
     Yaml,
-    #[serde(rename = "unified")]
-    Unified,
 }
 
 impl OutputFormat {
     pub fn value_variants() -> &'static [Self] {
-        &[Self::Diffai, Self::Json, Self::Yaml, Self::Unified]
+        &[Self::Diffai, Self::Json, Self::Yaml]
     }
     
     pub fn from_str(s: &str) -> Result<Self> {
@@ -58,7 +56,6 @@ impl OutputFormat {
             "diffai" => Ok(Self::Diffai),
             "json" => Ok(Self::Json),
             "yaml" | "yml" => Ok(Self::Yaml),
-            "unified" => Ok(Self::Unified),
             _ => Err(anyhow!("Invalid output format: {}", s)),
         }
     }
@@ -824,15 +821,6 @@ pub fn format_output<T: Serialize>(
                 let json = serde_json::to_string(result)?;
                 output.push_str(&json);
                 output.push('\n');
-            }
-            Ok(output)
-        }
-        OutputFormat::Unified => {
-            // Simple unified diff format
-            let mut output = String::new();
-            for result in results {
-                let json = serde_json::to_string(result)?;
-                output.push_str(&format!("~ {}\n", json));
             }
             Ok(output)
         }
