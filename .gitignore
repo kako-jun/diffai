@@ -44,7 +44,6 @@ Session.vim
 .env.staging
 
 # === Test files and outputs ===
-test_*
 *.test
 test_output/
 test_manual/
@@ -169,6 +168,5 @@ diffai-npm/bin/*/diffai.exe
 github-shared
 # === Temporary test directories ===
 tmp/
-diffai-js/
 temp-*/
 tmp-*/
