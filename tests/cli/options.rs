@@ -1,4 +1,3 @@
-#[allow(unused_imports)]
 /// CLI options tests for diffai
 use std::fs;
 use std::io::Write;

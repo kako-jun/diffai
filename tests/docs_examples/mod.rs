@@ -1,5 +1,3 @@
-#[allow(unused_imports)]
-#[allow(unused_imports)]
 pub mod basic_usage_examples;
 pub mod cli_reference_examples;
 pub mod design_principles_examples;

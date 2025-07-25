@@ -1,5 +1,3 @@
-#[allow(unused_imports)]
-#[allow(unused_imports)]
 /// Tests for --no-color option in diffai
 /// Ensures color output is properly disabled when flag is specified
 use assert_cmd::Command;

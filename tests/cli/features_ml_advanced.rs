@@ -1,5 +1,3 @@
-#[allow(unused_imports)]
-#[allow(unused_imports)]
 use assert_cmd::prelude::*;
 use std::process::Command;
 
