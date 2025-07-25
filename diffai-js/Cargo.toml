@@ -1,0 +1,28 @@
+[package]
+name = "diffai-js"
+version = "0.3.16"
+edition = "2021"
+description = "JavaScript bindings for diffai - AI/ML focused structured data comparison"
+license = "MIT"
+repository = "https://github.com/kako-jun/diffai"
+authors = ["kako-jun"]
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# Core diffai functionality
+diffai-core = { path = "../diffai-core" }
+
+# NAPI-RS for Node.js bindings
+napi = { version = "2.2", default-features = false, features = ["napi8", "serde-json"] }
+napi-derive = "2.2"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+anyhow = "1.0"
+regex = "1.0"
+
+[build-dependencies]
+napi-build = "2.2"
