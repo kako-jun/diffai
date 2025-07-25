@@ -1,4 +1,3 @@
-#[allow(unused_imports)]
 use assert_cmd::prelude::*;
 use std::process::Command;
 use std::time::Instant;

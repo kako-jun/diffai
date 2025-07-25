@@ -1,4 +1,3 @@
-#[allow(unused_imports)]
 // Unified test structure for diffai Rust tests
 // Organized by functionality with docs correspondence
 
