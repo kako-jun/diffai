@@ -1,3 +1,4 @@
+#[allow(unused_imports)]
 // Original CLI tests
 pub mod help_output;
 pub mod no_color_option;

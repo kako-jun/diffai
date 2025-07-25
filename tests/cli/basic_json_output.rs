@@ -1,3 +1,5 @@
+#[allow(unused_imports)]
+#[allow(unused_imports)]
 use assert_cmd::prelude::*;
 use predicates::prelude::*;
 use std::process::Command;
@@ -58,4 +60,3 @@ fn test_yaml_output_format() -> Result<(), Box<dyn std::error::Error>> {
         ));
     Ok(())
 }
-

@@ -1,4 +1,5 @@
 #[allow(unused_imports)]
+#[allow(unused_imports)]
 use assert_cmd::prelude::*;
 #[allow(unused_imports)]
 use predicates::prelude::*;
@@ -96,7 +97,6 @@ fn test_yaml_output_format() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-
 
 /// Test case 6: diffai model1.safetensors model2.safetensors --output json | jq '.[] | select(.TensorStatsChanged)'
 #[test]
