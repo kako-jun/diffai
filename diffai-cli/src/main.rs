@@ -1,13 +1,14 @@
-use anyhow::{Result, Context};
+use anyhow::{Context, Result};
 use clap::{Parser, ValueEnum};
 use diffai_core::{
-    diff_paths, DiffOptions, DiffaiSpecificOptions, OutputFormat, format_output, DiffResult, diff, parse_csv, parse_ini, parse_xml
+    diff, diff_paths, format_output, parse_csv, parse_ini, parse_xml, DiffOptions, DiffResult,
+    DiffaiSpecificOptions, OutputFormat,
 };
 use regex::Regex;
 use serde_json::Value;
-use std::path::PathBuf;
-use std::io::{self, Read};
 use std::fs;
+use std::io::{self, Read};
+use std::path::{Path, PathBuf};
 
 #[derive(Parser)]
 #[command(name = "diffai")]
@@ -47,7 +48,7 @@ struct Args {
     array_id_key: Option<String>,
 
     /// Suppress normal output; return only exit status
-    #[arg(short, long)]  
+    #[arg(short, long)]
     quiet: bool,
 
     /// Report only whether files differ, not the differences
@@ -157,7 +158,7 @@ fn main() -> Result<()> {
     let results = diff_paths(
         &args.input1.to_string_lossy(),
         &args.input2.to_string_lossy(),
-        Some(&options)
+        Some(&options),
     )?;
 
     // Handle quiet mode
@@ -169,26 +170,32 @@ fn main() -> Result<()> {
     if args.brief {
         if results.is_empty() {
             if args.verbose {
-                println!("Files {} and {} are identical", 
-                    args.input1.display(), args.input2.display());
+                println!(
+                    "Files {} and {} are identical",
+                    args.input1.display(),
+                    args.input2.display()
+                );
             }
         } else {
-            println!("Files {} and {} differ", 
-                args.input1.display(), args.input2.display());
+            println!(
+                "Files {} and {} differ",
+                args.input1.display(),
+                args.input2.display()
+            );
         }
         std::process::exit(if results.is_empty() { 0 } else { 1 });
     }
 
     // Format and output results
     let output_format = if let Some(format_str) = &args.output {
-        OutputFormat::from_str(format_str)?
+        OutputFormat::parse_format(format_str)?
     } else {
         OutputFormat::Diffai
     };
     let formatted_output = format_output(&results, output_format)?;
 
     if !formatted_output.trim().is_empty() {
-        println!("{}", formatted_output);
+        println!("{formatted_output}");
     } else if args.verbose {
         println!("No differences found");
     }
@@ -221,7 +228,7 @@ fn build_diff_options(args: &Args) -> Result<DiffOptions> {
     });
 
     let output_format = if let Some(format_str) = &args.output {
-        Some(OutputFormat::from_str(format_str)?)
+        Some(OutputFormat::parse_format(format_str)?)
     } else {
         None
     };
@@ -253,7 +260,7 @@ fn read_input(file_path: &PathBuf) -> Result<String> {
     }
 }
 
-fn infer_format_from_path(path: &PathBuf) -> Option<Format> {
+fn infer_format_from_path(path: &Path) -> Option<Format> {
     if path.to_str() == Some("-") {
         // Cannot infer format from stdin, user must specify --format
         None
@@ -285,7 +292,10 @@ fn parse_content(content: &str, format: Format) -> Result<Value> {
         Format::Xml => parse_xml(content).context("Failed to parse XML"),
         Format::Csv => parse_csv(content).context("Failed to parse CSV"),
         // Note: AI/ML formats would need special handling, but for stdin they would typically be JSON
-        _ => Err(anyhow::anyhow!("Format {:?} not supported for stdin input", format)),
+        _ => Err(anyhow::anyhow!(
+            "Format {:?} not supported for stdin input",
+            format
+        )),
     }
 }
 
@@ -323,97 +333,109 @@ fn handle_stdin_input(args: &Args, input1_is_stdin: bool, input2_is_stdin: bool)
 fn handle_both_stdin(args: &Args) -> Result<()> {
     // Read entire stdin
     let mut buffer = String::new();
-    io::stdin().read_to_string(&mut buffer).context("Failed to read from stdin")?;
-    
+    io::stdin()
+        .read_to_string(&mut buffer)
+        .context("Failed to read from stdin")?;
+
     // Try to parse as two separate JSON/YAML objects
     if let Some(fmt) = args.format {
         match fmt {
             Format::Json => handle_both_stdin_json(&buffer, args),
             Format::Yaml => handle_both_stdin_yaml(&buffer, args),
-            _ => Err(anyhow::anyhow!("Two stdin inputs only supported for JSON and YAML formats")),
+            _ => Err(anyhow::anyhow!(
+                "Two stdin inputs only supported for JSON and YAML formats"
+            )),
         }
     } else {
         // Try JSON first, then YAML
-        handle_both_stdin_json(&buffer, args)
-            .or_else(|_| handle_both_stdin_yaml(&buffer, args))
+        handle_both_stdin_json(&buffer, args).or_else(|_| handle_both_stdin_yaml(&buffer, args))
     }
 }
 
 fn handle_both_stdin_json(buffer: &str, args: &Args) -> Result<()> {
     // Try to parse as JSON Lines (two separate JSON objects)
     let lines: Vec<&str> = buffer.trim().lines().collect();
-    
+
     if lines.len() >= 2 {
         // Try to parse first and last non-empty lines as JSON
-        let first_json = lines.iter().find(|line| !line.trim().is_empty())
+        let first_json = lines
+            .iter()
+            .find(|line| !line.trim().is_empty())
             .ok_or_else(|| anyhow::anyhow!("No JSON content found in stdin"))?;
-        let second_json = lines.iter().rev().find(|line| !line.trim().is_empty())
+        let second_json = lines
+            .iter()
+            .rev()
+            .find(|line| !line.trim().is_empty())
             .ok_or_else(|| anyhow::anyhow!("Only one JSON object found in stdin"))?;
-        
+
         if first_json != second_json {
             let v1: Value = serde_json::from_str(first_json)?;
             let v2: Value = serde_json::from_str(second_json)?;
-            
+
             let options = build_diff_options_for_values(args)?;
             let differences = diff(&v1, &v2, Some(&options))?;
-            
+
             return handle_output_and_exit(&differences, args);
         }
     }
-    
+
     // Try to parse as two concatenated JSON objects
     let trimmed = buffer.trim();
     if let Some(end_of_first) = find_json_object_end(trimmed) {
         let first_part = &trimmed[..end_of_first];
         let second_part = trimmed[end_of_first..].trim();
-        
+
         if !second_part.is_empty() {
             let v1: Value = serde_json::from_str(first_part)?;
             let v2: Value = serde_json::from_str(second_part)?;
-            
+
             let options = build_diff_options_for_values(args)?;
             let differences = diff(&v1, &v2, Some(&options))?;
-            
+
             return handle_output_and_exit(&differences, args);
         }
     }
-    
-    Err(anyhow::anyhow!("Could not parse two JSON objects from stdin"))
+
+    Err(anyhow::anyhow!(
+        "Could not parse two JSON objects from stdin"
+    ))
 }
 
 fn handle_both_stdin_yaml(buffer: &str, args: &Args) -> Result<()> {
     // Try to parse as two YAML documents separated by ---
     let documents: Vec<&str> = buffer.split("---").collect();
-    
+
     if documents.len() >= 2 {
         let doc1 = documents[0].trim();
         let doc2 = documents[1].trim();
-        
+
         if !doc1.is_empty() && !doc2.is_empty() {
             let v1: Value = serde_yml::from_str(doc1)?;
             let v2: Value = serde_yml::from_str(doc2)?;
-            
+
             let options = build_diff_options_for_values(args)?;
             let differences = diff(&v1, &v2, Some(&options))?;
-            
+
             return handle_output_and_exit(&differences, args);
         }
     }
-    
-    Err(anyhow::anyhow!("Could not parse two YAML documents from stdin (expected '---' separator)"))
+
+    Err(anyhow::anyhow!(
+        "Could not parse two YAML documents from stdin (expected '---' separator)"
+    ))
 }
 
 fn find_json_object_end(json_str: &str) -> Option<usize> {
     let mut brace_count = 0;
     let mut in_string = false;
     let mut escape_next = false;
-    
+
     for (i, ch) in json_str.char_indices() {
         if escape_next {
             escape_next = false;
             continue;
         }
-        
+
         match ch {
             '"' if !escape_next => in_string = !in_string,
             '\\' if in_string => escape_next = true,
@@ -427,7 +449,7 @@ fn find_json_object_end(json_str: &str) -> Option<usize> {
             _ => {}
         }
     }
-    
+
     None
 }
 
@@ -453,7 +475,7 @@ fn build_diff_options_for_values(args: &Args) -> Result<DiffOptions> {
     });
 
     let output_format = if let Some(format_str) = &args.output {
-        Some(OutputFormat::from_str(format_str)?)
+        Some(OutputFormat::parse_format(format_str)?)
     } else {
         None
     };
@@ -492,14 +514,14 @@ fn handle_output_and_exit(differences: &[DiffResult], args: &Args) -> Result<()>
 
     // Format and output results
     let output_format = if let Some(format_str) = &args.output {
-        OutputFormat::from_str(format_str)?
+        OutputFormat::parse_format(format_str)?
     } else {
         OutputFormat::Diffai
     };
     let formatted_output = format_output(differences, output_format)?;
 
     if !formatted_output.trim().is_empty() {
-        println!("{}", formatted_output);
+        println!("{formatted_output}");
     } else if args.verbose {
         println!("No differences found");
     }
@@ -517,7 +539,7 @@ mod tests {
     fn test_basic_diff() {
         let old = json!({"a": 1, "b": 2});
         let new = json!({"a": 1, "b": 3});
-        
+
         let results = diff(&old, &new, None).unwrap();
         assert_eq!(results.len(), 1);
     }
@@ -526,12 +548,12 @@ mod tests {
     fn test_with_epsilon() {
         let old = json!({"value": 1.0});
         let new = json!({"value": 1.001});
-        
+
         let options = DiffOptions {
             epsilon: Some(0.01),
             ..Default::default()
         };
-        
+
         let results = diff(&old, &new, Some(&options)).unwrap();
         assert_eq!(results.len(), 0); // Should be within epsilon tolerance
     }
@@ -540,18 +562,18 @@ mod tests {
     fn test_ml_specific_options() {
         let old = json!({"learning_rate": 0.01, "accuracy": 0.85});
         let new = json!({"learning_rate": 0.02, "accuracy": 0.87});
-        
+
         let diffai_options = DiffaiSpecificOptions {
             learning_rate_tracking: Some(true),
             accuracy_tracking: Some(true),
             ..Default::default()
         };
-        
+
         let options = DiffOptions {
             diffai_options: Some(diffai_options),
             ..Default::default()
         };
-        
+
         let results = diff(&old, &new, Some(&options)).unwrap();
         assert_eq!(results.len(), 2);
     }

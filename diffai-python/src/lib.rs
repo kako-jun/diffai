@@ -1,11 +1,12 @@
+#![allow(clippy::useless_conversion)]
+
+use diffai_core::{diff, DiffOptions, DiffResult, DiffaiSpecificOptions, OutputFormat};
 use pyo3::prelude::*;
 use pyo3::types::{PyAny, PyDict};
-use diffai_core::{diff, DiffOptions, DiffaiSpecificOptions, DiffResult, OutputFormat};
 use serde_json::Value;
-use regex;
 
 /// Convert Python object to serde_json::Value
-fn python_to_value(py: Python, obj: &Bound<'_, PyAny>) -> PyResult<Value> {
+fn python_to_value(_py: Python, obj: &Bound<'_, PyAny>) -> PyResult<Value> {
     if obj.is_none() {
         Ok(Value::Null)
     } else if let Ok(b) = obj.extract::<bool>() {
@@ -24,7 +25,7 @@ fn python_to_value(py: Python, obj: &Bound<'_, PyAny>) -> PyResult<Value> {
         let list = obj.downcast::<pyo3::types::PyList>()?;
         let mut vec = Vec::new();
         for item in list.iter() {
-            vec.push(python_to_value(py, &item)?);
+            vec.push(python_to_value(_py, &item)?);
         }
         Ok(Value::Array(vec))
     } else if obj.is_instance_of::<pyo3::types::PyDict>() {
@@ -32,7 +33,7 @@ fn python_to_value(py: Python, obj: &Bound<'_, PyAny>) -> PyResult<Value> {
         let mut map = serde_json::Map::new();
         for (key, value) in dict.iter() {
             let key_str = key.extract::<String>()?;
-            map.insert(key_str, python_to_value(py, &value)?);
+            map.insert(key_str, python_to_value(_py, &value)?);
         }
         Ok(Value::Object(map))
     } else {
@@ -76,7 +77,7 @@ fn value_to_python(py: Python, value: &Value) -> PyResult<PyObject> {
 /// Convert DiffResult to Python dictionary
 fn diff_result_to_python(py: Python, result: &DiffResult) -> PyResult<PyObject> {
     let dict = pyo3::types::PyDict::new_bound(py);
-    
+
     match result {
         DiffResult::Added(path, value) => {
             dict.set_item("type", "Added")?;
@@ -161,29 +162,29 @@ fn diff_result_to_python(py: Python, result: &DiffResult) -> PyResult<PyObject> 
             dict.set_item("new_version", new_version)?;
         }
     }
-    
+
     Ok(dict.to_object(py))
 }
 
 /// Unified diff function for Python
-/// 
+///
 /// Compare two Python objects or values and return differences with AI/ML specific analysis.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `old` - The old value (Python object, list, or primitive)
 /// * `new` - The new value (Python object, list, or primitive)  
 /// * `**kwargs` - Optional keyword arguments for configuration
-/// 
+///
 /// # Returns
-/// 
+///
 /// List of difference dictionaries with AI/ML specific difference types
-/// 
+///
 /// # Example
-/// 
+///
 /// ```python
 /// import diffai
-/// 
+///
 /// old = {"model": {"layers": [{"type": "dense", "units": 128}]}}
 /// new = {"model": {"layers": [{"type": "dense", "units": 256}]}}
 /// result = diffai.diff(old, new)
@@ -191,16 +192,21 @@ fn diff_result_to_python(py: Python, result: &DiffResult) -> PyResult<PyObject> 
 /// ```
 #[pyfunction]
 #[pyo3(signature = (old, new, **kwargs))]
-fn diff_py(py: Python, old: &Bound<'_, PyAny>, new: &Bound<'_, PyAny>, kwargs: Option<&Bound<'_, PyDict>>) -> PyResult<PyObject> {
+fn diff_py(
+    py: Python,
+    old: &Bound<'_, PyAny>,
+    new: &Bound<'_, PyAny>,
+    kwargs: Option<&Bound<'_, PyDict>>,
+) -> PyResult<PyObject> {
     // Convert Python objects to serde_json::Value
     let old_value = python_to_value(py, old)?;
     let new_value = python_to_value(py, new)?;
-    
+
     // Build options from kwargs
     let mut options = DiffOptions::default();
     let mut diffai_options = DiffaiSpecificOptions::default();
     let mut has_diffai_options = false;
-    
+
     if let Some(kwargs) = kwargs {
         for (key, value) in kwargs.iter() {
             let key_str = key.extract::<String>()?;
@@ -217,8 +223,12 @@ fn diff_py(py: Python, old: &Bound<'_, PyAny>, new: &Bound<'_, PyAny>, kwargs: O
                 }
                 "ignore_keys_regex" => {
                     if let Ok(pattern) = value.extract::<String>() {
-                        options.ignore_keys_regex = Some(regex::Regex::new(&pattern)
-                            .map_err(|e| pyo3::exceptions::PyValueError::new_err(format!("Invalid regex: {}", e)))?);
+                        options.ignore_keys_regex =
+                            Some(regex::Regex::new(&pattern).map_err(|e| {
+                                pyo3::exceptions::PyValueError::new_err(format!(
+                                    "Invalid regex: {e}"
+                                ))
+                            })?);
                     }
                 }
                 "path_filter" => {
@@ -228,8 +238,11 @@ fn diff_py(py: Python, old: &Bound<'_, PyAny>, new: &Bound<'_, PyAny>, kwargs: O
                 }
                 "output_format" => {
                     if let Ok(format_str) = value.extract::<String>() {
-                        let format = OutputFormat::from_str(&format_str)
-                            .map_err(|e| pyo3::exceptions::PyValueError::new_err(format!("Invalid format: {}", e)))?;
+                        let format = OutputFormat::parse_format(&format_str).map_err(|e| {
+                            pyo3::exceptions::PyValueError::new_err(format!(
+                                "Invalid format: {e}"
+                            ))
+                        })?;
                         options.output_format = Some(format);
                     }
                 }
@@ -326,21 +339,21 @@ fn diff_py(py: Python, old: &Bound<'_, PyAny>, new: &Bound<'_, PyAny>, kwargs: O
             }
         }
     }
-    
+
     if has_diffai_options {
         options.diffai_options = Some(diffai_options);
     }
-    
+
     // Perform diff
     let results = diff(&old_value, &new_value, Some(&options))
-        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("Diff error: {:?}", e)))?;
-    
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("Diff error: {e:?}")))?;
+
     // Convert results to Python objects
     let py_list = pyo3::types::PyList::empty_bound(py);
     for result in results {
         py_list.append(diff_result_to_python(py, &result)?)?;
     }
-    
+
     Ok(py_list.to_object(py))
 }
 
@@ -348,9 +361,9 @@ fn diff_py(py: Python, old: &Bound<'_, PyAny>, new: &Bound<'_, PyAny>, kwargs: O
 #[pymodule]
 fn diffai_python(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(diff_py, m)?)?;
-    
+
     // Add module-level diff function for easier access
     m.add("diff", m.getattr("diff_py")?)?;
-    
+
     Ok(())
 }

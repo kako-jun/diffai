@@ -1,5 +1,4 @@
 use serde_json::{json, Value};
-use std::path::Path;
 
 /// Common test fixtures shared across diffai core/python/js tests
 /// These fixtures are compatible with CLI fixtures but focused on AI/ML unified API testing
@@ -11,35 +10,35 @@ impl TestFixtures {
     pub fn cli_fixtures_dir() -> &'static str {
         "../../tests/fixtures"
     }
-    
+
     /// Load JSON file from CLI fixtures
     pub fn load_cli_fixture(filename: &str) -> Value {
         let path = format!("{}/{}", Self::cli_fixtures_dir(), filename);
         let content = std::fs::read_to_string(&path)
             .unwrap_or_else(|_| panic!("Failed to read fixture: {}", path));
-        
+
         if filename.ends_with(".json") {
             serde_json::from_str(&content).unwrap()
         } else {
             panic!("Only JSON fixtures supported in unified API tests")
         }
     }
-    
+
     /// Basic configuration comparison fixtures (shared with diffx)
     pub fn config_v1() -> Value {
         Self::load_cli_fixture("config_v1.json")
     }
-    
+
     pub fn config_v2() -> Value {
         Self::load_cli_fixture("config_v2.json")
     }
-    
+
     pub fn config_v3() -> Value {
         Self::load_cli_fixture("config_v3.json")
     }
-    
+
     /// AI/ML specific test fixtures
-    
+
     /// PyTorch model metadata fixtures
     pub fn pytorch_model_old() -> Value {
         json!({
@@ -86,7 +85,7 @@ impl TestFixtures {
             }
         })
     }
-    
+
     pub fn pytorch_model_new() -> Value {
         json!({
             "model_type": "pytorch",
@@ -131,7 +130,7 @@ impl TestFixtures {
             }
         })
     }
-    
+
     /// SafeTensors model fixtures
     pub fn safetensors_model_old() -> Value {
         json!({
@@ -161,7 +160,7 @@ impl TestFixtures {
             }
         })
     }
-    
+
     pub fn safetensors_model_new() -> Value {
         json!({
             "model_type": "safetensors",
@@ -194,7 +193,7 @@ impl TestFixtures {
             }
         })
     }
-    
+
     /// NumPy array fixtures
     pub fn numpy_array_old() -> Value {
         json!({
@@ -218,7 +217,7 @@ impl TestFixtures {
             }
         })
     }
-    
+
     pub fn numpy_array_new() -> Value {
         json!({
             "model_type": "numpy",
@@ -251,7 +250,7 @@ impl TestFixtures {
             }
         })
     }
-    
+
     /// MATLAB file fixtures
     pub fn matlab_file_old() -> Value {
         json!({
@@ -279,7 +278,7 @@ impl TestFixtures {
             }
         })
     }
-    
+
     pub fn matlab_file_new() -> Value {
         json!({
             "model_type": "matlab",
@@ -307,7 +306,7 @@ impl TestFixtures {
             }
         })
     }
-    
+
     /// Training metrics comparison fixtures
     pub fn training_metrics_old() -> Value {
         json!({
@@ -334,7 +333,7 @@ impl TestFixtures {
             }
         })
     }
-    
+
     pub fn training_metrics_new() -> Value {
         json!({
             "experiment": {
@@ -361,7 +360,7 @@ impl TestFixtures {
             }
         })
     }
-    
+
     /// Model architecture comparison fixtures
     pub fn model_architecture_old() -> Value {
         json!({
@@ -406,7 +405,7 @@ impl TestFixtures {
             }
         })
     }
-    
+
     pub fn model_architecture_new() -> Value {
         json!({
             "model": {
@@ -472,7 +471,7 @@ impl TestFixtures {
 /// Helper functions for AI/ML test data generation
 pub mod ml_generators {
     use super::*;
-    
+
     pub fn generate_tensor_data(shape: Vec<usize>, dtype: &str) -> Value {
         json!({
             "shape": shape,
@@ -480,55 +479,61 @@ pub mod ml_generators {
             "size": shape.iter().product::<usize>()
         })
     }
-    
+
     pub fn generate_model_weights(layer_sizes: Vec<usize>) -> Value {
         let mut weights = serde_json::Map::new();
-        
+
         for i in 0..layer_sizes.len() - 1 {
             let weight_name = format!("layer_{}_weight", i);
             let bias_name = format!("layer_{}_bias", i);
-            
-            weights.insert(weight_name, json!({
-                "shape": [layer_sizes[i + 1], layer_sizes[i]],
-                "dtype": "float32"
-            }));
-            
-            weights.insert(bias_name, json!({
-                "shape": [layer_sizes[i + 1]],
-                "dtype": "float32"
-            }));
+
+            weights.insert(
+                weight_name,
+                json!({
+                    "shape": [layer_sizes[i + 1], layer_sizes[i]],
+                    "dtype": "float32"
+                }),
+            );
+
+            weights.insert(
+                bias_name,
+                json!({
+                    "shape": [layer_sizes[i + 1]],
+                    "dtype": "float32"
+                }),
+            );
         }
-        
+
         json!(weights)
     }
-    
+
     pub fn generate_training_history(epochs: usize) -> Value {
         let mut history = serde_json::Map::new();
-        
+
         // Generate mock training loss (decreasing)
         let train_loss: Vec<Value> = (0..epochs)
             .map(|i| json!(2.0 * (-0.1 * i as f64).exp()))
             .collect();
-        
+
         // Generate mock validation loss (decreasing but higher)
         let val_loss: Vec<Value> = (0..epochs)
             .map(|i| json!(2.2 * (-0.08 * i as f64).exp()))
             .collect();
-        
+
         // Generate mock accuracies (increasing)
         let train_acc: Vec<Value> = (0..epochs)
             .map(|i| json!(1.0 - (-0.15 * i as f64).exp()))
             .collect();
-        
+
         let val_acc: Vec<Value> = (0..epochs)
             .map(|i| json!(1.0 - 1.1 * (-0.12 * i as f64).exp()))
             .collect();
-        
+
         history.insert("loss".to_string(), json!(train_loss));
         history.insert("val_loss".to_string(), json!(val_loss));
         history.insert("accuracy".to_string(), json!(train_acc));
         history.insert("val_accuracy".to_string(), json!(val_acc));
-        
+
         json!(history)
     }
 }
@@ -536,46 +541,49 @@ pub mod ml_generators {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_pytorch_fixtures() {
         let old = TestFixtures::pytorch_model_old();
         let new = TestFixtures::pytorch_model_new();
-        
+
         assert_eq!(old["model_type"], json!("pytorch"));
         assert_eq!(new["model_type"], json!("pytorch"));
-        assert_ne!(old["model_info"]["optimizer"], new["model_info"]["optimizer"]);
+        assert_ne!(
+            old["model_info"]["optimizer"],
+            new["model_info"]["optimizer"]
+        );
     }
-    
+
     #[test]
     fn test_safetensors_fixtures() {
         let old = TestFixtures::safetensors_model_old();
         let new = TestFixtures::safetensors_model_new();
-        
+
         assert_eq!(old["model_type"], json!("safetensors"));
         assert_eq!(new["model_type"], json!("safetensors"));
-        
+
         // Should have different tensor shapes
         let old_embedding = &old["tensors"]["embedding.weight"]["shape"];
         let new_embedding = &new["tensors"]["embedding.weight"]["shape"];
         assert_ne!(old_embedding, new_embedding);
     }
-    
+
     #[test]
     fn test_ml_generators() {
         let tensor = ml_generators::generate_tensor_data(vec![100, 200], "float32");
         assert_eq!(tensor["shape"], json!([100, 200]));
         assert_eq!(tensor["size"], json!(20000));
-        
+
         let weights = ml_generators::generate_model_weights(vec![784, 128, 10]);
         assert!(weights["layer_0_weight"].is_object());
         assert!(weights["layer_1_weight"].is_object());
     }
-    
+
     #[test]
     fn test_training_history_generator() {
         let history = ml_generators::generate_training_history(5);
-        
+
         if let Value::Array(losses) = &history["loss"] {
             assert_eq!(losses.len(), 5);
             // Loss should generally decrease

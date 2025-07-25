@@ -1,3 +1,5 @@
+#[allow(unused_imports)]
+#[allow(unused_imports)]
 /// Tests for --no-color option in diffai
 /// Ensures color output is properly disabled when flag is specified
 use assert_cmd::Command;
@@ -137,13 +139,28 @@ fn test_diffai_no_color_option_with_verbose() -> Result<(), Box<dyn std::error::
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
 
+    // Filter out cargo build messages which may contain ANSI codes
+    let filtered_stderr: String = stderr
+        .lines()
+        .filter(|line| {
+            // Skip cargo build/compilation messages and proxychains output
+            !line.contains("Compiling")
+                && !line.contains("Finished")
+                && !line.contains("Running")
+                && !line.contains("Blocking")
+                && !line.contains("[proxychains]")
+                && !line.trim().is_empty()
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+
     assert!(
         !stdout.contains("\x1b["),
         "Verbose stdout should not contain ANSI color codes when --no-color is specified"
     );
     assert!(
-        !stderr.contains("\x1b["),
-        "Verbose stderr should not contain ANSI color codes when --no-color is specified"
+        !filtered_stderr.contains("\x1b["),
+        "Verbose stderr should not contain ANSI color codes when --no-color is specified. Stderr: {filtered_stderr:?}"
     );
 
     Ok(())

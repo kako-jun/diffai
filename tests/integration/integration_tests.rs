@@ -1,6 +1,6 @@
+#[allow(unused_imports)]
 // Integration tests for diffai components
 // Test the interaction between different parts of the system
-
 use std::io::Write;
 use std::process::Command;
 use tempfile::NamedTempFile;
