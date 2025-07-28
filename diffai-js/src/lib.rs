@@ -179,7 +179,7 @@ fn build_diff_options(js_options: JsDiffOptions) -> Result<DiffOptions> {
     }
 
     if let Some(output_format) = js_options.output_format {
-        let format = OutputFormat::from_str(&output_format)
+        let format = OutputFormat::parse_format(&output_format)
             .map_err(|e| Error::new(Status::InvalidArg, format!("Invalid output format: {}", e)))?;
         options.output_format = Some(format);
     }

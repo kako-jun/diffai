@@ -238,7 +238,7 @@ fn diff_py(
                 }
                 "output_format" => {
                     if let Ok(format_str) = value.extract::<String>() {
-                        let format = OutputFormat::from_str(&format_str).map_err(|e| {
+                        let format = OutputFormat::parse_format(&format_str).map_err(|e| {
                             pyo3::exceptions::PyValueError::new_err(format!("Invalid format: {e}"))
                         })?;
                         options.output_format = Some(format);
