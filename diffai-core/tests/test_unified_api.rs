@@ -726,8 +726,14 @@ fn test_output_format_parsing() {
         OutputFormat::parse_format("diffai").unwrap(),
         OutputFormat::Diffai
     );
-    assert_eq!(OutputFormat::parse_format("json").unwrap(), OutputFormat::Json);
-    assert_eq!(OutputFormat::parse_format("yaml").unwrap(), OutputFormat::Yaml);
+    assert_eq!(
+        OutputFormat::parse_format("json").unwrap(),
+        OutputFormat::Json
+    );
+    assert_eq!(
+        OutputFormat::parse_format("yaml").unwrap(),
+        OutputFormat::Yaml
+    );
     assert_eq!(
         OutputFormat::parse_format("unified").unwrap(),
         OutputFormat::Diffai
