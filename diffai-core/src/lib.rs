@@ -52,7 +52,7 @@ impl OutputFormat {
         &[Self::Diffai, Self::Json, Self::Yaml]
     }
 
-    pub fn from_str(s: &str) -> Result<Self> {
+    pub fn parse_format(s: &str) -> Result<Self> {
         match s.to_lowercase().as_str() {
             "diffai" => Ok(Self::Diffai),
             "json" => Ok(Self::Json),
@@ -61,7 +61,6 @@ impl OutputFormat {
         }
     }
 }
-
 
 #[derive(Debug, Clone, Default)]
 pub struct DiffaiSpecificOptions {
@@ -823,10 +822,10 @@ pub fn parse_numpy_file(path: &Path) -> Result<Value> {
 /// Parse MATLAB file - FOR INTERNAL USE ONLY (diffai-specific)
 pub fn parse_matlab_file(path: &Path) -> Result<Value> {
     let file = File::open(path)?;
-    let mat_file = MatFile::parse(file)?;
+    let _mat_file = MatFile::parse(file)?;
 
     let mut result = serde_json::Map::new();
-    let mut arrays = serde_json::Map::new();
+    let arrays = serde_json::Map::new();
 
     // Simplified MATLAB file parsing - would need proper implementation
     result.insert(

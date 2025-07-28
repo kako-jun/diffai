@@ -723,23 +723,17 @@ fn test_diffai_output_format() {
 #[test]
 fn test_output_format_parsing() {
     assert_eq!(
-        OutputFormat::from_str("diffai").unwrap(),
+        OutputFormat::parse_format("diffai").unwrap(),
         OutputFormat::Diffai
     );
+    assert_eq!(OutputFormat::parse_format("json").unwrap(), OutputFormat::Json);
+    assert_eq!(OutputFormat::parse_format("yaml").unwrap(), OutputFormat::Yaml);
     assert_eq!(
-        OutputFormat::from_str("json").unwrap(),
-        OutputFormat::Json
-    );
-    assert_eq!(
-        OutputFormat::from_str("yaml").unwrap(),
-        OutputFormat::Yaml
-    );
-    assert_eq!(
-        OutputFormat::from_str("unified").unwrap(),
+        OutputFormat::parse_format("unified").unwrap(),
         OutputFormat::Diffai
     );
 
-    assert!(OutputFormat::from_str("invalid").is_err());
+    assert!(OutputFormat::parse_format("invalid").is_err());
 }
 
 // ============================================================================
