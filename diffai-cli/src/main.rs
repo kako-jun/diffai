@@ -188,7 +188,7 @@ fn main() -> Result<()> {
 
     // Format and output results
     let output_format = if let Some(format_str) = &args.output {
-        OutputFormat::parse_format(format_str)?
+        OutputFormat::from_str(format_str)?
     } else {
         OutputFormat::Diffai
     };
@@ -228,7 +228,7 @@ fn build_diff_options(args: &Args) -> Result<DiffOptions> {
     });
 
     let output_format = if let Some(format_str) = &args.output {
-        Some(OutputFormat::parse_format(format_str)?)
+        Some(OutputFormat::from_str(format_str)?)
     } else {
         None
     };
@@ -475,7 +475,7 @@ fn build_diff_options_for_values(args: &Args) -> Result<DiffOptions> {
     });
 
     let output_format = if let Some(format_str) = &args.output {
-        Some(OutputFormat::parse_format(format_str)?)
+        Some(OutputFormat::from_str(format_str)?)
     } else {
         None
     };
@@ -514,7 +514,7 @@ fn handle_output_and_exit(differences: &[DiffResult], args: &Args) -> Result<()>
 
     // Format and output results
     let output_format = if let Some(format_str) = &args.output {
-        OutputFormat::parse_format(format_str)?
+        OutputFormat::from_str(format_str)?
     } else {
         OutputFormat::Diffai
     };
