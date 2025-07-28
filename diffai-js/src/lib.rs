@@ -1,68 +1,70 @@
+use diffai_core::{
+    diff as core_diff, DiffOptions, DiffResult, DiffaiSpecificOptions, OutputFormat,
+};
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
-use diffai_core::{diff as core_diff, DiffOptions, DiffaiSpecificOptions, OutputFormat, DiffResult};
 use regex::Regex;
 
 #[napi(object)]
 pub struct JsDiffOptions {
     /// Numerical comparison tolerance
     pub epsilon: Option<f64>,
-    
+
     /// Key to use for array element identification
     pub array_id_key: Option<String>,
-    
+
     /// Regex pattern for keys to ignore
     pub ignore_keys_regex: Option<String>,
-    
+
     /// Only show differences in paths containing this string
     pub path_filter: Option<String>,
-    
+
     /// Output format
     pub output_format: Option<String>,
-    
+
     /// Show unchanged values as well
     pub show_unchanged: Option<bool>,
-    
+
     /// Show type information in output
     pub show_types: Option<bool>,
-    
+
     /// Enable memory optimization for large files
     pub use_memory_optimization: Option<bool>,
-    
+
     /// Batch size for memory optimization
     pub batch_size: Option<u32>,
-    
+
     // diffai-specific options
     /// Enable ML analysis features
     pub ml_analysis_enabled: Option<bool>,
-    
+
     /// Tensor comparison mode: "shape", "data", "both"
     pub tensor_comparison_mode: Option<String>,
-    
+
     /// Model format: "pytorch", "safetensors", "onnx", etc.
     pub model_format: Option<String>,
-    
+
     /// Enable scientific precision mode
     pub scientific_precision: Option<bool>,
-    
+
     /// Threshold for detecting significant weight changes
     pub weight_threshold: Option<f64>,
-    
+
     /// Enable activation function analysis
     pub activation_analysis: Option<bool>,
-    
+
     /// Enable learning rate tracking
     pub learning_rate_tracking: Option<bool>,
-    
+
     /// Enable optimizer comparison
     pub optimizer_comparison: Option<bool>,
-    
+
     /// Enable loss tracking
     pub loss_tracking: Option<bool>,
-    
+
     /// Enable accuracy tracking
     pub accuracy_tracking: Option<bool>,
-    
+
     /// Enable model version checking
     pub model_version_check: Option<bool>,
 }
@@ -71,19 +73,19 @@ pub struct JsDiffOptions {
 pub struct JsDiffResult {
     /// Type of difference ('Added', 'Removed', 'Modified', 'TypeChanged', etc.)
     pub diff_type: String,
-    
+
     /// Path to the changed element
     pub path: String,
-    
+
     /// Old value (for Modified/TypeChanged)
     pub old_value: Option<serde_json::Value>,
-    
+
     /// New value (for Modified/TypeChanged/Added)
     pub new_value: Option<serde_json::Value>,
-    
+
     /// Value (for Removed)
     pub value: Option<serde_json::Value>,
-    
+
     /// Specific data for AI/ML results
     pub old_shape: Option<Vec<u32>>,
     pub new_shape: Option<Vec<u32>>,
@@ -107,43 +109,48 @@ pub struct JsDiffResult {
 }
 
 /// Unified diff function for JavaScript/Node.js with AI/ML capabilities
-/// 
+///
 /// Compare two JavaScript objects or values and return differences with AI/ML specific analysis.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `old` - The old value (JavaScript object, array, or primitive)
 /// * `new` - The new value (JavaScript object, array, or primitive)
 /// * `options` - Optional configuration object
-/// 
+///
 /// # Returns
-/// 
+///
 /// Array of difference objects with AI/ML specific difference types
-/// 
+///
 /// # Example
-/// 
+///
 /// ```javascript
 /// const { diff } = require('diffai-js');
-/// 
+///
 /// const old = { model: { layers: [{ type: "dense", units: 128 }] } };
 /// const new = { model: { layers: [{ type: "dense", units: 256 }] } };
 /// const result = diff(old, new);
 /// console.log(result); // [{ type: 'Modified', path: 'model.layers[0].units', oldValue: 128, newValue: 256 }]
 /// ```
 #[napi]
-pub fn diff(old: serde_json::Value, new: serde_json::Value, options: Option<JsDiffOptions>) -> Result<Vec<JsDiffResult>> {
+pub fn diff(
+    old: serde_json::Value,
+    new: serde_json::Value,
+    options: Option<JsDiffOptions>,
+) -> Result<Vec<JsDiffResult>> {
     // Convert options
     let rust_options = options.map(|opts| build_diff_options(opts)).transpose()?;
-    
+
     // Perform diff
     let results = core_diff(&old, &new, rust_options.as_ref())
         .map_err(|e| Error::new(Status::GenericFailure, format!("Diff error: {}", e)))?;
-    
+
     // Convert results to JavaScript objects
-    let js_results = results.into_iter()
+    let js_results = results
+        .into_iter()
         .map(|result| convert_diff_result(result))
         .collect::<Result<Vec<_>>>()?;
-    
+
     Ok(js_results)
 }
 
@@ -151,111 +158,111 @@ pub fn diff(old: serde_json::Value, new: serde_json::Value, options: Option<JsDi
 
 fn build_diff_options(js_options: JsDiffOptions) -> Result<DiffOptions> {
     let mut options = DiffOptions::default();
-    
+
     // Core options
     if let Some(epsilon) = js_options.epsilon {
         options.epsilon = Some(epsilon);
     }
-    
+
     if let Some(array_id_key) = js_options.array_id_key {
         options.array_id_key = Some(array_id_key);
     }
-    
+
     if let Some(ignore_keys_regex) = js_options.ignore_keys_regex {
         let regex = Regex::new(&ignore_keys_regex)
             .map_err(|e| Error::new(Status::InvalidArg, format!("Invalid regex: {}", e)))?;
         options.ignore_keys_regex = Some(regex);
     }
-    
+
     if let Some(path_filter) = js_options.path_filter {
         options.path_filter = Some(path_filter);
     }
-    
+
     if let Some(output_format) = js_options.output_format {
         let format = OutputFormat::from_str(&output_format)
             .map_err(|e| Error::new(Status::InvalidArg, format!("Invalid output format: {}", e)))?;
         options.output_format = Some(format);
     }
-    
+
     if let Some(show_unchanged) = js_options.show_unchanged {
         options.show_unchanged = Some(show_unchanged);
     }
-    
+
     if let Some(show_types) = js_options.show_types {
         options.show_types = Some(show_types);
     }
-    
+
     if let Some(use_memory_optimization) = js_options.use_memory_optimization {
         options.use_memory_optimization = Some(use_memory_optimization);
     }
-    
+
     if let Some(batch_size) = js_options.batch_size {
         options.batch_size = Some(batch_size as usize);
     }
-    
+
     // diffai-specific options
     let mut diffai_options = DiffaiSpecificOptions::default();
     let mut has_diffai_options = false;
-    
+
     if let Some(ml_analysis_enabled) = js_options.ml_analysis_enabled {
         diffai_options.ml_analysis_enabled = Some(ml_analysis_enabled);
         has_diffai_options = true;
     }
-    
+
     if let Some(tensor_comparison_mode) = js_options.tensor_comparison_mode {
         diffai_options.tensor_comparison_mode = Some(tensor_comparison_mode);
         has_diffai_options = true;
     }
-    
+
     if let Some(model_format) = js_options.model_format {
         diffai_options.model_format = Some(model_format);
         has_diffai_options = true;
     }
-    
+
     if let Some(scientific_precision) = js_options.scientific_precision {
         diffai_options.scientific_precision = Some(scientific_precision);
         has_diffai_options = true;
     }
-    
+
     if let Some(weight_threshold) = js_options.weight_threshold {
         diffai_options.weight_threshold = Some(weight_threshold);
         has_diffai_options = true;
     }
-    
+
     if let Some(activation_analysis) = js_options.activation_analysis {
         diffai_options.activation_analysis = Some(activation_analysis);
         has_diffai_options = true;
     }
-    
+
     if let Some(learning_rate_tracking) = js_options.learning_rate_tracking {
         diffai_options.learning_rate_tracking = Some(learning_rate_tracking);
         has_diffai_options = true;
     }
-    
+
     if let Some(optimizer_comparison) = js_options.optimizer_comparison {
         diffai_options.optimizer_comparison = Some(optimizer_comparison);
         has_diffai_options = true;
     }
-    
+
     if let Some(loss_tracking) = js_options.loss_tracking {
         diffai_options.loss_tracking = Some(loss_tracking);
         has_diffai_options = true;
     }
-    
+
     if let Some(accuracy_tracking) = js_options.accuracy_tracking {
         diffai_options.accuracy_tracking = Some(accuracy_tracking);
         has_diffai_options = true;
     }
-    
+
     if let Some(model_version_check) = js_options.model_version_check {
         diffai_options.model_version_check = Some(model_version_check);
         has_diffai_options = true;
     }
-    
+
     if has_diffai_options {
         options.diffai_options = Some(diffai_options);
     }
-    
+
     Ok(options)
 }
 
@@ -286,7 +293,7 @@ fn convert_diff_result(result: DiffResult) -> Result<JsDiffResult> {
         old_version: None,
         new_version: None,
     };
-    
+
     match result {
         DiffResult::Added(path, value) => {
             js_result.diff_type = "Added".to_string();
@@ -371,6 +378,6 @@ fn convert_diff_result(result: DiffResult) -> Result<JsDiffResult> {
             js_result.new_version = Some(new_version);
         }
     }
-    
+
     Ok(js_result)
 }
