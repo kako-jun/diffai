@@ -48,17 +48,15 @@ fn test_diff_ai_ml_specific_results() {
     assert_eq!(results.len(), 2);
 
     // Check for learning rate change
-    let lr_result = results.iter().find(|r| match r {
-        DiffResult::LearningRateChanged(_, _, _) => true,
-        _ => false,
-    });
+    let lr_result = results
+        .iter()
+        .find(|r| matches!(r, DiffResult::LearningRateChanged(_, _, _)));
     assert!(lr_result.is_some());
 
     // Check for accuracy change
-    let acc_result = results.iter().find(|r| match r {
-        DiffResult::AccuracyChange(_, _, _) => true,
-        _ => false,
-    });
+    let acc_result = results
+        .iter()
+        .find(|r| matches!(r, DiffResult::AccuracyChange(_, _, _)));
     assert!(acc_result.is_some());
 }
 
@@ -115,28 +113,21 @@ fn test_pytorch_model_comparison() {
 
     let results = diff(&old, &new, Some(&options)).unwrap();
 
-    assert!(results.len() > 0);
+    assert!(!results.is_empty());
 
     // Should detect optimizer change (Adam -> SGD)
     let optimizer_changes = results
         .iter()
-        .filter(|r| {
-            if let DiffResult::Modified(path, _, _) = r {
-                path.contains("optimizer.type")
-            } else {
-                false
-            }
-        })
+        .filter(
+            |r| matches!(r, DiffResult::Modified(path, _, _) if path.contains("optimizer.type")),
+        )
         .count();
     assert!(optimizer_changes > 0);
 
     // Should detect learning rate change
     let lr_changes = results
         .iter()
-        .filter(|r| match r {
-            DiffResult::LearningRateChanged(_, _, _) => true,
-            _ => false,
-        })
+        .filter(|r| matches!(r, DiffResult::LearningRateChanged(_, _, _)))
         .count();
     assert!(lr_changes > 0);
 }
@@ -193,10 +184,7 @@ fn test_pytorch_layer_weight_changes() {
     // Should detect significant changes in fc layer
     let significant_changes = results
         .iter()
-        .filter(|r| match r {
-            DiffResult::WeightSignificantChange(_, _) => true,
-            _ => false,
-        })
+        .filter(|r| matches!(r, DiffResult::WeightSignificantChange(_, _)))
         .count();
 
     assert!(significant_changes > 0);
@@ -221,44 +209,26 @@ fn test_safetensors_model_comparison() {
 
     let results = diff(&old, &new, Some(&options)).unwrap();
 
-    assert!(results.len() > 0);
+    assert!(!results.is_empty());
 
     // Should detect tensor shape changes
     let shape_changes = results
         .iter()
-        .filter(|r| {
-            if let DiffResult::Modified(path, _, _) = r {
-                path.contains("shape")
-            } else {
-                false
-            }
-        })
+        .filter(|r| matches!(r, DiffResult::Modified(path, _, _) if path.contains("shape")))
         .count();
     assert!(shape_changes > 0);
 
     // Should detect dtype changes
     let dtype_changes = results
         .iter()
-        .filter(|r| {
-            if let DiffResult::Modified(path, _, _) = r {
-                path.contains("dtype")
-            } else {
-                false
-            }
-        })
+        .filter(|r| matches!(r, DiffResult::Modified(path, _, _) if path.contains("dtype")))
         .count();
     assert!(dtype_changes > 0);
 
     // Should detect new tensors
     let added_tensors = results
         .iter()
-        .filter(|r| {
-            if let DiffResult::Added(path, _) = r {
-                path.contains("new_layer")
-            } else {
-                false
-            }
-        })
+        .filter(|r| matches!(r, DiffResult::Added(path, _) if path.contains("new_layer")))
         .count();
     assert!(added_tensors > 0);
 }
@@ -273,23 +243,14 @@ fn test_safetensors_metadata_comparison() {
     // Should detect metadata changes
     let metadata_changes = results
         .iter()
-        .filter(|r| {
-            if let DiffResult::Modified(path, _, _) = r {
-                path.contains("metadata")
-            } else {
-                false
-            }
-        })
+        .filter(|r| matches!(r, DiffResult::Modified(path, _, _) if path.contains("metadata")))
         .count();
     assert!(metadata_changes > 0);
 
     // Check for specific version change
     let version_change = results.iter().find(|r| {
-        if let DiffResult::Modified(path, old_val, new_val) = r {
-            path.contains("version") && old_val == &json!("1.0") && new_val == &json!("2.0")
-        } else {
-            false
-        }
+        matches!(r, DiffResult::Modified(path, old_val, new_val)
+            if path.contains("version") && old_val == &json!("1.0") && new_val == &json!("2.0"))
     });
     assert!(version_change.is_some());
 }
@@ -313,44 +274,26 @@ fn test_numpy_array_comparison() {
 
     let results = diff(&old, &new, Some(&options)).unwrap();
 
-    assert!(results.len() > 0);
+    assert!(!results.is_empty());
 
     // Should detect array shape changes
     let shape_changes = results
         .iter()
-        .filter(|r| {
-            if let DiffResult::Modified(path, _, _) = r {
-                path.contains("shape")
-            } else {
-                false
-            }
-        })
+        .filter(|r| matches!(r, DiffResult::Modified(path, _, _) if path.contains("shape")))
         .count();
     assert!(shape_changes > 0);
 
     // Should detect dtype changes
     let dtype_changes = results
         .iter()
-        .filter(|r| {
-            if let DiffResult::Modified(path, _, _) = r {
-                path.contains("dtype")
-            } else {
-                false
-            }
-        })
+        .filter(|r| matches!(r, DiffResult::Modified(path, _, _) if path.contains("dtype")))
         .count();
     assert!(dtype_changes > 0);
 
     // Should detect new arrays
     let added_arrays = results
         .iter()
-        .filter(|r| {
-            if let DiffResult::Added(path, _) = r {
-                path.contains("weights")
-            } else {
-                false
-            }
-        })
+        .filter(|r| matches!(r, DiffResult::Added(path, _) if path.contains("weights")))
         .count();
     assert!(added_arrays > 0);
 }
@@ -387,7 +330,7 @@ fn test_numpy_statistics_comparison() {
     let results = diff(&old, &new, Some(&options)).unwrap();
 
     // Should detect statistical changes
-    assert!(results.len() > 0);
+    assert!(!results.is_empty());
 }
 
 // ============================================================================
@@ -401,19 +344,16 @@ fn test_matlab_file_comparison() {
 
     let results = diff(&old, &new, None).unwrap();
 
-    assert!(results.len() > 0);
+    assert!(!results.is_empty());
 
     // Should detect network type change
     let network_changes = results
         .iter()
         .filter(|r| {
-            if let DiffResult::Modified(path, old_val, new_val) = r {
-                path.contains("network.type")
+            matches!(r, DiffResult::Modified(path, old_val, new_val)
+                if path.contains("network.type")
                     && old_val == &json!("feedforward")
-                    && new_val == &json!("convolutional")
-            } else {
-                false
-            }
+                    && new_val == &json!("convolutional"))
         })
         .count();
     assert!(network_changes > 0);
@@ -422,13 +362,10 @@ fn test_matlab_file_comparison() {
     let activation_changes = results
         .iter()
         .filter(|r| {
-            if let DiffResult::Modified(path, old_val, new_val) = r {
-                path.contains("activation")
+            matches!(r, DiffResult::Modified(path, old_val, new_val)
+                if path.contains("activation")
                     && old_val == &json!("relu")
-                    && new_val == &json!("tanh")
-            } else {
-                false
-            }
+                    && new_val == &json!("tanh"))
         })
         .count();
     assert!(activation_changes > 0);
@@ -458,17 +395,14 @@ fn test_training_metrics_comparison() {
 
     let results = diff(&old, &new, Some(&options)).unwrap();
 
-    assert!(results.len() > 0);
+    assert!(!results.is_empty());
 
     // Should detect optimizer change
     let optimizer_changes = results
         .iter()
         .filter(|r| {
-            if let DiffResult::Modified(path, old_val, new_val) = r {
-                path.contains("optimizer") && old_val == &json!("Adam") && new_val == &json!("SGD")
-            } else {
-                false
-            }
+            matches!(r, DiffResult::Modified(path, old_val, new_val)
+                if path.contains("optimizer") && old_val == &json!("Adam") && new_val == &json!("SGD"))
         })
         .count();
     assert!(optimizer_changes > 0);
@@ -476,11 +410,10 @@ fn test_training_metrics_comparison() {
     // Should detect learning rate change
     let lr_changes = results
         .iter()
-        .filter(|r| match r {
-            DiffResult::LearningRateChanged(path, old_lr, new_lr) => {
-                *old_lr == 0.001 && *new_lr == 0.01
-            }
-            _ => false,
+        .filter(|r| {
+            matches!(r, 
+            DiffResult::LearningRateChanged(_, old_lr, new_lr) 
+            if *old_lr == 0.001 && *new_lr == 0.01)
         })
         .count();
     assert!(lr_changes > 0);
@@ -505,29 +438,17 @@ fn test_training_history_arrays() {
     let results = diff(&old, &new, None).unwrap();
 
     // Should detect changes in loss and accuracy arrays
-    assert!(results.len() > 0);
+    assert!(!results.is_empty());
 
     let loss_changes = results
         .iter()
-        .filter(|r| {
-            if let DiffResult::Modified(path, _, _) = r {
-                path.contains("loss[")
-            } else {
-                false
-            }
-        })
+        .filter(|r| matches!(r, DiffResult::Modified(path, _, _) if path.contains("loss[")))
         .count();
     assert!(loss_changes > 0);
 
     let accuracy_changes = results
         .iter()
-        .filter(|r| {
-            if let DiffResult::Modified(path, _, _) = r {
-                path.contains("accuracy[")
-            } else {
-                false
-            }
-        })
+        .filter(|r| matches!(r, DiffResult::Modified(path, _, _) if path.contains("accuracy[")))
         .count();
     assert!(accuracy_changes > 0);
 }
@@ -543,19 +464,16 @@ fn test_model_architecture_comparison() {
 
     let results = diff(&old, &new, None).unwrap();
 
-    assert!(results.len() > 0);
+    assert!(!results.is_empty());
 
     // Should detect model type change
     let type_changes = results
         .iter()
         .filter(|r| {
-            if let DiffResult::Modified(path, old_val, new_val) = r {
-                path.contains("model.type")
+            matches!(r, DiffResult::Modified(path, old_val, new_val)
+                if path.contains("model.type")
                     && old_val == &json!("sequential")
-                    && new_val == &json!("functional")
-            } else {
-                false
-            }
+                    && new_val == &json!("functional"))
         })
         .count();
     assert!(type_changes > 0);
@@ -564,11 +482,8 @@ fn test_model_architecture_comparison() {
     let added_layers = results
         .iter()
         .filter(|r| {
-            if let DiffResult::Added(path, _) = r {
-                path.contains("layers[") && (path.contains("conv2") || path.contains("dropout"))
-            } else {
-                false
-            }
+            matches!(r, DiffResult::Added(path, _) 
+                if path.contains("layers[") && (path.contains("conv2") || path.contains("dropout")))
         })
         .count();
     assert!(added_layers > 0);
@@ -577,11 +492,8 @@ fn test_model_architecture_comparison() {
     let filter_changes = results
         .iter()
         .filter(|r| {
-            if let DiffResult::Modified(path, old_val, new_val) = r {
-                path.contains("filters") && old_val == &json!(32) && new_val == &json!(64)
-            } else {
-                false
-            }
+            matches!(r, DiffResult::Modified(path, old_val, new_val)
+                if path.contains("filters") && old_val == &json!(32) && new_val == &json!(64))
         })
         .count();
     assert!(filter_changes > 0);
@@ -621,13 +533,7 @@ fn test_tensor_comparison_mode() {
     // Should primarily focus on shape changes
     let shape_changes = results
         .iter()
-        .filter(|r| {
-            if let DiffResult::Modified(path, _, _) = r {
-                path.contains("shape")
-            } else {
-                false
-            }
-        })
+        .filter(|r| matches!(r, DiffResult::Modified(path, _, _) if path.contains("shape")))
         .count();
     assert!(shape_changes > 0);
 }
@@ -670,12 +576,14 @@ fn test_ml_analysis_enabled() {
     // Should use ML-specific diff result types
     let ml_specific_results = ml_results
         .iter()
-        .filter(|r| match r {
-            DiffResult::LearningRateChanged(_, _, _)
-            | DiffResult::LossChange(_, _, _)
-            | DiffResult::AccuracyChange(_, _, _)
-            | DiffResult::WeightSignificantChange(_, _) => true,
-            _ => false,
+        .filter(|r| {
+            matches!(
+                r,
+                DiffResult::LearningRateChanged(_, _, _)
+                    | DiffResult::LossChange(_, _, _)
+                    | DiffResult::AccuracyChange(_, _, _)
+                    | DiffResult::WeightSignificantChange(_, _)
+            )
         })
         .count();
 
@@ -688,10 +596,7 @@ fn test_ml_analysis_enabled() {
     // Should use regular diff result types
     let regular_result_types = regular_results
         .iter()
-        .filter(|r| match r {
-            DiffResult::Modified(_, _, _) => true,
-            _ => false,
-        })
+        .filter(|r| matches!(r, DiffResult::Modified(_, _, _)))
         .count();
 
     assert!(regular_result_types > 0);
@@ -771,7 +676,7 @@ fn test_comprehensive_ml_workflow() {
 
     let results = diff(&old_model, &new_model, Some(&comprehensive_options)).unwrap();
 
-    assert!(results.len() > 0);
+    assert!(!results.is_empty());
 
     // Should detect multiple types of ML changes
     let ml_change_types = results
@@ -809,7 +714,7 @@ fn test_large_ml_model_performance() {
     let results = diff(&large_old, &large_new, None).unwrap();
     let duration = start.elapsed();
 
-    assert!(results.len() > 0);
+    assert!(!results.is_empty());
     assert!(duration.as_secs() < 5); // Should complete within 5 seconds
 }
 
@@ -824,7 +729,7 @@ fn test_deep_model_structure_performance() {
 
     for i in 0..50 {
         // 50 levels deep
-        let layer_name = format!("layer_{}", i);
+        let layer_name = format!("layer_{i}");
         current_old[&layer_name] = json!({
             "weights": {"mean": 0.01 * i as f64},
             "next": {}
@@ -842,6 +747,6 @@ fn test_deep_model_structure_performance() {
     let results = diff(&deep_old, &deep_new, None).unwrap();
     let duration = start.elapsed();
 
-    assert!(results.len() > 0);
+    assert!(!results.is_empty());
     assert!(duration.as_secs() < 3); // Should handle deep nesting efficiently
 }
