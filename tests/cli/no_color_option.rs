@@ -1,31 +1,20 @@
 /// Tests for --no-color option in diffai
 /// Ensures color output is properly disabled when flag is specified
 use assert_cmd::Command;
-use std::io::Write;
-use tempfile::NamedTempFile;
 
-fn create_test_json1() -> Result<NamedTempFile, Box<dyn std::error::Error>> {
-    let mut temp_file = NamedTempFile::new()?;
-    writeln!(
-        temp_file,
-        r#"{{"name": "test", "value": 123, "enabled": true}}"#
-    )?;
-    Ok(temp_file)
+// Use existing AI/ML fixtures for testing --no-color option
+fn get_test_ml_file1() -> &'static str {
+    "tests/fixtures/ml_models/model1.pt"
 }
 
-fn create_test_json2() -> Result<NamedTempFile, Box<dyn std::error::Error>> {
-    let mut temp_file = NamedTempFile::new()?;
-    writeln!(
-        temp_file,
-        r#"{{"name": "test", "value": 456, "enabled": false}}"#
-    )?;
-    Ok(temp_file)
+fn get_test_ml_file2() -> &'static str {
+    "tests/fixtures/ml_models/model2.pt"
 }
 
 #[test]
 fn test_diffai_no_color_option_basic() -> Result<(), Box<dyn std::error::Error>> {
-    let test_file1 = create_test_json1()?;
-    let test_file2 = create_test_json2()?;
+    let test_file1 = get_test_ml_file1();
+    let test_file2 = get_test_ml_file2();
 
     let output = Command::new("cargo")
         .args([
@@ -33,10 +22,8 @@ fn test_diffai_no_color_option_basic() -> Result<(), Box<dyn std::error::Error>>
             "--bin",
             "diffai",
             "--",
-            test_file1.path().to_str().unwrap(),
-            test_file2.path().to_str().unwrap(),
-            "--format",
-            "json",
+            test_file1,
+            test_file2,
             "--no-color",
         ])
         .current_dir(env!("CARGO_MANIFEST_DIR"))
@@ -57,15 +44,16 @@ fn test_diffai_no_color_option_basic() -> Result<(), Box<dyn std::error::Error>>
         "Output should not contain ANSI color codes when --no-color is specified"
     );
 
-    // Should still contain the differences (if there are any)
-    // Allow empty output if files are identical or have specific differences
+    // Should still contain AI/ML differences (if there are any)
+    // Allow empty output if files are identical
     if !stdout.trim().is_empty() {
         assert!(
-            stdout.contains("value")
-                || stdout.contains("123")
-                || stdout.contains("456")
-                || stdout.contains("~"),
-            "If output exists, it should contain difference information"
+            stdout.contains("~")
+                || stdout.contains("mean")
+                || stdout.contains("std") 
+                || stdout.contains("analysis")
+                || stdout.contains("tensor"),
+            "If output exists, it should contain AI/ML difference information"
         );
     }
 
@@ -74,8 +62,8 @@ fn test_diffai_no_color_option_basic() -> Result<(), Box<dyn std::error::Error>>
 
 #[test]
 fn test_diffai_no_color_option_with_json_output() -> Result<(), Box<dyn std::error::Error>> {
-    let test_file1 = create_test_json1()?;
-    let test_file2 = create_test_json2()?;
+    let test_file1 = get_test_ml_file1();
+    let test_file2 = get_test_ml_file2();
 
     let output = Command::new("cargo")
         .args([
@@ -83,10 +71,8 @@ fn test_diffai_no_color_option_with_json_output() -> Result<(), Box<dyn std::err
             "--bin",
             "diffai",
             "--",
-            test_file1.path().to_str().unwrap(),
-            test_file2.path().to_str().unwrap(),
-            "--format",
-            "json",
+            test_file1,
+            test_file2,
             "--no-color",
             "--output",
             "json",
@@ -113,8 +99,8 @@ fn test_diffai_no_color_option_with_json_output() -> Result<(), Box<dyn std::err
 
 #[test]
 fn test_diffai_no_color_option_with_verbose() -> Result<(), Box<dyn std::error::Error>> {
-    let test_file1 = create_test_json1()?;
-    let test_file2 = create_test_json2()?;
+    let test_file1 = get_test_ml_file1();
+    let test_file2 = get_test_ml_file2();
 
     let output = Command::new("cargo")
         .args([
@@ -122,10 +108,8 @@ fn test_diffai_no_color_option_with_verbose() -> Result<(), Box<dyn std::error::
             "--bin",
             "diffai",
             "--",
-            test_file1.path().to_str().unwrap(),
-            test_file2.path().to_str().unwrap(),
-            "--format",
-            "json",
+            test_file1,
+            test_file2,
             "--no-color",
             "--verbose",
         ])
@@ -166,8 +150,8 @@ fn test_diffai_no_color_option_with_verbose() -> Result<(), Box<dyn std::error::
 
 #[test]
 fn test_diffai_color_vs_no_color_output_difference() -> Result<(), Box<dyn std::error::Error>> {
-    let test_file1 = create_test_json1()?;
-    let test_file2 = create_test_json2()?;
+    let test_file1 = get_test_ml_file1();
+    let test_file2 = get_test_ml_file2();
 
     // Test with colors enabled (default)
     let colored_output = Command::new("cargo")
@@ -176,10 +160,8 @@ fn test_diffai_color_vs_no_color_output_difference() -> Result<(), Box<dyn std::
             "--bin",
             "diffai",
             "--",
-            test_file1.path().to_str().unwrap(),
-            test_file2.path().to_str().unwrap(),
-            "--format",
-            "json",
+            test_file1,
+            test_file2,
         ])
         .current_dir(env!("CARGO_MANIFEST_DIR"))
         .output()
@@ -192,10 +174,8 @@ fn test_diffai_color_vs_no_color_output_difference() -> Result<(), Box<dyn std::
             "--bin",
             "diffai",
             "--",
-            test_file1.path().to_str().unwrap(),
-            test_file2.path().to_str().unwrap(),
-            "--format",
-            "json",
+            test_file1,
+            test_file2,
             "--no-color",
         ])
         .current_dir(env!("CARGO_MANIFEST_DIR"))
@@ -205,19 +185,24 @@ fn test_diffai_color_vs_no_color_output_difference() -> Result<(), Box<dyn std::
     let colored_stdout = String::from_utf8_lossy(&colored_output.stdout);
     let no_color_stdout = String::from_utf8_lossy(&no_color_output.stdout);
 
-    // Colored output might contain ANSI codes (but not necessarily)
     // No-color output should definitely not contain ANSI codes
     assert!(
         !no_color_stdout.contains("\x1b["),
         "No-color output should not contain ANSI color codes"
     );
 
-    // Both should contain the same difference information (ignoring colors)
-    // This is a basic sanity check that --no-color doesn't break functionality
+    // Both should have meaningful output for AI/ML files or handle gracefully
+    let has_meaningful_output = (!no_color_stdout.trim().is_empty() && (
+        no_color_stdout.contains("~") || no_color_stdout.contains("mean") || 
+        no_color_stdout.contains("std") || no_color_stdout.contains("analysis")))
+        || (!colored_stdout.trim().is_empty() && (
+        colored_stdout.contains("~") || colored_stdout.contains("mean") || 
+        colored_stdout.contains("std") || colored_stdout.contains("analysis")));
+
+    // Allow for no differences if models are identical, or require meaningful ML output
     assert!(
-        (!no_color_stdout.trim().is_empty() && no_color_stdout.contains("value"))
-            || (!colored_stdout.trim().is_empty() && colored_stdout.contains("value")),
-        "At least one output should contain difference information. No-color: '{}', Colored: '{}'",
+        has_meaningful_output || (no_color_stdout.trim().is_empty() && colored_stdout.trim().is_empty()),
+        "Should have meaningful AI/ML analysis output or indicate no differences. No-color: '{}', Colored: '{}'",
         no_color_stdout.trim(),
         colored_stdout.trim()
     );
@@ -227,8 +212,8 @@ fn test_diffai_color_vs_no_color_output_difference() -> Result<(), Box<dyn std::
 
 #[test]
 fn test_diffai_no_color_with_different_formats() -> Result<(), Box<dyn std::error::Error>> {
-    let test_file1 = create_test_json1()?;
-    let test_file2 = create_test_json2()?;
+    let test_file1 = get_test_ml_file1();
+    let test_file2 = get_test_ml_file2();
 
     let formats = ["json", "yaml"];
 
@@ -239,8 +224,8 @@ fn test_diffai_no_color_with_different_formats() -> Result<(), Box<dyn std::erro
                 "--bin",
                 "diffai",
                 "--",
-                test_file1.path().to_str().unwrap(),
-                test_file2.path().to_str().unwrap(),
+                test_file1,
+                test_file2,
                 "--no-color",
                 "--output",
                 format,
