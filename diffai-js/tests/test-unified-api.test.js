@@ -20,24 +20,23 @@ class TestFixtures {
      * Focuses on AI/ML specific test data.
      */
     
-    static loadCliFixture(filename) {
-        const fixturesDir = path.join(__dirname, '..', '..', 'tests', 'fixtures');
+    static loadMlModelFixture(filename) {
+        const fixturesDir = path.join(__dirname, '..', '..', 'tests', 'fixtures', 'ml_models');
         const fixturePath = path.join(fixturesDir, filename);
         
         if (!fs.existsSync(fixturePath)) {
-            throw new Error(`CLI fixture not found: ${fixturePath}`);
+            throw new Error(`ML model fixture not found: ${fixturePath}`);
         }
         
-        const content = fs.readFileSync(fixturePath, 'utf8');
-        return JSON.parse(content);
+        return fixturePath; // Return path for binary ML files
     }
     
-    static configV1() {
-        return TestFixtures.loadCliFixture('config_v1.json');
+    static modelV1Path() {
+        return TestFixtures.loadMlModelFixture('model1.pt');
     }
     
-    static configV2() {
-        return TestFixtures.loadCliFixture('config_v2.json');
+    static modelV2Path() {
+        return TestFixtures.loadMlModelFixture('model2.pt');
     }
     
     // AI/ML specific fixtures
