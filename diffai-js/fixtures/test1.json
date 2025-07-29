@@ -1,14 +1,15 @@
 {
-  "model": "test_model_v1",
-  "version": "1.0.0",
-  "parameters": 1000,
-  "layers": [
-    {"type": "linear", "size": 512},
-    {"type": "relu"},
-    {"type": "linear", "size": 256}
-  ],
-  "metadata": {
-    "created": "2024-01-01",
-    "author": "test"
+  "model_architecture": "feedforward",
+  "tensor_count": 6,
+  "total_parameters": 1000,
+  "layers": {
+    "fc1.weight": {"shape": [512, 256], "dtype": "f32"},
+    "fc1.bias": {"shape": [512], "dtype": "f32"},
+    "fc2.weight": {"shape": [256, 128], "dtype": "f32"},
+    "fc2.bias": {"shape": [256], "dtype": "f32"}
+  },
+  "model_metadata": {
+    "framework": "pytorch",
+    "version": "1.0.0"
   }
 }
