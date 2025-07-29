@@ -6,7 +6,7 @@ use tempfile::NamedTempFile;
 
 fn run_diffai_command(args: &[&str]) -> std::process::Output {
     let mut command = Command::new("cargo");
-    command.args(&["run", "--bin", "diffai", "--"]);
+    command.args(["run", "--bin", "diffai", "--"]);
     command.args(args);
     command.output().expect("Failed to execute diffai command")
 }
@@ -19,7 +19,7 @@ fn create_temp_file_with_content(content: &str) -> NamedTempFile {
 }
 
 #[cfg(test)]
-mod integration_tests {
+mod tests {
     use super::*;
 
     #[test]
@@ -128,7 +128,7 @@ mod integration_tests {
         assert!(output.status.success());
 
         let stdout = String::from_utf8_lossy(&output.stdout);
-        assert!(stdout.contains("dir") || stdout.contains("file") || stdout.len() > 0);
+        assert!(stdout.contains("dir") || stdout.contains("file") || !stdout.is_empty());
     }
 
     #[test]
@@ -149,7 +149,7 @@ mod integration_tests {
         assert!(output.status.success());
 
         let stdout = String::from_utf8_lossy(&output.stdout);
-        assert!(stdout.contains("anomaly") || stdout.contains("tensor") || stdout.len() > 0);
+        assert!(stdout.contains("anomaly") || stdout.contains("tensor") || !stdout.is_empty());
     }
 
     #[test]

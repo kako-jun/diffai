@@ -228,8 +228,11 @@ Git integration and compatibility with traditional diff tools.
 diffai model1.safetensors model2.safetensors --output json | \
   jq '.[] | select(.TensorStatsChanged)'
 
-# Output YAML and save to file
-diffai config1.yaml config2.yaml --output yaml > changes.yaml
+# Output YAML and save to file (AI/ML models)
+diffai model1.safetensors model2.safetensors --output yaml > changes.yaml
+
+# For general formats, use diffx:
+# diffx config1.yaml config2.yaml --output yaml > changes.yaml
 ```
 
 ### Conditional Logic

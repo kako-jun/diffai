@@ -1,4 +1,6 @@
+#[allow(unused_imports)]
 use assert_cmd::prelude::*;
+#[allow(unused_imports)]
 use predicates::prelude::*;
 use std::io::Write;
 use std::process::Command;
@@ -12,7 +14,7 @@ fn diffai_cmd() -> Command {
 // Helper function to create temporary files for testing
 fn create_temp_file(content: &str, suffix: &str) -> NamedTempFile {
     let mut file = NamedTempFile::with_suffix(suffix).expect("Failed to create temp file");
-    writeln!(file, "{}", content).expect("Failed to write to temp file");
+    writeln!(file, "{content}").expect("Failed to write to temp file");
     file
 }
 
@@ -21,11 +23,11 @@ fn create_temp_file(content: &str, suffix: &str) -> NamedTempFile {
 fn test_ml_models_enhanced() -> Result<(), Box<dyn std::error::Error>> {
     let model1 = create_temp_file(
         r#"{"model": {"enhanced": true, "version": "2.4"}}"#,
-        ".json",
+        ".safetensors",
     );
     let model2 = create_temp_file(
         r#"{"model": {"enhanced": true, "version": "2.5"}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();

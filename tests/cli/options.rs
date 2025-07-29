@@ -66,8 +66,7 @@ fn test_format_options() {
                 let stderr = String::from_utf8_lossy(&output.stderr);
                 assert!(
                     !stderr.contains("unrecognized") || stderr.contains("invalid"),
-                    "Format {} should be recognized",
-                    format
+                    "Format {format} should be recognized"
                 );
             }
         }
@@ -97,8 +96,7 @@ fn test_output_options() {
                 let stderr = String::from_utf8_lossy(&output.stderr);
                 assert!(
                     !stderr.contains("unrecognized"),
-                    "Output format {} should be recognized",
-                    output_format
+                    "Output format {output_format} should be recognized"
                 );
             }
         }

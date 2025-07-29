@@ -123,7 +123,9 @@ diffai model_v1.safetensors model_v2.safetensors --output yaml
 - **[用户指南](docs/user-guide/getting-started_zh.md)** - 全面的使用指南
 - **[ML分析指南](docs/reference/ml-analysis_zh.md)** - ML专用功能的深入介绍
 
-## 支持的文件格式
+## 支持的AI/ML文件格式
+
+diffai专门为AI/ML和科学计算文件而特化：
 
 ### ML模型格式
 - **Safetensors** (.safetensors) - HuggingFace标准格式
@@ -133,13 +135,7 @@ diffai model_v1.safetensors model_v2.safetensors --output yaml
 - **NumPy** (.npy, .npz) - 带有完整统计分析的NumPy数组
 - **MATLAB** (.mat) - 支持复数的MATLAB矩阵
 
-### 结构化数据格式
-- **JSON** (.json) - JavaScript Object Notation
-- **YAML** (.yaml, .yml) - YAML Ain't Markup Language
-- **TOML** (.toml) - Tom's Obvious Minimal Language  
-- **XML** (.xml) - Extensible Markup Language
-- **INI** (.ini) - 配置文件
-- **CSV** (.csv) - 逗号分隔值
+**注意**: 对于通用结构化数据格式（JSON、YAML、CSV、XML等），请使用专为这些格式设计的姊妹项目[diffx](https://github.com/kako-jun/diffx)。
 
 ## ML分析功能
 

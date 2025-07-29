@@ -1,4 +1,6 @@
+#[allow(unused_imports)]
 use assert_cmd::prelude::*;
+#[allow(unused_imports)]
 use predicates::prelude::*;
 use std::io::Write;
 use std::process::Command;
@@ -12,7 +14,7 @@ fn diffai_cmd() -> Command {
 // Helper function to create temporary files for testing
 fn create_temp_file(content: &str, suffix: &str) -> NamedTempFile {
     let mut file = NamedTempFile::with_suffix(suffix).expect("Failed to create temp file");
-    writeln!(file, "{}", content).expect("Failed to write to temp file");
+    writeln!(file, "{content}").expect("Failed to write to temp file");
     file
 }
 
@@ -21,11 +23,11 @@ fn create_temp_file(content: &str, suffix: &str) -> NamedTempFile {
 fn test_deployment_recommendations() -> Result<(), Box<dyn std::error::Error>> {
     let baseline = create_temp_file(
         r#"{"model": {"performance": 0.85, "memory": 512}}"#,
-        ".json",
+        ".safetensors",
     );
     let candidate = create_temp_file(
         r#"{"model": {"performance": 0.75, "memory": 1024}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -43,11 +45,11 @@ fn test_deployment_recommendations() -> Result<(), Box<dyn std::error::Error>> {
 fn test_json_recommendations_output() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(
         r#"{"recommendations": {"enabled": true, "level": "high"}}"#,
-        ".json",
+        ".safetensors",
     );
     let file2 = create_temp_file(
         r#"{"recommendations": {"enabled": true, "level": "critical"}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -65,8 +67,8 @@ fn test_json_recommendations_output() -> Result<(), Box<dyn std::error::Error>> 
 /// Test case 3: diffai checkpoint_epoch_10.pt checkpoint_epoch_20.pt
 #[test]
 fn test_training_progress_recommendations() -> Result<(), Box<dyn std::error::Error>> {
-    let checkpoint1 = create_temp_file(r#"{"epoch": 10, "loss": 0.5, "accuracy": 0.80}"#, ".json");
-    let checkpoint2 = create_temp_file(r#"{"epoch": 20, "loss": 0.3, "accuracy": 0.85}"#, ".json");
+    let checkpoint1 = create_temp_file(r#"{"epoch": 10, "loss": 0.5, "accuracy": 0.80}"#, ".safetensors");
+    let checkpoint2 = create_temp_file(r#"{"epoch": 20, "loss": 0.3, "accuracy": 0.85}"#, ".safetensors");
 
     let mut cmd = diffai_cmd();
     cmd.arg(checkpoint1.path()).arg(checkpoint2.path());

@@ -153,16 +153,13 @@ diffai --version
 # Run help
 diffai --help
 
-# Test with sample files
-echo '{"a": 1}' > test1.json
-echo '{"a": 2}' > test2.json
-diffai test1.json test2.json
+# 使用示例AI/ML文件测试（如果可用）
+# diffai model1.safetensors model2.safetensors
 
-# Expected output:
-# ~ a: 1 -> 2
-
-# Clean up
-rm test1.json test2.json
+# 对于通用结构化数据格式，请使用diffx：
+# echo '{"a": 1}' > test1.json
+# echo '{"a": 2}' > test2.json  
+# diffx test1.json test2.json
 ```
 
 ## Development Installation

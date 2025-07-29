@@ -1,5 +1,4 @@
 use anyhow::{anyhow, Result};
-use csv::ReaderBuilder;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -176,17 +175,22 @@ fn diff_files(
     path2: &Path,
     options: Option<&DiffOptions>,
 ) -> Result<Vec<DiffResult>> {
-    // Read file contents
-    let content1 = fs::read_to_string(path1)?;
-    let content2 = fs::read_to_string(path2)?;
-
     // Detect formats based on file extensions
-    let format1 = detect_format_from_path(path1);
-    let format2 = detect_format_from_path(path2);
+    let format1 = detect_format_from_path(path1)?;
+    let format2 = detect_format_from_path(path2)?;
 
-    // Parse content based on detected formats
-    let value1 = parse_content_by_format(&content1, format1)?;
-    let value2 = parse_content_by_format(&content2, format2)?;
+    // Ensure both files have the same format
+    if std::mem::discriminant(&format1) != std::mem::discriminant(&format2) {
+        return Err(anyhow!(
+            "Cannot compare files with different formats: {:?} vs {:?}",
+            format1,
+            format2
+        ));
+    }
+
+    // Parse files based on detected formats
+    let value1 = parse_file_by_format(path1, format1)?;
+    let value2 = parse_file_by_format(path2, format2)?;
 
     // Use existing diff implementation
     diff(&value1, &value2, options)
@@ -225,10 +229,10 @@ fn diff_directories(
     // Find files that exist in dir1 but not in dir2 (removed)
     for (rel_path, abs_path1) in &files1_map {
         if !files2_map.contains_key(rel_path) {
-            let content = fs::read_to_string(abs_path1).unwrap_or_default();
-            if let Ok(value) = parse_content_by_format(&content, detect_format_from_path(abs_path1))
-            {
-                results.push(DiffResult::Removed(rel_path.clone(), value));
+            if let Ok(format) = detect_format_from_path(abs_path1) {
+                if let Ok(value) = parse_file_by_format(abs_path1, format) {
+                    results.push(DiffResult::Removed(rel_path.clone(), value));
+                }
             }
         }
     }
@@ -236,10 +240,10 @@ fn diff_directories(
     // Find files that exist in dir2 but not in dir1 (added)
     for (rel_path, abs_path2) in &files2_map {
         if !files1_map.contains_key(rel_path) {
-            let content = fs::read_to_string(abs_path2).unwrap_or_default();
-            if let Ok(value) = parse_content_by_format(&content, detect_format_from_path(abs_path2))
-            {
-                results.push(DiffResult::Added(rel_path.clone(), value));
+            if let Ok(format) = detect_format_from_path(abs_path2) {
+                if let Ok(value) = parse_file_by_format(abs_path2, format) {
+                    results.push(DiffResult::Added(rel_path.clone(), value));
+                }
             }
         }
     }
@@ -327,34 +331,37 @@ fn get_all_files_recursive(dir: &Path) -> Result<Vec<std::path::PathBuf>> {
 
 #[derive(Debug, Clone, Copy)]
 enum FileFormat {
-    Json,
-    Yaml,
-    Csv,
-    Toml,
-    Ini,
-    Xml,
+    PyTorch,
+    Safetensors,
+    NumPy,
+    Matlab,
 }
 
-fn detect_format_from_path(path: &Path) -> FileFormat {
+fn detect_format_from_path(path: &Path) -> Result<FileFormat> {
     match path.extension().and_then(|ext| ext.to_str()) {
-        Some("json") => FileFormat::Json,
-        Some("yaml") | Some("yml") => FileFormat::Yaml,
-        Some("csv") => FileFormat::Csv,
-        Some("toml") => FileFormat::Toml,
-        Some("ini") | Some("cfg") => FileFormat::Ini,
-        Some("xml") => FileFormat::Xml,
-        _ => FileFormat::Json, // Default fallback
+        Some("pt") | Some("pth") => Ok(FileFormat::PyTorch),
+        Some("safetensors") => Ok(FileFormat::Safetensors),
+        Some("npy") | Some("npz") => Ok(FileFormat::NumPy),
+        Some("mat") => Ok(FileFormat::Matlab),
+        _ => {
+            let ext = path
+                .extension()
+                .and_then(|ext| ext.to_str())
+                .unwrap_or("unknown");
+            Err(anyhow!(
+                "Unsupported file format: '{}'. diffai only supports AI/ML file formats: .pt, .pth, .safetensors, .npy, .npz, .mat. For general structured data formats, please use diffx.",
+                ext
+            ))
+        }
     }
 }
 
-fn parse_content_by_format(content: &str, format: FileFormat) -> Result<Value> {
+fn parse_file_by_format(path: &Path, format: FileFormat) -> Result<Value> {
     match format {
-        FileFormat::Json => parse_json(content),
-        FileFormat::Yaml => parse_yaml(content),
-        FileFormat::Csv => parse_csv(content),
-        FileFormat::Toml => parse_toml(content),
-        FileFormat::Ini => parse_ini(content),
-        FileFormat::Xml => parse_xml(content),
+        FileFormat::PyTorch => parse_pytorch_model(path),
+        FileFormat::Safetensors => parse_safetensors_model(path),
+        FileFormat::NumPy => parse_numpy_file(path),
+        FileFormat::Matlab => parse_matlab_file(path),
     }
 }
 
@@ -631,117 +638,6 @@ fn check_ml_number_changes(
 // ============================================================================
 // These functions are public only for CLI and language bindings.
 // External users should use the main diff() function with file reading.
-
-/// Parse JSON content - FOR INTERNAL USE ONLY
-/// External users should read files themselves and use diff() function
-pub fn parse_json(content: &str) -> Result<Value> {
-    serde_json::from_str(content).map_err(|e| anyhow!("JSON parse error: {}", e))
-}
-
-/// Parse CSV content - FOR INTERNAL USE ONLY
-pub fn parse_csv(content: &str) -> Result<Value> {
-    let mut reader = ReaderBuilder::new()
-        .has_headers(true)
-        .from_reader(content.as_bytes());
-
-    let headers = reader.headers()?.clone();
-    let mut records = Vec::new();
-
-    for result in reader.records() {
-        let record = result?;
-        let mut map = serde_json::Map::new();
-
-        for (i, field) in record.iter().enumerate() {
-            if let Some(header) = headers.get(i) {
-                map.insert(header.to_string(), Value::String(field.to_string()));
-            }
-        }
-
-        records.push(Value::Object(map));
-    }
-
-    Ok(Value::Array(records))
-}
-
-/// Parse YAML content - FOR INTERNAL USE ONLY
-pub fn parse_yaml(content: &str) -> Result<Value> {
-    serde_yaml::from_str(content).map_err(|e| anyhow!("YAML parse error: {}", e))
-}
-
-/// Parse TOML content - FOR INTERNAL USE ONLY
-pub fn parse_toml(content: &str) -> Result<Value> {
-    let toml_value: toml::Value = content.parse()?;
-    toml_to_json_value(toml_value)
-}
-
-fn toml_to_json_value(toml_val: toml::Value) -> Result<Value> {
-    match toml_val {
-        toml::Value::String(s) => Ok(Value::String(s)),
-        toml::Value::Integer(i) => Ok(Value::Number(i.into())),
-        toml::Value::Float(f) => Ok(Value::Number(
-            serde_json::Number::from_f64(f).ok_or_else(|| anyhow!("Invalid float"))?,
-        )),
-        toml::Value::Boolean(b) => Ok(Value::Bool(b)),
-        toml::Value::Array(arr) => {
-            let mut json_arr = Vec::new();
-            for item in arr {
-                json_arr.push(toml_to_json_value(item)?);
-            }
-            Ok(Value::Array(json_arr))
-        }
-        toml::Value::Table(table) => {
-            let mut json_obj = serde_json::Map::new();
-            for (key, value) in table {
-                json_obj.insert(key, toml_to_json_value(value)?);
-            }
-            Ok(Value::Object(json_obj))
-        }
-        toml::Value::Datetime(dt) => Ok(Value::String(dt.to_string())),
-    }
-}
-
-/// Parse INI content - FOR INTERNAL USE ONLY
-pub fn parse_ini(content: &str) -> Result<Value> {
-    let mut result = serde_json::Map::new();
-    let mut current_section = String::new();
-
-    for line in content.lines() {
-        let line = line.trim();
-
-        if line.is_empty() || line.starts_with(';') || line.starts_with('#') {
-            continue;
-        }
-
-        if line.starts_with('[') && line.ends_with(']') {
-            current_section = line[1..line.len() - 1].to_string();
-            result.insert(
-                current_section.clone(),
-                Value::Object(serde_json::Map::new()),
-            );
-        } else if let Some(eq_pos) = line.find('=') {
-            let key = line[..eq_pos].trim().to_string();
-            let value = line[eq_pos + 1..].trim().to_string();
-
-            if current_section.is_empty() {
-                result.insert(key, Value::String(value));
-            } else if let Some(Value::Object(section)) = result.get_mut(&current_section) {
-                section.insert(key, Value::String(value));
-            }
-        }
-    }
-
-    Ok(Value::Object(result))
-}
-
-/// Parse XML content - FOR INTERNAL USE ONLY
-pub fn parse_xml(content: &str) -> Result<Value> {
-    // Simple XML parser - for production use, consider using quick-xml
-    // This is a simplified implementation
-    Ok(Value::String(format!(
-        "XML parsing not fully implemented: {}",
-        content.len()
-    )))
-}
 
 // ============================================================================
 // AI/ML SPECIFIC PARSERS

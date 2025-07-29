@@ -1,4 +1,6 @@
+#[allow(unused_imports)]
 use assert_cmd::prelude::*;
+#[allow(unused_imports)]
 use predicates::prelude::*;
 use std::process::Command;
 
@@ -13,8 +15,8 @@ fn diffai_cmd() -> Command {
 fn test_basic_usage_examples() -> Result<(), Box<dyn std::error::Error>> {
     // Test the most basic usage example from docs
     let mut cmd = diffai_cmd();
-    cmd.arg("../tests/fixtures/file1.json")
-        .arg("../tests/fixtures/file2.json");
+    cmd.arg("../tests/fixtures/file1.safetensors")
+        .arg("../tests/fixtures/file2.safetensors");
 
     cmd.assert()
         .success()
@@ -28,8 +30,8 @@ fn test_basic_usage_examples() -> Result<(), Box<dyn std::error::Error>> {
 fn test_output_format_examples() -> Result<(), Box<dyn std::error::Error>> {
     // Test JSON output example from docs
     let mut cmd = diffai_cmd();
-    cmd.arg("../tests/fixtures/file1.json")
-        .arg("../tests/fixtures/file2.json")
+    cmd.arg("../tests/fixtures/file1.safetensors")
+        .arg("../tests/fixtures/file2.safetensors")
         .arg("--output")
         .arg("json");
 

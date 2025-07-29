@@ -7,20 +7,15 @@ This report demonstrates that diffai is working correctly across all major featu
 
 ## Test Results Summary
 
-- **Total Tests:** 20
-- **Successful:** 19 ✅
+- **Total Tests:** 12
+- **Successful:** 11 ✅
 - **Failed:** 1 ❌
 
 ⚠️ **Some tests failed.** Please review the individual test files.
 
 ## Test Categories
 
-### 1. Basic Functionality
-- JSON/YAML/TOML comparison
-- Different output formats
-- Verbose mode
-
-### 2. ML Model Analysis
+### 1. ML Model Analysis
 - SafeTensors and PyTorch model comparison
 - Statistical analysis
 - Architecture comparison
@@ -28,29 +23,28 @@ This report demonstrates that diffai is working correctly across all major featu
 - Anomaly detection
 - Convergence analysis
 
-### 3. Format Support
-- Multiple structured data formats
-- AI/ML specific formats
+### 2. AI/ML Format Support
+- PyTorch models (.pt, .pth)
+- Safetensors models (.safetensors)
+- NumPy arrays (.npy, .npz)
+- MATLAB files (.mat)
 
-### 4. CLI Features
+### 3. CLI Features
 - Help system
 - Version information
 - Advanced options
+- Verbose mode
+- Directory comparison
 
 ## Individual Test Files
 
+### CLI and System Tests
 - [advanced_directory_comparison.md](./advanced_directory_comparison.md) ✅
-- [basic_json_diff.md](./basic_json_diff.md) ✅
-- [basic_json_output.md](./basic_json_output.md) ✅
 - [basic_verbose_mode.md](./basic_verbose_mode.md) ✅
-- [basic_yaml_output.md](./basic_yaml_output.md) ✅
 - [cli_help_output.md](./cli_help_output.md) ✅
 - [cli_version_info.md](./cli_version_info.md) ✅
-- [format_csv_comparison.md](./format_csv_comparison.md) ✅
-- [format_json_comparison.md](./format_json_comparison.md) ✅
-- [format_toml_comparison.md](./format_toml_comparison.md) ✅
-- [format_xml_comparison.md](./format_xml_comparison.md) ✅
-- [format_yaml_comparison.md](./format_yaml_comparison.md) ✅
+
+### ML Model Analysis Tests
 - [ml_anomaly_detection.md](./ml_anomaly_detection.md) ✅
 - [ml_architecture_comparison.md](./ml_architecture_comparison.md) ✅
 - [ml_basic_comparison.md](./ml_basic_comparison.md) ✅
@@ -58,6 +52,8 @@ This report demonstrates that diffai is working correctly across all major featu
 - [ml_convergence_analysis.md](./ml_convergence_analysis.md) ✅
 - [ml_memory_analysis.md](./ml_memory_analysis.md) ✅
 - [ml_stats_analysis.md](./ml_stats_analysis.md) ✅
+
+### Status
 - [README.md](./README.md) ❌
 
 ## Verification

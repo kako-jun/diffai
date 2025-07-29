@@ -1,4 +1,6 @@
+#[allow(unused_imports)]
 use assert_cmd::prelude::*;
+#[allow(unused_imports)]
 use predicates::prelude::*;
 use std::io::Write;
 use std::process::Command;
@@ -12,7 +14,7 @@ fn diffai_cmd() -> Command {
 // Helper function to create temporary files for testing
 fn create_temp_file(content: &str, suffix: &str) -> NamedTempFile {
     let mut file = NamedTempFile::with_suffix(suffix).expect("Failed to create temp file");
-    writeln!(file, "{}", content).expect("Failed to write to temp file");
+    writeln!(file, "{content}").expect("Failed to write to temp file");
     file
 }
 
@@ -21,11 +23,11 @@ fn create_temp_file(content: &str, suffix: &str) -> NamedTempFile {
 fn test_model_development_improvement() -> Result<(), Box<dyn std::error::Error>> {
     let baseline = create_temp_file(
         r#"{"architecture": "resnet18", "layers": 18, "parameters": 11000000}"#,
-        ".json",
+        ".safetensors",
     );
     let experiment = create_temp_file(
         r#"{"architecture": "resnet34", "layers": 34, "parameters": 21000000}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -42,11 +44,11 @@ fn test_model_development_improvement() -> Result<(), Box<dyn std::error::Error>
 fn test_finetuning_comparison() -> Result<(), Box<dyn std::error::Error>> {
     let pretrained = create_temp_file(
         r#"{"model": {"pretrained": true, "weights": {"classifier": [0.0, 0.0]}}}"#,
-        ".json",
+        ".safetensors",
     );
     let finetuned = create_temp_file(
         r#"{"model": {"pretrained": false, "weights": {"classifier": [0.8, 0.9]}}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -58,16 +60,16 @@ fn test_finetuning_comparison() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-/// Test case 3: diffai experiment_001/ experiment_002/ --recursive --include "*.json"
+/// Test case 3: diffai experiment_001/ experiment_002/ --recursive --include "*.safetensors"
 #[test]
 fn test_experiment_results_comparison() -> Result<(), Box<dyn std::error::Error>> {
     let exp1 = create_temp_file(
         r#"{"experiment": {"id": "001", "accuracy": 0.85, "loss": 0.3}}"#,
-        ".json",
+        ".safetensors",
     );
     let exp2 = create_temp_file(
         r#"{"experiment": {"id": "002", "accuracy": 0.88, "loss": 0.25}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -84,11 +86,11 @@ fn test_experiment_results_comparison() -> Result<(), Box<dyn std::error::Error>
 fn test_hyperparameter_differences() -> Result<(), Box<dyn std::error::Error>> {
     let baseline = create_temp_file(
         r#"{"config": {"learning_rate": 0.01, "batch_size": 32, "epochs": 100}}"#,
-        ".json",
+        ".safetensors",
     );
     let experiment = create_temp_file(
         r#"{"config": {"learning_rate": 0.001, "batch_size": 64, "epochs": 150}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -105,11 +107,11 @@ fn test_hyperparameter_differences() -> Result<(), Box<dyn std::error::Error>> {
 fn test_quantization_comparison() -> Result<(), Box<dyn std::error::Error>> {
     let original = create_temp_file(
         r#"{"model": {"precision": "fp32", "size_mb": 100, "weights": {"layer1": [0.123456]}}}"#,
-        ".json",
+        ".safetensors",
     );
     let quantized = create_temp_file(
         r#"{"model": {"precision": "int8", "size_mb": 25, "weights": {"layer1": [0.125]}}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -128,11 +130,11 @@ fn test_quantization_comparison() -> Result<(), Box<dyn std::error::Error>> {
 fn test_pruning_effects() -> Result<(), Box<dyn std::error::Error>> {
     let full = create_temp_file(
         r#"{"model": {"parameters": 1000000, "layers": {"conv1": {"weights": [0.1, 0.2, 0.3]}, "conv2": {"weights": [0.4, 0.5, 0.6]}}}}"#,
-        ".json",
+        ".safetensors",
     );
     let pruned = create_temp_file(
         r#"{"model": {"parameters": 500000, "layers": {"conv1": {"weights": [0.1, 0.0, 0.3]}, "conv2": {"weights": [0.0, 0.5, 0.0]}}}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -144,16 +146,16 @@ fn test_pruning_effects() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-/// Test case 7: diffai baseline/ experiment/ --recursive --include "*.json" --include "*.pth"
+/// Test case 7: diffai baseline/ experiment/ --recursive --include "*.safetensors" --include "*.pth"
 #[test]
 fn test_workflow_comparison() -> Result<(), Box<dyn std::error::Error>> {
     let baseline = create_temp_file(
         r#"{"workflow": {"baseline": true, "results": {"accuracy": 0.85, "f1": 0.82}}}"#,
-        ".json",
+        ".safetensors",
     );
     let experiment = create_temp_file(
         r#"{"workflow": {"baseline": false, "results": {"accuracy": 0.90, "f1": 0.88}}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();

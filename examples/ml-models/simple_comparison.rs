@@ -166,11 +166,11 @@ fn format_shape_info(shape: &[usize]) -> String {
     let total_params: usize = shape.iter().product();
     match shape.len() {
         0 => "scalar".to_string(),
-        1 => format!("vector, {} elements", total_params),
-        2 => format!("matrix, {}×{} = {} elements", shape[0], shape[1], total_params),
-        3 => format!("3D tensor, {}×{}×{} = {} elements", shape[0], shape[1], shape[2], total_params),
-        4 => format!("4D tensor, {}×{}×{}×{} = {} elements", shape[0], shape[1], shape[2], shape[3], total_params),
-        _ => format!("{}D tensor, {} elements", shape.len(), total_params),
+        1 => format!("vector, {total_params} elements"),
+        2 => format!("matrix, {}×{} = {total_params} elements", shape[0], shape[1]),
+        3 => format!("3D tensor, {}×{}×{} = {total_params} elements", shape[0], shape[1], shape[2]),
+        4 => format!("4D tensor, {}×{}×{}×{} = {total_params} elements", shape[0], shape[1], shape[2], shape[3]),
+        _ => format!("{}D tensor, {total_params} elements", shape.len()),
     }
 }
 

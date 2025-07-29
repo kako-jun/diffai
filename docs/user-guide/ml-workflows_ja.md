@@ -17,11 +17,11 @@ diffai pretrained/model.pth finetuned/model.pth
 ### 2. Experiment Management
 
 ```bash
-# Compare experiment results (automatic directory detection)
-diffai experiment_001/ experiment_002/ --include "*.json"
+# 実験結果の比較（AI/MLファイル自動検出）
+diffai experiment_001/ experiment_002/
 
-# Check hyperparameter differences
-diffai config/baseline.yaml config/experiment.yaml
+# 設定ファイルの差分にはdiffxを使用:
+# diffx config/baseline.yaml config/experiment.yaml
 ```
 
 ### 3. Model Optimization

@@ -1,4 +1,6 @@
+#[allow(unused_imports)]
 use assert_cmd::prelude::*;
+#[allow(unused_imports)]
 use predicates::prelude::*;
 use std::io::Write;
 use std::process::Command;
@@ -12,7 +14,7 @@ fn diffai_cmd() -> Command {
 // Helper function to create temporary files for testing
 fn create_temp_file(content: &str, suffix: &str) -> NamedTempFile {
     let mut file = NamedTempFile::with_suffix(suffix).expect("Failed to create temp file");
-    writeln!(file, "{}", content).expect("Failed to write to temp file");
+    writeln!(file, "{content}").expect("Failed to write to temp file");
     file
 }
 
@@ -21,11 +23,11 @@ fn create_temp_file(content: &str, suffix: &str) -> NamedTempFile {
 fn test_pytorch_models_comprehensive() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(
         r#"{"state_dict": {"fc1.weight": [0.1, 0.2], "fc1.bias": [0.01]}}"#,
-        ".json",
+        ".safetensors",
     );
     let file2 = create_temp_file(
         r#"{"state_dict": {"fc1.weight": [0.15, 0.25], "fc1.bias": [0.02]}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -42,11 +44,11 @@ fn test_pytorch_models_comprehensive() -> Result<(), Box<dyn std::error::Error>>
 fn test_safetensors_models_comprehensive() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(
         r#"{"tensors": {"layer1.weight": {"shape": [64, 32]}}}"#,
-        ".json",
+        ".safetensors",
     );
     let file2 = create_temp_file(
         r#"{"tensors": {"layer1.weight": {"shape": [64, 64]}}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -63,11 +65,11 @@ fn test_safetensors_models_comprehensive() -> Result<(), Box<dyn std::error::Err
 fn test_automatic_format_detection() -> Result<(), Box<dyn std::error::Error>> {
     let pretrained = create_temp_file(
         r#"{"model": {"pretrained": true, "accuracy": 0.85}}"#,
-        ".json",
+        ".safetensors",
     );
     let finetuned = create_temp_file(
         r#"{"model": {"pretrained": false, "accuracy": 0.92}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -82,8 +84,8 @@ fn test_automatic_format_detection() -> Result<(), Box<dyn std::error::Error>> {
 /// Test case 4: diffai model1.safetensors model2.safetensors --epsilon 1e-6
 #[test]
 fn test_epsilon_tolerance_minor() -> Result<(), Box<dyn std::error::Error>> {
-    let file1 = create_temp_file(r#"{"weights": {"layer1": 0.1000000}}"#, ".json");
-    let file2 = create_temp_file(r#"{"weights": {"layer1": 0.1000001}}"#, ".json");
+    let file1 = create_temp_file(r#"{"weights": {"layer1": 0.1000000}}"#, ".safetensors");
+    let file2 = create_temp_file(r#"{"weights": {"layer1": 0.1000001}}"#, ".safetensors");
 
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path())
@@ -102,11 +104,11 @@ fn test_epsilon_tolerance_minor() -> Result<(), Box<dyn std::error::Error>> {
 fn test_quantization_analysis_epsilon() -> Result<(), Box<dyn std::error::Error>> {
     let fp32 = create_temp_file(
         r#"{"model": {"precision": "fp32", "weights": [0.123, 0.456]}}"#,
-        ".json",
+        ".safetensors",
     );
     let int8 = create_temp_file(
         r#"{"model": {"precision": "int8", "weights": [0.12, 0.46]}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -124,8 +126,8 @@ fn test_quantization_analysis_epsilon() -> Result<(), Box<dyn std::error::Error>
 /// Test case 6: diffai model1.pt model2.pt --output json
 #[test]
 fn test_json_output_automation() -> Result<(), Box<dyn std::error::Error>> {
-    let file1 = create_temp_file(r#"{"layers": {"conv1": {"filters": 32}}}"#, ".json");
-    let file2 = create_temp_file(r#"{"layers": {"conv1": {"filters": 64}}}"#, ".json");
+    let file1 = create_temp_file(r#"{"layers": {"conv1": {"filters": 32}}}"#, ".safetensors");
+    let file2 = create_temp_file(r#"{"layers": {"conv1": {"filters": 64}}}"#, ".safetensors");
 
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path())
@@ -142,8 +144,8 @@ fn test_json_output_automation() -> Result<(), Box<dyn std::error::Error>> {
 /// Test case 7: diffai model1.pt model2.pt --output yaml
 #[test]
 fn test_yaml_output_readability() -> Result<(), Box<dyn std::error::Error>> {
-    let file1 = create_temp_file(r#"{"parameters": {"learning_rate": 0.01}}"#, ".json");
-    let file2 = create_temp_file(r#"{"parameters": {"learning_rate": 0.001}}"#, ".json");
+    let file1 = create_temp_file(r#"{"parameters": {"learning_rate": 0.01}}"#, ".safetensors");
+    let file2 = create_temp_file(r#"{"parameters": {"learning_rate": 0.001}}"#, ".safetensors");
 
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path())
@@ -158,8 +160,8 @@ fn test_yaml_output_readability() -> Result<(), Box<dyn std::error::Error>> {
 /// Test case 8: diffai model1.pt model2.pt --output json > changes.json
 #[test]
 fn test_pipe_to_file() -> Result<(), Box<dyn std::error::Error>> {
-    let file1 = create_temp_file(r#"{"metrics": {"loss": 0.5}}"#, ".json");
-    let file2 = create_temp_file(r#"{"metrics": {"loss": 0.3}}"#, ".json");
+    let file1 = create_temp_file(r#"{"metrics": {"loss": 0.5}}"#, ".safetensors");
+    let file2 = create_temp_file(r#"{"metrics": {"loss": 0.3}}"#, ".safetensors");
 
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path())
@@ -176,8 +178,8 @@ fn test_pipe_to_file() -> Result<(), Box<dyn std::error::Error>> {
 /// Test case 9: diffai model1.safetensors model2.safetensors --path "classifier"
 #[test]
 fn test_focus_specific_layers() -> Result<(), Box<dyn std::error::Error>> {
-    let file1 = create_temp_file(r#"{"classifier": {"weight": [0.1, 0.2]}}"#, ".json");
-    let file2 = create_temp_file(r#"{"classifier": {"weight": [0.15, 0.25]}}"#, ".json");
+    let file1 = create_temp_file(r#"{"classifier": {"weight": [0.1, 0.2]}}"#, ".safetensors");
+    let file2 = create_temp_file(r#"{"classifier": {"weight": [0.15, 0.25]}}"#, ".safetensors");
 
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path())
@@ -196,11 +198,11 @@ fn test_focus_specific_layers() -> Result<(), Box<dyn std::error::Error>> {
 fn test_ignore_metadata() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(
         r#"{"timestamp": "2024-01-01", "weights": {"layer1": 0.5}}"#,
-        ".json",
+        ".safetensors",
     );
     let file2 = create_temp_file(
         r#"{"timestamp": "2024-01-02", "weights": {"layer1": 0.6}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -220,11 +222,11 @@ fn test_ignore_metadata() -> Result<(), Box<dyn std::error::Error>> {
 fn test_finetuning_analysis() -> Result<(), Box<dyn std::error::Error>> {
     let pretrained = create_temp_file(
         r#"{"bert": {"encoder": {"attention": {"query": {"weight": [0.001]}}}}, "classifier": {"weight": [0.0]}}"#,
-        ".json",
+        ".safetensors",
     );
     let finetuned = create_temp_file(
         r#"{"bert": {"encoder": {"attention": {"query": {"weight": [0.0023]}}}}, "classifier": {"weight": [0.0145]}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -241,11 +243,11 @@ fn test_finetuning_analysis() -> Result<(), Box<dyn std::error::Error>> {
 fn test_quantization_impact_assessment() -> Result<(), Box<dyn std::error::Error>> {
     let fp32 = create_temp_file(
         r#"{"conv1": {"weight": {"mean": 0.0045, "std": 0.2341}}}"#,
-        ".json",
+        ".safetensors",
     );
     let int8 = create_temp_file(
         r#"{"conv1": {"weight": {"mean": 0.0043, "std": 0.2298}}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -265,11 +267,11 @@ fn test_quantization_impact_assessment() -> Result<(), Box<dyn std::error::Error
 fn test_training_progress_tracking() -> Result<(), Box<dyn std::error::Error>> {
     let epoch10 = create_temp_file(
         r#"{"layers": {"0": {"weight": {"mean": -0.0012, "std": 1.2341}}, "1": {"bias": {"mean": 0.1234, "std": 0.4567}}}}"#,
-        ".json",
+        ".safetensors",
     );
     let epoch50 = create_temp_file(
         r#"{"layers": {"0": {"weight": {"mean": 0.0034, "std": 0.8907}}, "1": {"bias": {"mean": 0.0567, "std": 0.3210}}}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -286,11 +288,11 @@ fn test_training_progress_tracking() -> Result<(), Box<dyn std::error::Error>> {
 fn test_architecture_comparison() -> Result<(), Box<dyn std::error::Error>> {
     let resnet = create_temp_file(
         r#"{"features": {"conv1": {"weight": {"shape": [64, 3, 7, 7]}}, "layer4": {"2": {"downsample": {"0": {"weight": {"shape": [2048, 1024, 1, 1]}}}}}}}"#,
-        ".json",
+        ".safetensors",
     );
     let efficientnet = create_temp_file(
         r#"{"features": {"conv1": {"weight": {"shape": [32, 3, 3, 3]}}, "mbconv": {"expand_conv": {"weight": {"shape": [96, 32, 1, 1]}}}}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -307,11 +309,11 @@ fn test_architecture_comparison() -> Result<(), Box<dyn std::error::Error>> {
 fn test_recursive_mode_large_models() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(
         r#"{"large_model": {"size": "1GB", "parameters": 1000000}}"#,
-        ".json",
+        ".safetensors",
     );
     let file2 = create_temp_file(
         r#"{"large_model": {"size": "1.2GB", "parameters": 1200000}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -328,11 +330,11 @@ fn test_recursive_mode_large_models() -> Result<(), Box<dyn std::error::Error>> 
 fn test_focus_analysis_specific_parts() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(
         r#"{"tensor": {"classifier": {"weight": [0.1, 0.2]}}}"#,
-        ".json",
+        ".safetensors",
     );
     let file2 = create_temp_file(
         r#"{"tensor": {"classifier": {"weight": [0.15, 0.25]}}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -350,8 +352,8 @@ fn test_focus_analysis_specific_parts() -> Result<(), Box<dyn std::error::Error>
 /// Test case 17: diffai model1.safetensors model2.safetensors --epsilon 1e-3
 #[test]
 fn test_higher_epsilon_faster_comparison() -> Result<(), Box<dyn std::error::Error>> {
-    let file1 = create_temp_file(r#"{"model": {"precision": 0.001234}}"#, ".json");
-    let file2 = create_temp_file(r#"{"model": {"precision": 0.001567}}"#, ".json");
+    let file1 = create_temp_file(r#"{"model": {"precision": 0.001234}}"#, ".safetensors");
+    let file2 = create_temp_file(r#"{"model": {"precision": 0.001567}}"#, ".safetensors");
 
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path())
@@ -368,8 +370,8 @@ fn test_higher_epsilon_faster_comparison() -> Result<(), Box<dyn std::error::Err
 /// Test case 18: diffai --verbose model1.safetensors model2.safetensors
 #[test]
 fn test_verbose_mode_processing_info() -> Result<(), Box<dyn std::error::Error>> {
-    let file1 = create_temp_file(r#"{"processing": {"stage": "training"}}"#, ".json");
-    let file2 = create_temp_file(r#"{"processing": {"stage": "validation"}}"#, ".json");
+    let file1 = create_temp_file(r#"{"processing": {"stage": "training"}}"#, ".safetensors");
+    let file2 = create_temp_file(r#"{"processing": {"stage": "validation"}}"#, ".safetensors");
 
     let mut cmd = diffai_cmd();
     cmd.arg("--verbose").arg(file1.path()).arg(file2.path());
@@ -385,11 +387,11 @@ fn test_verbose_mode_processing_info() -> Result<(), Box<dyn std::error::Error>>
 fn test_architecture_differences_only() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(
         r#"{"architecture": {"type": "transformer", "layers": 12}}"#,
-        ".json",
+        ".safetensors",
     );
     let file2 = create_temp_file(
         r#"{"architecture": {"type": "transformer", "layers": 24}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -406,8 +408,8 @@ fn test_architecture_differences_only() -> Result<(), Box<dyn std::error::Error>
 /// Test case 20: diffai model1.safetensors model2.safetensors --output json (subprocess run)
 #[test]
 fn test_subprocess_run_json() -> Result<(), Box<dyn std::error::Error>> {
-    let file1 = create_temp_file(r#"{"model": {"version": "1.0"}}"#, ".json");
-    let file2 = create_temp_file(r#"{"model": {"version": "2.0"}}"#, ".json");
+    let file1 = create_temp_file(r#"{"model": {"version": "1.0"}}"#, ".safetensors");
+    let file2 = create_temp_file(r#"{"model": {"version": "2.0"}}"#, ".safetensors");
 
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path())
@@ -426,11 +428,11 @@ fn test_subprocess_run_json() -> Result<(), Box<dyn std::error::Error>> {
 fn test_cicd_compare_models() -> Result<(), Box<dyn std::error::Error>> {
     let baseline = create_temp_file(
         r#"{"model": {"type": "baseline", "accuracy": 0.85}}"#,
-        ".json",
+        ".safetensors",
     );
     let candidate = create_temp_file(
         r#"{"model": {"type": "candidate", "accuracy": 0.88}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -448,7 +450,7 @@ fn test_cicd_compare_models() -> Result<(), Box<dyn std::error::Error>> {
 /// Test case 22: diffai model.safetensors model.safetensors
 #[test]
 fn test_single_model_analysis() -> Result<(), Box<dyn std::error::Error>> {
-    let file = create_temp_file(r#"{"model": {"layers": 6, "parameters": 100000}}"#, ".json");
+    let file = create_temp_file(r#"{"model": {"layers": 6, "parameters": 100000}}"#, ".safetensors");
 
     let mut cmd = diffai_cmd();
     cmd.arg(file.path()).arg(file.path());
@@ -460,10 +462,10 @@ fn test_single_model_analysis() -> Result<(), Box<dyn std::error::Error>> {
 /// Test case 23: diffai --format safetensors model1.safetensors model2.safetensors
 #[test]
 fn test_explicit_format() -> Result<(), Box<dyn std::error::Error>> {
-    let file1 = create_temp_file(r#"{"safetensors": {"format": "explicit"}}"#, ".json");
+    let file1 = create_temp_file(r#"{"safetensors": {"format": "explicit"}}"#, ".safetensors");
     let file2 = create_temp_file(
         r#"{"safetensors": {"format": "explicit", "version": 2}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -481,10 +483,10 @@ fn test_explicit_format() -> Result<(), Box<dyn std::error::Error>> {
 /// Test case 24: diffai --epsilon 1e-3 large1.safetensors large2.safetensors
 #[test]
 fn test_memory_optimization_epsilon() -> Result<(), Box<dyn std::error::Error>> {
-    let file1 = create_temp_file(r#"{"large": {"tensor": [0.001, 0.002, 0.003]}}"#, ".json");
+    let file1 = create_temp_file(r#"{"large": {"tensor": [0.001, 0.002, 0.003]}}"#, ".safetensors");
     let file2 = create_temp_file(
         r#"{"large": {"tensor": [0.0015, 0.0025, 0.0035]}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -502,8 +504,8 @@ fn test_memory_optimization_epsilon() -> Result<(), Box<dyn std::error::Error>> 
 /// Test case 25: diffai --path "tensor.classifier" large1.safetensors large2.safetensors
 #[test]
 fn test_memory_optimization_path() -> Result<(), Box<dyn std::error::Error>> {
-    let file1 = create_temp_file(r#"{"tensor": {"classifier": {"weight": [0.1]}}}"#, ".json");
-    let file2 = create_temp_file(r#"{"tensor": {"classifier": {"weight": [0.2]}}}"#, ".json");
+    let file1 = create_temp_file(r#"{"tensor": {"classifier": {"weight": [0.1]}}}"#, ".safetensors");
+    let file2 = create_temp_file(r#"{"tensor": {"classifier": {"weight": [0.2]}}}"#, ".safetensors");
 
     let mut cmd = diffai_cmd();
     cmd.arg("--path")
@@ -522,11 +524,11 @@ fn test_memory_optimization_path() -> Result<(), Box<dyn std::error::Error>> {
 fn test_comprehensive_analysis_automatic() -> Result<(), Box<dyn std::error::Error>> {
     let epoch10 = create_temp_file(
         r#"{"checkpoint": {"epoch": 10, "loss": 0.5, "accuracy": 0.8}}"#,
-        ".json",
+        ".safetensors",
     );
     let epoch20 = create_temp_file(
         r#"{"checkpoint": {"epoch": 20, "loss": 0.3, "accuracy": 0.9}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -543,11 +545,11 @@ fn test_comprehensive_analysis_automatic() -> Result<(), Box<dyn std::error::Err
 fn test_experimental_comparison_automatic() -> Result<(), Box<dyn std::error::Error>> {
     let baseline = create_temp_file(
         r#"{"experiment": {"type": "baseline", "performance": 0.85}}"#,
-        ".json",
+        ".safetensors",
     );
     let experiment = create_temp_file(
         r#"{"experiment": {"type": "enhanced", "performance": 0.92}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();

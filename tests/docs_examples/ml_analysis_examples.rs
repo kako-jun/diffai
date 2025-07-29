@@ -1,4 +1,6 @@
+#[allow(unused_imports)]
 use assert_cmd::prelude::*;
+#[allow(unused_imports)]
 use predicates::prelude::*;
 use std::io::Write;
 use std::process::Command;
@@ -12,15 +14,15 @@ fn diffai_cmd() -> Command {
 // Helper function to create temporary files for testing
 fn create_temp_file(content: &str, suffix: &str) -> NamedTempFile {
     let mut file = NamedTempFile::with_suffix(suffix).expect("Failed to create temp file");
-    writeln!(file, "{}", content).expect("Failed to write to temp file");
+    writeln!(file, "{content}").expect("Failed to write to temp file");
     file
 }
 
 /// Test case 1: diffai model1.safetensors model2.safetensors (comprehensive analysis automatic)
 #[test]
 fn test_comprehensive_analysis_automatic() -> Result<(), Box<dyn std::error::Error>> {
-    let file1 = create_temp_file(r#"{"fc1": {"bias": 0.0018, "weight": -0.0002}}"#, ".json");
-    let file2 = create_temp_file(r#"{"fc1": {"bias": 0.0017, "weight": -0.0001}}"#, ".json");
+    let file1 = create_temp_file(r#"{"fc1": {"bias": 0.0018, "weight": -0.0002}}"#, ".safetensors");
+    let file2 = create_temp_file(r#"{"fc1": {"bias": 0.0017, "weight": -0.0001}}"#, ".safetensors");
 
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path()).arg(file2.path());
@@ -37,11 +39,11 @@ fn test_comprehensive_analysis_automatic() -> Result<(), Box<dyn std::error::Err
 fn test_architecture_comparison() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(
         r#"{"architecture": {"type": "transformer", "layers": 12}}"#,
-        ".json",
+        ".safetensors",
     );
     let file2 = create_temp_file(
         r#"{"architecture": {"type": "transformer", "layers": 24}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -60,11 +62,11 @@ fn test_architecture_comparison() -> Result<(), Box<dyn std::error::Error>> {
 fn test_json_output_automation() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(
         r#"{"analysis": {"features": 30, "enabled": true}}"#,
-        ".json",
+        ".safetensors",
     );
     let file2 = create_temp_file(
         r#"{"analysis": {"features": 35, "enabled": true}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();

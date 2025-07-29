@@ -1,4 +1,6 @@
+#[allow(unused_imports)]
 use assert_cmd::prelude::*;
+#[allow(unused_imports)]
 use predicates::prelude::*;
 use std::io::Write;
 use std::process::Command;
@@ -12,15 +14,15 @@ fn diffai_cmd() -> Command {
 // Helper function to create temporary files for testing
 fn create_temp_file(content: &str, suffix: &str) -> NamedTempFile {
     let mut file = NamedTempFile::with_suffix(suffix).expect("Failed to create temp file");
-    writeln!(file, "{}", content).expect("Failed to write to temp file");
+    writeln!(file, "{content}").expect("Failed to write to temp file");
     file
 }
 
 /// Test case 1: diffai model1.pt model2.pt
 #[test]
 fn test_pytorch_format() -> Result<(), Box<dyn std::error::Error>> {
-    let file1 = create_temp_file(r#"{"pytorch": {"layers": 5, "params": 1000}}"#, ".json");
-    let file2 = create_temp_file(r#"{"pytorch": {"layers": 8, "params": 1500}}"#, ".json");
+    let file1 = create_temp_file(r#"{"pytorch": {"layers": 5, "params": 1000}}"#, ".safetensors");
+    let file2 = create_temp_file(r#"{"pytorch": {"layers": 8, "params": 1500}}"#, ".safetensors");
 
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path()).arg(file2.path());
@@ -37,11 +39,11 @@ fn test_pytorch_format() -> Result<(), Box<dyn std::error::Error>> {
 fn test_safetensors_format() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(
         r#"{"safetensors": {"version": "1.0", "secure": true}}"#,
-        ".json",
+        ".safetensors",
     );
     let file2 = create_temp_file(
         r#"{"safetensors": {"version": "1.1", "secure": true}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -58,11 +60,11 @@ fn test_safetensors_format() -> Result<(), Box<dyn std::error::Error>> {
 fn test_numpy_format() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(
         r#"{"numpy": {"array": [1, 2, 3], "dtype": "int32"}}"#,
-        ".json",
+        ".safetensors",
     );
     let file2 = create_temp_file(
         r#"{"numpy": {"array": [1, 2, 4], "dtype": "int32"}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -79,11 +81,11 @@ fn test_numpy_format() -> Result<(), Box<dyn std::error::Error>> {
 fn test_npz_format() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(
         r#"{"npz": {"data1": [1, 2, 3], "data2": [4, 5, 6]}}"#,
-        ".json",
+        ".safetensors",
     );
     let file2 = create_temp_file(
         r#"{"npz": {"data1": [1, 2, 3], "data2": [4, 5, 7]}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -100,11 +102,11 @@ fn test_npz_format() -> Result<(), Box<dyn std::error::Error>> {
 fn test_matlab_format() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(
         r#"{"matlab": {"variables": {"result": 0.85}, "complex": true}}"#,
-        ".json",
+        ".safetensors",
     );
     let file2 = create_temp_file(
         r#"{"matlab": {"variables": {"result": 0.90}, "complex": true}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();

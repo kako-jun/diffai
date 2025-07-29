@@ -17,11 +17,11 @@ diffai pretrained/model.pth finetuned/model.pth
 ### 2. Experiment Management
 
 ```bash
-# Compare experiment results (automatic directory detection)
-diffai experiment_001/ experiment_002/ --include "*.json"
+# Compare experiment results (AI/ML files automatic detection)
+diffai experiment_001/ experiment_002/
 
-# Check hyperparameter differences
-diffai config/baseline.yaml config/experiment.yaml
+# For configuration file differences, use diffx:
+# diffx config/baseline.yaml config/experiment.yaml
 ```
 
 ### 3. Model Optimization
@@ -53,7 +53,7 @@ diffai checkpoint_dir_A/ checkpoint_dir_B/ --include "*.pth" --include "*.safete
 
 **ML-Specific Benefits:**
 - **Model file detection**: Automatically finds .pth, .safetensors, .pt files
-- **Config comparison**: Compares YAML/JSON configuration files
+- **AI/ML focus**: Specialized for model and tensor files
 - **Results analysis**: Processes metrics, logs, and output files
 - **Batch processing**: Handles multiple model checkpoints efficiently
 
@@ -68,8 +68,11 @@ python train.py --config baseline.yaml --output baseline/
 # 2. Run new experiment
 python train.py --config experiment.yaml --output experiment/
 
-# 3. Compare results (automatic directory detection)
-diffai baseline/ experiment/ --include "*.json" --include "*.pth"
+# 3. Compare AI/ML results (automatic directory detection)
+diffai baseline/ experiment/
+
+# For config comparison, use diffx:
+# diffx baseline.yaml experiment.yaml
 
 # 4. Detailed analysis (comprehensive analysis automatic)
 diffai baseline/model.pth experiment/model.pth

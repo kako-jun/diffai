@@ -12,9 +12,11 @@ diffai follows a phased development approach with Phase 1-2 completed. The curre
 
 #### Implemented Features
 - **Basic diff engine**: Structured data comparison
-- **File format support**: JSON, YAML, TOML, XML, INI, CSV
+- **AI/ML file format support**: PyTorch, Safetensors, NumPy, MATLAB
 - **CLI interface**: Colored output, multiple output formats
 - **Configuration system**: Configuration files, environment variables
+
+**Note**: General structured data formats (JSON, YAML, TOML, XML, INI, CSV) are handled by our sibling project [diffx](https://github.com/kako-jun/diffx).
 
 #### Technical Foundation
 - **Language**: Rust (safety, performance)

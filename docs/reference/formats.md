@@ -1,10 +1,10 @@
-# Supported Formats
+# Supported AI/ML File Formats
 
-File formats supported by diffai and their specifications.
+AI/ML and scientific computing file formats supported by diffai and their specifications.
 
 ## Overview
 
-diffai supports a wide range of file formats optimized for different use cases, from machine learning models to scientific data and structured configuration files.
+diffai is specialized for AI/ML and scientific computing file formats only. For general-purpose structured data formats (JSON, YAML, CSV, XML, etc.), please use our sibling project [diffx](https://github.com/kako-jun/diffx).
 
 ## Machine Learning Model Formats
 
@@ -55,43 +55,14 @@ diffai archive1.npz archive2.npz
 diffai simulation1.mat simulation2.mat
 ```
 
-## Structured Data Formats
+## Supported Extensions
 
-### JSON
-- **Extension**: `.json`
-- **Format**: JavaScript Object Notation
-- **Support**: Nested objects, arrays, basic data types
-- **Use Cases**: Configuration files, API responses, experiment results
+diffai exclusively supports the following file extensions:
 
-### YAML
-- **Extensions**: `.yaml`, `.yml`
-- **Format**: YAML Ain't Markup Language
-- **Support**: Hierarchical structure, comments, multiple documents
-- **Use Cases**: Configuration files, CI/CD, Kubernetes
+- **ML Model Files**: `.pt`, `.pth`, `.safetensors`
+- **Scientific Data Files**: `.npy`, `.npz`, `.mat`
 
-### TOML
-- **Extension**: `.toml`
-- **Format**: Tom's Obvious, Minimal Language
-- **Support**: Type-safe, configuration-oriented structure
-- **Use Cases**: Rust configuration, project settings
-
-### XML
-- **Extension**: `.xml`
-- **Format**: eXtensible Markup Language
-- **Support**: Attributes, namespaces, hierarchical structure
-- **Use Cases**: Configuration files, data exchange
-
-### INI
-- **Extension**: `.ini`
-- **Format**: Initialization file
-- **Support**: Sections, key-value pairs
-- **Use Cases**: Configuration files, legacy applications
-
-### CSV
-- **Extension**: `.csv`
-- **Format**: Comma-Separated Values
-- **Support**: Tabular data, header rows
-- **Use Cases**: Data analysis, spreadsheets
+For general-purpose formats like `.json`, `.yaml`, `.csv`, `.xml`, `.ini`, `.toml`, please use [diffx](https://github.com/kako-jun/diffx) instead.
 
 ## Format Auto-Detection
 
@@ -109,12 +80,6 @@ diffai detects formats in the following priority order:
 - ✅ Safetensors (.safetensors)
 - ✅ NumPy (.npy, .npz)
 - ✅ MATLAB (.mat)
-- ✅ JSON (.json)
-- ✅ YAML (.yaml, .yml)
-- ✅ TOML (.toml)
-- ✅ XML (.xml)
-- ✅ INI (.ini)
-- ✅ CSV (.csv)
 
 ### Phase 3 (Planned)
 - ⏳ TensorFlow (.pb, .h5, SavedModel)

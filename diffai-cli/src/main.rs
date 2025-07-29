@@ -1,8 +1,7 @@
 use anyhow::{Context, Result};
 use clap::{Parser, ValueEnum};
 use diffai_core::{
-    diff, diff_paths, format_output, parse_csv, parse_ini, parse_xml, DiffOptions, DiffResult,
-    DiffaiSpecificOptions, OutputFormat,
+    diff, diff_paths, format_output, DiffOptions, DiffResult, DiffaiSpecificOptions, OutputFormat,
 };
 use regex::Regex;
 use serde_json::Value;
@@ -127,12 +126,6 @@ struct Args {
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
 enum Format {
-    Json,
-    Yaml,
-    Csv,
-    Toml,
-    Ini,
-    Xml,
     Pytorch,
     Safetensors,
     Numpy,
@@ -268,35 +261,21 @@ fn infer_format_from_path(path: &Path) -> Option<Format> {
         path.extension()
             .and_then(|ext| ext.to_str())
             .and_then(|ext_str| match ext_str.to_lowercase().as_str() {
-                "json" => Some(Format::Json),
-                "yaml" | "yml" => Some(Format::Yaml),
-                "toml" => Some(Format::Toml),
-                "ini" => Some(Format::Ini),
-                "xml" => Some(Format::Xml),
-                "csv" => Some(Format::Csv),
-                "pytorch" => Some(Format::Pytorch),
+                "pt" | "pth" => Some(Format::Pytorch),
                 "safetensors" => Some(Format::Safetensors),
-                "numpy" => Some(Format::Numpy),
-                "matlab" => Some(Format::Matlab),
+                "npy" | "npz" => Some(Format::Numpy),
+                "mat" => Some(Format::Matlab),
                 _ => None,
             })
     }
 }
 
-fn parse_content(content: &str, format: Format) -> Result<Value> {
-    match format {
-        Format::Json => serde_json::from_str(content).context("Failed to parse JSON"),
-        Format::Yaml => serde_yml::from_str(content).context("Failed to parse YAML"),
-        Format::Toml => toml::from_str(content).context("Failed to parse TOML"),
-        Format::Ini => parse_ini(content).context("Failed to parse INI"),
-        Format::Xml => parse_xml(content).context("Failed to parse XML"),
-        Format::Csv => parse_csv(content).context("Failed to parse CSV"),
-        // Note: AI/ML formats would need special handling, but for stdin they would typically be JSON
-        _ => Err(anyhow::anyhow!(
-            "Format {:?} not supported for stdin input",
-            format
-        )),
-    }
+fn parse_content(_content: &str, format: Format) -> Result<Value> {
+    // AI/ML files are binary formats and cannot be read from stdin
+    Err(anyhow::anyhow!(
+        "Format {:?} not supported for stdin input. AI/ML files are binary formats and must be read from files. diffai only supports: .pt, .pth, .safetensors, .npy, .npz, .mat",
+        format
+    ))
 }
 
 fn handle_stdin_input(args: &Args, input1_is_stdin: bool, input2_is_stdin: bool) -> Result<()> {
@@ -330,127 +309,10 @@ fn handle_stdin_input(args: &Args, input1_is_stdin: bool, input2_is_stdin: bool)
     handle_output_and_exit(&differences, args)
 }
 
-fn handle_both_stdin(args: &Args) -> Result<()> {
-    // Read entire stdin
-    let mut buffer = String::new();
-    io::stdin()
-        .read_to_string(&mut buffer)
-        .context("Failed to read from stdin")?;
-
-    // Try to parse as two separate JSON/YAML objects
-    if let Some(fmt) = args.format {
-        match fmt {
-            Format::Json => handle_both_stdin_json(&buffer, args),
-            Format::Yaml => handle_both_stdin_yaml(&buffer, args),
-            _ => Err(anyhow::anyhow!(
-                "Two stdin inputs only supported for JSON and YAML formats"
-            )),
-        }
-    } else {
-        // Try JSON first, then YAML
-        handle_both_stdin_json(&buffer, args).or_else(|_| handle_both_stdin_yaml(&buffer, args))
-    }
-}
-
-fn handle_both_stdin_json(buffer: &str, args: &Args) -> Result<()> {
-    // Try to parse as JSON Lines (two separate JSON objects)
-    let lines: Vec<&str> = buffer.trim().lines().collect();
-
-    if lines.len() >= 2 {
-        // Try to parse first and last non-empty lines as JSON
-        let first_json = lines
-            .iter()
-            .find(|line| !line.trim().is_empty())
-            .ok_or_else(|| anyhow::anyhow!("No JSON content found in stdin"))?;
-        let second_json = lines
-            .iter()
-            .rev()
-            .find(|line| !line.trim().is_empty())
-            .ok_or_else(|| anyhow::anyhow!("Only one JSON object found in stdin"))?;
-
-        if first_json != second_json {
-            let v1: Value = serde_json::from_str(first_json)?;
-            let v2: Value = serde_json::from_str(second_json)?;
-
-            let options = build_diff_options_for_values(args)?;
-            let differences = diff(&v1, &v2, Some(&options))?;
-
-            return handle_output_and_exit(&differences, args);
-        }
-    }
-
-    // Try to parse as two concatenated JSON objects
-    let trimmed = buffer.trim();
-    if let Some(end_of_first) = find_json_object_end(trimmed) {
-        let first_part = &trimmed[..end_of_first];
-        let second_part = trimmed[end_of_first..].trim();
-
-        if !second_part.is_empty() {
-            let v1: Value = serde_json::from_str(first_part)?;
-            let v2: Value = serde_json::from_str(second_part)?;
-
-            let options = build_diff_options_for_values(args)?;
-            let differences = diff(&v1, &v2, Some(&options))?;
-
-            return handle_output_and_exit(&differences, args);
-        }
-    }
-
+fn handle_both_stdin(_args: &Args) -> Result<()> {
     Err(anyhow::anyhow!(
-        "Could not parse two JSON objects from stdin"
+        "diffai does not support reading from stdin. AI/ML files are binary formats and must be read from files. Supported formats: .pt, .pth, .safetensors, .npy, .npz, .mat"
     ))
-}
-
-fn handle_both_stdin_yaml(buffer: &str, args: &Args) -> Result<()> {
-    // Try to parse as two YAML documents separated by ---
-    let documents: Vec<&str> = buffer.split("---").collect();
-
-    if documents.len() >= 2 {
-        let doc1 = documents[0].trim();
-        let doc2 = documents[1].trim();
-
-        if !doc1.is_empty() && !doc2.is_empty() {
-            let v1: Value = serde_yml::from_str(doc1)?;
-            let v2: Value = serde_yml::from_str(doc2)?;
-
-            let options = build_diff_options_for_values(args)?;
-            let differences = diff(&v1, &v2, Some(&options))?;
-
-            return handle_output_and_exit(&differences, args);
-        }
-    }
-
-    Err(anyhow::anyhow!(
-        "Could not parse two YAML documents from stdin (expected '---' separator)"
-    ))
-}
-
-fn find_json_object_end(json_str: &str) -> Option<usize> {
-    let mut brace_count = 0;
-    let mut in_string = false;
-    let mut escape_next = false;
-
-    for (i, ch) in json_str.char_indices() {
-        if escape_next {
-            escape_next = false;
-            continue;
-        }
-
-        match ch {
-            '"' if !escape_next => in_string = !in_string,
-            '\\' if in_string => escape_next = true,
-            '{' if !in_string => brace_count += 1,
-            '}' if !in_string => {
-                brace_count -= 1;
-                if brace_count == 0 {
-                    return Some(i + 1);
-                }
-            }
-            _ => {}
-        }
-    }
-
-    None
 }
 
 fn build_diff_options_for_values(args: &Args) -> Result<DiffOptions> {

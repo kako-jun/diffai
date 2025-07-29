@@ -2,20 +2,21 @@ use serde_json::{json, Value};
 
 /// Common test fixtures shared across diffai core/python/js tests
 /// These fixtures are compatible with CLI fixtures but focused on AI/ML unified API testing
-
 pub struct TestFixtures;
 
 impl TestFixtures {
     /// Get path to shared CLI fixtures directory
+    #[allow(dead_code)]
     pub fn cli_fixtures_dir() -> &'static str {
         "../../tests/fixtures"
     }
 
     /// Load JSON file from CLI fixtures
+    #[allow(dead_code)]
     pub fn load_cli_fixture(filename: &str) -> Value {
-        let path = format!("{}/{}", Self::cli_fixtures_dir(), filename);
+        let path = format!("{}/{filename}", Self::cli_fixtures_dir());
         let content = std::fs::read_to_string(&path)
-            .unwrap_or_else(|_| panic!("Failed to read fixture: {}", path));
+            .unwrap_or_else(|_| panic!("Failed to read fixture: {path}"));
 
         if filename.ends_with(".json") {
             serde_json::from_str(&content).unwrap()
@@ -25,20 +26,22 @@ impl TestFixtures {
     }
 
     /// Basic configuration comparison fixtures (shared with diffx)
+    #[allow(dead_code)]
     pub fn config_v1() -> Value {
         Self::load_cli_fixture("config_v1.json")
     }
 
+    #[allow(dead_code)]
     pub fn config_v2() -> Value {
         Self::load_cli_fixture("config_v2.json")
     }
 
+    #[allow(dead_code)]
     pub fn config_v3() -> Value {
         Self::load_cli_fixture("config_v3.json")
     }
 
     /// AI/ML specific test fixtures
-
     /// PyTorch model metadata fixtures
     pub fn pytorch_model_old() -> Value {
         json!({
@@ -484,8 +487,8 @@ pub mod ml_generators {
         let mut weights = serde_json::Map::new();
 
         for i in 0..layer_sizes.len() - 1 {
-            let weight_name = format!("layer_{}_weight", i);
-            let bias_name = format!("layer_{}_bias", i);
+            let weight_name = format!("layer_{i}_weight");
+            let bias_name = format!("layer_{i}_bias");
 
             weights.insert(
                 weight_name,
