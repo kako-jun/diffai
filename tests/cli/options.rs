@@ -149,13 +149,12 @@ fn test_path_filter_option() {
             .output()
             .expect("Failed to execute diffai --path");
 
-        if !output.status.success() {
-            let stderr = String::from_utf8_lossy(&output.stderr);
-            assert!(
-                !stderr.contains("unrecognized"),
-                "Path option should be recognized"
-            );
-        }
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        assert!(
+            !stderr.contains("unrecognized"),
+            "Path option should be recognized"
+        );
     }
 }
 
@@ -305,32 +304,5 @@ fn test_help_option() {
     );
 }
 
-#[test]
-fn test_mixed_format_comparison() {
-    if let Ok((json_file, _)) = create_test_ml_pair() {
-        if let Ok((yaml_file, _)) = create_test_yaml_pair() {
-            let output = Command::new("cargo")
-                .args([
-                    "run",
-                    "--bin",
-                    "diffai",
-                    "--",
-                    json_file.to_str().unwrap(),
-                    yaml_file.to_str().unwrap(),
-                ])
-                .current_dir(env!("CARGO_MANIFEST_DIR"))
-                .output()
-                .expect("Failed to execute diffai with mixed formats");
-
-            // Should handle mixed format comparison gracefully
-            if !output.status.success() {
-                let stderr = String::from_utf8_lossy(&output.stderr);
-                // Should not crash with unhandled errors
-                assert!(
-                    !stderr.contains("panic"),
-                    "Should not panic on mixed formats"
-                );
-            }
-        }
-    }
-}
+// Mixed format comparison removed - diffai is AI/ML specialized only
+// For general structured data format comparison, use diffx instead

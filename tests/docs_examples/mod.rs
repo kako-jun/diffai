@@ -8,7 +8,7 @@ pub mod ml_model_comparison_examples;
 pub mod ml_recommendations_examples;
 pub mod ml_workflows_examples;
 pub mod output_formats_examples;
-pub mod readme_examples;
+// readme_examples removed - examples.md was deleted as AI/ML-only design
 pub mod reference_cli_options;
 pub mod scientific_data_examples;
 pub mod user_guide_basic_usage;
