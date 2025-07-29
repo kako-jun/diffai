@@ -204,9 +204,8 @@ diffai simulation_v1.mat simulation_v2.mat
 - **NumPy** (.npy, .npz) - NumPy arrays with statistical analysis
 - **MATLAB** (.mat) - MATLAB matrices with complex number support
 
-### Structured Data Formats
-- **JSON** (.json), **YAML** (.yaml, .yml), **TOML** (.toml)
-- **XML** (.xml), **INI** (.ini), **CSV** (.csv)
+### 汎用構造化データフォーマット
+**JSON**、**YAML**、**CSV**、**XML**、**INI**、**TOML**などの構造化データフォーマットには、姉妹プロジェクト [diffx](https://github.com/kako-jun/diffx) をご利用ください。
 
 ## Next Steps
 

@@ -20,7 +20,8 @@ diffaiはモデル構造、テンソル統計、科学データを理解するAI
 比較する最初の入力ファイルまたはディレクトリ。
 
 - **タイプ**: ファイルパスまたはディレクトリパス
-- **形式**: PyTorch (.pt/.pth)、Safetensors (.safetensors)、NumPy (.npy/.npz)、MATLAB (.mat)、JSON、YAML、TOML、XML、INI、CSV
+- **形式**: PyTorch (.pt/.pth)、Safetensors (.safetensors)、NumPy (.npy/.npz)、MATLAB (.mat)
+- **注意**: 汎用フォーマット（JSON、YAML、TOML、XML、INI、CSV）の比較にはdiffxをご使用ください
 - **特殊**: stdinを使用する場合は`-`
 
 #### `<INPUT2>`
@@ -31,10 +32,9 @@ diffaiはモデル構造、テンソル統計、科学データを理解するAI
 - **特殊**: stdinを使用する場合は`-`
 
 **標準入力サポート:**
-- **片方が標準入力、片方がファイル**: `diffai - file.json` または `diffai file.json -`
-- **両方が標準入力**: `diffai - -` (標準入力から2つのデータセットを読み取り)
-  - **JSON**: 改行で区切られた、または連結された2つのJSONオブジェクト
-  - **YAML**: `---`で区切られた2つのYAMLドキュメント
+- **片方が標準入力、片方がファイル**: `diffai - model.safetensors` または `diffai model.safetensors -`
+- **両方が標準入力**: `diffai - -` (標準入力から2つのAI/MLデータセットを読み取り)
+- **注意**: 汎用フォーマットの標準入力処理にはdiffxをご使用ください
 
 **例**:
 ```bash
@@ -42,27 +42,26 @@ diffaiはモデル構造、テンソル統計、科学データを理解するAI
 diffai model1.safetensors model2.safetensors
 diffai data_v1.npy data_v2.npy
 diffai experiment_v1.mat experiment_v2.mat
-diffai config.json config_new.json
+# 汎用フォーマット比較にはdiffxを使用
+# diffx config.json config_new.json
 
 # ディレクトリ比較（自動再帰的）
 diffai dir1/ dir2/
 
-# 標準入力とファイル
-cat config.json | diffai - config_new.json
+# 標準入力とAI/MLファイル
+cat model.safetensors | diffai - model_new.safetensors
 
-# 両方を標準入力から（パイプ両方）
-echo '{"old": "data"}
-{"new": "data"}' | diffai - -
+# 両方を標準入力から（AI/MLデータ）
+echo 'tensor_data_old
+tensor_data_new' | diffai - -
 
-# 標準入力から2つのYAMLドキュメント
-echo 'name: Alice
-age: 25
----
-name: Bob
-age: 30' | diffai - - --format yaml
+# API AI/MLモデル比較（標準入力経由）
+(curl -s https://api.example.com/v1/model.safetensors; echo; curl -s https://api.example.com/v2/model.safetensors) | diffai - -
 
-# APIレスポンス比較（標準入力経由）
-(curl -s https://api.example.com/v1/model; echo; curl -s https://api.example.com/v2/model) | diffai - -
+# 汎用フォーマットにはdiffxをご使用ください:
+# cat config.json | diffx - config_new.json
+# echo '{"old": "data"}
+# {"new": "data"}' | diffx - -
 ```
 
 ## Options
@@ -72,7 +71,8 @@ age: 30' | diffai - - --format yaml
 #### `-f, --format <FORMAT>`
 Specify input file format explicitly.
 
-- **Possible values**: `json`, `yaml`, `toml`, `ini`, `xml`, `csv`, `safetensors`, `pytorch`, `numpy`, `npz`, `matlab`
+- **Possible values**: `safetensors`, `pytorch`, `numpy`, `npz`, `matlab`
+- **注意**: 汎用フォーマット（`json`, `yaml`, `toml`, `ini`, `xml`, `csv`）にはdiffxをご使用ください
 - **Default**: Auto-detected from file extension
 - **Example**: `--format safetensors`
 
@@ -126,7 +126,7 @@ Show verbose processing information including performance metrics, configuration
 #### `--no-color`
 Disable colored output for better compatibility with scripts, pipelines, or terminals that don't support ANSI colors.
 
-- **Example**: `diffai config.json config.new.json --no-color`
+- **Example**: `diffai model.safetensors model.new.safetensors --no-color`
 - **Usage**: Plain text output without color formatting
 - **Note**: Particularly useful for CI/CD environments and automated scripts
 

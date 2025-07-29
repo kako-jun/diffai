@@ -32,9 +32,7 @@ fn criterion_benchmark(c: &mut Criterion) {
         "key5": "new_value"
     });
 
-    c.bench_function("diff_small_json", |b| {
-        b.iter(|| diff(&v1, &v2, None, None, None))
-    });
+    c.bench_function("diff_small_json", |b| b.iter(|| diff(&v1, &v2, None)));
 
     // Large JSON for more realistic benchmark
     let mut large_v1 = serde_json::Map::new();
@@ -51,7 +49,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     let large_json_v2 = Value::Object(large_v2);
 
     c.bench_function("diff_large_json", |b| {
-        b.iter(|| diff(&large_json_v1, &large_json_v2, None, None, None))
+        b.iter(|| diff(&large_json_v1, &large_json_v2, None))
     });
 }
 

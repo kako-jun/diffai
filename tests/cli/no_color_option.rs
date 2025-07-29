@@ -49,8 +49,8 @@ fn test_diffai_no_color_option_basic() -> Result<(), Box<dyn std::error::Error>>
 
     // Debug output for troubleshooting
     eprintln!("Exit status: {:?}", output.status);
-    eprintln!("Stdout: '{}'", stdout);
-    eprintln!("Stderr: '{}'", stderr);
+    eprintln!("Stdout: '{stdout}'");
+    eprintln!("Stderr: '{stderr}'");
 
     assert!(
         !stdout.contains("\x1b["),
@@ -247,16 +247,14 @@ fn test_diffai_no_color_with_different_formats() -> Result<(), Box<dyn std::erro
             ])
             .current_dir(env!("CARGO_MANIFEST_DIR"))
             .output()
-            .expect(&format!(
-                "Failed to execute diffai with --no-color and --output {}",
-                format
-            ));
+            .unwrap_or_else(|_| {
+                panic!("Failed to execute diffai with --no-color and --output {format}")
+            });
 
         let stdout = String::from_utf8_lossy(&output.stdout);
         assert!(
             !stdout.contains("\x1b["),
-            "Output format {} should not contain ANSI color codes when --no-color is specified",
-            format
+            "Output format {format} should not contain ANSI color codes when --no-color is specified"
         );
     }
 

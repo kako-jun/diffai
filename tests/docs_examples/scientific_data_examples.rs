@@ -1,4 +1,6 @@
+#[allow(unused_imports)]
 use assert_cmd::prelude::*;
+#[allow(unused_imports)]
 use predicates::prelude::*;
 use std::io::Write;
 use std::process::Command;
@@ -21,11 +23,11 @@ fn create_temp_file(content: &str, suffix: &str) -> NamedTempFile {
 fn test_numpy_array_comparison() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(
         r#"{"numpy_array": {"shape": [1000, 256], "mean": 0.1234, "std": 0.9876, "dtype": "float64"}}"#,
-        ".json",
+        ".safetensors",
     );
     let file2 = create_temp_file(
         r#"{"numpy_array": {"shape": [1000, 256], "mean": 0.1456, "std": 0.9654, "dtype": "float64"}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -42,11 +44,11 @@ fn test_numpy_array_comparison() -> Result<(), Box<dyn std::error::Error>> {
 fn test_compressed_numpy_archives() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(
         r#"{"train_data": {"shape": [60000, 784], "mean": 0.1307, "std": 0.3081, "dtype": "float32"}, "test_data": {"shape": [10000, 784], "mean": 0.1325, "std": 0.3105, "dtype": "float32"}}"#,
-        ".json",
+        ".safetensors",
     );
     let file2 = create_temp_file(
         r#"{"train_data": {"shape": [60000, 784], "mean": 0.1309, "std": 0.3082, "dtype": "float32"}, "test_data": {"shape": [10000, 784], "mean": 0.1327, "std": 0.3106, "dtype": "float32"}, "validation_data": {"shape": [5000, 784], "mean": 0.1315, "std": 0.3095, "dtype": "float32"}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -63,11 +65,11 @@ fn test_compressed_numpy_archives() -> Result<(), Box<dyn std::error::Error>> {
 fn test_numpy_json_output() -> Result<(), Box<dyn std::error::Error>> {
     let baseline = create_temp_file(
         r#"{"experiment": {"baseline": true, "data": [1.0, 2.0, 3.0]}}"#,
-        ".json",
+        ".safetensors",
     );
     let result = create_temp_file(
         r#"{"experiment": {"baseline": false, "data": [1.1, 2.1, 3.1]}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -87,11 +89,11 @@ fn test_numpy_json_output() -> Result<(), Box<dyn std::error::Error>> {
 fn test_matlab_file_comparison() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(
         r#"{"results": {"shape": [500, 100], "mean": 2.3456, "std": 1.2345, "dtype": "double"}}"#,
-        ".json",
+        ".safetensors",
     );
     let file2 = create_temp_file(
         r#"{"results": {"shape": [500, 100], "mean": 2.4567, "std": 1.3456, "dtype": "double"}, "new_variable": {"shape": [100], "dtype": "single", "elements": 100}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -108,11 +110,11 @@ fn test_matlab_file_comparison() -> Result<(), Box<dyn std::error::Error>> {
 fn test_matlab_specific_variables() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(
         r#"{"experiment_data": {"temperature": [20.1, 20.2, 20.3]}}"#,
-        ".json",
+        ".safetensors",
     );
     let file2 = create_temp_file(
         r#"{"experiment_data": {"temperature": [21.1, 21.2, 21.3]}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -132,11 +134,11 @@ fn test_matlab_specific_variables() -> Result<(), Box<dyn std::error::Error>> {
 fn test_matlab_yaml_output() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(
         r#"{"analysis": {"method": "linear", "r_squared": 0.85}}"#,
-        ".json",
+        ".safetensors",
     );
     let file2 = create_temp_file(
         r#"{"analysis": {"method": "polynomial", "r_squared": 0.92}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -152,8 +154,8 @@ fn test_matlab_yaml_output() -> Result<(), Box<dyn std::error::Error>> {
 /// Test case 7: diffai experiment_v1.npy experiment_v2.npy --epsilon 1e-6
 #[test]
 fn test_epsilon_tolerance_numerical() -> Result<(), Box<dyn std::error::Error>> {
-    let file1 = create_temp_file(r#"{"measurement": {"value": 1.0000001}}"#, ".json");
-    let file2 = create_temp_file(r#"{"measurement": {"value": 1.0000002}}"#, ".json");
+    let file1 = create_temp_file(r#"{"measurement": {"value": 1.0000001}}"#, ".safetensors");
+    let file2 = create_temp_file(r#"{"measurement": {"value": 1.0000002}}"#, ".safetensors");
 
     let mut cmd = diffai_cmd();
     cmd.arg(file1.path())
@@ -172,11 +174,11 @@ fn test_epsilon_tolerance_numerical() -> Result<(), Box<dyn std::error::Error>> 
 fn test_matlab_epsilon_simulation() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(
         r#"{"simulation": {"velocity": 1.23456789, "pressure": 101.325}}"#,
-        ".json",
+        ".safetensors",
     );
     let file2 = create_temp_file(
         r#"{"simulation": {"velocity": 1.23456790, "pressure": 101.326}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -196,11 +198,11 @@ fn test_matlab_epsilon_simulation() -> Result<(), Box<dyn std::error::Error>> {
 fn test_matlab_path_filtering() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(
         r#"{"experimental_data": {"sample_1": {"concentration": 0.5}}}"#,
-        ".json",
+        ".safetensors",
     );
     let file2 = create_temp_file(
         r#"{"experimental_data": {"sample_1": {"concentration": 0.6}}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -220,11 +222,11 @@ fn test_matlab_path_filtering() -> Result<(), Box<dyn std::error::Error>> {
 fn test_ignore_metadata_variables() -> Result<(), Box<dyn std::error::Error>> {
     let file1 = create_temp_file(
         r#"{"metadata": {"created": "2024-01-01"}, "timestamp": "12:00:00", "data": {"values": [1, 2, 3]}}"#,
-        ".json",
+        ".safetensors",
     );
     let file2 = create_temp_file(
         r#"{"metadata": {"created": "2024-01-02"}, "timestamp": "13:00:00", "data": {"values": [1, 2, 4]}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();
@@ -244,11 +246,11 @@ fn test_ignore_metadata_variables() -> Result<(), Box<dyn std::error::Error>> {
 fn test_experimental_data_validation() -> Result<(), Box<dyn std::error::Error>> {
     let baseline = create_temp_file(
         r#"{"data": {"shape": [1000, 50], "mean": 0.4567, "std": 0.1234, "dtype": "float64"}}"#,
-        ".json",
+        ".safetensors",
     );
     let treated = create_temp_file(
         r#"{"data": {"shape": [1000, 50], "mean": 0.5123, "std": 0.1456, "dtype": "float64"}}"#,
-        ".json",
+        ".safetensors",
     );
 
     let mut cmd = diffai_cmd();

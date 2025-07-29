@@ -10,7 +10,7 @@ This comprehensive guide will help you get up and running with `diffai` quickly 
 
 - **AI-Enhanced Analysis**: Uses machine learning to detect patterns and anomalies in changes
 - **Semantic Understanding**: Understands the meaning and context of data changes
-- **Multiple Formats**: Supports JSON, YAML, TOML, XML, CSV, and more
+- **AI/ML专业化**: 支持 PyTorch (.pt/.pth)、Safetensors (.safetensors)、NumPy (.npy/.npz)、MATLAB (.mat) 格式
 - **Intelligent Insights**: Provides ML-driven analysis of change patterns
 - **Advanced Statistics**: Statistical analysis of data distributions and trends
 
@@ -30,20 +30,21 @@ cargo install diffai
 The most basic usage is comparing two files:
 
 ```bash
-# Compare JSON files with AI analysis
-diffai config_v1.json config_v2.json
+# 使用AI分析比较PyTorch模型文件
+diffai model_v1.pt model_v2.pt
 
-# Compare YAML files with ML insights
-diffai docker-compose.yml docker-compose.new.yml
+# 使用ML洞察比较Safetensors模型
+diffai model1.safetensors model2.safetensors
 
-# Compare TOML files
-diffai Cargo.toml Cargo.toml.backup
+# 比较NumPy数组
+diffai data1.npy data2.npy
 
-# Compare XML files
-diffai settings.xml settings.new.xml
+# 比较MATLAB矩阵
+diffai simulation1.mat simulation2.mat
 
-# Compare CSV files with statistical analysis
-diffai data.csv data_updated.csv
+# 对于通用结构化数据格式，请使用diffx:
+diffx config_v1.json config_v2.json
+diffx docker-compose.yml docker-compose.new.yml
 ```
 
 ### Output Formats
@@ -51,14 +52,14 @@ diffai data.csv data_updated.csv
 Control how results are displayed:
 
 ```bash
-# JSON output for API integration
-diffai --format json file1.json file2.json
+# 用于API集成的JSON输出
+diffai --output json model1.pt model2.pt
 
-# YAML output for human readability
-diffai --format yaml config1.yml config2.yml
+# 便于人类阅读的YAML输出
+diffai --output yaml model1.safetensors model2.safetensors
 
-# Verbose output with ML analysis details
-diffai --verbose data1.csv data2.csv
+# 带ML分析详细信息的详细输出
+diffai --verbose data1.npy data2.npy
 ```
 
 ### 目录比较
@@ -82,14 +83,18 @@ diffai --output results.json dir1/ dir2/
 Enable AI-powered analysis for deeper insights:
 
 ```bash
-# Enable ML anomaly detection
-diffai --epsilon 0.01 dataset1.json dataset2.json
+# 为张量比较启用ML异常检测
+diffai --epsilon 0.01 model1.safetensors model2.safetensors
 
-# Array comparison with intelligent ID matching
-diffai --array-id-key id users1.json users2.json
+# 带统计分析的NumPy归档比较
+diffai --verbose data1.npz data2.npz
 
-# Ignore specific patterns with regex
-diffai --ignore-keys-regex "timestamp|temp_" log1.json log2.json
+# 专注于特定张量路径
+diffai --path "layer1" model1.pt model2.pt
+
+# 对于通用数据分析，请使用diffx:
+diffx --array-id-key id users1.json users2.json
+diffx --ignore-keys-regex "timestamp|temp_" log1.json log2.json
 ```
 
 ### Path-specific Analysis

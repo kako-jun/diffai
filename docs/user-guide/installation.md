@@ -153,16 +153,13 @@ diffai --version
 # Run help
 diffai --help
 
-# Test with sample files
-echo '{"a": 1}' > test1.json
-echo '{"a": 2}' > test2.json
-diffai test1.json test2.json
+# Test with sample AI/ML files (if available)
+# diffai model1.safetensors model2.safetensors
 
-# Expected output:
-# ~ a: 1 -> 2
-
-# Clean up
-rm test1.json test2.json
+# For general structured data formats, use diffx:
+# echo '{"a": 1}' > test1.json
+# echo '{"a": 2}' > test2.json  
+# diffx test1.json test2.json
 ```
 
 ## Development Installation

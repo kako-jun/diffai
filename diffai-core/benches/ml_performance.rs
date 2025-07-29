@@ -1,7 +1,7 @@
 #![allow(clippy::uninlined_format_args)]
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use diffai_core::{diff_ml_models_enhanced, parse_safetensors_model};
+use diffai_core::{diff_paths, parse_safetensors_model};
 use std::path::Path;
 
 /// Benchmark ML model comparison with different model sizes
@@ -38,85 +38,21 @@ fn benchmark_ml_model_comparison(c: &mut Criterion) {
 
         group.bench_function(format!("basic_comparison_{}", comparison_name), |b| {
             b.iter(|| {
-                black_box(diff_ml_models_enhanced(
-                    black_box(*model1_path),
-                    black_box(*model2_path),
-                    false, // enable_learning_progress
-                    false, // enable_convergence_analysis
-                    false, // enable_anomaly_detection
-                    false, // enable_gradient_analysis
-                    false, // enable_memory_analysis
-                    false, // enable_inference_speed
-                    false, // enable_regression_test
-                    false, // enable_alert_degradation
-                    false, // enable_review_friendly
-                    false, // enable_change_summary
-                    false, // enable_risk_assessment
-                    false, // enable_architecture_comparison
-                    false, // enable_param_efficiency
-                    false, // enable_hyperparameter_impact
-                    false, // enable_learning_rate
-                    false, // enable_deployment_readiness
-                    false, // enable_performance_impact
-                    false, // enable_generate_report
-                    false, // enable_markdown_output
-                    false, // enable_include_charts
-                    false, // enable_embedding_analysis
-                    false, // enable_similarity_matrix
-                    false, // enable_clustering_change
-                    false, // enable_attention_analysis
-                    false, // enable_head_importance
-                    false, // enable_attention_pattern
-                    false, // enable_quantization_analysis
-                    false, // enable_transfer_learning_analysis
-                    false, // enable_experiment_reproducibility
-                    false, // enable_ensemble_analysis
-                    false, // enable_hyperparameter_comparison
-                    false, // enable_learning_curve_analysis
-                    false, // enable_statistical_significance
+                black_box(diff_paths(
+                    &model1_path.to_string_lossy(),
+                    &model2_path.to_string_lossy(),
+                    None,
                 ))
             })
         });
 
-        // Benchmark with advanced features enabled
+        // Benchmark with AI/ML specific options
         group.bench_function(format!("advanced_features_{}", comparison_name), |b| {
             b.iter(|| {
-                black_box(diff_ml_models_enhanced(
-                    black_box(*model1_path),
-                    black_box(*model2_path),
-                    true,  // enable_learning_progress
-                    true,  // enable_convergence_analysis
-                    true,  // enable_anomaly_detection
-                    false, // enable_gradient_analysis
-                    true,  // enable_memory_analysis
-                    true,  // enable_inference_speed
-                    false, // enable_regression_test
-                    false, // enable_alert_degradation
-                    false, // enable_review_friendly
-                    false, // enable_change_summary
-                    false, // enable_risk_assessment
-                    true,  // enable_architecture_comparison
-                    true,  // enable_param_efficiency
-                    false, // enable_hyperparameter_impact
-                    false, // enable_learning_rate
-                    false, // enable_deployment_readiness
-                    false, // enable_performance_impact
-                    false, // enable_generate_report
-                    false, // enable_markdown_output
-                    false, // enable_include_charts
-                    false, // enable_embedding_analysis
-                    false, // enable_similarity_matrix
-                    false, // enable_clustering_change
-                    false, // enable_attention_analysis
-                    false, // enable_head_importance
-                    false, // enable_attention_pattern
-                    true,  // enable_quantization_analysis
-                    false, // enable_transfer_learning_analysis
-                    false, // enable_experiment_reproducibility
-                    false, // enable_ensemble_analysis
-                    false, // enable_hyperparameter_comparison
-                    false, // enable_learning_curve_analysis
-                    false, // enable_statistical_significance
+                black_box(diff_paths(
+                    &model1_path.to_string_lossy(),
+                    &model2_path.to_string_lossy(),
+                    None,
                 ))
             })
         });
@@ -171,42 +107,10 @@ fn benchmark_real_models(c: &mut Criterion) {
 
         group.bench_function("real_model_comparison", |b| {
             b.iter(|| {
-                black_box(diff_ml_models_enhanced(
-                    black_box(model1_path),
-                    black_box(model2_path),
-                    false, // enable_learning_progress
-                    false, // enable_convergence_analysis
-                    false, // enable_anomaly_detection
-                    false, // enable_gradient_analysis
-                    false, // enable_memory_analysis
-                    false, // enable_inference_speed
-                    false, // enable_regression_test
-                    false, // enable_alert_degradation
-                    false, // enable_review_friendly
-                    false, // enable_change_summary
-                    false, // enable_risk_assessment
-                    false, // enable_architecture_comparison
-                    false, // enable_param_efficiency
-                    false, // enable_hyperparameter_impact
-                    false, // enable_learning_rate
-                    false, // enable_deployment_readiness
-                    false, // enable_performance_impact
-                    false, // enable_generate_report
-                    false, // enable_markdown_output
-                    false, // enable_include_charts
-                    false, // enable_embedding_analysis
-                    false, // enable_similarity_matrix
-                    false, // enable_clustering_change
-                    false, // enable_attention_analysis
-                    false, // enable_head_importance
-                    false, // enable_attention_pattern
-                    false, // enable_quantization_analysis
-                    false, // enable_transfer_learning_analysis
-                    false, // enable_experiment_reproducibility
-                    false, // enable_ensemble_analysis
-                    false, // enable_hyperparameter_comparison
-                    false, // enable_learning_curve_analysis
-                    false, // enable_statistical_significance
+                black_box(diff_paths(
+                    &model1_path.to_string_lossy(),
+                    &model2_path.to_string_lossy(),
+                    None,
                 ))
             })
         });

@@ -10,7 +10,7 @@ This comprehensive guide will help you get up and running with `diffai` quickly 
 
 - **AI-Enhanced Analysis**: Uses machine learning to detect patterns and anomalies in changes
 - **Semantic Understanding**: Understands the meaning and context of data changes
-- **Multiple Formats**: Supports JSON, YAML, TOML, XML, CSV, and more
+- **AI/ML Specialized**: Supports PyTorch (.pt/.pth), Safetensors (.safetensors), NumPy (.npy/.npz), and MATLAB (.mat) formats
 - **Intelligent Insights**: Provides ML-driven analysis of change patterns
 - **Advanced Statistics**: Statistical analysis of data distributions and trends
 
@@ -30,20 +30,21 @@ cargo install diffai
 The most basic usage is comparing two files:
 
 ```bash
-# Compare JSON files with AI analysis
-diffai config_v1.json config_v2.json
+# Compare PyTorch model files with AI analysis
+diffai model_v1.pt model_v2.pt
 
-# Compare YAML files with ML insights
-diffai docker-compose.yml docker-compose.new.yml
+# Compare Safetensors models with ML insights
+diffai model1.safetensors model2.safetensors
 
-# Compare TOML files
-diffai Cargo.toml Cargo.toml.backup
+# Compare NumPy arrays
+diffai data1.npy data2.npy
 
-# Compare XML files
-diffai settings.xml settings.new.xml
+# Compare MATLAB matrices
+diffai simulation1.mat simulation2.mat
 
-# Compare CSV files with statistical analysis
-diffai data.csv data_updated.csv
+# For general structured data formats, use diffx:
+diffx config_v1.json config_v2.json
+diffx docker-compose.yml docker-compose.new.yml
 ```
 
 ### Output Formats
@@ -52,13 +53,13 @@ Control how results are displayed:
 
 ```bash
 # JSON output for API integration
-diffai --format json file1.json file2.json
+diffai --output json model1.pt model2.pt
 
 # YAML output for human readability
-diffai --format yaml config1.yml config2.yml
+diffai --output yaml model1.safetensors model2.safetensors
 
 # Verbose output with ML analysis details
-diffai --verbose data1.csv data2.csv
+diffai --verbose data1.npy data2.npy
 ```
 
 ### Directory Comparison
@@ -82,14 +83,18 @@ diffai --output results.json dir1/ dir2/
 Enable AI-powered analysis for deeper insights:
 
 ```bash
-# Enable ML anomaly detection
-diffai --epsilon 0.01 dataset1.json dataset2.json
+# Enable ML anomaly detection for tensor comparison
+diffai --epsilon 0.01 model1.safetensors model2.safetensors
 
-# Array comparison with intelligent ID matching
-diffai --array-id-key id users1.json users2.json
+# Compare NumPy archives with statistical analysis
+diffai --verbose data1.npz data2.npz
 
-# Ignore specific patterns with regex
-diffai --ignore-keys-regex "timestamp|temp_" log1.json log2.json
+# Focus on specific tensor paths
+diffai --path "layer1" model1.pt model2.pt
+
+# For general data analysis, use diffx:
+diffx --array-id-key id users1.json users2.json
+diffx --ignore-keys-regex "timestamp|temp_" log1.json log2.json
 ```
 
 ### Path-specific Analysis

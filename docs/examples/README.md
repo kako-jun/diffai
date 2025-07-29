@@ -4,20 +4,22 @@ v0.3.4の実際の動作を示す簡潔な例集
 
 ## 基本機能
 
-**JSON比較** [`basic-json-diff.txt`](outputs/basic-json-diff.txt)
+**AI/MLファイル比較** [`basic-model-diff.txt`](outputs/basic-model-diff.txt)
 ```bash
-diffai config_v1.json config_v2.json
+diffai model1.safetensors model2.safetensors
 ```
 
 **詳細モード** [`verbose-mode.txt`](outputs/verbose-mode.txt) 
 ```bash
-diffai config_v1.json config_v2.json --verbose
+diffai model1.safetensors model2.safetensors --verbose
 ```
 
 **JSON出力** [`output-json.txt`](outputs/output-json.txt)
 ```bash
-diffai config_v1.json config_v2.json --output json
+diffai model1.safetensors model2.safetensors --output json
 ```
+
+**注意**: 一般的な構造化データ（JSON、YAML、CSV等）の比較には [diffx](https://github.com/kako-jun/diffx) をご利用ください。
 
 ## ML機能
 

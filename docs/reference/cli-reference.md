@@ -20,7 +20,7 @@ diffai is a specialized diff tool for AI/ML workflows that understands model str
 First input file or directory to compare.
 
 - **Type**: File path or directory path
-- **Formats**: PyTorch (.pt/.pth), Safetensors (.safetensors), NumPy (.npy/.npz), MATLAB (.mat), JSON, YAML, TOML, XML, INI, CSV
+- **Formats**: PyTorch (.pt/.pth), Safetensors (.safetensors), NumPy (.npy/.npz), MATLAB (.mat)
 - **Special**: Use `-` for stdin
 
 #### `<INPUT2>`
@@ -30,11 +30,7 @@ Second input file or directory to compare.
 - **Formats**: Same as INPUT1
 - **Special**: Use `-` for stdin
 
-**Stdin Support:**
-- **One stdin, one file**: `diffai - file.json` or `diffai file.json -`
-- **Both from stdin**: `diffai - -` (reads two data sets from stdin)
-  - **JSON**: Two JSON objects separated by newlines or concatenated
-  - **YAML**: Two YAML documents separated by `---`
+**Note**: stdin is not supported for AI/ML files as they are binary formats. Use file paths only.
 
 **Examples**:
 ```bash
@@ -42,27 +38,17 @@ Second input file or directory to compare.
 diffai model1.safetensors model2.safetensors
 diffai data_v1.npy data_v2.npy
 diffai experiment_v1.mat experiment_v2.mat
-diffai config.json config_new.json
+# For general structured data, use diffx:
+# diffx config.json config_new.json
 
 # Directory comparison (automatic recursive)
 diffai dir1/ dir2/
 
-# Stdin with file
-cat config.json | diffai - config_new.json
-
-# Both from stdin (pipe both)
-echo '{"old": "data"}
-{"new": "data"}' | diffai - -
-
-# Two YAML documents from stdin
-echo 'name: Alice
-age: 25
----
-name: Bob
-age: 30' | diffai - - --format yaml
-
-# API response comparison via stdin
-(curl -s https://api.example.com/v1/model; echo; curl -s https://api.example.com/v2/model) | diffai - -
+# Stdin not supported for binary AI/ML files
+# For general data comparison, use diffx:
+# cat config.json | diffx - config_new.json
+# echo '{"old": "data"}
+# {"new": "data"}' | diffx - -
 ```
 
 ## Options
@@ -72,7 +58,7 @@ age: 30' | diffai - - --format yaml
 #### `-f, --format <FORMAT>`
 Specify input file format explicitly.
 
-- **Possible values**: `json`, `yaml`, `toml`, `ini`, `xml`, `csv`, `safetensors`, `pytorch`, `numpy`, `npz`, `matlab`
+- **Possible values**: `pytorch`, `safetensors`, `numpy`, `matlab`
 - **Default**: Auto-detected from file extension
 - **Example**: `--format safetensors`
 

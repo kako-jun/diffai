@@ -1,4 +1,6 @@
+#[allow(unused_imports)]
 use assert_cmd::prelude::*;
+#[allow(unused_imports)]
 use predicates::prelude::*;
 use std::process::Command;
 
@@ -13,8 +15,8 @@ fn diffai_cmd() -> Command {
 fn test_cli_reference_options() -> Result<(), Box<dyn std::error::Error>> {
     // Test epsilon option from CLI reference
     let mut cmd = diffai_cmd();
-    cmd.arg("../tests/fixtures/data1.json")
-        .arg("../tests/fixtures/data2.json")
+    cmd.arg("../tests/fixtures/data1.safetensors")
+        .arg("../tests/fixtures/data2.safetensors")
         .arg("--epsilon")
         .arg("0.00001");
 
@@ -28,8 +30,8 @@ fn test_cli_reference_options() -> Result<(), Box<dyn std::error::Error>> {
 fn test_array_id_key_reference() -> Result<(), Box<dyn std::error::Error>> {
     // Test array-id-key option from CLI reference
     let mut cmd = diffai_cmd();
-    cmd.arg("../tests/fixtures/users1.json")
-        .arg("../tests/fixtures/users2.json")
+    cmd.arg("../tests/fixtures/users1.safetensors")
+        .arg("../tests/fixtures/users2.safetensors")
         .arg("--array-id-key")
         .arg("id");
 
@@ -45,8 +47,8 @@ fn test_array_id_key_reference() -> Result<(), Box<dyn std::error::Error>> {
 fn test_ignore_keys_regex_reference() -> Result<(), Box<dyn std::error::Error>> {
     // Test ignore-keys-regex option from CLI reference
     let mut cmd = diffai_cmd();
-    cmd.arg("../tests/fixtures/file1.json")
-        .arg("../tests/fixtures/file2.json")
+    cmd.arg("../tests/fixtures/file1.safetensors")
+        .arg("../tests/fixtures/file2.safetensors")
         .arg("--ignore-keys-regex")
         .arg("^age$");
 

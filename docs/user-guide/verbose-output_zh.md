@@ -16,11 +16,14 @@ Verbose mode displays detailed information about:
 ### Enable Verbose Mode
 
 ```bash
-# Basic verbose output
-diffai file1.json file2.json --verbose
+# AI/ML文件的基本详细输出
+diffai model1.safetensors model2.safetensors --verbose
 
-# Short form
-diffai file1.json file2.json -v
+# 简写形式
+diffai model1.pt model2.pt -v
+
+# 通用格式请使用diffx:
+# diffx file1.json file2.json --verbose
 ```
 
 ### Example Output
@@ -33,16 +36,16 @@ Configuration:
   Recursive mode: false
 
 File analysis:
-  Input 1: file1.json
-  Input 2: file2.json
-  Detected format: Json
+  Input 1: model1.safetensors
+  Input 2: model2.safetensors
+  Detected format: Safetensors
   File 1 size: 156 bytes
   File 2 size: 162 bytes
 
 Processing results:
   Total processing time: 234.567µs
   Differences found: 3
-  Format-specific analysis: Json
+  Format-specific analysis: Safetensors
 ```
 
 ## Configuration Diagnostics

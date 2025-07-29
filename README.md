@@ -123,7 +123,9 @@ diffai model_v1.safetensors model_v2.safetensors --output yaml
 - **[User Guide](docs/user-guide.md)** - Comprehensive usage guide
 - **[ML Analysis Guide](docs/ml-analysis-guide.md)** - Deep dive into ML-specific features
 
-## Supported File Formats
+## Supported AI/ML File Formats
+
+diffai is specialized for AI/ML and scientific computing files only:
 
 ### ML Model Formats
 - **Safetensors** (.safetensors) - HuggingFace standard format
@@ -133,13 +135,7 @@ diffai model_v1.safetensors model_v2.safetensors --output yaml
 - **NumPy** (.npy, .npz) - NumPy arrays with full statistical analysis
 - **MATLAB** (.mat) - MATLAB matrices with complex number support
 
-### Structured Data Formats
-- **JSON** (.json) - JavaScript Object Notation
-- **YAML** (.yaml, .yml) - YAML Ain't Markup Language
-- **TOML** (.toml) - Tom's Obvious Minimal Language  
-- **XML** (.xml) - Extensible Markup Language
-- **INI** (.ini) - Configuration files
-- **CSV** (.csv) - Comma-separated values
+**Note**: For general-purpose structured data formats (JSON, YAML, CSV, XML, etc.), please use our sibling project [diffx](https://github.com/kako-jun/diffx) which is specifically designed for those formats.
 
 ## ML Analysis Functions
 

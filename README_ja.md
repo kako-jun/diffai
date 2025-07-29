@@ -123,7 +123,9 @@ diffai model_v1.safetensors model_v2.safetensors --output yaml
 - **[ユーザーガイド](docs/user-guide/getting-started_ja.md)** - 包括的な使用ガイド
 - **[ML解析ガイド](docs/reference/ml-analysis_ja.md)** - ML特化機能の詳細解説
 
-## サポートされるファイル形式
+## サポートされるAI/MLファイル形式
+
+diffaiはAI/MLと科学計算ファイル専用に特化されています：
 
 ### MLモデル形式
 - **Safetensors** (.safetensors) - HuggingFace標準形式
@@ -133,13 +135,7 @@ diffai model_v1.safetensors model_v2.safetensors --output yaml
 - **NumPy** (.npy, .npz) - 完全統計解析付きNumPy配列
 - **MATLAB** (.mat) - 複素数サポート付きMATLAB行列
 
-### 構造化データ形式
-- **JSON** (.json) - JavaScript Object Notation
-- **YAML** (.yaml, .yml) - YAML Ain't Markup Language
-- **TOML** (.toml) - Tom's Obvious Minimal Language  
-- **XML** (.xml) - Extensible Markup Language
-- **INI** (.ini) - 設定ファイル
-- **CSV** (.csv) - カンマ区切り値
+**注記**: 汎用構造化データ形式（JSON、YAML、CSV、XML等）については、これらの形式専用に設計された姉妹プロジェクト[diffx](https://github.com/kako-jun/diffx)をご利用ください。
 
 ## ML解析機能
 

@@ -1,10 +1,10 @@
-# 支持格式
+# 支持的AI/ML文件格式
 
-diffai 支持的文件格式及其规范。
+diffai 支持的AI/ML和科学计算文件格式及其规范。
 
 ## 概述
 
-diffai 支持为不同用例优化的广泛文件格式，从机器学习模型到科学数据和结构化配置文件。
+diffai专门为AI/ML和科学计算文件格式而特化。对于通用结构化数据格式（JSON、YAML、CSV、XML等），请使用专为这些格式设计的姊妹项目[diffx](https://github.com/kako-jun/diffx)。
 
 ## 机器学习模型格式
 
@@ -55,43 +55,14 @@ diffai archive1.npz archive2.npz
 diffai simulation1.mat simulation2.mat
 ```
 
-## Structured Data Formats
+## 支持的扩展名
 
-### JSON
-- **Extension**: `.json`
-- **Format**: JavaScript Object Notation
-- **Support**: Nested objects, arrays, basic data types
-- **Use Cases**: Configuration files, API responses, experiment results
+diffai专门支持以下文件扩展名：
 
-### YAML
-- **Extensions**: `.yaml`, `.yml`
-- **Format**: YAML Ain't Markup Language
-- **Support**: Hierarchical structure, comments, multiple documents
-- **Use Cases**: Configuration files, CI/CD, Kubernetes
+- **ML模型文件**: `.pt`, `.pth`, `.safetensors`
+- **科学数据文件**: `.npy`, `.npz`, `.mat`
 
-### TOML
-- **Extension**: `.toml`
-- **Format**: Tom's Obvious, Minimal Language
-- **Support**: Type-safe, configuration-oriented structure
-- **Use Cases**: Rust configuration, project settings
-
-### XML
-- **Extension**: `.xml`
-- **Format**: eXtensible Markup Language
-- **Support**: Attributes, namespaces, hierarchical structure
-- **Use Cases**: Configuration files, data exchange
-
-### INI
-- **Extension**: `.ini`
-- **Format**: Initialization file
-- **Support**: Sections, key-value pairs
-- **Use Cases**: Configuration files, legacy applications
-
-### CSV
-- **Extension**: `.csv`
-- **Format**: Comma-Separated Values
-- **Support**: Tabular data, header rows
-- **Use Cases**: Data analysis, spreadsheets
+对于`.json`, `.yaml`, `.csv`, `.xml`, `.ini`, `.toml`等通用格式，请使用[diffx](https://github.com/kako-jun/diffx)。
 
 ## Format Auto-Detection
 
@@ -104,17 +75,11 @@ diffai detects formats in the following priority order:
 
 ## Implementation Status
 
-### Phase 1-2 (Completed)
+### Phase 1-2 (已完成)
 - ✅ PyTorch (.pt, .pth)
 - ✅ Safetensors (.safetensors)
 - ✅ NumPy (.npy, .npz)
 - ✅ MATLAB (.mat)
-- ✅ JSON (.json)
-- ✅ YAML (.yaml, .yml)
-- ✅ TOML (.toml)
-- ✅ XML (.xml)
-- ✅ INI (.ini)
-- ✅ CSV (.csv)
 
 ### Phase 3 (Planned)
 - ⏳ TensorFlow (.pb, .h5, SavedModel)
