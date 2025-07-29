@@ -4,101 +4,91 @@ use std::io::Write;
 use std::process::Command;
 use tempfile::tempdir;
 
-// Helper function to create test JSON files
-fn create_test_json_pair(
+// Helper function to create test AI/ML model files
+fn create_test_ml_pair(
 ) -> Result<(std::path::PathBuf, std::path::PathBuf), Box<dyn std::error::Error>> {
     let temp_dir = tempdir()?;
 
-    let file1 = temp_dir.path().join("test1.json");
+    let file1 = temp_dir.path().join("model1.safetensors");
     let mut f1 = fs::File::create(&file1)?;
+    // Fake safetensors content representing model metadata
     writeln!(
         f1,
-        r#"{{"name": "Alice", "age": 30, "scores": [85, 92, 78]}}"#
+        r#"{{"model_arch": "feedforward", "layers": 3, "parameters": 1000}}"#
     )?;
 
-    let file2 = temp_dir.path().join("test2.json");
+    let file2 = temp_dir.path().join("model2.safetensors");
     let mut f2 = fs::File::create(&file2)?;
     writeln!(
         f2,
-        r#"{{"name": "Alice", "age": 31, "scores": [85, 95, 78]}}"#
+        r#"{{"model_arch": "feedforward", "layers": 4, "parameters": 1200}}"#
     )?;
-
-    Ok((file1, file2))
-}
-
-// Helper function to create test YAML files
-fn create_test_yaml_pair(
-) -> Result<(std::path::PathBuf, std::path::PathBuf), Box<dyn std::error::Error>> {
-    let temp_dir = tempdir()?;
-
-    let file1 = temp_dir.path().join("test1.yaml");
-    let mut f1 = fs::File::create(&file1)?;
-    writeln!(f1, "name: Alice\nage: 30\nscores:\n  - 85\n  - 92\n  - 78")?;
-
-    let file2 = temp_dir.path().join("test2.yaml");
-    let mut f2 = fs::File::create(&file2)?;
-    writeln!(f2, "name: Alice\nage: 31\nscores:\n  - 85\n  - 95\n  - 78")?;
 
     Ok((file1, file2))
 }
 
 #[test]
 fn test_format_options() {
-    if let Ok((file1, file2)) = create_test_json_pair() {
-        for format in ["json", "yaml", "toml", "ini", "xml", "csv"] {
-            let output = Command::new("cargo")
-                .args([
-                    "run",
-                    "--bin",
-                    "diffai",
-                    "--",
-                    file1.to_str().unwrap(),
-                    file2.to_str().unwrap(),
-                    "--format",
-                    format,
-                ])
-                .current_dir(env!("CARGO_MANIFEST_DIR"))
-                .output()
-                .expect("Failed to execute diffai");
+    // Test AI/ML format options only (diffai is AI/ML specialized)
+    let model_file1 = "tests/fixtures/ml_models/model1.pt";
+    let model_file2 = "tests/fixtures/ml_models/model2.pt";
+    
+    for format in ["pytorch", "safetensors", "numpy", "matlab"] {
+        let output = Command::new("cargo")
+            .args([
+                "run",
+                "--bin",
+                "diffai",
+                "--",
+                model_file1,
+                model_file2,
+                "--format",
+                format,
+            ])
+            .current_dir(env!("CARGO_MANIFEST_DIR"))
+            .output()
+            .expect("Failed to execute diffai");
 
-            // Should recognize the format option
-            if !output.status.success() {
-                let stderr = String::from_utf8_lossy(&output.stderr);
-                assert!(
-                    !stderr.contains("unrecognized") || stderr.contains("invalid"),
-                    "Format {format} should be recognized"
-                );
-            }
+        // AI/ML format options should be recognized
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            // Should not contain "unrecognized" for valid AI/ML formats
+            assert!(
+                !stderr.contains("unrecognized option"),
+                "AI/ML format {format} should be recognized"
+            );
         }
     }
 }
 
 #[test]
 fn test_output_options() {
-    if let Ok((file1, file2)) = create_test_json_pair() {
-        for output_format in ["diffai", "json", "yaml"] {
-            let output = Command::new("cargo")
-                .args([
-                    "run",
-                    "--bin",
-                    "diffai",
-                    "--",
-                    file1.to_str().unwrap(),
-                    file2.to_str().unwrap(),
-                    "--output",
-                    output_format,
-                ])
-                .current_dir(env!("CARGO_MANIFEST_DIR"))
-                .output()
-                .expect("Failed to execute diffai");
+    // Test output format options with AI/ML files
+    let model_file1 = "tests/fixtures/ml_models/model1.pt";
+    let model_file2 = "tests/fixtures/ml_models/model2.pt";
+    
+    for output_format in ["diffai", "json", "yaml"] {
+        let output = Command::new("cargo")
+            .args([
+                "run",
+                "--bin",
+                "diffai",
+                "--",
+                model_file1,
+                model_file2,
+                "--output",
+                output_format,
+            ])
+            .current_dir(env!("CARGO_MANIFEST_DIR"))
+            .output()
+            .expect("Failed to execute diffai");
 
-            if !output.status.success() {
-                let stderr = String::from_utf8_lossy(&output.stderr);
-                assert!(
-                    !stderr.contains("unrecognized"),
-                    "Output format {output_format} should be recognized"
-                );
-            }
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            assert!(
+                !stderr.contains("unrecognized"),
+                "Output format {output_format} should be recognized"
+            );
         }
     }
 }
@@ -111,9 +101,9 @@ fn test_recursive_option() {
     fs::create_dir_all(&dir1).expect("Failed to create dir1");
     fs::create_dir_all(&dir2).expect("Failed to create dir2");
 
-    // Create test files in directories
-    fs::write(dir1.join("test.json"), r#"{"a": 1}"#).expect("Failed to write file");
-    fs::write(dir2.join("test.json"), r#"{"a": 2}"#).expect("Failed to write file");
+    // Create AI/ML test files in directories
+    fs::write(dir1.join("model.safetensors"), b"fake safetensors data 1").expect("Failed to write file");
+    fs::write(dir2.join("model.safetensors"), b"fake safetensors data 2").expect("Failed to write file");
 
     let output = Command::new("cargo")
         .args([
@@ -140,18 +130,21 @@ fn test_recursive_option() {
 
 #[test]
 fn test_path_filter_option() {
-    if let Ok((file1, file2)) = create_test_json_pair() {
-        let output = Command::new("cargo")
-            .args([
-                "run",
-                "--bin",
-                "diffai",
-                "--",
-                file1.to_str().unwrap(),
-                file2.to_str().unwrap(),
-                "--path",
-                "age",
-            ])
+    // Test path filter with AI/ML files
+    let model_file1 = "tests/fixtures/ml_models/model1.pt";
+    let model_file2 = "tests/fixtures/ml_models/model2.pt";
+    
+    let output = Command::new("cargo")
+        .args([
+            "run",
+            "--bin",
+            "diffai",
+            "--",
+            model_file1,
+            model_file2,
+            "--path",
+            "layer",
+        ])
             .current_dir(env!("CARGO_MANIFEST_DIR"))
             .output()
             .expect("Failed to execute diffai --path");
@@ -168,7 +161,7 @@ fn test_path_filter_option() {
 
 #[test]
 fn test_ignore_keys_regex_option() {
-    if let Ok((file1, file2)) = create_test_json_pair() {
+    if let Ok((file1, file2)) = create_test_ml_pair() {
         let output = Command::new("cargo")
             .args([
                 "run",
@@ -196,7 +189,7 @@ fn test_ignore_keys_regex_option() {
 
 #[test]
 fn test_epsilon_option() {
-    if let Ok((file1, file2)) = create_test_json_pair() {
+    if let Ok((file1, file2)) = create_test_ml_pair() {
         let output = Command::new("cargo")
             .args([
                 "run",
@@ -224,7 +217,7 @@ fn test_epsilon_option() {
 
 #[test]
 fn test_array_id_key_option() {
-    if let Ok((file1, file2)) = create_test_json_pair() {
+    if let Ok((file1, file2)) = create_test_ml_pair() {
         let output = Command::new("cargo")
             .args([
                 "run",
@@ -252,7 +245,7 @@ fn test_array_id_key_option() {
 
 #[test]
 fn test_verbose_option() {
-    if let Ok((file1, file2)) = create_test_json_pair() {
+    if let Ok((file1, file2)) = create_test_ml_pair() {
         let output = Command::new("cargo")
             .args([
                 "run",
@@ -314,7 +307,7 @@ fn test_help_option() {
 
 #[test]
 fn test_mixed_format_comparison() {
-    if let Ok((json_file, _)) = create_test_json_pair() {
+    if let Ok((json_file, _)) = create_test_ml_pair() {
         if let Ok((yaml_file, _)) = create_test_yaml_pair() {
             let output = Command::new("cargo")
                 .args([

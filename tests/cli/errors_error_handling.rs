@@ -12,7 +12,7 @@ fn diffai_cmd() -> Command {
 #[test]
 fn test_nonexistent_file_error() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
-    cmd.arg("nonexistent1.json").arg("nonexistent2.json");
+    cmd.arg("nonexistent1.safetensors").arg("nonexistent2.safetensors");
 
     cmd.assert()
         .failure()
@@ -21,30 +21,32 @@ fn test_nonexistent_file_error() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-/// Test handling of invalid JSON format
+/// Test handling of unsupported JSON format (diffai is AI/ML only)
 #[test]
-fn test_invalid_json_error() -> Result<(), Box<dyn std::error::Error>> {
-    // Create temporary invalid JSON file
+fn test_unsupported_json_error() -> Result<(), Box<dyn std::error::Error>> {
+    // Create temporary JSON file (unsupported format for diffai)
     fs::create_dir_all("../tests/output")?;
-    fs::write("../tests/output/invalid.json", "{ invalid json syntax }")?;
+    fs::write("../tests/output/unsupported.json", r#"{"test": "data"}"#)?;
+    fs::write("../tests/output/unsupported2.json", r#"{"test": "data2"}"#)?;
 
     let mut cmd = diffai_cmd();
-    cmd.arg("../tests/output/invalid.json")
-        .arg("../tests/fixtures/file1.json");
+    cmd.arg("../tests/output/unsupported.json")
+        .arg("../tests/output/unsupported2.json");
 
     let output = cmd.output()?;
 
-    // Should either handle gracefully or show error
+    // Should show unsupported format error and suggest diffx
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert!(
-        output.status.success()
-            || stderr.contains("parse")
-            || stderr.contains("invalid")
-            || stderr.contains("JSON")
+        !output.status.success() 
+        && (stderr.contains("Unsupported file format") 
+            || stderr.contains("diffx")
+            || stderr.contains("AI/ML file formats"))
     );
 
     // Clean up
-    let _ = fs::remove_file("../tests/output/invalid.json");
+    let _ = fs::remove_file("../tests/output/unsupported.json");
+    let _ = fs::remove_file("../tests/output/unsupported2.json");
 
     Ok(())
 }
@@ -96,7 +98,7 @@ fn test_invalid_argument_error() -> Result<(), Box<dyn std::error::Error>> {
 #[test]
 fn test_insufficient_arguments_error() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
-    cmd.arg("only-one-file.json");
+    cmd.arg("only-one-file.safetensors");
 
     let output = cmd.output()?;
 
@@ -110,22 +112,22 @@ fn test_insufficient_arguments_error() -> Result<(), Box<dyn std::error::Error>>
 /// Test handling of empty files
 #[test]
 fn test_empty_file_handling() -> Result<(), Box<dyn std::error::Error>> {
-    // Create temporary empty file
+    // Create temporary empty safetensors file
     fs::create_dir_all("../tests/output")?;
-    fs::write("../tests/output/empty.json", "")?;
+    fs::write("../tests/output/empty.safetensors", "")?;
 
     let mut cmd = diffai_cmd();
-    cmd.arg("../tests/output/empty.json")
-        .arg("../tests/fixtures/file1.json");
+    cmd.arg("../tests/output/empty.safetensors")
+        .arg("../tests/fixtures/ml_models/model1.pt");
 
     let output = cmd.output()?;
 
-    // Should handle empty files gracefully
+    // Should handle empty files gracefully or show appropriate error
     let stderr = String::from_utf8_lossy(&output.stderr);
-    assert!(output.status.success() || stderr.contains("empty") || stderr.contains("parse"));
+    assert!(!output.status.success() && (stderr.contains("empty") || stderr.contains("parse") || stderr.contains("invalid")));
 
     // Clean up
-    let _ = fs::remove_file("../tests/output/empty.json");
+    let _ = fs::remove_file("../tests/output/empty.safetensors");
 
     Ok(())
 }
@@ -136,17 +138,17 @@ fn test_empty_file_handling() -> Result<(), Box<dyn std::error::Error>> {
 fn test_permission_denied_error() -> Result<(), Box<dyn std::error::Error>> {
     use std::os::unix::fs::PermissionsExt;
 
-    // Create temporary file with no read permissions
+    // Create temporary safetensors file with no read permissions
     fs::create_dir_all("../tests/output")?;
-    fs::write("../tests/output/no_read.json", r#"{"test": "data"}"#)?;
+    fs::write("../tests/output/no_read.safetensors", b"fake safetensors data")?;
 
-    let mut perms = fs::metadata("../tests/output/no_read.json")?.permissions();
+    let mut perms = fs::metadata("../tests/output/no_read.safetensors")?.permissions();
     perms.set_mode(0o000); // No permissions
-    fs::set_permissions("../tests/output/no_read.json", perms)?;
+    fs::set_permissions("../tests/output/no_read.safetensors", perms)?;
 
     let mut cmd = diffai_cmd();
-    cmd.arg("../tests/output/no_read.json")
-        .arg("../tests/fixtures/file1.json");
+    cmd.arg("../tests/output/no_read.safetensors")
+        .arg("../tests/fixtures/ml_models/model1.pt");
 
     let output = cmd.output()?;
 
@@ -157,10 +159,10 @@ fn test_permission_denied_error() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     // Clean up (restore permissions first)
-    let mut perms = fs::metadata("../tests/output/no_read.json")?.permissions();
+    let mut perms = fs::metadata("../tests/output/no_read.safetensors")?.permissions();
     perms.set_mode(0o644);
-    fs::set_permissions("../tests/output/no_read.json", perms)?;
-    let _ = fs::remove_file("../tests/output/no_read.json");
+    fs::set_permissions("../tests/output/no_read.safetensors", perms)?;
+    let _ = fs::remove_file("../tests/output/no_read.safetensors");
 
     Ok(())
 }
