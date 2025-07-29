@@ -4,7 +4,7 @@ Current implementation status and development phases of the diffai project.
 
 ## Overview
 
-diffai follows a phased development approach with Phase 1-2 completed. The current implementation provides a comprehensive AI/ML specialized diff tool with 28 advanced analysis functions.
+diffai follows a phased development approach with basic functionality implemented and advanced features under development.
 
 ## Development Phases
 
@@ -29,7 +29,7 @@ diffai follows a phased development approach with Phase 1-2 completed. The curre
 #### Implemented Features
 - **ML model support**: PyTorch (.pt/.pth), Safetensors (.safetensors)
 - **Scientific data support**: NumPy (.npy/.npz), MATLAB (.mat)
-- **28 advanced ML analysis functions**: Learning, convergence, architecture, deployment analysis
+- **ML analysis functions**: Under active development
 - **Tensor statistics**: Mean, standard deviation, shape, data type analysis
 
 #### Technical Implementation

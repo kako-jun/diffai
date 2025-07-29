@@ -7,27 +7,27 @@ Learn the fundamental operations of diffai - AI/ML specialized diff tool.
 ### Basic File Comparison
 
 ```bash
-# Compare two model files (comprehensive analysis automatic)
+# Compare two model files - comprehensive analysis is automatic
 diffai model1.safetensors model2.safetensors
 
-# Output in JSON format
-diffai model1.safetensors model2.safetensors --output json
+# Compare PyTorch models
+diffai model_v1.pt model_v2.pt
 
-# Output in YAML format  
-diffai model1.safetensors model2.safetensors --output yaml
+# Compare NumPy arrays
+diffai data_v1.npy data_v2.npy
+
+# Compare MATLAB matrices
+diffai experiment_v1.mat experiment_v2.mat
 ```
 
 ### Directory Comparison
 
 ```bash
-# Compare entire directories with automatic detection
-diffai dir1/ dir2/
-
-# Compare with specific file format
-diffai models_v1/ models_v2/ --format safetensors
+# Compare entire directories - automatically recursive
+diffai models_v1/ models_v2/
 ```
 
-**Note**: Directory comparison is automatically detected when paths end with `/`. The tool intelligently analyzes all ML/AI files within directories and provides comprehensive comparison reports.
+**Note**: diffai automatically detects file formats and provides comprehensive ML/AI analysis without requiring any options or configuration.
 
 ## AI/ML Specialized Features
 

@@ -7,20 +7,20 @@ Integration guide for machine learning and AI development with diffai.
 ### 1. Model Development & Improvement
 
 ```bash
-# Compare new architecture with baseline (comprehensive analysis automatic)
+# Compare new architecture with baseline
 diffai baseline/resnet18.pth experiment/resnet34.pth
 
-# Before/after fine-tuning comparison (comprehensive analysis automatic)
+# Before/after fine-tuning comparison
 diffai pretrained/model.pth finetuned/model.pth
 ```
 
 ### 2. Experiment Management
 
 ```bash
-# Compare experiment results (AI/ML files automatic detection)
+# Compare experiment results
 diffai experiment_001/ experiment_002/
 
-# For configuration file differences, use diffx:
+# For configuration files, use diffx:
 # diffx config/baseline.yaml config/experiment.yaml
 ```
 
@@ -28,10 +28,10 @@ diffai experiment_001/ experiment_002/
 
 ```bash
 # Compare before/after quantization
-diffai original/model.pth quantized/model.pth --show-structure
+diffai original/model.pth quantized/model.pth
 
 # Check pruning effects
-diffai full/model.pth pruned/model.pth --diff-only
+diffai full/model.pth pruned/model.pth
 ```
 
 ## Directory-Based ML Workflows
@@ -44,11 +44,8 @@ diffai automatically handles directory comparisons for ML workflows without requ
 # Compare entire experiment directories
 diffai baseline_experiment/ new_experiment/
 
-# Automatic detection of model files, configs, and results
+# Automatic detection of model files
 diffai run_001/ run_002/
-
-# Filter specific ML file types
-diffai checkpoint_dir_A/ checkpoint_dir_B/ --include "*.pth" --include "*.safetensors"
 ```
 
 **ML-Specific Benefits:**
@@ -68,21 +65,21 @@ python train.py --config baseline.yaml --output baseline/
 # 2. Run new experiment
 python train.py --config experiment.yaml --output experiment/
 
-# 3. Compare AI/ML results (automatic directory detection)
+# 3. Compare AI/ML results
 diffai baseline/ experiment/
 
 # For config comparison, use diffx:
 # diffx baseline.yaml experiment.yaml
 
-# 4. Detailed analysis (comprehensive analysis automatic)
+# 4. Detailed analysis
 diffai baseline/model.pth experiment/model.pth
 ```
 
 ### Model Comparison Report
 
 ```bash
-# Generate comprehensive comparison report (30+ analysis features automatic)
-diffai baseline/model.pth experiment/model.pth --output json > comparison.json
+# Generate comparison report
+diffai baseline/model.pth experiment/model.pth > comparison.txt
 
 # Visualize report
 python scripts/visualize_comparison.py comparison.json
@@ -96,7 +93,7 @@ python scripts/visualize_comparison.py comparison.json
 # Track model changes across epochs
 for checkpoint in checkpoints/epoch_*.pth; do
   echo "=== Epoch $(basename $checkpoint .pth | cut -d_ -f2) ==="
-  diffai checkpoints/epoch_1.pth $checkpoint --show-structure --diff-only
+  diffai checkpoints/epoch_1.pth $checkpoint
 done
 ```
 

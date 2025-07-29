@@ -161,6 +161,16 @@ fn diff_result_to_python(py: Python, result: &DiffResult) -> PyResult<PyObject> 
             dict.set_item("old_version", old_version)?;
             dict.set_item("new_version", new_version)?;
         }
+        DiffResult::TensorStatsChanged(path, old_stats, new_stats) => {
+            dict.set_item("type", "TensorStatsChanged")?;
+            dict.set_item("path", path)?;
+            let old_stats_json = serde_json::to_value(old_stats).map_err(|e| 
+                pyo3::exceptions::PyValueError::new_err(format!("Serialization error: {}", e)))?;
+            let new_stats_json = serde_json::to_value(new_stats).map_err(|e| 
+                pyo3::exceptions::PyValueError::new_err(format!("Serialization error: {}", e)))?;
+            dict.set_item("old_stats", value_to_python(py, &old_stats_json)?)?;
+            dict.set_item("new_stats", value_to_python(py, &new_stats_json)?)?;
+        }
     }
 
     Ok(dict.to_object(py))

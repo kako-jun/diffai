@@ -377,6 +377,13 @@ fn convert_diff_result(result: DiffResult) -> Result<JsDiffResult> {
             js_result.old_version = Some(old_version);
             js_result.new_version = Some(new_version);
         }
+        DiffResult::TensorStatsChanged(path, old_stats, new_stats) => {
+            js_result.diff_type = "TensorStatsChanged".to_string();
+            js_result.path = path;
+            // Store tensor stats information in JSON values for JavaScript access
+            js_result.old_value = Some(serde_json::to_value(old_stats).unwrap_or(serde_json::Value::Null));
+            js_result.new_value = Some(serde_json::to_value(new_stats).unwrap_or(serde_json::Value::Null));
+        }
     }
 
     Ok(js_result)

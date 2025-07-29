@@ -66,12 +66,7 @@ For general-purpose formats like `.json`, `.yaml`, `.csv`, `.xml`, `.ini`, `.tom
 
 ## Format Auto-Detection
 
-diffai detects formats in the following priority order:
-
-1. **--format** option (explicit specification)
-2. **File extension** based auto-detection
-3. **Configuration file** default format
-4. **Error** (if unable to determine)
+diffai automatically detects file formats based on extensions - no configuration needed.
 
 ## Implementation Status
 

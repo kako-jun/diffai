@@ -43,10 +43,10 @@ For each tensor in the model, diffai calculates and compares:
 ### Simple Comparison
 
 ```bash
-# Compare two PyTorch models (comprehensive analysis automatic)
+# Compare two PyTorch models - automatic comprehensive analysis
 diffai model1.pt model2.pt
 
-# Compare Safetensors models (recommended, comprehensive analysis automatic)
+# Compare Safetensors models - automatic comprehensive analysis
 diffai model1.safetensors model2.safetensors
 
 # Automatic format detection with full analysis

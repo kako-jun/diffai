@@ -77,51 +77,6 @@ struct Args {
     /// Show type information in output
     #[arg(long)]
     show_types: bool,
-
-    // AI/ML specific options
-    /// Enable ML analysis features
-    #[arg(long)]
-    ml_analysis: bool,
-
-    /// Tensor comparison mode: shape, data, or both
-    #[arg(long)]
-    tensor_mode: Option<String>,
-
-    /// Model format: pytorch, safetensors, numpy, matlab
-    #[arg(long)]
-    model_format: Option<String>,
-
-    /// Enable scientific precision mode
-    #[arg(long)]
-    scientific_precision: bool,
-
-    /// Weight change significance threshold
-    #[arg(long)]
-    weight_threshold: Option<f64>,
-
-    /// Enable activation function analysis
-    #[arg(long)]
-    activation_analysis: bool,
-
-    /// Track learning rate changes
-    #[arg(long)]
-    learning_rate_tracking: bool,
-
-    /// Compare optimizer settings
-    #[arg(long)]
-    optimizer_comparison: bool,
-
-    /// Track loss function changes
-    #[arg(long)]
-    loss_tracking: bool,
-
-    /// Track accuracy metrics
-    #[arg(long)]
-    accuracy_tracking: bool,
-
-    /// Check model version changes
-    #[arg(long)]
-    model_version_check: bool,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
@@ -199,6 +154,59 @@ fn main() -> Result<()> {
 
 // File format detection and parsing functions are now handled by diffai-core
 
+fn build_format_aware_diffai_options(format: Option<Format>) -> DiffaiSpecificOptions {
+    let mut options = DiffaiSpecificOptions {
+        // Universal options (enabled for all formats)
+        ml_analysis_enabled: Some(true),
+        tensor_comparison_mode: Some("both".to_string()),
+        model_format: None, // Auto-detect
+        scientific_precision: Some(true),
+        weight_threshold: Some(0.01),
+        model_version_check: Some(true),
+        
+        // Format-specific options (initially disabled)
+        activation_analysis: Some(false),
+        learning_rate_tracking: Some(false),
+        optimizer_comparison: Some(false),
+        loss_tracking: Some(false),
+        accuracy_tracking: Some(false),
+    };
+    
+    // Enable format-specific features based on detected format
+    match format {
+        Some(Format::Pytorch) => {
+            // PyTorch supports all ML analysis features
+            options.activation_analysis = Some(true);
+            options.learning_rate_tracking = Some(true);
+            options.optimizer_comparison = Some(true);
+            options.loss_tracking = Some(true);
+            options.accuracy_tracking = Some(true);
+        }
+        Some(Format::Safetensors) => {
+            // Safetensors supports most features except optimizer and accuracy
+            options.activation_analysis = Some(true);
+            options.learning_rate_tracking = Some(true);
+            options.loss_tracking = Some(true);
+            // optimizer_comparison and accuracy_tracking remain false
+        }
+        Some(Format::Numpy) | Some(Format::Matlab) => {
+            // NumPy and MATLAB only support universal options
+            // All learning-related features remain disabled
+        }
+        None => {
+            // Unknown format: enable all features as fallback
+            // This maintains backward compatibility
+            options.activation_analysis = Some(true);
+            options.learning_rate_tracking = Some(true);
+            options.optimizer_comparison = Some(true);
+            options.loss_tracking = Some(true);
+            options.accuracy_tracking = Some(true);
+        }
+    }
+    
+    options
+}
+
 fn build_diff_options(args: &Args) -> Result<DiffOptions> {
     let ignore_keys_regex = if let Some(pattern) = &args.ignore_keys_regex {
         Some(Regex::new(pattern)?)
@@ -206,19 +214,15 @@ fn build_diff_options(args: &Args) -> Result<DiffOptions> {
         None
     };
 
-    let diffai_options = Some(DiffaiSpecificOptions {
-        ml_analysis_enabled: Some(args.ml_analysis),
-        tensor_comparison_mode: args.tensor_mode.clone(),
-        model_format: args.model_format.clone(),
-        scientific_precision: Some(args.scientific_precision),
-        weight_threshold: args.weight_threshold,
-        activation_analysis: Some(args.activation_analysis),
-        learning_rate_tracking: Some(args.learning_rate_tracking),
-        optimizer_comparison: Some(args.optimizer_comparison),
-        loss_tracking: Some(args.loss_tracking),
-        accuracy_tracking: Some(args.accuracy_tracking),
-        model_version_check: Some(args.model_version_check),
-    });
+    // Determine file format to enable appropriate ML analysis features
+    let format1 = infer_format_from_path(&args.input1);
+    let format2 = infer_format_from_path(&args.input2);
+    
+    // Use format of first file, or fallback if unknown
+    let target_format = format1.or(format2);
+    
+    // Build format-aware ML analysis options
+    let diffai_options = Some(build_format_aware_diffai_options(target_format));
 
     let output_format = if let Some(format_str) = &args.output {
         Some(OutputFormat::parse_format(format_str)?)
@@ -322,19 +326,8 @@ fn build_diff_options_for_values(args: &Args) -> Result<DiffOptions> {
         None
     };
 
-    let diffai_options = Some(DiffaiSpecificOptions {
-        ml_analysis_enabled: Some(args.ml_analysis),
-        tensor_comparison_mode: args.tensor_mode.clone(),
-        model_format: args.model_format.clone(),
-        scientific_precision: Some(args.scientific_precision),
-        weight_threshold: args.weight_threshold,
-        activation_analysis: Some(args.activation_analysis),
-        learning_rate_tracking: Some(args.learning_rate_tracking),
-        optimizer_comparison: Some(args.optimizer_comparison),
-        loss_tracking: Some(args.loss_tracking),
-        accuracy_tracking: Some(args.accuracy_tracking),
-        model_version_check: Some(args.model_version_check),
-    });
+    // For stdin input, we can't determine format, so enable all features as fallback
+    let diffai_options = Some(build_format_aware_diffai_options(None));
 
     let output_format = if let Some(format_str) = &args.output {
         Some(OutputFormat::parse_format(format_str)?)
