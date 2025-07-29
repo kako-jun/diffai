@@ -4,11 +4,7 @@ Output formats supported by diffai and their specifications.
 
 ## Overview
 
-diffai supports three different output formats to suit various use cases:
-
-1. **diffai** - Human-readable format (default)
-2. **JSON** - Machine processing and automation
-3. **YAML** - Configuration files and human-readable structured data
+diffai provides human-readable output by default, with automatic comprehensive analysis for AI/ML files.
 
 ## diffai Output Format
 
@@ -23,9 +19,7 @@ Human-readable colored output format used by default.
 
 ### Usage
 ```bash
-diffai model1.safetensors model2.safetensors --output diffai
-# or
-diffai model1.safetensors model2.safetensors  # default
+diffai model1.safetensors model2.safetensors
 ```
 
 ### Example Output

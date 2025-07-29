@@ -6,7 +6,7 @@ Complete API documentation for the `diffai-core` Rust crate, providing AI/ML mod
 
 The `diffai-core` crate is the heart of the diffai ecosystem, providing specialized diff operations for AI/ML model files and tensors. It can be embedded in other Rust applications to add ML-specific comparison capabilities.
 
-**Unified API Design**: The core API exposes only a single main function `diff()` for all comparison operations. All functionality is accessed through this unified interface using the options parameter. This design ensures consistency and simplicity across all use cases.
+**Unified API Design**: The core API exposes a single main function `diff()` for all comparison operations with automatic comprehensive analysis.
 
 ## Installation
 

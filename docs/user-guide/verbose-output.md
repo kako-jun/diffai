@@ -1,6 +1,6 @@
 # Verbose Output Guide
 
-The `--verbose` flag in diffai provides comprehensive diagnostic information to help users understand processing details, debug issues, and analyze performance. This guide explains how to use verbose mode effectively.
+The `--verbose` flag (currently under development) will provide diagnostic information about processing details.
 
 ## Overview
 

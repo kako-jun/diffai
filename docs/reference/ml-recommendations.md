@@ -1,17 +1,12 @@
 # ML Recommendations System
 
-> **Intelligent recommendation system for AI/ML model analysis with 11-axis evaluation**
+> **Future feature: Intelligent recommendation system for model analysis**
 
-The ML Recommendations system provides actionable insights based on model analysis results, helping users understand what actions to take when differences are detected.
+The ML Recommendations system is planned to provide actionable insights based on model analysis results.
 
 ## Overview
 
-When comparing ML models (PyTorch, Safetensors), diffai automatically generates intelligent recommendations based on:
-
-- **11 evaluation axes** covering all aspects of ML workflows
-- **3 priority levels** (CRITICAL, WARNING, RECOMMENDATIONS)
-- **33 predefined natural English messages** with dynamic value embedding
-- **Industry best practices** for thresholds and actions
+This feature is currently under development and will be automatically included in future releases.
 
 ## Evaluation Matrix
 

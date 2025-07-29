@@ -17,8 +17,8 @@ diffai extends beyond ML models to support scientific data formats commonly used
 
 ## What diffai Analyzes
 
-### Automatic Comprehensive Analysis
-diffai automatically provides complete statistical analysis for all scientific data formats. No flags are required - all analysis features are included by default.
+### Automatic Analysis
+diffai automatically analyzes scientific data formats without requiring configuration.
 
 ### Array Statistics
 For each array in the data, diffai automatically calculates and compares:

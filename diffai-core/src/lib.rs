@@ -24,6 +24,7 @@ pub enum DiffResult {
     TypeChanged(String, Value, Value),
     // AI/ML specific diff results
     TensorShapeChanged(String, Vec<usize>, Vec<usize>),
+    TensorStatsChanged(String, TensorStats, TensorStats), // path, old_stats, new_stats
     TensorDataChanged(String, f64, f64), // path, old_mean, new_mean
     ModelArchitectureChanged(String, String, String), // path, old_arch, new_arch
     WeightSignificantChange(String, f64), // path, change_magnitude
@@ -33,6 +34,52 @@ pub enum DiffResult {
     LossChange(String, f64, f64),        // path, old_loss, new_loss
     AccuracyChange(String, f64, f64),    // path, old_acc, new_acc
     ModelVersionChanged(String, String, String), // path, old_version, new_version
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct TensorStats {
+    pub mean: f64,
+    pub std: f64,
+    pub min: f64,
+    pub max: f64,
+    pub shape: Vec<usize>,
+    pub dtype: String,
+    pub element_count: usize,
+}
+
+impl TensorStats {
+    pub fn new(data: &[f64], shape: Vec<usize>, dtype: String) -> Self {
+        let element_count = data.len();
+        if element_count == 0 {
+            return Self {
+                mean: 0.0,
+                std: 0.0,
+                min: 0.0,
+                max: 0.0,
+                shape,
+                dtype,
+                element_count: 0,
+            };
+        }
+
+        let mean = data.iter().sum::<f64>() / element_count as f64;
+        let variance = data.iter()
+            .map(|x| (x - mean).powi(2))
+            .sum::<f64>() / element_count as f64;
+        let std = variance.sqrt();
+        let min = data.iter().fold(f64::INFINITY, |a, &b| a.min(b));
+        let max = data.iter().fold(f64::NEG_INFINITY, |a, &b| a.max(b));
+
+        Self {
+            mean,
+            std,
+            min,
+            max,
+            shape,
+            dtype,
+            element_count,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
@@ -268,6 +315,9 @@ fn diff_directories(
                             DiffResult::TensorShapeChanged(path, _, _) => {
                                 *path = format!("{rel_path}/{path}")
                             }
+                            DiffResult::TensorStatsChanged(path, _, _) => {
+                                *path = format!("{rel_path}/{path}")
+                            }
                             DiffResult::TensorDataChanged(path, _, _) => {
                                 *path = format!("{rel_path}/{path}")
                             }
@@ -381,6 +431,23 @@ fn diff_recursive(
 
     match (old, new) {
         (Value::Object(old_obj), Value::Object(new_obj)) => {
+            // Check if this might be tensor data and we have ML analysis enabled
+            if let Some(diffai_opts) = &options.diffai_options {
+                if diffai_opts.ml_analysis_enabled.unwrap_or(true) {
+                    // For root-level model comparison, analyze architecture
+                    if path.is_empty() || path == "model" {
+                        analyze_model_architecture_changes(old, new, results);
+                        analyze_weight_significant_changes(old, new, results, diffai_opts);
+                        analyze_memory_usage_changes(old, new, results);
+                    }
+                    
+                    // Check if this looks like tensor data (has shape, data, etc.)
+                    if is_tensor_like(old) && is_tensor_like(new) {
+                        analyze_tensor_changes(path, old, new, results);
+                        return; // Don't do standard object diff for tensor data
+                    }
+                }
+            }
             diff_objects(old_obj, new_obj, path, results, options);
         }
         (Value::Array(old_arr), Value::Array(new_arr)) => {
@@ -574,7 +641,476 @@ fn diff_arrays_by_index(
     }
 }
 
+// Helper function to detect tensor-like data structures
+fn is_tensor_like(value: &Value) -> bool {
+    if let Value::Object(obj) = value {
+        // Check for common tensor-like properties
+        let has_shape = obj.contains_key("shape") || obj.contains_key("dims") || obj.contains_key("size");
+        let has_data = obj.contains_key("data") || obj.contains_key("values") || obj.contains_key("tensor");
+        let has_dtype = obj.contains_key("dtype") || obj.contains_key("type") || obj.contains_key("element_type");
+        
+        // Consider it tensor-like if it has at least shape and data, or if it has common ML keys
+        has_shape && (has_data || has_dtype) ||
+        // Also check for PyTorch/Safetensors/NumPy-specific keys
+        obj.contains_key("weight") || obj.contains_key("bias") ||
+        obj.contains_key("mean") || obj.contains_key("std") ||
+        obj.contains_key("min") || obj.contains_key("max")
+    } else {
+        false
+    }
+}
+
 // AI/ML specific analysis functions
+fn analyze_tensor_changes(
+    path: &str,
+    old_tensor: &Value,
+    new_tensor: &Value,
+    results: &mut Vec<DiffResult>,
+) {
+    // Try to extract tensor data and compute statistics
+    if let (Some(old_data), Some(new_data)) = (extract_tensor_data(old_tensor), extract_tensor_data(new_tensor)) {
+        let old_shape = extract_tensor_shape(old_tensor).unwrap_or_default();
+        let new_shape = extract_tensor_shape(new_tensor).unwrap_or_default();
+        let dtype = extract_tensor_dtype(old_tensor).unwrap_or_else(|| "f32".to_string());
+
+        // Check for shape changes first
+        if old_shape != new_shape {
+            results.push(DiffResult::TensorShapeChanged(
+                path.to_string(),
+                old_shape,
+                new_shape,
+            ));
+            return;
+        }
+
+        // Compute comprehensive statistics
+        let old_stats = TensorStats::new(&old_data, old_shape.clone(), dtype.clone());
+        let new_stats = TensorStats::new(&new_data, new_shape, dtype);
+
+        // Check if statistics changed significantly
+        if stats_changed_significantly(&old_stats, &new_stats) {
+            results.push(DiffResult::TensorStatsChanged(
+                path.to_string(),
+                old_stats,
+                new_stats,
+            ));
+        } else {
+            // Fall back to simple data change
+            results.push(DiffResult::TensorDataChanged(
+                path.to_string(),
+                old_stats.mean,
+                new_stats.mean,
+            ));
+        }
+    }
+}
+
+// Model Architecture Analysis - standard feature for PyTorch/Safetensors
+fn analyze_model_architecture_changes(
+    old_model: &Value,
+    new_model: &Value,
+    results: &mut Vec<DiffResult>,
+) {
+    let old_arch = extract_model_architecture(old_model);
+    let new_arch = extract_model_architecture(new_model);
+    
+    if old_arch != new_arch {
+        results.push(DiffResult::ModelArchitectureChanged(
+            "model".to_string(),
+            old_arch,
+            new_arch,
+        ));
+    }
+}
+
+fn extract_model_architecture(model: &Value) -> String {
+    if let Value::Object(obj) = model {
+        let mut architecture_info = Vec::new();
+        let mut layer_count = 0;
+        let mut total_params = 0;
+        let mut layer_types = std::collections::HashSet::new();
+        
+        // Analyze model structure
+        for (key, value) in obj {
+            if key.contains("weight") || key.contains("bias") {
+                layer_count += 1;
+                
+                // Extract layer type from key (e.g., "conv1.weight" -> "conv")
+                if let Some(layer_type) = extract_layer_type(key) {
+                    layer_types.insert(layer_type);
+                }
+                
+                // Count parameters
+                if let Some(shape) = extract_tensor_shape(value) {
+                    let param_count: usize = shape.iter().product();
+                    total_params += param_count;
+                }
+            }
+        }
+        
+        architecture_info.push(format!("layers: {}", layer_count));
+        architecture_info.push(format!("parameters: {}", total_params));
+        if !layer_types.is_empty() {
+            let mut types: Vec<_> = layer_types.into_iter().collect();
+            types.sort();
+            architecture_info.push(format!("types: [{}]", types.join(", ")));
+        }
+        
+        format!("{{{}}}", architecture_info.join(", "))
+    } else {
+        "unknown".to_string()
+    }
+}
+
+fn extract_layer_type(key: &str) -> Option<String> {
+    // Extract layer type from parameter names
+    // e.g., "features.0.weight" -> "conv", "classifier.weight" -> "linear"
+    if key.contains("conv") {
+        Some("conv".to_string())
+    } else if key.contains("linear") || key.contains("fc") || key.contains("classifier") {
+        Some("linear".to_string())
+    } else if key.contains("norm") || key.contains("bn") {
+        Some("norm".to_string())
+    } else if key.contains("attention") || key.contains("attn") {
+        Some("attention".to_string())
+    } else if key.contains("embedding") || key.contains("embed") {
+        Some("embedding".to_string())
+    } else {
+        // Generic layer type based on position
+        let parts: Vec<&str> = key.split('.').collect();
+        if parts.len() > 1 {
+            Some(parts[0].to_string())
+        } else {
+            None
+        }
+    }
+}
+
+// Weight Significant Change Analysis - standard feature for PyTorch/Safetensors
+fn analyze_weight_significant_changes(
+    old_model: &Value,
+    new_model: &Value,
+    results: &mut Vec<DiffResult>,
+    diffai_opts: &DiffaiSpecificOptions,
+) {
+    let threshold = diffai_opts.weight_threshold.unwrap_or(0.01);
+    
+    if let (Value::Object(old_obj), Value::Object(new_obj)) = (old_model, new_model) {
+        // Analyze weight parameters specifically
+        let mut significant_changes = Vec::new();
+        
+        for (key, old_value) in old_obj {
+            if key.contains("weight") || key.contains("bias") {
+                if let Some(new_value) = new_obj.get(key) {
+                    // Extract numerical values for comparison
+                    let change_magnitude = calculate_weight_change_magnitude(old_value, new_value);
+                    
+                    if change_magnitude > threshold {
+                        let layer_type = extract_layer_type(key).unwrap_or_else(|| "unknown".to_string());
+                        significant_changes.push(format!("{}: {:.4}", layer_type, change_magnitude));
+                        
+                        results.push(DiffResult::WeightSignificantChange(
+                            key.clone(),
+                            change_magnitude,
+                        ));
+                    }
+                }
+            }
+        }
+        
+        // If we found multiple significant changes, also provide a summary
+        if significant_changes.len() > 1 {
+            results.push(DiffResult::WeightSignificantChange(
+                "model_summary".to_string(),
+                significant_changes.len() as f64,
+            ));
+        }
+    }
+}
+
+// Calculate the magnitude of change between two weight values
+fn calculate_weight_change_magnitude(old_value: &Value, new_value: &Value) -> f64 {
+    match (old_value, new_value) {
+        (Value::Number(old_num), Value::Number(new_num)) => {
+            let old_f = old_num.as_f64().unwrap_or(0.0);
+            let new_f = new_num.as_f64().unwrap_or(0.0);
+            (old_f - new_f).abs()
+        }
+        (Value::Array(old_arr), Value::Array(new_arr)) => {
+            // For tensor arrays, calculate RMS difference
+            let mut sum_sq_diff = 0.0;
+            let mut count = 0;
+            
+            for (old_elem, new_elem) in old_arr.iter().zip(new_arr.iter()) {
+                let elem_diff = calculate_weight_change_magnitude(old_elem, new_elem);
+                sum_sq_diff += elem_diff * elem_diff;
+                count += 1;
+            }
+            
+            if count > 0 {
+                (sum_sq_diff / count as f64).sqrt()
+            } else {
+                0.0
+            }
+        }
+        (Value::Object(old_obj), Value::Object(new_obj)) => {
+            // For structured tensors (e.g., with shape info), extract data and compare
+            if let (Some(old_data), Some(new_data)) = (
+                extract_tensor_data_for_weight_analysis(old_obj),
+                extract_tensor_data_for_weight_analysis(new_obj),
+            ) {
+                if old_data.len() == new_data.len() {
+                    let sum_sq_diff: f64 = old_data
+                        .iter()
+                        .zip(new_data.iter())
+                        .map(|(a, b)| (a - b).powi(2))
+                        .sum();
+                    (sum_sq_diff / old_data.len() as f64).sqrt()
+                } else {
+                    // Different sizes = significant change
+                    1.0
+                }
+            } else {
+                0.0
+            }
+        }
+        _ => 0.0,
+    }
+}
+
+// Extract numerical data from tensor objects for weight analysis
+fn extract_tensor_data_for_weight_analysis(obj: &serde_json::Map<String, Value>) -> Option<Vec<f64>> {
+    // Try different keys where tensor data might be stored
+    let data_keys = ["data", "values", "tensor", "weight", "bias"];
+    
+    for key in &data_keys {
+        if let Some(data_value) = obj.get(*key) {
+            if let Value::Array(_arr) = data_value {
+                let mut result = Vec::new();
+                extract_numbers_recursive(data_value, &mut result);
+                if !result.is_empty() {
+                    return Some(result);
+                }
+            }
+        }
+    }
+    
+    None
+}
+
+// Recursively extract numbers from nested arrays
+fn extract_numbers_recursive(value: &Value, result: &mut Vec<f64>) {
+    match value {
+        Value::Number(num) => {
+            if let Some(f) = num.as_f64() {
+                result.push(f);
+            }
+        }
+        Value::Array(arr) => {
+            for elem in arr {
+                extract_numbers_recursive(elem, result);
+            }
+        }
+        _ => {}
+    }
+}
+
+// Memory Analysis - standard feature for all ML formats
+fn analyze_memory_usage_changes(
+    old_model: &Value,
+    new_model: &Value,
+    results: &mut Vec<DiffResult>,
+) {
+    let old_memory = calculate_model_memory_usage(old_model);
+    let new_memory = calculate_model_memory_usage(new_model);
+    
+    if old_memory != new_memory {
+        // Create a comprehensive memory analysis result
+        let memory_change = new_memory as f64 - old_memory as f64;
+        let memory_change_percent = if old_memory > 0 {
+            (memory_change / old_memory as f64) * 100.0
+        } else {
+            0.0
+        };
+        
+        // Use ModelArchitectureChanged variant for memory analysis
+        let memory_analysis = format!(
+            "memory: {} → {} bytes ({:+.1}%)",
+            old_memory, new_memory, memory_change_percent
+        );
+        
+        results.push(DiffResult::ModelArchitectureChanged(
+            "memory_analysis".to_string(),
+            format!("memory_usage: {} bytes", old_memory),
+            format!("memory_usage: {} bytes", new_memory),
+        ));
+        
+        // Add detailed breakdown if significant change
+        if memory_change.abs() > 1024.0 { // More than 1KB change
+            let breakdown = create_memory_breakdown(old_model, new_model);
+            if !breakdown.is_empty() {
+                results.push(DiffResult::ModelArchitectureChanged(
+                    "memory_breakdown".to_string(),
+                    "previous".to_string(),
+                    breakdown,
+                ));
+            }
+        }
+    }
+}
+
+// Calculate estimated memory usage of a model
+fn calculate_model_memory_usage(model: &Value) -> usize {
+    match model {
+        Value::Object(obj) => {
+            let mut total_memory = 0;
+            
+            // Base object overhead
+            total_memory += std::mem::size_of::<serde_json::Map<String, Value>>();
+            
+            for (key, value) in obj {
+                // Key memory
+                total_memory += key.len();
+                
+                // Value memory
+                total_memory += calculate_value_memory(value);
+            }
+            
+            total_memory
+        }
+        _ => calculate_value_memory(model),
+    }
+}
+
+// Calculate memory usage of a single Value
+fn calculate_value_memory(value: &Value) -> usize {
+    match value {
+        Value::Null => std::mem::size_of::<Value>(),
+        Value::Bool(_) => std::mem::size_of::<bool>(),
+        Value::Number(_) => std::mem::size_of::<f64>(), // Assume f64
+        Value::String(s) => s.len() + std::mem::size_of::<String>(),
+        Value::Array(arr) => {
+            let mut size = std::mem::size_of::<Vec<Value>>();
+            for elem in arr {
+                size += calculate_value_memory(elem);
+            }
+            size
+        }
+        Value::Object(obj) => {
+            let mut size = std::mem::size_of::<serde_json::Map<String, Value>>();
+            for (key, val) in obj {
+                size += key.len() + calculate_value_memory(val);
+            }
+            size
+        }
+    }
+}
+
+// Create a detailed memory breakdown
+fn create_memory_breakdown(old_model: &Value, new_model: &Value) -> String {
+    let mut breakdown = Vec::new();
+    
+    if let (Value::Object(old_obj), Value::Object(new_obj)) = (old_model, new_model) {
+        // Analyze tensor memory usage
+        let old_tensor_memory = calculate_tensor_memory(old_obj);
+        let new_tensor_memory = calculate_tensor_memory(new_obj);
+        
+        if old_tensor_memory != new_tensor_memory {
+            let change = new_tensor_memory as i64 - old_tensor_memory as i64;
+            breakdown.push(format!(
+                "tensors: {:+} bytes ({} → {})",
+                change, old_tensor_memory, new_tensor_memory
+            ));
+        }
+        
+        // Analyze metadata memory
+        let old_meta_memory = calculate_metadata_memory(old_obj);
+        let new_meta_memory = calculate_metadata_memory(new_obj);
+        
+        if old_meta_memory != new_meta_memory {
+            let change = new_meta_memory as i64 - old_meta_memory as i64;
+            breakdown.push(format!(
+                "metadata: {:+} bytes ({} → {})",
+                change, old_meta_memory, new_meta_memory
+            ));
+        }
+    }
+    
+    breakdown.join(", ")
+}
+
+// Calculate memory used by tensor data
+fn calculate_tensor_memory(obj: &serde_json::Map<String, Value>) -> usize {
+    let mut tensor_memory = 0;
+    
+    for (key, value) in obj {
+        if key.contains("weight") || key.contains("bias") || key.contains("data") {
+            // Estimate tensor memory based on shape and dtype
+            if let Value::Object(tensor_obj) = value {
+                if let Some(shape_value) = tensor_obj.get("shape") {
+                    if let Value::Array(shape_arr) = shape_value {
+                        let element_count: usize = shape_arr
+                            .iter()
+                            .filter_map(|v| v.as_u64())
+                            .map(|x| x as usize)
+                            .product();
+                        
+                        // Assume 4 bytes per element (float32)
+                        let dtype_size = if let Some(dtype) = tensor_obj.get("dtype") {
+                            estimate_dtype_size(dtype)
+                        } else {
+                            4
+                        };
+                        
+                        tensor_memory += element_count * dtype_size;
+                    }
+                }
+            } else {
+                // For non-structured tensors, use value memory
+                tensor_memory += calculate_value_memory(value);
+            }
+        }
+    }
+    
+    tensor_memory
+}
+
+// Calculate memory used by metadata
+fn calculate_metadata_memory(obj: &serde_json::Map<String, Value>) -> usize {
+    let mut meta_memory = 0;
+    
+    for (key, value) in obj {
+        if !key.contains("weight") && !key.contains("bias") && !key.contains("data") {
+            meta_memory += key.len() + calculate_value_memory(value);
+        }
+    }
+    
+    meta_memory
+}
+
+// Estimate bytes per element based on dtype
+fn estimate_dtype_size(dtype: &Value) -> usize {
+    if let Value::String(dtype_str) = dtype {
+        match dtype_str.to_lowercase().as_str() {
+            s if s.contains("float64") || s.contains("f64") => 8,
+            s if s.contains("float32") || s.contains("f32") => 4,
+            s if s.contains("float16") || s.contains("f16") => 2,
+            s if s.contains("int64") || s.contains("i64") => 8,
+            s if s.contains("int32") || s.contains("i32") => 4,
+            s if s.contains("int16") || s.contains("i16") => 2,
+            s if s.contains("int8") || s.contains("i8") => 1,
+            s if s.contains("uint64") || s.contains("u64") => 8,
+            s if s.contains("uint32") || s.contains("u32") => 4,
+            s if s.contains("uint16") || s.contains("u16") => 2,
+            s if s.contains("uint8") || s.contains("u8") => 1,
+            s if s.contains("bool") => 1,
+            _ => 4, // Default to 4 bytes (float32)
+        }
+    } else {
+        4 // Default
+    }
+}
+
 fn check_ml_number_changes(
     path: &str,
     old_val: f64,
@@ -585,7 +1121,7 @@ fn check_ml_number_changes(
     let change_magnitude = (new_val - old_val).abs();
 
     // Check for learning rate changes
-    if diffai_opts.learning_rate_tracking.unwrap_or(false) && path.contains("learning_rate") {
+    if diffai_opts.learning_rate_tracking.unwrap_or(true) && path.contains("learning_rate") {
         results.push(DiffResult::LearningRateChanged(
             path.to_string(),
             old_val,
@@ -595,7 +1131,7 @@ fn check_ml_number_changes(
     }
 
     // Check for loss changes
-    if diffai_opts.loss_tracking.unwrap_or(false)
+    if diffai_opts.loss_tracking.unwrap_or(true)
         && (path.contains("loss") || path.contains("cost"))
     {
         results.push(DiffResult::LossChange(path.to_string(), old_val, new_val));
@@ -603,7 +1139,7 @@ fn check_ml_number_changes(
     }
 
     // Check for accuracy changes
-    if diffai_opts.accuracy_tracking.unwrap_or(false)
+    if diffai_opts.accuracy_tracking.unwrap_or(true)
         && (path.contains("accuracy") || path.contains("acc"))
     {
         results.push(DiffResult::AccuracyChange(
@@ -614,15 +1150,14 @@ fn check_ml_number_changes(
         return;
     }
 
-    // Check for significant weight changes
-    if let Some(threshold) = diffai_opts.weight_threshold {
-        if change_magnitude > threshold && (path.contains("weight") || path.contains("bias")) {
-            results.push(DiffResult::WeightSignificantChange(
-                path.to_string(),
-                change_magnitude,
-            ));
-            return;
-        }
+    // Check for significant weight changes (default threshold 0.01)
+    let threshold = diffai_opts.weight_threshold.unwrap_or(0.01);
+    if change_magnitude > threshold && (path.contains("weight") || path.contains("bias")) {
+        results.push(DiffResult::WeightSignificantChange(
+            path.to_string(),
+            change_magnitude,
+        ));
+        return;
     }
 
     // Default to regular modification
@@ -631,6 +1166,52 @@ fn check_ml_number_changes(
         old_val,
         new_val,
     ));
+}
+
+// Helper functions for tensor analysis
+fn extract_tensor_data(tensor: &Value) -> Option<Vec<f64>> {
+    // Extract numerical data from tensor representation
+    // This is a simplified implementation - real implementation would handle PyTorch/Safetensors formats
+    match tensor {
+        Value::Array(arr) => {
+            let mut data = Vec::new();
+            for item in arr {
+                if let Value::Number(num) = item {
+                    if let Some(f) = num.as_f64() {
+                        data.push(f);
+                    }
+                }
+            }
+            if !data.is_empty() { Some(data) } else { None }
+        }
+        _ => None,
+    }
+}
+
+fn extract_tensor_shape(tensor: &Value) -> Option<Vec<usize>> {
+    // Extract shape information from tensor metadata
+    tensor.get("shape")
+        .and_then(|s| s.as_array())
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|v| v.as_u64().map(|n| n as usize))
+                .collect()
+        })
+}
+
+fn extract_tensor_dtype(tensor: &Value) -> Option<String> {
+    // Extract data type from tensor metadata
+    tensor.get("dtype")
+        .and_then(|dt| dt.as_str())
+        .map(|s| s.to_string())
+}
+
+fn stats_changed_significantly(old_stats: &TensorStats, new_stats: &TensorStats) -> bool {
+    let mean_change = (old_stats.mean - new_stats.mean).abs() / old_stats.mean.abs().max(1e-8);
+    let std_change = (old_stats.std - new_stats.std).abs() / old_stats.std.abs().max(1e-8);
+    
+    // Consider significant if relative change > 1%
+    mean_change > 0.01 || std_change > 0.01
 }
 
 // ============================================================================
@@ -651,7 +1232,8 @@ pub fn parse_pytorch_model(file_path: &Path) -> Result<Value> {
     let mut buffer = Vec::new();
     reader.read_to_end(&mut buffer)?;
 
-    // This is a simplified version - real implementation would parse the pickle format
+    // Try to extract basic model structure information from the binary data
+    // This is a heuristic approach since full pickle parsing is complex
     let mut result = serde_json::Map::new();
     result.insert(
         "model_type".to_string(),
@@ -659,8 +1241,132 @@ pub fn parse_pytorch_model(file_path: &Path) -> Result<Value> {
     );
     result.insert("file_size".to_string(), Value::Number(buffer.len().into()));
     result.insert("format".to_string(), Value::String("pickle".to_string()));
+    
+    // Extract model structure information through heuristic analysis
+    let model_info = extract_pytorch_model_info(&buffer);
+    for (key, value) in model_info {
+        result.insert(key, value);
+    }
 
     Ok(Value::Object(result))
+}
+
+// Extract basic model information from PyTorch binary data using heuristics
+fn extract_pytorch_model_info(buffer: &[u8]) -> serde_json::Map<String, Value> {
+    let mut info = serde_json::Map::new();
+    
+    // First, try binary analysis by looking for specific byte patterns
+    let mut weight_count = 0;
+    let mut bias_count = 0;
+    let mut layer_count = 0;
+    
+    // Search for common PyTorch string patterns in binary data
+    // Look for null-terminated strings that match layer names
+    let searchable_content = String::from_utf8_lossy(buffer);
+    
+    // Count weight and bias parameters more accurately
+    weight_count = searchable_content.matches("weight").count();
+    bias_count = searchable_content.matches("bias").count();
+    
+    // Look for layer-specific patterns
+    let conv_count = searchable_content.matches("conv").count();
+    let linear_count = searchable_content.matches("linear").count() + searchable_content.matches("fc.").count();
+    let bn_count = searchable_content.matches("bn").count() + searchable_content.matches("batch_norm").count();
+    
+    // Build layer information
+    let mut detected_layers = Vec::new();
+    if conv_count > 0 {
+        detected_layers.push(format!("convolution: {}", conv_count));
+    }
+    if linear_count > 0 {
+        detected_layers.push(format!("linear: {}", linear_count));
+    }
+    if bn_count > 0 {
+        detected_layers.push(format!("batch_norm: {}", bn_count));
+    }
+    if weight_count > 0 {
+        detected_layers.push(format!("weight_params: {}", weight_count));
+    }
+    if bias_count > 0 {
+        detected_layers.push(format!("bias_params: {}", bias_count));
+    }
+    
+    if !detected_layers.is_empty() {
+        info.insert("detected_components".to_string(), 
+                   Value::String(detected_layers.join(", ")));
+    }
+    
+    // Estimate model complexity based on parameter count
+    layer_count = weight_count.max(bias_count / 2); // rough estimation
+    if layer_count > 0 {
+        info.insert("estimated_layers".to_string(), 
+                   Value::Number(layer_count.into()));
+    }
+    
+    // Look for model architecture signatures
+    let architectures = [
+        ("resnet", "ResNet"),
+        ("vgg", "VGG"), 
+        ("densenet", "DenseNet"),
+        ("mobilenet", "MobileNet"),
+        ("efficientnet", "EfficientNet"),
+        ("transformer", "Transformer"),
+        ("bert", "BERT"),
+        ("gpt", "GPT"),
+    ];
+    
+    for (pattern, arch_name) in &architectures {
+        if searchable_content.to_lowercase().contains(pattern) {
+            info.insert("detected_architecture".to_string(),
+                       Value::String(arch_name.to_string()));
+            break;
+        }
+    }
+    
+    // Look for optimizer state information (for training checkpoints)
+    if searchable_content.contains("optimizer") {
+        info.insert("has_optimizer_state".to_string(), Value::Bool(true));
+    }
+    if searchable_content.contains("epoch") {
+        info.insert("has_training_metadata".to_string(), Value::Bool(true));
+    }
+    if searchable_content.contains("lr") || searchable_content.contains("learning_rate") {
+        info.insert("has_learning_rate".to_string(), Value::Bool(true));
+    }
+    
+    // Add binary-level analysis
+    info.insert("binary_size".to_string(), Value::Number(buffer.len().into()));
+    
+    // Detect pickle protocol version 
+    if buffer.len() > 2 {
+        let protocol_byte = buffer[1];
+        if protocol_byte <= 5 {
+            info.insert("pickle_protocol".to_string(), 
+                       Value::Number(protocol_byte.into()));
+        }
+    }
+    
+    // Calculate a simple hash for model structure comparison
+    let structure_hash = calculate_simple_hash(&searchable_content);
+    info.insert("structure_fingerprint".to_string(), 
+               Value::String(format!("{:x}", structure_hash)));
+    
+    info
+}
+
+// Simple hash calculation for model structure fingerprinting
+fn calculate_simple_hash(content: &str) -> u64 {
+    use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
+    
+    let mut hasher = DefaultHasher::new();
+    // Hash only the structure-relevant parts to detect architecture changes
+    let structure_parts: Vec<&str> = content
+        .matches(|c: char| c.is_alphanumeric() || c == '.')
+        .take(1000) // limit to prevent performance issues
+        .collect();
+    structure_parts.hash(&mut hasher);
+    hasher.finish()
 }
 
 /// Parse SafeTensors model file - FOR INTERNAL USE ONLY (diffai-specific)

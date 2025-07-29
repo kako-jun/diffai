@@ -45,11 +45,7 @@ let new = json!({
     }
 });
 
-let options = DiffOptions {
-    ml_analysis_enabled: Some(true),
-    scientific_precision: Some(true),
-    ..Default::default()
-};
+let options = DiffOptions::default(); // Automatic comprehensive analysis
 
 let results = diff(&old, &new, Some(&options))?;
 ```

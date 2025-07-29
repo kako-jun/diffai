@@ -1,18 +1,16 @@
 # Getting Started with diffai
 
-This comprehensive guide will help you get up and running with `diffai` quickly and effectively.
+Quick start guide for diffai - AI/ML specialized diff tool with automatic comprehensive analysis.
 
 ## What is diffai?
 
-`diffai` is an AI-powered diff tool that goes beyond traditional comparison. It combines semantic understanding with machine learning capabilities to provide intelligent insights into changes between structured data files.
+`diffai` is a specialized diff tool for AI/ML workflows that automatically provides comprehensive analysis of model structures, tensor statistics, and scientific data.
 
-### Key Benefits
+### Key Features
 
-- **AI-Enhanced Analysis**: Uses machine learning to detect patterns and anomalies in changes
-- **Semantic Understanding**: Understands the meaning and context of data changes
-- **AI/ML Specialized**: Supports PyTorch (.pt/.pth), Safetensors (.safetensors), NumPy (.npy/.npz), and MATLAB (.mat) formats
-- **Intelligent Insights**: Provides ML-driven analysis of change patterns
-- **Advanced Statistics**: Statistical analysis of data distributions and trends
+- **Zero Configuration**: Comprehensive analysis without options or setup
+- **AI/ML Focused**: Specialized for PyTorch (.pt/.pth), Safetensors (.safetensors), NumPy (.npy/.npz), and MATLAB (.mat) formats
+- **Automatic Analysis**: Intelligent analysis by default - no manual configuration required
 
 ## Prerequisites
 

@@ -1,15 +1,15 @@
-# ML Analysis Functions (35 Functions)
+# ML Analysis Functions
 
-Comprehensive guide to diffai's machine learning analysis functions for model comparison and analysis.
+Guide to diffai's automatic machine learning analysis capabilities.
 
 ## Overview
 
-diffai provides 35 specialized analysis functions designed specifically for machine learning model comparison and analysis. These functions help with research and development, MLOps, and deployment workflows.
+diffai automatically analyzes AI/ML models without requiring any configuration or options.
 
-## Automatic Comprehensive Analysis (v0.3.4+)
+## Automatic Analysis
 
-### All-in-One ML Analysis
-Diffai automatically provides comprehensive analysis for PyTorch and Safetensors files. No flags are required - all 30+ analysis features run by default.
+### Current Capabilities
+Diffai automatically provides analysis for PyTorch and Safetensors files:
 
 **Usage**:
 ```bash
@@ -34,13 +34,9 @@ diffai model1.safetensors model2.safetensors
 - Detect statistical shifts in model weights
 - Validate model consistency
 
-### 2. `--quantization-analysis` Quantization Analysis
-Analyzes quantization effects and efficiency.
+## Planned Features
 
-**Usage**:
-```bash
-diffai fp32_model.safetensors quantized_model.safetensors --quantization-analysis
-```
+The following analysis capabilities are under development and will be automatically included in future releases:
 
 **Output**:
 ```
