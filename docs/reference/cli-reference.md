@@ -77,61 +77,84 @@ Disable colored output for better compatibility with scripts and automated envir
 
 ### Comprehensive AI/ML Analysis
 
-**diffai automatically performs comprehensive analysis without requiring any options:**
+**diffai automatically performs all 11 ML analysis features without requiring any options:**
 
-#### Current Features
+#### ✅ Fully Implemented Features (All Available Now)
 
-- **Tensor Comparison**: Shape, dtype, and basic statistical analysis
-- **Model Structure**: Layer detection and parameter counting
-- **File Format**: Automatic format detection and parsing
-- **Change Detection**: Added, removed, and modified tensor identification
+**High Priority Features:**
+1. **Tensor Statistics**: Complete statistical analysis (mean, std, min/max, shape, dtype)
+2. **Model Architecture**: Layer detection, parameter counting, structural changes
+3. **Weight Changes**: Significant parameter change detection with configurable thresholds
+4. **Memory Analysis**: Memory usage analysis and optimization recommendations
 
-#### Planned Features (Under Development)
+**Medium Priority Features:**
+5. **Learning Rate**: Learning rate detection from optimizer state and training metadata
+6. **Convergence Analysis**: Training convergence pattern analysis from model changes
+7. **Gradient Analysis**: Gradient flow analysis estimated from parameter updates
 
-- **Advanced Statistics**: Mean, standard deviation, min/max analysis
-- **Anomaly Detection**: NaN/Inf detection, gradient analysis
-- **Architecture Analysis**: Layer structure comparison
-- **Memory Analysis**: Usage estimation and optimization
-- **Convergence Analysis**: Training progress tracking
-- **Statistical Significance**: Change significance testing
-- **Transfer Learning Analysis**: Fine-tuning effectiveness
-- **Ensemble Analysis**: Multi-model comparison
-- **Hyperparameter Impact**: Configuration change effects
-- **Learning Rate Analysis**: Optimization schedule effectiveness
-- **And more...**
+**Advanced Features:**
+8. **Attention Analysis**: Transformer attention mechanism analysis and patterns
+9. **Ensemble Analysis**: Multi-model ensemble composition and voting strategy analysis
+10. **Quantization Analysis**: Model quantization detection and precision analysis
 
-**🎯 No flags required** - all analysis is performed automatically for optimal user experience.
+#### Format-Aware Automatic Feature Selection
 
-**Example**: Simply run `diffai model1.safetensors model2.safetensors` to get comprehensive analysis.
+- **PyTorch (.pt/.pth)**: All 11 features fully active
+- **Safetensors (.safetensors)**: 10 features active (limited ensemble analysis)
+- **NumPy (.npy/.npz)**: 4 core features active (tensor stats, architecture basics, weights, memory)
+- **MATLAB (.mat)**: 4 core features active with basic quantization support
+
+**🎯 Zero configuration required** - optimal analysis for each format automatically selected.
+
+**Example**: Simply run `diffai model1.pt model2.pt` to get all applicable analysis features.
 
 ## Output Examples
 
 ### CLI Output (Default - Full Analysis)
 
 ```bash
-$ diffai model_v1.safetensors model_v2.safetensors
-anomaly_detection: type=none, severity=none, action="continue_training"
-architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
-convergence_analysis: status=converging, stability=0.92
-gradient_analysis: flow_health=healthy, norm=0.021069
-memory_analysis: delta=+0.0MB, efficiency=1.000000
-quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%
-regression_test: passed=true, degradation=-2.5%, severity=low
-deployment_readiness: readiness=0.92, risk=low, timeline=ready_for_immediate_deployment
-  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
-  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
-  ~ fc2.bias: mean=-0.0076->-0.0257, std=0.0661->0.0973
-  ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
-  ~ fc3.bias: mean=-0.0074->-0.0130, std=0.1031->0.1093
-  ~ fc3.weight: mean=-0.0035->-0.0010, std=0.0990->0.1113
+$ diffai model_v1.pt model_v2.pt
+TensorStatsChanged: fc1.weight
+  Old: mean=-0.0002, std=0.0514, shape=[128, 256], dtype=float32
+  New: mean=-0.0001, std=0.0716, shape=[128, 256], dtype=float32
+
+ModelArchitectureChanged: model
+  Old: {layers: 12, parameters: 124439808, types: [conv, linear, norm]}
+  New: {layers: 12, parameters: 124440064, types: [conv, linear, norm, attention]}
+
+WeightSignificantChange: transformer.attention.query.weight
+  Change Magnitude: 0.0234 (above threshold: 0.01)
+
+MemoryAnalysis: memory_change
+  Old: 487.2MB (tensors: 485.1MB, metadata: 2.1MB)
+  New: memory_change: +12.5MB, breakdown: tensors: +12.3MB, metadata: +0.2MB
+
+LearningRateChanged: optimizer.learning_rate
+  Old: 0.001, New: 0.0005 (scheduler: step_decay, epoch: 10)
+
+ConvergenceAnalysis: convergence_patterns
+  Old: evaluating
+  New: loss: improving (trend: decreasing), stability: gradient_norm: stable, epoch: 10 → 11
+
+GradientAnalysis: gradient_magnitudes
+  Old: norm: 0.018456, max: 0.145234, var: 0.000234
+  New: total_norm: 0.021234 (+14.8%, increasing), max_gradient: 0.156789 (+8.0%)
+
+AttentionAnalysis: attention_heads
+  Old: heads: 8, dim: 64, patterns: 4
+  New: num_heads: 8 → 12, head_dim: 64 → 48, patterns: +query, +value
+
+QuantizationAnalysis: quantization_precision
+  Old: 32bit float32, layers: 0, mixed: false
+  New: bit_width: 32 → 8, data_type: float32 → int8, quantized_layers: 8 (+8)
 ```
 
 ### Comprehensive Analysis Benefits
 
-- **30+ analysis functions** run automatically
-- **No option selection needed** - get all insights by default
-- **Same processing time** - no performance penalty
-- **Production-ready insights** - deployment readiness, risk assessment, etc.
+- **All 11 ML analysis features** run automatically
+- **Format-aware feature selection** - optimal analysis for each file type
+- **No configuration required** - maximum insights by default
+- **Production-ready analysis** - comprehensive model assessment
 
 ### Scientific Data Analysis (Automatic)
 

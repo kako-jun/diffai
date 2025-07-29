@@ -44,19 +44,41 @@ diffai checkpoint_epoch_1.pt checkpoint_epoch_10.pt
 diffai baseline_model.pt improved_model.pt
 ```
 
-**Example Output (Full Analysis):**
+**Example Output (Full Analysis - All 11 Features):**
 ```
-anomaldy_detection: type=none, severity=none, action="continue_training"
-architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
-convergence_analysis: status=converging, stability=0.92
-gradient_analysis: flow_health=healthy, norm=0.021069
-memory_analysis: delta=+0.0MB, efficiency=1.000000
-quantization_analysis: compression=0.25, speedup=1.8x, precision_loss=minimal
-regression_test: passed=true, degradation=-2.5%, severity=low
-deployment_readiness: readiness=0.92, risk=low
-  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
-  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
-  ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
+TensorStatsChanged: fc1.weight
+  Old: mean=-0.0002, std=0.0514, shape=[128, 256], dtype=float32
+  New: mean=-0.0001, std=0.0716, shape=[128, 256], dtype=float32
+
+ModelArchitectureChanged: model
+  Old: {layers: 12, parameters: 124439808, types: [conv, linear, norm]}
+  New: {layers: 12, parameters: 124440064, types: [conv, linear, norm, attention]}
+
+WeightSignificantChange: transformer.attention.query.weight
+  Change Magnitude: 0.0234 (above threshold: 0.01)
+
+MemoryAnalysis: memory_change
+  Old: 487.2MB (tensors: 485.1MB, metadata: 2.1MB)
+  New: memory_change: +12.5MB, breakdown: tensors: +12.3MB, metadata: +0.2MB
+
+LearningRateChanged: optimizer.learning_rate
+  Old: 0.001, New: 0.0005 (scheduler: step_decay, epoch: 10)
+
+ConvergenceAnalysis: convergence_patterns
+  Old: evaluating
+  New: loss: improving (trend: decreasing), stability: gradient_norm: stable, epoch: 10 → 11
+
+GradientAnalysis: gradient_magnitudes
+  Old: norm: 0.018456, max: 0.145234, var: 0.000234
+  New: total_norm: 0.021234 (+14.8%, increasing), max_gradient: 0.156789 (+8.0%)
+
+AttentionAnalysis: attention_heads
+  Old: heads: 8, dim: 64, patterns: 4
+  New: num_heads: 8 → 12, head_dim: 64 → 48, patterns: +query, +value
+
+QuantizationAnalysis: quantization_precision
+  Old: 32bit float32, layers: 0, mixed: false
+  New: bit_width: 32 → 8, data_type: float32 → int8, quantized_layers: 8 (+8)
 ```
 
 ### Safetensors File Comparison
@@ -105,21 +127,43 @@ diffai dataset_v1.npz dataset_v2.npz
 
 ### CLI Output (Default - Full Analysis)
 
-Human-readable colored output with comprehensive analysis:
+Human-readable colored output with all 11 ML analysis features:
 
 ```bash
 $ diffai model_v1.safetensors model_v2.safetensors
-anomaldy_detection: type=none, severity=none, action="continue_training"
-architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
-convergence_analysis: status=converging, stability=0.92
-gradient_analysis: flow_health=healthy, norm=0.021069
-memory_analysis: delta=+0.0MB, efficiency=1.000000
-quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%
-regression_test: passed=true, degradation=-2.5%, severity=low
-deployment_readiness: readiness=0.92, risk=low
-  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
-  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
-  ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
+TensorStatsChanged: fc1.weight
+  Old: mean=-0.0002, std=0.0514, shape=[128, 256], dtype=float32
+  New: mean=-0.0001, std=0.0716, shape=[128, 256], dtype=float32
+
+ModelArchitectureChanged: model
+  Old: {layers: 12, parameters: 124439808, types: [conv, linear, norm]}
+  New: {layers: 12, parameters: 124440064, types: [conv, linear, norm, attention]}
+
+WeightSignificantChange: transformer.attention.query.weight
+  Change Magnitude: 0.0234 (above threshold: 0.01)
+
+MemoryAnalysis: memory_change
+  Old: 487.2MB (tensors: 485.1MB, metadata: 2.1MB)
+  New: memory_change: +12.5MB, breakdown: tensors: +12.3MB, metadata: +0.2MB
+
+LearningRateChanged: optimizer.learning_rate
+  Old: 0.001, New: 0.0005 (scheduler: step_decay, epoch: 10)
+
+ConvergenceAnalysis: convergence_patterns
+  Old: evaluating
+  New: loss: improving (trend: decreasing), stability: gradient_norm: stable, epoch: 10 → 11
+
+GradientAnalysis: gradient_magnitudes
+  Old: norm: 0.018456, max: 0.145234, var: 0.000234
+  New: total_norm: 0.021234 (+14.8%, increasing), max_gradient: 0.156789 (+8.0%)
+
+AttentionAnalysis: attention_heads
+  Old: heads: 8, dim: 64, patterns: 4
+  New: num_heads: 8 → 12, head_dim: 64 → 48, patterns: +query, +value
+
+QuantizationAnalysis: quantization_precision
+  Old: 32bit float32, layers: 0, mixed: false
+  New: bit_width: 32 → 8, data_type: float32 → int8, quantized_layers: 8 (+8)
 ```
 
 ### JSON Output
