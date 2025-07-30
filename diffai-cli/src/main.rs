@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use clap::{Parser, ValueEnum};
 use diffai_core::{
-    diff, diff_paths, format_output, DiffOptions, DiffResult, DiffaiSpecificOptions, OutputFormat,
+    diff, diff_paths, format_output, DiffOptions, DiffResult, OutputFormat,
 };
 use regex::Regex;
 use serde_json::Value;
@@ -61,22 +61,6 @@ struct Args {
     /// Disable colored output
     #[arg(long)]
     no_color: bool,
-
-    /// Enable memory optimization for large files
-    #[arg(long)]
-    memory_optimization: bool,
-
-    /// Batch size for memory optimization
-    #[arg(long)]
-    batch_size: Option<usize>,
-
-    /// Show unchanged values as well
-    #[arg(long)]
-    show_unchanged: bool,
-
-    /// Show type information in output
-    #[arg(long)]
-    show_types: bool,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
@@ -154,59 +138,6 @@ fn main() -> Result<()> {
 
 // File format detection and parsing functions are now handled by diffai-core
 
-fn build_format_aware_diffai_options(format: Option<Format>) -> DiffaiSpecificOptions {
-    let mut options = DiffaiSpecificOptions {
-        // Universal options (enabled for all formats)
-        ml_analysis_enabled: Some(true),
-        tensor_comparison_mode: Some("both".to_string()),
-        model_format: None, // Auto-detect
-        scientific_precision: Some(true),
-        weight_threshold: Some(0.01),
-        model_version_check: Some(true),
-        
-        // Format-specific options (initially disabled)
-        activation_analysis: Some(false),
-        learning_rate_tracking: Some(false),
-        optimizer_comparison: Some(false),
-        loss_tracking: Some(false),
-        accuracy_tracking: Some(false),
-    };
-    
-    // Enable format-specific features based on detected format
-    match format {
-        Some(Format::Pytorch) => {
-            // PyTorch supports all ML analysis features
-            options.activation_analysis = Some(true);
-            options.learning_rate_tracking = Some(true);
-            options.optimizer_comparison = Some(true);
-            options.loss_tracking = Some(true);
-            options.accuracy_tracking = Some(true);
-        }
-        Some(Format::Safetensors) => {
-            // Safetensors supports most features except optimizer and accuracy
-            options.activation_analysis = Some(true);
-            options.learning_rate_tracking = Some(true);
-            options.loss_tracking = Some(true);
-            // optimizer_comparison and accuracy_tracking remain false
-        }
-        Some(Format::Numpy) | Some(Format::Matlab) => {
-            // NumPy and MATLAB only support universal options
-            // All learning-related features remain disabled
-        }
-        None => {
-            // Unknown format: enable all features as fallback
-            // This maintains backward compatibility
-            options.activation_analysis = Some(true);
-            options.learning_rate_tracking = Some(true);
-            options.optimizer_comparison = Some(true);
-            options.loss_tracking = Some(true);
-            options.accuracy_tracking = Some(true);
-        }
-    }
-    
-    options
-}
-
 fn build_diff_options(args: &Args) -> Result<DiffOptions> {
     let ignore_keys_regex = if let Some(pattern) = &args.ignore_keys_regex {
         Some(Regex::new(pattern)?)
@@ -214,16 +145,7 @@ fn build_diff_options(args: &Args) -> Result<DiffOptions> {
         None
     };
 
-    // Determine file format to enable appropriate ML analysis features
-    let format1 = infer_format_from_path(&args.input1);
-    let format2 = infer_format_from_path(&args.input2);
     
-    // Use format of first file, or fallback if unknown
-    let target_format = format1.or(format2);
-    
-    // Build format-aware ML analysis options
-    let diffai_options = Some(build_format_aware_diffai_options(target_format));
-
     let output_format = if let Some(format_str) = &args.output {
         Some(OutputFormat::parse_format(format_str)?)
     } else {
@@ -236,11 +158,7 @@ fn build_diff_options(args: &Args) -> Result<DiffOptions> {
         ignore_keys_regex,
         path_filter: args.path.clone(),
         output_format,
-        show_unchanged: Some(args.show_unchanged),
-        show_types: Some(args.show_types),
-        use_memory_optimization: Some(args.memory_optimization),
-        batch_size: args.batch_size,
-        diffai_options,
+        // lawkitパターン：オプションは削除、最適化は常に有効
     })
 }
 
@@ -326,9 +244,6 @@ fn build_diff_options_for_values(args: &Args) -> Result<DiffOptions> {
         None
     };
 
-    // For stdin input, we can't determine format, so enable all features as fallback
-    let diffai_options = Some(build_format_aware_diffai_options(None));
-
     let output_format = if let Some(format_str) = &args.output {
         Some(OutputFormat::parse_format(format_str)?)
     } else {
@@ -341,11 +256,7 @@ fn build_diff_options_for_values(args: &Args) -> Result<DiffOptions> {
         ignore_keys_regex,
         path_filter: args.path.clone(),
         output_format,
-        show_unchanged: Some(args.show_unchanged),
-        show_types: Some(args.show_types),
-        use_memory_optimization: Some(args.memory_optimization),
-        batch_size: args.batch_size,
-        diffai_options,
+        // lawkitパターン：オプションは削除、最適化は常に有効
     })
 }
 
