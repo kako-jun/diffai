@@ -124,10 +124,12 @@ diffai model_v1.safetensors model_v2.safetensors --output yaml
 
 ## 📚 Documentation
 
-- **[Working Examples & Demonstrations](docs/examples/)** - See diffai in action with real outputs
-- **[API Documentation](https://docs.rs/diffai-core)** - Rust library documentation
-- **[User Guide](docs/user-guide.md)** - Comprehensive usage guide
-- **[ML Analysis Guide](docs/ml-analysis-guide.md)** - Deep dive into ML-specific features
+- **[Quick Start](docs/quick-start.md)** - Get up and running in 5 minutes
+- **[ML Analysis](docs/ml-analysis.md)** - Understand the 11 automatic ML analysis functions
+- **[File Formats](docs/formats.md)** - Supported formats and output options
+- **[Examples](docs/examples/)** - Real usage examples and outputs
+- **[API Reference](docs/reference/api-reference.md)** - Programming interfaces (Rust/Python/JavaScript)
+- **[CLI Reference](docs/reference/cli-reference.md)** - Command-line options and usage
 
 ## Supported AI/ML File Formats
 
@@ -216,7 +218,7 @@ Processing results:
   ML/Scientific data analysis completed
 ```
 
-📚 **See [Verbose Output Guide](docs/user-guide/verbose-output.md) for detailed usage**
+📚 **See [CLI Reference](docs/reference/cli-reference.md) for detailed verbose mode usage**
 
 ## Output Formats
 
