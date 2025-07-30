@@ -18,26 +18,32 @@ A next-generation diff tool specialized for **AI/ML and scientific computing wor
 $ diff model_v1.safetensors model_v2.safetensors
 Binary files model_v1.safetensors and model_v2.safetensors differ
 
-# diffai shows meaningful model changes with full analysis
+# diffai shows meaningful model changes with automatic ML analysis
 $ diffai model_v1.safetensors model_v2.safetensors
+learning_rate_analysis: old=0.001, new=0.0015, change=+50.0%, trend=increasing
+optimizer_comparison: type=Adam, momentum_change=+2.1%, state_evolution=stable
+loss_tracking: loss_trend=decreasing, improvement_rate=15.2%, convergence_score=0.89
+accuracy_tracking: accuracy_delta=+3.2%, performance_trend=improving
+model_version_analysis: version_change=1.0->1.1, checkpoint_evolution=incremental
+gradient_analysis: flow_health=healthy, norm=0.021069, variance_change=+15.3%
+quantization_analysis: mixed_precision=FP16+FP32, compression=12.5%, precision_loss=1.2%
+convergence_analysis: status=converging, stability=0.92, plateau_detected=false
+activation_analysis: relu_usage=45%, gelu_usage=55%, distribution=healthy
+attention_analysis: head_count=12, attention_patterns=stable, efficiency=0.87
+ensemble_analysis: ensemble_detected=false, model_type=single
   ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
   ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
-  gradient_analysis: flow_health=healthy, norm=0.015000, ratio=1.0500
-  deployment_readiness: readiness=0.92, strategy=blue_green, risk=low
-  quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%
-
-[WARNING]
-• Memory usage increased moderately (+250MB). Monitor resource consumption.
-• Inference speed moderately affected (1.3x slower). Consider optimization opportunities.
 ```
 
 ## Key Features
 
 - **AI/ML Native**: Direct support for PyTorch (.pt/.pth), Safetensors (.safetensors), NumPy (.npy/.npz), and MATLAB (.mat) files
 - **Tensor Analysis**: Automatic calculation of tensor statistics (mean, std, min, max, shape, memory usage)
-- **Comprehensive ML Analysis**: 30+ analysis functions including quantization, architecture, memory, convergence, anomaly detection, and deployment readiness - all enabled by default
+- **Comprehensive ML Analysis**: 11 specialized ML analysis functions including gradient analysis, quantization analysis, convergence patterns, learning rate tracking, and deployment readiness - all automatically enabled for AI/ML files
+- **Built on diffx-core**: Leverages proven diff engine from diffx project for reliable core functionality
 - **Scientific Data Support**: NumPy arrays and MATLAB matrices with complex number support
+- **Convention over Configuration**: Zero-configuration ML analysis - automatically detects and analyzes AI/ML content without manual setup
 - **Pure Rust Implementation**: No system dependencies, works on Windows/Linux/macOS without additional installations
 - **Multiple Output Formats**: Colored CLI, JSON for MLOps integration, YAML for human-readable reports
 - **Fast and Memory Efficient**: Built in Rust for handling large model files efficiently
@@ -86,27 +92,27 @@ cargo build --release
 ### Basic Model Comparison
 
 ```bash
-# Compare PyTorch models with full analysis (default)
+# Compare PyTorch models (11 ML analyses run automatically)
 diffai model_old.pt model_new.pt
 
-# Compare Safetensors with complete ML analysis
+# Compare Safetensors (11 ML analyses run automatically)
 diffai checkpoint_v1.safetensors checkpoint_v2.safetensors
 
-# Compare NumPy arrays
+# Compare NumPy arrays (basic tensor statistics)
 diffai data_v1.npy data_v2.npy
 
-# Compare MATLAB files
+# Compare MATLAB files (basic tensor statistics)
 diffai experiment_v1.mat experiment_v2.mat
 ```
 
 ### ML Analysis Features
 
 ```bash
-# Full ML analysis runs automatically for PyTorch/Safetensors
+# All 11 ML analysis functions run automatically for PyTorch/Safetensors
 diffai baseline.safetensors finetuned.safetensors
-# Outputs: 30+ analysis types including quantization, architecture, memory, etc.
+# Auto-outputs: learning_rate_analysis, gradient_analysis, convergence_analysis, etc.
 
-# JSON output for automation
+# JSON output for MLOps integration
 diffai model_v1.safetensors model_v2.safetensors --output json
 
 # Detailed diagnostic information with verbose mode
@@ -139,20 +145,27 @@ diffai is specialized for AI/ML and scientific computing files only:
 
 ## ML Analysis Functions
 
-### Automatic Comprehensive Analysis (v0.3.4)
-When comparing PyTorch or Safetensors files, diffai automatically runs 30+ ML analysis features:
+### Automatic Comprehensive Analysis (v0.3.16)
+When comparing PyTorch or Safetensors files, diffai automatically runs **11 specialized ML analysis functions** without requiring any configuration:
 
-**Automatic Features Include:**
-- **Statistical Analysis**: Detailed tensor statistics (mean, std, min, max, shape, memory)
-- **Quantization Analysis**: Analyze quantization effects and efficiency
-- **Architecture Comparison**: Compare model architectures and structural changes
-- **Memory Analysis**: Analyze memory usage and optimization opportunities
-- **Anomaly Detection**: Detect numerical anomalies in model parameters
-- **Convergence Analysis**: Analyze convergence patterns in model parameters
-- **Gradient Analysis**: Analyze gradient information when available
-- **Deployment Readiness**: Assess production deployment readiness
-- **Regression Testing**: Automatic performance degradation detection
-- **Plus 20+ additional specialized features**
+**Auto-Enabled ML Analysis Functions:**
+1. **Learning Rate Analysis**: Track learning rate changes and training dynamics
+2. **Optimizer Comparison**: Compare optimizer states and momentum information
+3. **Loss Tracking**: Analyze loss function evolution and convergence patterns
+4. **Accuracy Tracking**: Monitor accuracy changes and performance metrics
+5. **Model Version Detection**: Identify model versioning and checkpoint information
+6. **Gradient Analysis**: Analyze gradient flow, vanishing/exploding gradients, and stability
+7. **Quantization Analysis**: Detect mixed precision (FP32/FP16/INT8/INT4) and compression effects
+8. **Convergence Analysis**: Learning curve analysis, plateau detection, and optimization trajectory
+9. **Activation Analysis**: Analyze activation function usage and distribution
+10. **Attention Analysis**: Analyze attention mechanisms and transformer components (when present)
+11. **Ensemble Analysis**: Detect and analyze ensemble model structures
+
+**Automatic Trigger Conditions:**
+- **PyTorch files (.pt/.pth)**: All 11 analyses run automatically
+- **Safetensors files (.safetensors)**: All 11 analyses run automatically  
+- **NumPy/MATLAB files**: Basic tensor statistics only (non-ML analysis)
+- **Other formats**: Standard structural comparison
 
 ### Future Enhancements
 - TensorFlow format support (.pb, .h5, SavedModel)
@@ -160,7 +173,7 @@ When comparing PyTorch or Safetensors files, diffai automatically runs 30+ ML an
 - Advanced visualization and charting features
 
 ### Design Philosophy
-diffai provides comprehensive analysis by default for ML models, eliminating choice paralysis. Users get all relevant insights without needing to remember or specify dozens of analysis flags.
+diffai follows the **Convention over Configuration** principle (inspired by lawkit patterns): comprehensive ML analysis runs automatically for AI/ML files, eliminating choice paralysis. Users get all relevant insights without needing to remember or specify analysis flags. Built on the proven diffx-core engine for reliability.
 
 ## Debugging and Diagnostics
 
@@ -279,7 +292,7 @@ diffai model_a.safetensors model_b.safetensors \
 - `-o, --output <OUTPUT>` - Choose output format (cli, json, yaml)
 - **Directory comparison** - Automatically recursive when directories are provided
 
-**Note:** For ML models (PyTorch/Safetensors), comprehensive analysis including statistics runs automatically
+**Note:** For ML models (PyTorch/Safetensors), all 11 specialized ML analysis functions run automatically without configuration
 
 ### Advanced Options
 - `--path <PATH>` - Filter differences by specific path
@@ -290,16 +303,20 @@ diffai model_a.safetensors model_b.safetensors \
 
 ## Examples
 
-### Basic Tensor Comparison (Automatic)
+### Basic Tensor Comparison (All 11 ML Analyses Automatic)
 ```bash
 $ diffai simple_model_v1.safetensors simple_model_v2.safetensors
-anomaly_detection: type=none, severity=none, action="continue_training"
-architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
-convergence_analysis: status=converging, stability=0.92
-gradient_analysis: flow_health=healthy, norm=0.021069
-memory_analysis: delta=+0.0MB, efficiency=1.000000
-quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%
-regression_test: passed=true, degradation=-2.5%, severity=low
+learning_rate_analysis: old=0.001, new=0.001, change=0.0%, trend=stable
+optimizer_comparison: type=Adam, momentum_change=+1.2%, state_evolution=stable
+loss_tracking: loss_trend=decreasing, improvement_rate=8.5%, convergence_score=0.85
+accuracy_tracking: accuracy_delta=+1.8%, performance_trend=improving
+model_version_analysis: version_change=detected, checkpoint_evolution=minor
+gradient_analysis: flow_health=healthy, norm=0.021069, variance_change=+5.2%
+quantization_analysis: mixed_precision=none, compression=0.0%, precision_loss=0.0%
+convergence_analysis: status=converging, stability=0.92, plateau_detected=false
+activation_analysis: relu_usage=100%, activation_distribution=healthy
+attention_analysis: transformer_components=none, attention_detected=false
+ensemble_analysis: ensemble_detected=false, model_type=feedforward
   ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
   ~ fc2.bias: mean=-0.0076->-0.0257, std=0.0661->0.0973
@@ -312,12 +329,18 @@ regression_test: passed=true, degradation=-2.5%, severity=low
 ```bash
 $ diffai baseline.safetensors improved.safetensors --output json
 {
-  "anomaly_detection": {"type": "none", "severity": "none"},
-  "architecture_comparison": {"type1": "feedforward", "type2": "feedforward"},
-  "deployment_readiness": {"readiness": 0.92, "strategy": "blue_green"},
-  "quantization_analysis": {"compression": "0.0%", "speedup": "1.8x"},
-  "regression_test": {"passed": true, "degradation": "-2.5%"}
-  // ... plus 25+ additional analysis features
+  "learning_rate_analysis": {"old": 0.001, "new": 0.0015, "change": "+50.0%"},
+  "optimizer_comparison": {"type": "Adam", "momentum_change": "+2.1%"},
+  "loss_tracking": {"loss_trend": "decreasing", "improvement_rate": "15.2%"},
+  "accuracy_tracking": {"accuracy_delta": "+3.2%", "performance_trend": "improving"},
+  "model_version_analysis": {"version_change": "1.0->1.1", "evolution": "incremental"},
+  "gradient_analysis": {"flow_health": "healthy", "norm": 0.021069, "variance_change": "+15.3%"},
+  "quantization_analysis": {"mixed_precision": "FP16+FP32", "compression": "12.5%"},
+  "convergence_analysis": {"status": "converging", "stability": 0.92},
+  "activation_analysis": {"relu_usage": "45%", "gelu_usage": "55%"},
+  "attention_analysis": {"head_count": 12, "attention_patterns": "stable"},
+  "ensemble_analysis": {"ensemble_detected": false, "model_type": "single"}
+  // All 11 ML analysis functions included automatically
 }
 ```
 
