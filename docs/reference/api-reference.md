@@ -443,9 +443,31 @@ mod tests {
 }
 ```
 
+## Automatic ML Analysis
+
+**Convention over Configuration**: diffai-core automatically runs 11 specialized ML analysis functions when it detects PyTorch (.pt/.pth) or Safetensors (.safetensors) files:
+
+1. **learning_rate_analysis** - Learning rate tracking and dynamics
+2. **optimizer_comparison** - Optimizer state comparison
+3. **loss_tracking** - Loss function evolution analysis
+4. **accuracy_tracking** - Performance metrics monitoring
+5. **model_version_analysis** - Version and checkpoint detection
+6. **gradient_analysis** - Gradient flow and stability analysis
+7. **quantization_analysis** - Mixed precision detection (FP32/FP16/INT8/INT4)
+8. **convergence_analysis** - Learning curve and convergence patterns
+9. **activation_analysis** - Activation function usage analysis
+10. **attention_analysis** - Transformer and attention mechanisms
+11. **ensemble_analysis** - Ensemble model detection
+
+**Trigger Conditions:**
+- **PyTorch/Safetensors**: All 11 analyses run automatically
+- **NumPy/MATLAB**: Basic tensor statistics only
+- **Other formats**: Standard structural comparison
+
 ## Version Compatibility
 
-- **0.2.x**: Current stable version
+- **0.3.16**: Current stable version with automatic ML analysis
+- **Built on**: diffx-core v0.6.x for proven diff reliability
 - **Minimum Rust version**: 1.70.0
 - **Dependencies**: See `Cargo.toml` for current versions
 
