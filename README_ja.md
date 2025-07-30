@@ -4,377 +4,212 @@
 
 [![CI](https://github.com/kako-jun/diffai/actions/workflows/ci.yml/badge.svg)](https://github.com/kako-jun/diffai/actions/workflows/ci.yml)
 [![Crates.io CLI](https://img.shields.io/crates/v/diffai.svg?label=diffai-cli)](https://crates.io/crates/diffai)
-[![Docs.rs Core](https://docs.rs/diffai-core/badge.svg)](https://docs.rs/diffai-core)
 [![npm](https://img.shields.io/npm/v/diffai-js.svg?label=diffai-js)](https://www.npmjs.com/package/diffai-js)
 [![PyPI](https://img.shields.io/pypi/v/diffai-python.svg?label=diffai-python)](https://pypi.org/project/diffai-python/)
-[![Documentation](https://img.shields.io/badge/📚%20User%20Guide-Documentation-green)](https://github.com/kako-jun/diffai/tree/main/docs/index_ja.md)
-[![API Reference](https://img.shields.io/badge/🔧%20API%20Reference-docs.rs-blue)](https://docs.rs/diffai-core)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-モデル構造、テンソル統計、数値データを理解する**AI/ML・科学計算ワークフロー**専用の次世代diffツール。単なるテキスト変更ではなく、PyTorch、Safetensors、NumPy配列、MATLABファイル、構造化データをネイティブサポート。
+## 🤔 課題
+
+従来のdiffツールは、AI/MLワークフローでは完全に役に立ちません：
+
+```mermaid
+graph LR
+    A[MLエンジニア] --> B[モデルを比較]
+    B --> C{従来ツール}
+    C --> D["❌ バイナリファイルが異なります"]
+    C --> E["❌ 意味的理解なし"]  
+    C --> F["❌ GB+ファイルでメモリ問題"]
+    D --> G[😞 有用な洞察なし]
+    E --> G
+    F --> G
+```
+
+**現実確認：** 2つのPyTorchモデルを比較する必要がある時、`git diff`や標準ツールは何も有用な情報をくれません。
+
+## ✨ 解決策
+
+diffaiは、AI/MLファイルを自動分析し、設定不要で**11個の専門的ML分析機能**を提供します：
+
+```mermaid
+graph LR
+    A[MLエンジニア] --> B[diffai model1.pt model2.pt]
+    B --> C[🎯 11個の自動ML分析]
+    C --> D[📊 学習率変化]
+    C --> E[🔍 勾配健全性]
+    C --> F[⚡ 量子化効果]
+    C --> G[📈 収束パターン]
+    D --> H[✅ 実行可能な洞察]
+    E --> H
+    F --> H
+    G --> H
+```
+
+**設定より規約：** セットアップ不要 - diffaiがAI/MLファイルを検出し、自動的に包括的分析を実行します。
+
+## 🆚 従来ツールとの比較
+
+| 課題 | 従来ツール | diffai |
+|-----|-----------|---------|
+| **バイナリモデルファイル** | "バイナリファイルが異なります" | 11個の専門ML分析 + テンソル統計 |
+| **大容量ファイル(GB+)** | メモリ問題や失敗 | lawkitパターンによる効率的ストリーミング |
+| **ML意味論** | 理解なし | 学習率、勾配、量子化検出 |
+| **自動化** | 手動検査が必要 | MLOps統合用JSON出力 |
+| **科学データ** | テキスト比較のみ | NumPy/MATLAB統計分析 |
+
+## 🚀 クイックデモ
 
 ```bash
-# Traditional diff fails with binary model files
+# 従来のdiff: MLファイルには無用
 $ diff model_v1.safetensors model_v2.safetensors
 Binary files model_v1.safetensors and model_v2.safetensors differ
 
-# diffai shows meaningful model changes with full analysis
+# diffai: 包括的ML分析を自動実行
 $ diffai model_v1.safetensors model_v2.safetensors
-  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
+learning_rate_analysis: old=0.001, new=0.0015, change=+50.0%, trend=increasing
+optimizer_comparison: type=Adam, momentum_change=+2.1%, state_evolution=stable
+gradient_analysis: flow_health=healthy, norm=0.021069, variance_change=+15.3%
+quantization_analysis: mixed_precision=FP16+FP32, compression=12.5%, precision_loss=1.2%
+convergence_analysis: status=converging, stability=0.92, plateau_detected=false
+# ... + 6個の分析が自動実行
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
   ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
-  gradient_analysis: flow_health=healthy, norm=0.015000, ratio=1.0500
-  deployment_readiness: readiness=0.92, strategy=blue_green, risk=low
-  quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%
-
-[WARNING]
-• Memory usage increased moderately (+250MB). Monitor resource consumption.
-• Inference speed moderately affected (1.3x slower). Consider optimization opportunities.
 ```
 
-## 主な機能
+## ✅ diffaiが今日できること
 
-- **AI/MLネイティブ対応**: PyTorch（.pt/.pth）、Safetensors（.safetensors）、NumPy（.npy/.npz）、MATLAB（.mat）ファイルの直接サポート
-- **テンソル解析**: テンソル統計（平均、標準偏差、最小値、最大値、形状、メモリ使用量）の自動計算
-- **包括的ML解析**: 量子化、アーキテクチャ、メモリ、収束、異常検出、デプロイメント準備状況を含む30以上の解析機能 - すべてデフォルトで有効
-- **科学データサポート**: 複素数対応のNumPy配列とMATLAB行列
-- **Pure Rust実装**: システム依存関係なし、Windows/Linux/macOSで追加インストール不要
-- **複数出力形式**: 色付きCLI、MLOps統合用JSON、人間が読みやすいYAMLレポート
-- **高速・メモリ効率**: 大型モデルファイルの効率的処理を可能にするRust製
+- **PyTorch/Safetensorsファイル**: 11個の自動ML分析機能
+- **NumPy/MATLABファイル**: 包括的テンソル統計（形状、平均、標準偏差、データ型）
+- **複数出力フォーマット**: 人間読み取り可能CLI、自動化用JSON、レポート用YAML
+- **メモリ効率**: ストリーミング処理でGB+モデルファイルを処理
+- **ゼロ設定**: ファイル形式検出による自動分析
+- **MLOps統合**: CI/CDパイプラインと自動化用JSON出力
 
-## なぜdiffaiなのか？
+## ❌ diffaiができないこと（現実的に）
 
-従来のdiffツールはAI/MLワークフローには不適切です：
+- ❌ **TensorFlow形式** (.pb, .h5, SavedModel) - これらにはTensorBoardを使用
+- ❌ **ONNXモデル** - 可視化にはnetronを検討
+- ❌ **ライブ訓練監視** - リアルタイム追跡にはwandb/tensorboardを使用
+- ❌ **モデル性能予測** - 変化は表示するが、絶対性能は表示しない
+- ❌ **自動ハイパーパラメータ調整** - 分析のみ、推奨事項はまだ未対応
+- ❌ **一般的なテキスト/コードファイル** - JSON/YAML/CSVには[diffx](https://github.com/kako-jun/diffx)を使用
 
-| 課題 | 従来ツール | diffai |
-|------|------------|--------|
-| **バイナリモデルファイル** | "Binary files differ" | 統計付きテンソルレベル解析 |
-| **大容量ファイル（GB+）** | メモリ不足や処理失敗 | 効率的ストリーミング・チャンク処理 |
-| **統計的変化** | 意味理解なし | 統計的有意性付き平均/標準偏差/形状比較 |
-| **ML特化形式** | サポートなし | PyTorch/Safetensors/NumPy/MATLABネイティブ対応 |
-| **科学計算ワークフロー** | テキストのみ比較 | 数値配列解析・可視化 |
+## 🔄 diffai vs 代替案の使い分け
 
-### diffai vs MLOpsツール
+| あなたの目標 | 代わりにこれを使用 | 理由 |
+|-------------|------------------|-----|
+| ライブ訓練監視 | TensorBoard, wandb | 訓練中のリアルタイム可視化 |
+| モデル構造可視化 | netron, torchviz | インタラクティブなネットワーク図 |
+| 実験追跡 | MLflow, Neptune | 完全な実験ライフサイクル管理 |
+| 性能ベンチマーク | MLPerf, カスタムスクリプト | 推論/訓練速度に特化 |
+| 一般的なファイル比較 | diffx, git diff | テキストベース構造化データ |
 
-diffaiは実験管理ではなく**構造比較**に焦点を当てることで、既存のMLOpsツールを補完します：
+**diffaiが最適なケース：** 訓練後のモデル比較、チェックポイント分析、MLOps自動化。
 
-| 観点 | diffai | MLflow / DVC / ModelDB |
-|------|--------|------------------------|
-| **焦点** | 「比較不可能なものを比較可能にする」 | 体系化、再現性、CI/CD統合 |
-| **データ前提** | 出自不明ファイル / ブラックボックス生成成果物 | 適切に文書化・追跡されたデータ |
-| **操作** | 構造・視覚比較の最適化 | バージョン管理・実験追跡の専門化 |
-| **範囲** | JSON/YAML/モデルファイルを含む「曖昧な構造」の可視化 | 実験メタデータ、バージョン管理、再現性 |
-
-## インストール
-
-### crates.ioから（推奨）
+## 📥 インストール
 
 ```bash
+# crates.ioから（推奨）
 cargo install diffai
-```
 
-### ソースから
-
-```bash
+# ソースから
 git clone https://github.com/kako-jun/diffai.git
-cd diffai
-cargo build --release
+cd diffai && cargo build --release
 ```
 
-## クイックスタート
+## 🎯 一般的な使用例
 
-### 基本的なモデル比較
-
+### 研究開発
 ```bash
-# PyTorchモデルを完全解析付きで比較（デフォルト）
-diffai model_old.pt model_new.pt
-
-# Safetensorsを完全ML解析付きで比較
-diffai checkpoint_v1.safetensors checkpoint_v2.safetensors
-
-# NumPy配列を比較
-diffai data_v1.npy data_v2.npy
-
-# MATLABファイルを比較
-diffai experiment_v1.mat experiment_v2.mat
-```
-
-### ML解析機能
-
-```bash
-# PyTorch/Safetensorsでは完全ML解析が自動実行
-diffai baseline.safetensors finetuned.safetensors
-# 出力: 量子化、アーキテクチャ、メモリ等の30以上の解析種別
-
-# 自動化用JSON出力
-diffai model_v1.safetensors model_v2.safetensors --output json
-
-# 詳細な診断情報を表示する詳細モード
-diffai model_v1.safetensors model_v2.safetensors --verbose
-
-# 人間が読みやすいレポート用YAML出力
-diffai model_v1.safetensors model_v2.safetensors --output yaml
-```
-
-## 📚 ドキュメント
-
-- **[実用例・デモンストレーション](docs/examples/)** - 実際の出力付きdiffaiの動作確認
-- **[APIドキュメント](https://docs.rs/diffai-core)** - Rustライブラリドキュメント
-- **[ユーザーガイド](docs/user-guide/getting-started_ja.md)** - 包括的な使用ガイド
-- **[ML解析ガイド](docs/reference/ml-analysis_ja.md)** - ML特化機能の詳細解説
-
-## サポートされるAI/MLファイル形式
-
-diffaiはAI/MLと科学計算ファイル専用に特化されています：
-
-### MLモデル形式
-- **Safetensors** (.safetensors) - HuggingFace標準形式
-- **PyTorch** (.pt, .pth) - Candle統合付きPyTorchモデルファイル
-
-### 科学データ形式  
-- **NumPy** (.npy, .npz) - 完全統計解析付きNumPy配列
-- **MATLAB** (.mat) - 複素数サポート付きMATLAB行列
-
-**注記**: 汎用構造化データ形式（JSON、YAML、CSV、XML等）については、これらの形式専用に設計された姉妹プロジェクト[diffx](https://github.com/kako-jun/diffx)をご利用ください。
-
-## ML解析機能
-
-### 自動包括解析（v0.3.4）
-PyTorchまたはSafetensorsファイルを比較する際、diffaiは30以上のML解析機能を自動実行します：
-
-**自動機能には以下が含まれます：**
-- **統計解析**: 詳細なテンソル統計（平均、標準偏差、最小値、最大値、形状、メモリ）
-- **量子化解析**: 量子化効果と効率性を解析
-- **アーキテクチャ比較**: モデルアーキテクチャと構造変化を比較
-- **メモリ解析**: メモリ使用量と最適化機会を解析
-- **異常検出**: モデルパラメータの数値異常を検出
-- **収束解析**: モデルパラメータの収束パターンを解析
-- **勾配解析**: 利用可能な勾配情報を解析
-- **デプロイメント準備状況**: 本番デプロイメントの準備状況を評価
-- **リグレッションテスト**: パフォーマンス劣化の自動検出
-- **さらに20以上の専門機能**
-
-### 将来の機能強化
-- TensorFlow形式サポート（.pb, .h5, SavedModel）
-- ONNX形式サポート
-- 高度な可視化・チャート機能
-
-### 設計哲学
-diffaiはMLモデルに対してデフォルトで包括的解析を提供し、選択の麻痺を解消します。ユーザーは数十の解析フラグを覚えたり指定したりする必要なく、関連するすべての洞察を得られます。
-
-## Debugging and Diagnostics
-
-### Verbose Mode (`--verbose` / `-v`)
-Get comprehensive diagnostic information for debugging and performance analysis:
-
-```bash
-# Basic verbose output
-diffai model1.safetensors model2.safetensors --verbose
-
-# Verbose with structured data filtering
-diffai data1.json data2.json --verbose --epsilon 0.001 --ignore-keys-regex "^id$"
-```
-
-**Verbose output includes:**
-- **Configuration diagnostics**: Format settings, filters, analysis modes
-- **File analysis**: Paths, sizes, detected formats, processing context
-- **Performance metrics**: Processing time, difference counts, optimization status
-- **Directory statistics**: File counts, comparison summaries (ディレクトリ自動処理)
-
-**Example verbose output:**
-```
-=== diffai verbose mode enabled ===
-Configuration:
-  Input format: Safetensors
-  Output format: Cli
-  ML analysis: Full analysis enabled (all 30 features)
-  Epsilon tolerance: 0.001
-
-File analysis:
-  Input 1: model1.safetensors
-  Input 2: model2.safetensors
-  Detected format: Safetensors
-  File 1 size: 1048576 bytes
-  File 2 size: 1048576 bytes
-
-Processing results:
-  Total processing time: 1.234ms
-  Differences found: 15
-  ML/Scientific data analysis completed
-```
-
-📚 **See [Verbose Output Guide](docs/user-guide/verbose-output_ja.md) for detailed usage**
-
-## Output Formats
-
-### CLI Output (Default)
-Colored, human-readable output with intuitive symbols:
-- `~` Changed tensors/arrays with statistical comparison
-- `+` Added tensors/arrays with metadata
-- `-` Removed tensors/arrays with metadata
-
-### JSON Output
-Structured output for MLOps integration and automation:
-```bash
-diffai model1.safetensors model2.safetensors --output json | jq .
-```
-
-### YAML Output  
-Human-readable structured output for documentation:
-```bash
-diffai model1.safetensors model2.safetensors --output yaml
-```
-
-## Real-World Use Cases
-
-### Research & Development
-```bash
-# Compare model before and after fine-tuning (full analysis automatic)
-diffai pretrained_model.safetensors finetuned_model.safetensors
-# Outputs: learning_progress, convergence_analysis, parameter stats, and 27 more analyses
-
-# Analyze architectural changes during development
-diffai baseline_architecture.pt improved_architecture.pt
-# Outputs: architecture_comparison, param_efficiency_analysis, and full ML analysis
+# ファインチューニング前後の比較
+diffai pretrained_model.pt finetuned_model.pt
+# 自動検出: パラメータ変化、収束パターン、勾配健全性
 ```
 
 ### MLOps & CI/CD
 ```bash
-# Automated model validation in CI/CD (comprehensive analysis)
-diffai production_model.safetensors candidate_model.safetensors
-# Outputs: deployment_readiness, regression_test, risk_assessment, and 27 more analyses
-
-# Performance impact assessment with JSON output for automation
-diffai original_model.pt optimized_model.pt --output json
-# Outputs: quantization_analysis, memory_analysis, performance_impact_estimate, etc.
+# パイプラインでの自動モデル検証
+diffai production_model.safetensors candidate_model.safetensors --output json
+# 分析結果に基づく自動意思決定にパイプ
 ```
 
-### Scientific Computing
+### モデル最適化
 ```bash
-# Compare NumPy experiment results
-diffai baseline_results.npy new_results.npy
-
-# Analyze MATLAB simulation data
-diffai simulation_v1.mat simulation_v2.mat
-
-# Compare compressed NumPy archives
-diffai dataset_v1.npz dataset_v2.npz
+# 量子化効果の分析
+diffai full_precision.pt quantized.pt
+# 自動検出: 圧縮率、精度損失、性能への影響
 ```
 
-### Experiment Tracking
+## 📚 ドキュメント
+
+- **[クイックスタート](docs/quick-start.md)** - 5分で開始
+- **[ML分析](docs/ml-analysis.md)** - 11個の自動ML分析機能を理解
+- **[ファイル形式](docs/formats.md)** - サポート形式と出力オプション
+- **[使用例](docs/examples/)** - 実際の使用例と出力
+- **[APIリファレンス](docs/reference/api-reference.md)** - プログラミングインターフェース（Rust/Python/JavaScript）
+- **[CLIリファレンス](docs/reference/cli-reference.md)** - コマンドラインオプションと使用法
+
+## 🔧 技術詳細
+
+### サポート形式
+- **PyTorch** (.pt, .pth) - 完全ML分析 + テンソル統計
+- **Safetensors** (.safetensors) - 完全ML分析 + テンソル統計  
+- **NumPy** (.npy, .npz) - テンソル統計のみ
+- **MATLAB** (.mat) - テンソル統計のみ
+
+### 11個の自動ML分析機能
+1. **学習率分析** - 訓練動力学追跡
+2. **オプティマイザ比較** - Adam/SGD状態分析
+3. **損失追跡** - 収束パターン検出
+4. **精度追跡** - 性能指標進化
+5. **モデルバージョン分析** - チェックポイント進行
+6. **勾配分析** - フロー健全性、消失/爆発検出
+7. **量子化分析** - 混合精度（FP32/FP16/INT8/INT4）検出
+8. **収束分析** - 学習曲線、プラトー検出
+9. **活性化分析** - ReLU/GELU/Tanh分布
+10. **アテンション分析** - Transformerメカニズム検出
+11. **アンサンブル分析** - マルチモデル構造検出
+
+### 出力形式
 ```bash
-# Generate comprehensive reports
-diffai experiment_baseline.safetensors experiment_improved.safetensors \
-  --generate-report --markdown-output --review-friendly
+# 人間読み取り可能（デフォルト）
+diffai model1.pt model2.pt
 
-# A/B test analysis
-diffai model_a.safetensors model_b.safetensors \
-  --statistical-significance --hyperparameter-comparison
+# 自動化用JSON
+diffai model1.pt model2.pt --output json
+
+# レポート用YAML  
+diffai model1.pt model2.pt --output yaml
+
+# 詳細診断
+diffai model1.pt model2.pt --verbose
 ```
 
-## Command-Line Options
+## 🏗️ 技術基盤
 
-### Basic Options
-- `-f, --format <FORMAT>` - 入力ファイル形式を指定
-- `-o, --output <OUTPUT>` - 出力形式を選択 (cli, json, yaml)
-- **ディレクトリ比較** - ディレクトリが提供された場合、自動的に再帰処理
+- **Rust** - 性能とメモリ安全性
+- **diffx-core** - 実績のあるdiffエンジン基盤
+- **lawkitパターン** - メモリ効率的な増分統計
+- **設定より規約** - ゼロセットアップ哲学
 
-**Note:** For ML models (PyTorch/Safetensors), comprehensive analysis including statistics runs automatically
+## 🤝 貢献
 
-### Advanced Options
-- `--path <PATH>` - Filter differences by specific path
-- `--ignore-keys-regex <REGEX>` - Ignore keys matching regex pattern
-- `--epsilon <FLOAT>` - Set tolerance for float comparisons
-- `--array-id-key <KEY>` - Specify key for array element identification
-- `--sort-by-change-magnitude` - Sort by change magnitude
-
-## Examples
-
-### Basic Tensor Comparison (Automatic)
-```bash
-$ diffai simple_model_v1.safetensors simple_model_v2.safetensors
-anomaly_detection: type=none, severity=none, action="continue_training"
-architecture_comparison: type1=feedforward, type2=feedforward, deployment_readiness=ready
-convergence_analysis: status=converging, stability=0.92
-gradient_analysis: flow_health=healthy, norm=0.021069
-memory_analysis: delta=+0.0MB, efficiency=1.000000
-quantization_analysis: compression=0.0%, speedup=1.8x, precision_loss=1.5%
-regression_test: passed=true, degradation=-2.5%, severity=low
-  ~ fc1.bias: mean=0.0018->0.0017, std=0.0518->0.0647
-  ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
-  ~ fc2.bias: mean=-0.0076->-0.0257, std=0.0661->0.0973
-  ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
-  ~ fc3.bias: mean=-0.0074->-0.0130, std=0.1031->0.1093
-  ~ fc3.weight: mean=-0.0035->-0.0010, std=0.0990->0.1113
-```
-
-### JSON Output for Automation
-```bash
-$ diffai baseline.safetensors improved.safetensors --output json
-{
-  "anomaly_detection": {"type": "none", "severity": "none"},
-  "architecture_comparison": {"type1": "feedforward", "type2": "feedforward"},
-  "deployment_readiness": {"readiness": 0.92, "strategy": "blue_green"},
-  "quantization_analysis": {"compression": "0.0%", "speedup": "1.8x"},
-  "regression_test": {"passed": true, "degradation": "-2.5%"}
-  // ... plus 25+ additional analysis features
-}
-```
-
-### Scientific Data Analysis
-```bash
-$ diffai experiment_data_v1.npy experiment_data_v2.npy
-  ~ data: shape=[1000, 256], mean=0.1234->0.1456, std=0.9876->0.9654, dtype=float64
-```
-
-### MATLAB File Comparison
-```bash
-$ diffai simulation_v1.mat simulation_v2.mat
-  ~ results: var=results, shape=[500, 100], mean=2.3456->2.4567, std=1.2345->1.3456, dtype=double
-  + new_variable: var=new_variable, shape=[100], dtype=single, elements=100, size=0.39KB
-```
-
-## パフォーマンス
-
-diffaiは大容量ファイルと科学計算ワークフロー用に最適化されています：
-
-- **メモリ効率**: GB+ファイルのストリーミング処理
-- **高速**: 最適化されたテンソル操作を伴うRust実装
-- **スケーラブル**: 数百万/数十億パラメータのモデルに対応
-- **クロスプラットフォーム**: 依存関係なしでWindows、Linux、macOSで動作
-
-## コントリビューション
-
-コントリビューションを歓迎します！ガイドラインは[CONTRIBUTING](CONTRIBUTING.md)をご覧ください。
-
-### 開発環境の設定
+貢献を歓迎します！ガイドラインは[CONTRIBUTING.md](CONTRIBUTING.md)をご覧ください。
 
 ```bash
 git clone https://github.com/kako-jun/diffai.git
 cd diffai
-cargo build
-cargo test
+cargo build && cargo test
 ```
 
-### テスト実行
+## 📄 ライセンス
 
-```bash
-# 全テスト実行
-cargo test
+MITライセンス - 詳細は[LICENSE](LICENSE)ファイルをご覧ください。
 
-# 特定テストカテゴリ実行
-cargo test --test integration
-cargo test --test ml_analysis
-```
+## 🔗 関連プロジェクト
 
-## ライセンス
+- **[diffx](https://github.com/kako-jun/diffx)** - 汎用構造化データdiff（JSON、YAML、CSV、XML）
+- **[lawkit](https://github.com/kako-jun/lawkit)** - メモリ効率的データ処理パターン
+- **[safetensors](https://github.com/huggingface/safetensors)** - 安全なテンソル保存形式
 
-このプロジェクトはMITライセンスの下でライセンスされています - 詳細は[LICENSE](LICENSE)ファイルをご覧ください。
+---
 
-## 関連プロジェクト
-
-- **[diffx](https://github.com/kako-jun/diffx)** - 汎用構造化データdiffツール（diffaiの姉妹プロジェクト）
-- **[safetensors](https://github.com/huggingface/safetensors)** - テンソルを保存・配布するシンプルで安全な方法
-- **[PyTorch](https://pytorch.org/)** - 機械学習フレームワーク
-- **[NumPy](https://numpy.org/)** - Python科学計算の基礎パッケージ
-
+**結論：** diffaiは、従来ツールでは不可能なAI/MLモデル比較からの実行可能な洞察を提供します。セットアップ不要 - モデルを指定するだけで自動的に包括的分析が得られます。
