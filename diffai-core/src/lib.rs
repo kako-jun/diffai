@@ -108,6 +108,9 @@ impl OutputFormat {
     }
 }
 
+/// Re-export FileFormat as DiffFormat for compatibility
+pub type DiffFormat = FileFormat;
+
 #[derive(Debug, Clone, Default)]
 pub struct DiffaiSpecificOptions {
     pub ml_analysis_enabled: Option<bool>,
@@ -387,7 +390,7 @@ enum FileFormat {
     Matlab,
 }
 
-fn detect_format_from_path(path: &Path) -> Result<FileFormat> {
+pub fn detect_format_from_path(path: &Path) -> Result<FileFormat> {
     match path.extension().and_then(|ext| ext.to_str()) {
         Some("pt") | Some("pth") => Ok(FileFormat::PyTorch),
         Some("safetensors") => Ok(FileFormat::Safetensors),
@@ -406,7 +409,7 @@ fn detect_format_from_path(path: &Path) -> Result<FileFormat> {
     }
 }
 
-fn parse_file_by_format(path: &Path, format: FileFormat) -> Result<Value> {
+pub fn parse_file_by_format(path: &Path, format: FileFormat) -> Result<Value> {
     match format {
         FileFormat::PyTorch => parse_pytorch_model(path),
         FileFormat::Safetensors => parse_safetensors_model(path),
@@ -3743,6 +3746,8 @@ pub fn parse_matlab_file(path: &Path) -> Result<Value> {
 
     Ok(Value::Object(result))
 }
+
+
 
 // ============================================================================
 // UTILITY FUNCTIONS - FOR INTERNAL USE ONLY

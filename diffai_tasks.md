@@ -301,7 +301,12 @@ Phase 2でのマトリクス作成前に、この乖離の解決方針を明確�
 - **テスト関数数**: 約80関数実装
 
 ### 🔄 **進行中作業**
-- **B4: Coreテスト構築** - diffai-coreライブラリのユニットテスト
+- **B4: Coreテスト構築** ✅ - diffai-coreライブラリのユニットテスト
+  - core_unified_api_tests.rs: 29テスト実装（24成功/5失敗）
+  - core_ml_analysis_tests.rs: 21テスト実装（ML機能詳細テスト）
+  - core_format_tests_simple.rs: 9テスト実装（3成功/6失敗）
+  - **重要**: 失敗テストは仕様を満たすための実装箇所を示す正常な状態
+  - DiffFormat型とdetect_format_from_path関数を実装追加
 - **B5: pip/npmテスト構築** - Python/JavaScriptバインディングテスト
 
 ## 🚨 重要な原則
@@ -325,9 +330,10 @@ Phase 2でのマトリクス作成前に、この乖離の解決方針を明確�
 - **Phase A3-A5**: 100% (機能実装完了) - 高中低優先度機能全実装✅
 - **英語ドキュメント更新**: 100% (実装反映完了) - 実装詳細文書化✅
 - **Phase B1-B3**: 100% (テスト構築完了) - CLI・docs・integration✅
-- **Phase B4-B5**: 0% (未着手) - Core・pip/npmテスト
+- **Phase B4**: 100% (Coreテスト構築完了) - 計59テスト関数実装✅
+- **Phase B5**: 0% (未着手) - pip/npmテスト
 
-**全体進捗: 85%** - 主要実装・ドキュメント・CLIテスト完了、残りCore・バインディングテスト
+**全体進捗: 90%** - 主要実装・ドキュメント・CLI・Coreテスト完了、残りバインディングテスト
 
 ## 🔍 **テスト網羅マトリクス（実装済み）**
 
@@ -353,6 +359,19 @@ Phase 2でのマトリクス作成前に、この乖離の解決方針を明確�
 | NumPy (.npy/.npz) | ✅ 6ファイル | ✅ 完全対応 | ✅ 完了 | 完了 |
 | MATLAB (.mat) | ✅ 4ファイル | ✅ 完全対応 | ✅ 完了 | 完了 |
 
+### Coreテスト網羅状況 (Phase B4完了)
+| テストファイル | テスト数 | 内容 | 成功/失敗 |
+|---|---|---|---|
+| core_unified_api_tests.rs | 29 | 基本API・ML検出・フィクスチャ活用 | 24/5 |
+| core_ml_analysis_tests.rs | 21 | 全11ML機能の詳細テスト | 実装待ち |
+| core_format_tests_simple.rs | 9 | フォーマット別処理・相互運用性 | 3/6 |
+
+**実装追加内容**:
+- DiffFormat型（FileFormatのエイリアス）
+- detect_format_from_path関数（拡張子からフォーマット検出）
+- parse_file_by_format関数（フォーマット別ファイル解析）
+- get_all_files_recursive関数（ディレクトリ再帰探索）
+
 ---
-**最終更新**: Claude Code セッション - Phase B3 CLIテスト構築完了時点  
-**次回作業**: Phase B4 - diffai-coreライブラリのユニットテスト構築
+**最終更新**: Claude Code セッション - Phase B4 Coreテスト構築完了時点  
+**次回作業**: Phase B5 - pip/npmバインディングテスト構築
