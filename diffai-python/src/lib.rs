@@ -369,9 +369,6 @@ fn diff_py(
 #[pymodule]
 fn diffai_python(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(diff_py, m)?)?;
-
-    // Add module-level diff function for easier access
-    m.add("diff", m.getattr("diff_py")?)?;
-
+    m.add("__version__", "0.3.16")?;
     Ok(())
 }

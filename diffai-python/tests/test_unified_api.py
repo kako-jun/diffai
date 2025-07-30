@@ -8,9 +8,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 try:
-    # Import the locally built Rust binding directly 
-    import sys
-    sys.path.insert(0, str(Path(__file__).parent.parent / "target" / "debug"))
+    # Import the locally built Rust binding (unified with diffx pattern)
     import diffai_python
 except ImportError:
     pytest.skip("diffai_python Rust module not built", allow_module_level=True)
@@ -256,7 +254,7 @@ class TestUnifiedAPI:
         old = {"name": "Alice", "age": 30}
         new = {"name": "Alice", "age": 31}
         
-        results = diffai_python.diff(old, new)
+        results = diffai_python.diff_py(old, new)
         
         assert len(results) == 1
         result = results[0]
@@ -269,7 +267,7 @@ class TestUnifiedAPI:
         old = {"learning_rate": 0.001, "accuracy": 0.85}
         new = {"learning_rate": 0.01, "accuracy": 0.92}
         
-        results = diffai_python.diff(
+        results = diffai_python.diff_py(
             old, new,
             learning_rate_tracking=True,
             accuracy_tracking=True
@@ -293,7 +291,7 @@ class TestUnifiedAPI:
         old = {"weights": {"layer1": 0.1, "layer2": 0.05}}
         new = {"weights": {"layer1": 0.2, "layer2": 0.051}}
         
-        results = diffai_python.diff(
+        results = diffai_python.diff_py(
             old, new,
             weight_threshold=0.05  # Only changes > 0.05 are significant
         )
@@ -317,7 +315,7 @@ class TestPyTorchModels:
         old = TestFixtures.pytorch_model_old()
         new = TestFixtures.pytorch_model_new()
         
-        results = diffai_python.diff(
+        results = diffai_python.diff_py(
             old, new,
             ml_analysis_enabled=True,
             learning_rate_tracking=True,
@@ -372,7 +370,7 @@ class TestPyTorchModels:
             }
         }
         
-        results = diffai_python.diff(
+        results = diffai_python.diff_py(
             old, new,
             weight_threshold=0.05,
             epsilon=0.001
@@ -393,7 +391,7 @@ class TestSafeTensorsModels:
         old = TestFixtures.safetensors_model_old()
         new = TestFixtures.safetensors_model_new()
         
-        results = diffai_python.diff(
+        results = diffai_python.diff_py(
             old, new,
             tensor_comparison_mode="both"
         )
@@ -419,7 +417,7 @@ class TestSafeTensorsModels:
         old = TestFixtures.safetensors_model_old()
         new = TestFixtures.safetensors_model_new()
         
-        results = diffai_python.diff(old, new)
+        results = diffai_python.diff_py(old, new)
         
         # Should detect metadata changes
         metadata_changes = [r for r in results 
@@ -443,7 +441,7 @@ class TestTrainingMetrics:
         old = TestFixtures.training_metrics_old()
         new = TestFixtures.training_metrics_new()
         
-        results = diffai_python.diff(
+        results = diffai_python.diff_py(
             old, new,
             loss_tracking=True,
             accuracy_tracking=True,
@@ -479,7 +477,7 @@ class TestTrainingMetrics:
             }
         }
         
-        results = diffai_python.diff(old, new)
+        results = diffai_python.diff_py(old, new)
         
         # Should detect changes in loss and accuracy arrays
         assert len(results) > 0
@@ -517,7 +515,7 @@ class TestPythonTypeConversion:
             }
         }
         
-        results = diffai_python.diff(old, new, epsilon=0.05)
+        results = diffai_python.diff_py(old, new, epsilon=0.05)
         
         # Should detect dtype change
         dtype_changes = [r for r in results 
@@ -544,7 +542,7 @@ class TestPythonTypeConversion:
             }
         }
         
-        results = diffai_python.diff(old, new)
+        results = diffai_python.diff_py(old, new)
         
         assert len(results) == 3  # Three changes
         
@@ -577,7 +575,7 @@ class TestDiffaiOptions:
         }
         
         # Test shape-only mode
-        results = diffai_python.diff(
+        results = diffai_python.diff_py(
             old, new,
             tensor_comparison_mode="shape"
         )
@@ -677,14 +675,14 @@ class TestErrorHandling:
         new = {"test": "value2"}
         
         with pytest.raises(Exception):  # Should raise ValueError for invalid regex
-            diffai_python.diff(old, new, ignore_keys_regex="[invalid_regex")
+            diffai_python.diff_py(old, new, ignore_keys_regex="[invalid_regex")
     
     def test_invalid_output_format(self):
         old = {"test": "value"}
         new = {"test": "value2"}
         
         with pytest.raises(Exception):  # Should raise ValueError for invalid format
-            diffai_python.diff(old, new, output_format="invalid_format")
+            diffai_python.diff_py(old, new, output_format="invalid_format")
     
     def test_invalid_tensor_comparison_mode(self):
         old = {"tensor": {"shape": [10]}}
@@ -692,7 +690,7 @@ class TestErrorHandling:
         
         # Should handle invalid mode gracefully or raise clear error
         try:
-            results = diffai_python.diff(old, new, tensor_comparison_mode="invalid_mode")
+            results = diffai_python.diff_py(old, new, tensor_comparison_mode="invalid_mode")
             # If it doesn't raise an error, it should still work
             assert isinstance(results, list)
         except Exception as e:
@@ -710,7 +708,7 @@ class TestIntegration:
         old_model = TestFixtures.pytorch_model_old()
         new_model = TestFixtures.pytorch_model_new()
         
-        results = diffai_python.diff(
+        results = diffai_python.diff_py(
             old_model, new_model,
             ml_analysis_enabled=True,
             tensor_comparison_mode="both",
@@ -777,7 +775,7 @@ class TestIntegration:
             }
         }
         
-        results = diffai_python.diff(
+        results = diffai_python.diff_py(
             model_v1, model_v2,
             ml_analysis_enabled=True,
             learning_rate_tracking=True,
@@ -829,7 +827,7 @@ class TestPerformance:
         
         import time
         start_time = time.time()
-        results = diffai_python.diff(old, new, weight_threshold=0.005, epsilon=0.001)
+        results = diffai_python.diff_py(old, new, weight_threshold=0.005, epsilon=0.001)
         end_time = time.time()
         
         assert len(results) > 0  # Should detect changes
@@ -852,7 +850,7 @@ class TestPerformance:
         
         import time
         start_time = time.time()
-        results = diffai_python.diff(old, new, epsilon=0.001)
+        results = diffai_python.diff_py(old, new, epsilon=0.001)
         end_time = time.time()
         
         assert len(results) > 0  # Should find differences

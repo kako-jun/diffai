@@ -89,14 +89,8 @@ warn_no_return = true
 warn_unreachable = true
 
 [tool.maturin]
-# PyO3 bindings for diffai-python
-python-source = "src"
-module-name = "diffai_python"
 bindings = "pyo3"
-# Find Python interpreters automatically
-find-interpreter = true
-# Use manylinux for PyPI compatibility
-compatibility = "manylinux2014"
+python-source = "src"
 
 # [project.scripts]
 # test = "python:test"  # Commented out: conflicts with binary from Rust
