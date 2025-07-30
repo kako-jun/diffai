@@ -1,6 +1,6 @@
 #![allow(clippy::useless_conversion)]
 
-use diffai_core::{diff, DiffOptions, DiffResult, DiffaiSpecificOptions, OutputFormat};
+use diffai_core::{diff, DiffOptions, DiffResult, OutputFormat};
 use pyo3::prelude::*;
 use pyo3::types::{PyAny, PyDict};
 use serde_json::Value;
@@ -212,10 +212,8 @@ fn diff_py(
     let old_value = python_to_value(py, old)?;
     let new_value = python_to_value(py, new)?;
 
-    // Build options from kwargs
+    // Build options from kwargs - lawkitパターンで簡素化
     let mut options = DiffOptions::default();
-    let mut diffai_options = DiffaiSpecificOptions::default();
-    let mut has_diffai_options = false;
 
     if let Some(kwargs) = kwargs {
         for (key, value) in kwargs.iter() {
@@ -254,92 +252,13 @@ fn diff_py(
                         options.output_format = Some(format);
                     }
                 }
-                "show_unchanged" => {
-                    if let Ok(show) = value.extract::<bool>() {
-                        options.show_unchanged = Some(show);
-                    }
-                }
-                "show_types" => {
-                    if let Ok(show) = value.extract::<bool>() {
-                        options.show_types = Some(show);
-                    }
-                }
-                "use_memory_optimization" => {
-                    if let Ok(opt) = value.extract::<bool>() {
-                        options.use_memory_optimization = Some(opt);
-                    }
-                }
-                "batch_size" => {
-                    if let Ok(size) = value.extract::<usize>() {
-                        options.batch_size = Some(size);
-                    }
-                }
-                // diffai-specific options
-                "ml_analysis_enabled" => {
-                    if let Ok(analysis) = value.extract::<bool>() {
-                        diffai_options.ml_analysis_enabled = Some(analysis);
-                        has_diffai_options = true;
-                    }
-                }
-                "tensor_comparison_mode" => {
-                    if let Ok(mode) = value.extract::<String>() {
-                        diffai_options.tensor_comparison_mode = Some(mode);
-                        has_diffai_options = true;
-                    }
-                }
-                "model_format" => {
-                    if let Ok(format) = value.extract::<String>() {
-                        diffai_options.model_format = Some(format);
-                        has_diffai_options = true;
-                    }
-                }
-                "scientific_precision" => {
-                    if let Ok(precision) = value.extract::<bool>() {
-                        diffai_options.scientific_precision = Some(precision);
-                        has_diffai_options = true;
-                    }
-                }
+                // lawkitパターン：削除されたオプションは無視
+                // 将来的に必要なオプションがあれば、ここに追加可能
                 "weight_threshold" => {
-                    if let Ok(threshold) = value.extract::<f64>() {
-                        diffai_options.weight_threshold = Some(threshold);
-                        has_diffai_options = true;
-                    }
-                }
-                "activation_analysis" => {
-                    if let Ok(analysis) = value.extract::<bool>() {
-                        diffai_options.activation_analysis = Some(analysis);
-                        has_diffai_options = true;
-                    }
-                }
-                "learning_rate_tracking" => {
-                    if let Ok(tracking) = value.extract::<bool>() {
-                        diffai_options.learning_rate_tracking = Some(tracking);
-                        has_diffai_options = true;
-                    }
-                }
-                "optimizer_comparison" => {
-                    if let Ok(comparison) = value.extract::<bool>() {
-                        diffai_options.optimizer_comparison = Some(comparison);
-                        has_diffai_options = true;
-                    }
-                }
-                "loss_tracking" => {
-                    if let Ok(tracking) = value.extract::<bool>() {
-                        diffai_options.loss_tracking = Some(tracking);
-                        has_diffai_options = true;
-                    }
-                }
-                "accuracy_tracking" => {
-                    if let Ok(tracking) = value.extract::<bool>() {
-                        diffai_options.accuracy_tracking = Some(tracking);
-                        has_diffai_options = true;
-                    }
-                }
-                "model_version_check" => {
-                    if let Ok(check) = value.extract::<bool>() {
-                        diffai_options.model_version_check = Some(check);
-                        has_diffai_options = true;
-                    }
+                    // 現在はweight_thresholdも削除されているため、コメントアウト
+                    // if let Ok(threshold) = value.extract::<f64>() {
+                    //     // DiffOptionsに直接追加する形に変更可能
+                    // }
                 }
                 _ => {
                     // Ignore unknown options
@@ -348,9 +267,7 @@ fn diff_py(
         }
     }
 
-    if has_diffai_options {
-        options.diffai_options = Some(diffai_options);
-    }
+    // lawkitパターン：diffai_optionsは削除済み
 
     // Perform diff
     let results = diff(&old_value, &new_value, Some(&options))

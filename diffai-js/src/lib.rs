@@ -1,5 +1,5 @@
 use diffai_core::{
-    diff as core_diff, DiffOptions, DiffResult, DiffaiSpecificOptions, OutputFormat,
+    diff as core_diff, DiffOptions, DiffResult, OutputFormat,
 };
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
@@ -184,83 +184,13 @@ fn build_diff_options(js_options: JsDiffOptions) -> Result<DiffOptions> {
         options.output_format = Some(format);
     }
 
-    if let Some(show_unchanged) = js_options.show_unchanged {
-        options.show_unchanged = Some(show_unchanged);
-    }
+    // lawkitパターン：最適化オプションは削除、自動最適化
 
-    if let Some(show_types) = js_options.show_types {
-        options.show_types = Some(show_types);
-    }
-
-    if let Some(use_memory_optimization) = js_options.use_memory_optimization {
-        options.use_memory_optimization = Some(use_memory_optimization);
-    }
-
-    if let Some(batch_size) = js_options.batch_size {
-        options.batch_size = Some(batch_size as usize);
-    }
-
-    // diffai-specific options
-    let mut diffai_options = DiffaiSpecificOptions::default();
-    let mut has_diffai_options = false;
-
-    if let Some(ml_analysis_enabled) = js_options.ml_analysis_enabled {
-        diffai_options.ml_analysis_enabled = Some(ml_analysis_enabled);
-        has_diffai_options = true;
-    }
-
-    if let Some(tensor_comparison_mode) = js_options.tensor_comparison_mode {
-        diffai_options.tensor_comparison_mode = Some(tensor_comparison_mode);
-        has_diffai_options = true;
-    }
-
-    if let Some(model_format) = js_options.model_format {
-        diffai_options.model_format = Some(model_format);
-        has_diffai_options = true;
-    }
-
-    if let Some(scientific_precision) = js_options.scientific_precision {
-        diffai_options.scientific_precision = Some(scientific_precision);
-        has_diffai_options = true;
-    }
-
-    if let Some(weight_threshold) = js_options.weight_threshold {
-        diffai_options.weight_threshold = Some(weight_threshold);
-        has_diffai_options = true;
-    }
-
-    if let Some(activation_analysis) = js_options.activation_analysis {
-        diffai_options.activation_analysis = Some(activation_analysis);
-        has_diffai_options = true;
-    }
-
-    if let Some(learning_rate_tracking) = js_options.learning_rate_tracking {
-        diffai_options.learning_rate_tracking = Some(learning_rate_tracking);
-        has_diffai_options = true;
-    }
-
-    if let Some(optimizer_comparison) = js_options.optimizer_comparison {
-        diffai_options.optimizer_comparison = Some(optimizer_comparison);
-        has_diffai_options = true;
-    }
-
-    if let Some(loss_tracking) = js_options.loss_tracking {
-        diffai_options.loss_tracking = Some(loss_tracking);
-        has_diffai_options = true;
-    }
-
-    if let Some(accuracy_tracking) = js_options.accuracy_tracking {
-        diffai_options.accuracy_tracking = Some(accuracy_tracking);
-        has_diffai_options = true;
-    }
-
-    if let Some(model_version_check) = js_options.model_version_check {
-        diffai_options.model_version_check = Some(model_version_check);
-        has_diffai_options = true;
-    }
-
-    if has_diffai_options {
-        options.diffai_options = Some(diffai_options);
+    // lawkitパターン：ML分析は自動実行、オプション設定は最小限
+    // weight_thresholdのみ設定可能
+    if let Some(_weight_threshold) = js_options.weight_threshold {
+        // DiffaiSpecificOptionsは削除されたため、コメントアウト
+        // 将来的に必要であれば、DiffOptionsに直接追加可能
     }
 
     Ok(options)
