@@ -1,4 +1,4 @@
-use diffai_core::{diff, DiffOptions, DiffResult, DiffaiSpecificOptions, OutputFormat};
+use diffai_core::{diff, DiffOptions, DiffResult, OutputFormat};
 use serde_json::{json, Value};
 
 /// Test basic API usage from api-reference.md
@@ -55,12 +55,7 @@ fn test_api_with_options() -> Result<(), Box<dyn std::error::Error>> {
 
     let options = DiffOptions {
         epsilon: Some(0.01),  // Tolerance for floating point comparison
-        diffai_options: Some(DiffaiSpecificOptions {
-            ml_analysis_enabled: Some(true),
-            learning_rate_tracking: Some(true),
-            weight_threshold: Some(0.01),
-            ..Default::default()
-        }),
+        // lawkitパターン：ML分析は自動実行、個別オプションは削除済み
         ..Default::default()
     };
 

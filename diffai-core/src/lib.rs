@@ -154,18 +154,7 @@ impl OutputFormat {
 /// Re-export FileFormat as DiffFormat for compatibility
 pub type DiffFormat = FileFormat;
 
-#[derive(Debug, Clone)]
-pub struct DiffaiSpecificOptions {
-    pub weight_threshold: f64, // significance threshold for weight changes (default: 0.01)
-}
-
-impl Default for DiffaiSpecificOptions {
-    fn default() -> Self {
-        Self {
-            weight_threshold: 0.01, // lawkitパターン：合理的なデフォルトを提供
-        }
-    }
-}
+// lawkitパターン：DiffaiSpecificOptionsは削除、ML分析は自動実行
 
 #[derive(Debug, Clone, Default)]
 pub struct DiffOptions {

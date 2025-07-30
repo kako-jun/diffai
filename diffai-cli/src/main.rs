@@ -325,22 +325,17 @@ mod tests {
     }
 
     #[test]
-    fn test_ml_specific_options() {
+    fn test_ml_automatic_analysis() {
         let old = json!({"learning_rate": 0.01, "accuracy": 0.85});
         let new = json!({"learning_rate": 0.02, "accuracy": 0.87});
 
-        let diffai_options = DiffaiSpecificOptions {
-            learning_rate_tracking: Some(true),
-            accuracy_tracking: Some(true),
-            ..Default::default()
-        };
-
+        // lawkitパターン：ML分析は自動実行、個別オプションは不要
         let options = DiffOptions {
-            diffai_options: Some(diffai_options),
             ..Default::default()
         };
 
         let results = diff(&old, &new, Some(&options)).unwrap();
+        // 自動ML分析でlearning_rateとaccuracyの変更を検出
         assert_eq!(results.len(), 2);
     }
 }

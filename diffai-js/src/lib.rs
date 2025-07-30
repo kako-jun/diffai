@@ -34,39 +34,8 @@ pub struct JsDiffOptions {
     /// Batch size for memory optimization
     pub batch_size: Option<u32>,
 
-    // diffai-specific options
-    /// Enable ML analysis features
-    pub ml_analysis_enabled: Option<bool>,
-
-    /// Tensor comparison mode: "shape", "data", "both"
-    pub tensor_comparison_mode: Option<String>,
-
-    /// Model format: "pytorch", "safetensors", "onnx", etc.
-    pub model_format: Option<String>,
-
-    /// Enable scientific precision mode
-    pub scientific_precision: Option<bool>,
-
-    /// Threshold for detecting significant weight changes
-    pub weight_threshold: Option<f64>,
-
-    /// Enable activation function analysis
-    pub activation_analysis: Option<bool>,
-
-    /// Enable learning rate tracking
-    pub learning_rate_tracking: Option<bool>,
-
-    /// Enable optimizer comparison
-    pub optimizer_comparison: Option<bool>,
-
-    /// Enable loss tracking
-    pub loss_tracking: Option<bool>,
-
-    /// Enable accuracy tracking
-    pub accuracy_tracking: Option<bool>,
-
-    /// Enable model version checking
-    pub model_version_check: Option<bool>,
+    // lawkitパターン：ML分析は自動実行のため、個別オプションは削除
+    // 必要に応じて将来的にweight_thresholdなどの最小限オプションを追加可能
 }
 
 #[napi(object)]
@@ -186,12 +155,7 @@ fn build_diff_options(js_options: JsDiffOptions) -> Result<DiffOptions> {
 
     // lawkitパターン：最適化オプションは削除、自動最適化
 
-    // lawkitパターン：ML分析は自動実行、オプション設定は最小限
-    // weight_thresholdのみ設定可能
-    if let Some(_weight_threshold) = js_options.weight_threshold {
-        // DiffaiSpecificOptionsは削除されたため、コメントアウト
-        // 将来的に必要であれば、DiffOptionsに直接追加可能
-    }
+    // lawkitパターン：ML分析は自動実行のため設定不要
 
     Ok(options)
 }
