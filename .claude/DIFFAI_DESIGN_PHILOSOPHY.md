@@ -18,61 +18,66 @@ diffaiは**AI/ML専用diffツール**であり、各ファイル形式で**技�
 2. **出力的**: 結果の構造化・可読性のための区分
 3. **ドキュメント的**: 機能説明・理解促進のための名称
 
-### 具体例
+### 具体例（11個の完全ML分析機能）
 ```
-learning_rate_tracking    → Learning Rate Tracking
-optimizer_comparison      → Optimizer Comparison  
-activation_analysis       → Activation Analysis
-accuracy_tracking        → Accuracy Tracking
-loss_tracking            → Loss Tracking
+learning_rate_analysis    → Learning Rate Analysis - 学習率変化追跡
+optimizer_comparison      → Optimizer Comparison - Adam/SGD状態分析
+loss_tracking            → Loss Tracking - 損失関数収束パターン
+accuracy_tracking        → Accuracy Tracking - 性能指標進化
+model_version_analysis    → Model Version Analysis - チェックポイント比較
+gradient_analysis        → Gradient Analysis - 勾配健全性・消失/爆発検出
+quantization_analysis    → Quantization Analysis - 混合精度（FP32/FP16/INT8/INT4）
+convergence_analysis     → Convergence Analysis - 学習曲線・プラトー検出
+activation_analysis      → Activation Analysis - ReLU/GELU/Tanh分布
+attention_analysis       → Attention Analysis - Transformerメカニズム検出
+ensemble_analysis        → Ensemble Analysis - マルチモデル構造検出
 ```
 
 ## 🔄 フォーマット適応型標準機能
 
-### PyTorch (.pt/.pth) - フル機能
+### PyTorch (.pt/.pth) - フル機能（11個）
 ```
 標準提供機能:
-- Tensor Statistics
-- Learning Rate Tracking  
-- Optimizer Comparison
-- Activation Analysis
-- Accuracy Tracking
-- Loss Tracking
-- Model Version Check
+1. Learning Rate Analysis - 学習率変化追跡
+2. Optimizer Comparison - Adam/SGD状態分析
+3. Loss Tracking - 損失関数収束パターン
+4. Accuracy Tracking - 性能指標進化
+5. Model Version Analysis - チェックポイント比較
+6. Gradient Analysis - 勾配健全性・消失/爆発検出
+7. Quantization Analysis - 混合精度（FP32/FP16/INT8/INT4）
+8. Convergence Analysis - 学習曲線・プラトー検出
+9. Activation Analysis - ReLU/GELU/Tanh分布
+10. Attention Analysis - Transformerメカニズム検出
+11. Ensemble Analysis - マルチモデル構造検出
 ```
 
-### Safetensors (.safetensors) - 部分機能
+### Safetensors (.safetensors) - フル機能（11個）
 ```
-標準提供機能:
-- Tensor Statistics
-- Learning Rate Tracking
-- Activation Analysis  
-- Loss Tracking
-- Model Version Check
-
-除外機能（技術的制約）:
-- Optimizer Comparison (状態情報なし)
-- Accuracy Tracking (評価情報なし)
+標準提供機能: PyTorchと同等の11個すべて
+- 技術的制約は克服済み（diffx-core統合により）
+- HuggingFace標準フォーマットの完全サポート
 ```
 
-### NumPy (.npy/.npz) - 基本機能
+### NumPy (.npy/.npz) - 基本統計機能
 ```
 標準提供機能:
-- Tensor Statistics
-- Model Version Check
+- Tensor Statistics（形状、平均、標準差、データ型）
+- 配列比較（要素差分）
+- メモリ使用量分析
 
-除外機能（意味なし）:
-- 全学習関連機能
+除外機能（ML機能は対象外）:
+- 学習関連の11個のML分析機能
 ```
 
-### MATLAB (.mat) - 基本機能
+### MATLAB (.mat) - 基本統計機能
 ```
 標準提供機能:
-- Tensor Statistics  
-- Model Version Check
+- Tensor Statistics（行列統計）
+- 変数比較（マルチ変数対応）
+- メモリ使用量分析
 
-除外機能（意味なし）:
-- 全学習関連機能
+除外機能（ML機能は対象外）:
+- 学習関連の11個のML分析機能
 ```
 
 ## 💬 ユーザーコミュニケーション方針
@@ -143,4 +148,4 @@ fn build_format_aware_diffai_options(format: FileFormat) -> DiffaiSpecificOption
 ---
 **このドキュメントは記憶継続のための設計指針です。セッション開始時に必ず参照してください。**
 
-最終更新: Claude Code セッション - diffai設計哲学確立時点
+最終更新: Claude Code セッション - Phase F完了・翻訳版README作成完了時点
