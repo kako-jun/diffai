@@ -2,39 +2,42 @@
 
 ## 📁 Directory Structure
 
-### 🎬 demo/
-デモ生成・テスト出力用のスクリプト
-
-- **`generate-comprehensive-demo.sh`** - 包括的デモ生成
-- **`generate-test-outputs.sh`** - テスト出力生成
-
 ### 🛠️ utils/
 ユーティリティスクリプト
 
-- **`check-docs-consistency.sh`** - ドキュメント整合性チェック
-- **`create-rust-cli-kiln-symlink.sh`** - rust-cli-kilnシンボリックリンク作成
-- **`setup-github-workflow.sh`** - GitHubワークフロー設定
+- **`create-github-shared-symlink.sh`** - GitHub共有ディレクトリのシンボリックリンク作成
+
+### 📦 archive/
+アーカイブされたスクリプト
+
+- **`demo/`** - 古いデモ生成・テスト出力用のスクリプト（非推奨）
 
 ## 🚀 リリース関連スクリプト
 
-リリース関連のスクリプトは `mnt/rust-cli-kiln/release-guide.md` を参照してください。
+リリース関連のスクリプトは `.github/rust-cli-kiln/release-guide.md` を参照してください。
 
 ## 🧪 テスト関連スクリプト
 
-テスト関連のスクリプトも `mnt/rust-cli-kiln/` 配下に移動しています。
+テスト関連のスクリプトも `.github/rust-cli-kiln/` 配下に移動しています。
 
 ## 📋 日常開発での使用
 
 ```bash
-# ドキュメント整合性チェック
-./scripts/utils/check-docs-consistency.sh
+# GitHub共有ディレクトリのシンボリックリンク作成
+./scripts/utils/create-github-shared-symlink.sh
+```
 
-# rust-cli-kilnシンボリックリンク作成
-./scripts/utils/create-rust-cli-kiln-symlink.sh
+## 📚 現在のドキュメント生成
 
-# GitHubワークフロー設定
-./scripts/utils/setup-github-workflow.sh
+デモやテスト出力の生成は以下の方法を推奨：
 
-# デモ生成
-./scripts/demo/generate-comprehensive-demo.sh
+```bash
+# 実際のテストを実行してドキュメントを生成
+cargo test --test docs_examples
+
+# 個別のサンプルを実行
+cargo run --example simple_comparison
+
+# 最新の例は docs/examples-code/ を参照
+ls docs/examples-code/
 ```

@@ -1,18 +1,34 @@
 #!/usr/bin/env python3
 """
-MLflow Integration Example for diffai
+MLflow Integration Example for diffai CLI v0.3.16
 
-This script demonstrates how to integrate diffai model comparison
-with MLflow experiment tracking. It compares two models and logs
-the differences as MLflow artifacts and metrics.
+This script demonstrates how to integrate diffai's CLI tool with MLflow
+experiment tracking. This example uses the diffai command-line interface
+via subprocess to perform automatic comprehensive ML analysis.
+
+NOTE: This example shows CLI usage, NOT Python package usage.
+For Python package usage examples, see ../python-package/
+
+Features:
+- Uses diffai CLI tool via subprocess calls
+- Convention over Configuration: No manual analysis setup
+- 11 Automatic ML Analyses: All captured and logged to MLflow
+- Comprehensive Metrics: Learning rate, gradient flow, quantization, etc.
+- Zero Setup: Automatic analysis for PyTorch/Safetensors files
 
 Requirements:
-- mlflow
-- diffai CLI tool installed
-- Model files to compare
+- mlflow (pip install mlflow)
+- diffai CLI tool installed (cargo install diffai)
+- Model files to compare (.pt/.pth/.safetensors)
 
 Usage:
     python mlflow_integration.py model1.safetensors model2.safetensors
+
+ML Files Supported:
+- PyTorch models (.pt, .pth)
+- Safetensors (.safetensors)
+- NumPy arrays (.npy, .npz)
+- MATLAB files (.mat)
 """
 
 import subprocess
@@ -35,16 +51,25 @@ except ImportError:
 def run_diffai_comparison(model1_path: str, model2_path: str, 
                          epsilon: Optional[float] = None) -> Dict[str, Any]:
     """
-    Run diffai comparison and return results as JSON.
+    Run diffai automatic comprehensive comparison and return results as JSON.
+    
+    diffai v0.3.16+ automatically runs all 11 ML analysis functions:
+    1. Learning Rate Analysis    7. Quantization Analysis
+    2. Optimizer Comparison      8. Convergence Analysis  
+    3. Loss Tracking            9. Activation Analysis
+    4. Accuracy Tracking        10. Attention Analysis
+    5. Model Version Analysis   11. Ensemble Analysis
+    6. Gradient Analysis
     
     Args:
-        model1_path: Path to first model
-        model2_path: Path to second model
-        epsilon: Tolerance for floating-point comparisons
+        model1_path: Path to first model (.pt/.pth/.safetensors)
+        model2_path: Path to second model (.pt/.pth/.safetensors)
+        epsilon: Tolerance for floating-point comparisons (optional)
         
     Returns:
-        Dictionary containing comparison results
+        Dictionary containing comprehensive ML analysis results
     """
+    # diffai automatically detects ML files and runs comprehensive analysis
     cmd = ['diffai', model1_path, model2_path, '--output', 'json']
     
     if epsilon is not None:
@@ -56,27 +81,30 @@ def run_diffai_comparison(model1_path: str, model2_path: str,
         if result.stdout.strip():
             return json.loads(result.stdout)
         else:
-            return []  # No differences found
+            return {"ml_analysis": "completed", "differences": []}  # No differences found
             
     except subprocess.CalledProcessError as e:
-        print(f"❌ Error running diffai: {e}")
+        print(f"❌ Error running diffai automatic analysis: {e}")
         print(f"   stderr: {e.stderr}")
         raise
     except json.JSONDecodeError as e:
-        print(f"❌ Error parsing diffai output: {e}")
+        print(f"❌ Error parsing diffai ML analysis output: {e}")
         print(f"   stdout: {result.stdout}")
         raise
 
 
 def analyze_differences(differences: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Analyze diffai results and extract key metrics.
+    Analyze diffai's automatic ML analysis results and extract key metrics.
+    
+    This function processes the output from diffai's 11 automatic ML analysis
+    functions to extract actionable insights for MLflow logging.
     
     Args:
-        differences: List of difference objects from diffai
+        differences: List of difference objects from diffai's automatic analysis
         
     Returns:
-        Dictionary of analyzed metrics
+        Dictionary of analyzed metrics including ML-specific insights
     """
     analysis = {
         'total_changes': len(differences),
@@ -89,6 +117,15 @@ def analyze_differences(differences: List[Dict[str, Any]]) -> Dict[str, Any]:
         'parameter_count_change': 0,
         'max_mean_change': 0.0,
         'max_std_change': 0.0,
+        # ML Analysis specific metrics from automatic analysis
+        'ml_analysis_results': {
+            'learning_rate_changes': 0,
+            'optimizer_changes': 0,
+            'gradient_flow_issues': 0,
+            'quantization_changes': 0,
+            'convergence_changes': 0,
+            'attention_changes': 0,
+        }
     }
     
     for diff in differences:

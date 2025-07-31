@@ -141,13 +141,13 @@ test-packages/
 scripts_old/
 
 # === Downloaded ML models (large files) ===
-test-models/distilbert_base/
-test-models/dialogpt_small/
-test-models/gpt2_small/
-test-models/distilgpt2/
-test-models/tiny_gpt2/
-test-models/.venv/
-test-models/uv.lock
+tests/fixtures/real-models/distilbert_base/
+tests/fixtures/real-models/dialogpt_small/
+tests/fixtures/real-models/gpt2_small/
+tests/fixtures/real-models/distilgpt2/
+tests/fixtures/real-models/tiny_gpt2/
+tests/fixtures/real-models/.venv/
+tests/fixtures/real-models/uv.lock
 
 # === Large test files ===
 *.csv.large

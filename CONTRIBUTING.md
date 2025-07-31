@@ -83,8 +83,9 @@ diffai/
 │   ├── integration/     # CLI integration tests
 │   └── unit/           # Core library unit tests
 ├── scripts/             # Development utilities
-├── docs/               # Documentation
-└── examples/           # Usage examples
+└── docs/               # Documentation
+    ├── examples/       # Real usage outputs
+    └── examples-code/  # Code examples
 ```
 
 ### Key Components

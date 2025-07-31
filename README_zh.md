@@ -140,12 +140,12 @@ diffai full_precision.pt quantized.pt
 
 ## 📚 文档
 
-- **[快速开始](docs/quick-start.md)** - 5分钟快速上手
-- **[ML分析](docs/ml-analysis.md)** - 了解11个自动ML分析功能
-- **[文件格式](docs/formats.md)** - 支持的格式和输出选项
+- **[快速开始](docs/quick-start_zh.md)** - 5分钟快速上手
+- **[ML分析](docs/ml-analysis_zh.md)** - 了解11个自动ML分析功能
+- **[文件格式](docs/formats_zh.md)** - 支持的格式和输出选项
 - **[示例](docs/examples/)** - 真实使用示例和输出
-- **[API参考](docs/reference/api-reference.md)** - 编程接口（Rust/Python/JavaScript）
-- **[CLI参考](docs/reference/cli-reference.md)** - 命令行选项和用法
+- **[API参考](docs/reference/api-reference_zh.md)** - 编程接口（Rust/Python/JavaScript）
+- **[CLI参考](docs/reference/cli-reference_zh.md)** - 命令行选项和用法
 
 ## 🔧 技术细节
 

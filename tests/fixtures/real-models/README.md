@@ -13,7 +13,7 @@
 ### 1. 依存関係のインストール
 
 ```bash
-cd real_models_test/
+cd tests/fixtures/real-models/
 uv sync
 ```
 
