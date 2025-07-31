@@ -1,0 +1,10 @@
+[proxychains] DLL init: proxychains-ng 4.17
+{"Modified":["binary_size",45701,24202]}
+{"Modified":["detected_components","weight_params: 3, bias_params: 3","convolution: 2, weight_params: 2, bias_params: 2"]}
+{"Modified":["estimated_layers",3,2]}
+{"Modified":["file_size",45701,24202]}
+{"Added":["pickle_protocol",0]}
+{"Modified":["structure_fingerprint","c4c343d5e9f342b7","ba170b05771d6910"]}
+{"ModelArchitectureChanged":["memory_analysis","memory_usage: 297 bytes","memory_usage: 336 bytes"]}
+{"ModelArchitectureChanged":["gradient_distributions","sparsity: 0.0%, outliers: 0","outliers: 0 (+0)"]}
+

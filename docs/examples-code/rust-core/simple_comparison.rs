@@ -5,9 +5,8 @@
 // analysis functions run automatically for PyTorch/Safetensors files.
 
 use anyhow::Result;
-use diffai_core::{diff, DiffOptions, DiffResult};
-use serde_json::Value;
-use std::fs;
+use diffai_core::{diff_paths, DiffOptions, DiffResult, OutputFormat};
+use serde_json::{json, Value};
 use std::path::Path;
 
 fn main() -> Result<()> {
@@ -20,59 +19,56 @@ fn main() -> Result<()> {
     let model1_path = Path::new("models/baseline.safetensors");
     let model2_path = Path::new("models/improved.safetensors");
     
-    // Check if files exist
-    if !model1_path.exists() || !model2_path.exists() {
+    // Check if files exist - if they do, use actual file comparison
+    if model1_path.exists() && model2_path.exists() {
+        println!("📊 Comparing actual model files:");
+        println!("   Model 1: {}", model1_path.display());
+        println!("   Model 2: {}", model2_path.display());
+        println!("");
+        
+        // Use diff_paths for actual file comparison - automatic ML analysis enabled
+        let options = DiffOptions {
+            epsilon: Some(1e-6),  // Tolerance for floating-point comparisons
+            output_format: Some(OutputFormat::Diffai),
+            ..Default::default()
+        };
+        
+        match diff_paths(
+            model1_path.to_str().unwrap(), 
+            model2_path.to_str().unwrap(), 
+            Some(&options)
+        ) {
+            Ok(differences) => {
+                if differences.is_empty() {
+                    println!("✅ No significant differences found between models!");
+                    println!("   All 11 ML analysis functions completed successfully");
+                } else {
+                    println!("🔍 Found {} differences from automatic analysis:", differences.len());
+                    println!("");
+                    
+                    analyze_ml_differences(&differences);
+                }
+            }
+            Err(e) => {
+                println!("❌ Error during automatic model analysis: {}", e);
+                println!("");
+                println!("💡 Common issues:");
+                println!("   - File format not supported (use .safetensors or .pt/.pth)");
+                println!("   - Corrupted model files");
+                println!("   - Insufficient memory for large models");
+            }
+        }
+    } else {
         println!("⚠️  Model files not found. This example requires:");
         println!("   - models/baseline.safetensors");
         println!("   - models/improved.safetensors");
         println!("");
-        println!("💡 You can create test models using:");
-        println!("   python scripts/create_test_models.py");
+        println!("💡 You can create test models or use fixture files");
+        println!("   For demonstration, showing analysis with sample data:");
         println!("");
-        println!("🎯 This example demonstrates diffai's automatic analysis:");
-        demonstrate_automatic_analysis();
-        return Ok(());
-    }
-    
-    println!("📊 Comparing models with automatic comprehensive analysis:");
-    println!("   Model 1: {}", model1_path.display());
-    println!("   Model 2: {}", model2_path.display());
-    println!("");
-    
-    // In a real scenario, you would load actual model files using ML libraries
-    // For this example, we'll demonstrate with placeholder data
-    let old_model = create_sample_model_data("baseline");
-    let new_model = create_sample_model_data("improved");
-    
-    // Configure for automatic ML analysis
-    let options = DiffOptions {
-        ml_analysis_enabled: Some(true), // Auto-enabled for ML files
-        use_memory_optimization: Some(true),
-        verbose: Some(true),
-        ..Default::default()
-    };
-    
-    // Perform automatic comprehensive model comparison
-    match diff(&old_model, &new_model, Some(&options)) {
-        Ok(differences) => {
-            if differences.is_empty() {
-                println!("✅ No significant differences found between models!");
-                println!("   All 11 ML analysis functions completed successfully");
-            } else {
-                println!("🔍 Found {} differences from automatic analysis:", differences.len());
-                println!("");
-                
-                analyze_ml_differences(&differences);
-            }
-        }
-        Err(e) => {
-            println!("❌ Error during automatic model analysis: {}", e);
-            println!("");
-            println!("💡 Common issues:");
-            println!("   - File format not supported (use .safetensors or .pt/.pth)");
-            println!("   - Corrupted model files");
-            println!("   - Insufficient memory for large models");
-        }
+        
+        // Demonstrate with JSON data comparison using diff()
+        demonstrate_json_analysis();
     }
     
     Ok(())

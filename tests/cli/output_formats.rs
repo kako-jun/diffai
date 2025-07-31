@@ -12,24 +12,38 @@ fn diffai_cmd() -> Command {
 fn test_default_output_format() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("tests/fixtures/ml_models/simple_base.pt")
-        .arg("tests/fixtures/ml_models/simple_modified.pt");
+        .arg("tests/fixtures/ml_models/model1.pt");
 
     let output = cmd.output()?;
     
-    // Should produce human-readable output by default
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
     
-    // Should not crash
-    assert!(!stderr.contains("panic"));
+    // Must not crash
+    assert!(!stderr.contains("panic"), "Should not panic with default format");
+    assert!(!stderr.contains("unwrap"), "Should not have unwrap errors");
     
-    // If successful, should have some output
-    if output.status.success() && !stdout.trim().is_empty() {
-        // Default format should be human-readable, not JSON/YAML
-        assert!(!stdout.starts_with("{"));
-        assert!(!stdout.starts_with("["));
-        assert!(!stdout.starts_with("---"));
-    }
+    // Must succeed - exit code 1 means differences found, which is expected
+    let exit_code = output.status.code().unwrap_or(-1);
+    assert!(exit_code == 0 || exit_code == 1, "Should succeed with default format (exit code: {})", exit_code);
+    
+    // Must have output for different models
+    assert!(!stdout.trim().is_empty(), "Should produce output with default format");
+    
+    // Default format should be human-readable, not JSON/YAML
+    assert!(!stdout.starts_with("{"), "Default format should not be JSON");
+    assert!(!stdout.starts_with("["), "Default format should not be JSON array");
+    assert!(!stdout.starts_with("---"), "Default format should not be YAML");
+    
+    // Should contain diffai-style symbols (~, +, -)
+    let contains_diffai_symbols = stdout.contains("  ~") || stdout.contains("  +") || stdout.contains("  -");
+    assert!(contains_diffai_symbols, "Default format should use diffai symbols (~, +, -)");
+    
+    // Should contain ML analysis (ModelArchitectureChanged in JSON parts is OK)
+    let has_ml_analysis = stdout.contains("memory_analysis") || 
+                         stdout.contains("gradient_distributions") ||
+                         stdout.contains("ModelArchitectureChanged");
+    assert!(has_ml_analysis, "Default format should contain ML analysis results");
 
     Ok(())
 }
