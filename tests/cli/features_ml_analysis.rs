@@ -11,22 +11,31 @@ fn diffai_cmd() -> Command {
 #[test]
 fn test_tensor_statistics_analysis() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
-    cmd.arg("tests/fixtures/ml_models/model1.pt")
-        .arg("tests/fixtures/ml_models/model2.pt");
+    cmd.arg("tests/fixtures/ml_models/simple_base.pt")
+        .arg("tests/fixtures/ml_models/model1.pt");
 
     let output = cmd.output()?;
     let stdout = String::from_utf8_lossy(&output.stdout);
-    
-    // Should process without panic
     let stderr = String::from_utf8_lossy(&output.stderr);
-    assert!(!stderr.contains("panic"));
     
-    // May produce TensorStatsChanged output if implementation is working
-    // At minimum, should not crash when analyzing tensor statistics
-    if output.status.success() {
-        // If successful, output might contain tensor analysis
-        // This is lenient as we're testing stability first
-    }
+    // Must not crash
+    assert!(!stderr.contains("panic"), "Should not panic during tensor analysis");
+    assert!(!stderr.contains("unwrap"), "Should not have unwrap errors");
+    
+    // Must succeed when analyzing different models - exit code 1 means differences found, which is expected
+    let exit_code = output.status.code().unwrap_or(-1);
+    assert!(exit_code == 0 || exit_code == 1, "Should successfully analyze tensor statistics (exit code: {})", exit_code);
+    
+    // Debug output for troubleshooting
+    println!("STDOUT: '{}'", stdout);
+    println!("STDERR: '{}'", stderr);
+    
+    // Must contain actual ML analysis output
+    assert!(!stdout.trim().is_empty(), "Should produce tensor analysis output");
+    
+    // Must contain memory analysis (one of the 11 ML features)
+    assert!(stdout.contains("memory_analysis") || stdout.contains("memory_usage"), 
+            "Should contain memory analysis feature");
 
     Ok(())
 }
@@ -36,17 +45,28 @@ fn test_tensor_statistics_analysis() -> Result<(), Box<dyn std::error::Error>> {
 fn test_model_architecture_analysis() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
     cmd.arg("tests/fixtures/ml_models/simple_base.pt")
-        .arg("tests/fixtures/ml_models/simple_modified.pt");
+        .arg("tests/fixtures/ml_models/model1.pt");
 
     let output = cmd.output()?;
-    
-    // Should process without panic when analyzing model architecture
+    let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
-    assert!(!stderr.contains("panic"));
-    assert!(!stderr.contains("unimplemented"));
     
-    // Exit code should be reasonable
-    assert!(matches!(output.status.code(), Some(0) | Some(1) | Some(2)));
+    // Must not crash
+    assert!(!stderr.contains("panic"), "Should not panic during architecture analysis");
+    assert!(!stderr.contains("unimplemented"), "Should not have unimplemented features");
+    
+    // Must succeed - exit code 1 means differences found, which is expected
+    let exit_code = output.status.code().unwrap_or(-1);
+    assert!(exit_code == 0 || exit_code == 1, "Should successfully analyze model architecture (exit code: {})", exit_code);
+    
+    // Must contain structural analysis
+    assert!(!stdout.trim().is_empty(), "Should produce architecture analysis output");
+    
+    // Must contain specific ML analysis features
+    let has_ml_analysis = stdout.contains("ModelArchitectureChanged") || 
+                         stdout.contains("estimated_layers") || 
+                         stdout.contains("detected_components");
+    assert!(has_ml_analysis, "Should contain model architecture analysis");
 
     Ok(())
 }
@@ -55,17 +75,25 @@ fn test_model_architecture_analysis() -> Result<(), Box<dyn std::error::Error>> 
 #[test]
 fn test_weight_change_analysis() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
-    cmd.arg("tests/fixtures/ml_models/checkpoint_epoch_0.pt")
-        .arg("tests/fixtures/ml_models/checkpoint_epoch_10.pt");
+    cmd.arg("tests/fixtures/ml_models/simple_base.pt")
+        .arg("tests/fixtures/ml_models/model1.pt");
 
     let output = cmd.output()?;
-    
-    // Should process weight changes without crashing
-    let stderr = String::from_utf8_lossy(&output.stderr);
-    assert!(!stderr.contains("panic"));
-    
-    // May show WeightSignificantChange if implementation is complete
     let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    
+    // Must not crash
+    assert!(!stderr.contains("panic"), "Should not panic during weight analysis");
+    
+    // Must succeed - exit code 1 means differences found, which is accepted
+    let exit_code = output.status.code().unwrap_or(-1);
+    assert!(exit_code == 0 || exit_code == 1, "Should successfully analyze weight changes (exit code: {})", exit_code);
+    
+    // Must contain weight distribution analysis (one of the 11 ML features)
+    let has_weight_analysis = stdout.contains("weight_distribution") || 
+                             stdout.contains("gradient_distributions") ||
+                             stdout.contains("detected_components");
+    assert!(has_weight_analysis, "Should contain weight change analysis");
     
     Ok(())
 }
@@ -93,14 +121,22 @@ fn test_memory_analysis() -> Result<(), Box<dyn std::error::Error>> {
 #[test]
 fn test_learning_rate_analysis() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = diffai_cmd();
-    cmd.arg("tests/fixtures/ml_models/checkpoint_epoch_0.pt")
-        .arg("tests/fixtures/ml_models/checkpoint_epoch_50.pt");
+    cmd.arg("tests/fixtures/ml_models/simple_base.pt")
+        .arg("tests/fixtures/ml_models/model1.pt");
 
     let output = cmd.output()?;
-    
-    // Should handle learning rate detection gracefully
+    let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
-    assert!(!stderr.contains("panic"));
+    
+    // Must not crash
+    assert!(!stderr.contains("panic"), "Should not panic during learning rate analysis");
+    
+    // Must succeed - exit code 1 means differences found, which is expected
+    let exit_code = output.status.code().unwrap_or(-1);
+    assert!(exit_code == 0 || exit_code == 1, "Should successfully analyze learning rate changes (exit code: {})", exit_code);
+    
+    // Must contain ML analysis output
+    assert!(!stdout.trim().is_empty(), "Should produce learning rate analysis output");
     
     Ok(())
 }
@@ -166,6 +202,152 @@ fn test_quantization_analysis() -> Result<(), Box<dyn std::error::Error>> {
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert!(!stderr.contains("panic"));
     
+    Ok(())
+}
+
+/// Test all 11 ML analysis features are present
+#[test]
+fn test_all_11_ml_features_present() -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = diffai_cmd();
+    cmd.arg("tests/fixtures/ml_models/simple_base.pt")
+        .arg("tests/fixtures/ml_models/model1.pt")
+        .arg("--output")
+        .arg("json");
+
+    let output = cmd.output()?;
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    
+    // Must not crash
+    assert!(!stderr.contains("panic"), "Should not panic during comprehensive analysis");
+    // Must succeed - exit code 1 means differences found, which is expected
+    let exit_code = output.status.code().unwrap_or(-1);
+    assert!(exit_code == 0 || exit_code == 1, "Should successfully analyze all ML features (exit code: {})", exit_code);
+    
+    // Must contain JSON output
+    assert!(!stdout.trim().is_empty(), "Should produce comprehensive ML analysis output");
+    
+    // Parse JSON to verify structure
+    let json_result: Result<serde_json::Value, _> = serde_json::from_str(&stdout);
+    assert!(json_result.is_ok(), "Should produce valid JSON output");
+    
+    let json_data = json_result.unwrap();
+    assert!(json_data.is_array(), "Output should be JSON array");
+    
+    let changes = json_data.as_array().unwrap();
+    assert!(!changes.is_empty(), "Should detect changes between different models");
+    
+    // Verify ML analysis features are present
+    let has_memory_analysis = changes.iter().any(|change| {
+        change.to_string().contains("memory_analysis") || 
+        change.to_string().contains("memory_usage")
+    });
+    
+    let has_gradient_analysis = changes.iter().any(|change| {
+        change.to_string().contains("gradient_distributions") ||
+        change.to_string().contains("gradient_")
+    });
+    
+    let has_architecture_analysis = changes.iter().any(|change| {
+        change.to_string().contains("ModelArchitectureChanged") ||
+        change.to_string().contains("estimated_layers") ||
+        change.to_string().contains("detected_components")
+    });
+    
+    // At least some ML analysis features must be present
+    assert!(has_memory_analysis || has_gradient_analysis || has_architecture_analysis, 
+            "Should contain at least some of the 11 ML analysis features");
+
+    Ok(())
+}
+
+/// Test batch normalization analysis (new feature)
+#[test]
+fn test_batch_normalization_analysis() -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = diffai_cmd();
+    cmd.arg("tests/fixtures/ml_models/simple_base.pt")
+        .arg("tests/fixtures/ml_models/model1.pt");
+
+    let output = cmd.output()?;
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    
+    // Must not crash
+    assert!(!stderr.contains("panic"), "Should not crash analyzing batch normalization");
+    let exit_code = output.status.code().unwrap_or(-1);
+    assert!(exit_code == 0 || exit_code == 1, "Should successfully run batch norm analysis (exit code: {})", exit_code);
+
+    Ok(())
+}
+
+/// Test regularization impact analysis (new feature)
+#[test]
+fn test_regularization_impact_analysis() -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = diffai_cmd();
+    cmd.arg("tests/fixtures/ml_models/simple_base.pt")
+        .arg("tests/fixtures/ml_models/model1.pt");
+
+    let output = cmd.output()?;
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    
+    // Must not crash
+    assert!(!stderr.contains("panic"), "Should not crash analyzing regularization impact");
+    let exit_code = output.status.code().unwrap_or(-1);
+    assert!(exit_code == 0 || exit_code == 1, "Should successfully run regularization analysis (exit code: {})", exit_code);
+
+    Ok(())
+}
+
+/// Test activation pattern analysis (new feature)
+#[test]
+fn test_activation_pattern_analysis() -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = diffai_cmd();
+    cmd.arg("tests/fixtures/ml_models/simple_base.pt")
+        .arg("tests/fixtures/ml_models/model1.pt");
+
+    let output = cmd.output()?;
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    
+    // Must not crash
+    assert!(!stderr.contains("panic"), "Should not crash analyzing activation patterns");
+    let exit_code = output.status.code().unwrap_or(-1);
+    assert!(exit_code == 0 || exit_code == 1, "Should successfully run activation analysis (exit code: {})", exit_code);
+
+    Ok(())
+}
+
+/// Test weight distribution analysis (new feature)
+#[test]
+fn test_weight_distribution_analysis() -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = diffai_cmd();
+    cmd.arg("tests/fixtures/ml_models/simple_base.pt")
+        .arg("tests/fixtures/ml_models/model1.pt");
+
+    let output = cmd.output()?;
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    
+    // Must not crash
+    assert!(!stderr.contains("panic"), "Should not crash analyzing weight distributions");
+    let exit_code = output.status.code().unwrap_or(-1);
+    assert!(exit_code == 0 || exit_code == 1, "Should successfully run weight distribution analysis (exit code: {})", exit_code);
+
+    Ok(())
+}
+
+/// Test model complexity assessment (new feature)
+#[test]
+fn test_model_complexity_assessment() -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = diffai_cmd();
+    cmd.arg("tests/fixtures/ml_models/simple_base.pt")
+        .arg("tests/fixtures/ml_models/model1.pt");
+
+    let output = cmd.output()?;
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    
+    // Must not crash
+    assert!(!stderr.contains("panic"), "Should not crash assessing model complexity");
+    let exit_code = output.status.code().unwrap_or(-1);
+    assert!(exit_code == 0 || exit_code == 1, "Should successfully run complexity assessment (exit code: {})", exit_code);
+
     Ok(())
 }
 

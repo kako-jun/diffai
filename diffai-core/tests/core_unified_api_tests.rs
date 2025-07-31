@@ -283,7 +283,7 @@ fn test_diff_options_default() {
     assert_eq!(options.epsilon, None);
     assert!(options.ignore_keys_regex.is_none()); 
     assert_eq!(options.output_format, None);
-    assert_eq!(options.use_memory_optimization, None);
+    // Memory optimization is handled automatically by diffx-core
 }
 
 #[test]
@@ -349,12 +349,12 @@ fn test_path_without_extension() {
 // ============================================================================
 
 #[test]
-fn test_memory_optimization_flag() {
+fn test_memory_handling() {
     let old = json!({"data": [1, 2, 3, 4, 5]});
     let new = json!({"data": [1, 2, 3, 4, 6]});
 
     let options = DiffOptions {
-        use_memory_optimization: Some(true),
+        epsilon: Some(0.001),
         ..Default::default()
     };
 
