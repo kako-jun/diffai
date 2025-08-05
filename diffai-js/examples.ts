@@ -135,7 +135,7 @@ async function runExamples(): Promise<void> {
             showTypes: true
         };
 
-        const results1 = await diff(modelV1, modelV2, mlOptions);
+        const results1 = diff(modelV1, modelV2, mlOptions);
         log('Architecture Changes:', 'green');
         results1.forEach((result: DiffResult) => {
             console.log(`${result.type}: ${result.path}`);
@@ -194,7 +194,7 @@ async function runExamples(): Promise<void> {
             'Detect significant weight changes after model fine-tuning'
         );
 
-        const results2 = await diff(oldWeights, newWeights, tensorOptions);
+        const results2 = diff(oldWeights, newWeights, tensorOptions);
         log('Weight Changes:', 'green');
         results2.forEach((result: DiffResult) => {
             if (result.type === 'weightSignificantChange' && result.statistics) {
@@ -283,7 +283,7 @@ async function runExamples(): Promise<void> {
             'Compare checkpoints to track training convergence'
         );
 
-        const results3 = await diff(checkpoint1, checkpoint10, trainingOptions);
+        const results3 = diff(checkpoint1, checkpoint10, trainingOptions);
         log('Training Progress:', 'green');
         results3.forEach((result: DiffResult) => {
             if (result.path.includes('metrics')) {
@@ -335,7 +335,7 @@ async function runExamples(): Promise<void> {
             'Compare FP32 vs FP16 model to assess precision loss'
         );
 
-        const results4 = await diff(fp32Model, fp16Model, precisionOptions);
+        const results4 = diff(fp32Model, fp16Model, precisionOptions);
         log('Precision Changes:', 'green');
         results4.forEach((result: DiffResult) => {
             if (result.type === 'precisionChanged') {
@@ -363,7 +363,7 @@ async function runExamples(): Promise<void> {
                 }
             };
             
-            await diff(modelV1, invalidModel);
+            diff(modelV1, invalidModel);
         } catch (error) {
             log(`Caught ML data error: ${error}`, 'red');
         }
@@ -410,7 +410,7 @@ async function runExamples(): Promise<void> {
         );
 
         const startTime = Date.now();
-        const results6 = await diff(largeModel1, largeModel2, perfOptions);
+        const results6 = diff(largeModel1, largeModel2, perfOptions);
         const endTime = Date.now();
 
         log(`Analyzed ${results6.length} layer differences in ${endTime - startTime}ms`, 'green');
