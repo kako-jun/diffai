@@ -118,49 +118,57 @@ diffai dataset_v1.npz dataset_v2.npz --sort-by-change-magnitude
 
 ## 🔧 Integration Examples
 
-### JavaScript API (Recommended)
+### JavaScript API (Unified API)
 ```javascript
-const { diff, diffString, inspect, isDiffaiAvailable, getVersion, DiffaiError } = require('diffai');
+const { diff } = require('diffai-js');
 
-// Basic model comparison
-async function compareModels() {
-  try {
-    const result = await diff('model1.safetensors', 'model2.safetensors', {
-      output: 'json'
-    });
-    
-    console.log(`Found ${result.length} differences`);
-    result.forEach(diff => {
-      console.log(`${diff.type}: ${diff.path}`);
-    });
-  } catch (error) {
-    if (error instanceof DiffaiError) {
-      console.error(`diffai failed: ${error.message}`);
-    }
+// Compare ML model configurations
+const oldModel = {
+  architecture: "ResNet",
+  layers: 50,
+  optimizer: { type: "Adam", lr: 0.001 },
+  metrics: { accuracy: 0.85, loss: 0.23 }
+};
+
+const newModel = {
+  architecture: "ResNet", 
+  layers: 101,
+  optimizer: { type: "SGD", lr: 0.01, momentum: 0.9 },
+  metrics: { accuracy: 0.92, loss: 0.18 }
+};
+
+const result = diff(oldModel, newModel);
+
+console.log(`Found ${result.length} differences`);
+result.forEach(change => {
+  console.log(`${change.type}: ${change.path}`);
+  if (change.oldValue !== undefined) {
+    console.log(`  Old: ${change.oldValue}`);
   }
-}
-
-// String comparison
-async function compareStrings() {
-  const model1Data = JSON.stringify({name: "bert-base", layers: 12});
-  const model2Data = JSON.stringify({name: "bert-large", layers: 24});
-  
-  const result = await diffString(model1Data, model2Data, 'json', {
-    output: 'json'
-  });
-  
-  return result;
-}
-
-// Check availability
-async function checkDiffai() {
-  if (await isDiffaiAvailable()) {
-    const version = await getVersion();
-    console.log(`diffai ${version} is available`);
-  } else {
-    console.error('diffai is not available');
+  if (change.newValue !== undefined) {
+    console.log(`  New: ${change.newValue}`);
   }
-}
+});
+
+// Compare with AI/ML specific options
+const tensorOld = {
+  weights: { layer1: { mean: 0.001, std: 0.1 } },
+  training: { epoch: 10, loss: 0.45 }
+};
+
+const tensorNew = {
+  weights: { layer1: { mean: 0.015, std: 0.12 } },
+  training: { epoch: 15, loss: 0.32 }
+};
+
+const mlResult = diff(tensorOld, tensorNew, {
+  mlAnalysisEnabled: true,
+  weightThreshold: 0.01,
+  lossTracking: true,
+  epsilon: 0.001
+});
+
+console.log(`Found ${mlResult.length} ML-specific changes`);
 ```
 
 ### Node.js CLI Integration (Legacy)
@@ -190,12 +198,13 @@ compareTensors('model1.safetensors', 'model2.safetensors', ['--output', 'json'])
 ### MLflow Integration
 ```javascript
 const fs = require('fs');
-const { diff } = require('diffai');
+const { diff } = require('diffai-js');
 
-async function logModelDiff(model1Path, model2Path, runId) {
+function logModelDiff(oldModelConfig, newModelConfig, runId) {
   try {
-    const diffData = await diff(model1Path, model2Path, {
-      output: 'json'
+    const diffData = diff(oldModelConfig, newModelConfig, {
+      mlAnalysisEnabled: true,
+      outputFormat: 'json'
     });
     
     // Save comparison results

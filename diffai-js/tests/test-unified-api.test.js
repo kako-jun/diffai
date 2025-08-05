@@ -374,11 +374,11 @@ function expectDifferences(old, newObj, expectedCount, options = {}) {
 // ============================================================================
 
 describe('Unified API - Core Functionality', () => {
-    test('diff basic modification', async () => {
+    test('diff basic modification', () => {
         const old = { name: "Alice", age: 30 };
         const newObj = { name: "Alice", age: 31 };
         
-        const results = await diffai.diff(old, newObj);
+        const results = diffai.diff(old, newObj);
         
         expect(results).toHaveLength(1);
         expectDiffResult(results[0], 'modified', 'age', {
@@ -387,11 +387,11 @@ describe('Unified API - Core Functionality', () => {
         });
     });
     
-    test('diff AI/ML specific results', async () => {
+    test('diff AI/ML specific results', () => {
         const old = { learning_rate: 0.001, accuracy: 0.85 };
         const newObj = { learning_rate: 0.01, accuracy: 0.92 };
         
-        const results = await diffai.diff(old, newObj, {
+        const results = diffai.diff(old, newObj, {
             learningRateTracking: true,
             accuracyTracking: true
         });
@@ -411,11 +411,11 @@ describe('Unified API - Core Functionality', () => {
         expect(accResult.newAccuracy).toBe(0.92);
     });
     
-    test('diff weight threshold', async () => {
+    test('diff weight threshold', () => {
         const old = { weights: { layer1: 0.1, layer2: 0.05 } };
         const newObj = { weights: { layer1: 0.2, layer2: 0.051 } };
         
-        const results = await diffai.diff(old, newObj, {
+        const results = diffai.diff(old, newObj, {
             weightThreshold: 0.05  // Only changes > 0.05 are significant
         });
         
@@ -434,11 +434,11 @@ describe('Unified API - Core Functionality', () => {
 // ============================================================================
 
 describe('PyTorch Models', () => {
-    test('pytorch model comparison', async () => {
+    test('pytorch model comparison', () => {
         const old = TestFixtures.pytorchModelOld();
         const newObj = TestFixtures.pytorchModelNew();
         
-        const results = await diffai.diff(old, newObj, {
+        const results = diffai.diff(old, newObj, {
             mlAnalysisEnabled: true,
             learningRateTracking: true,
             optimizerComparison: true,
@@ -458,7 +458,7 @@ describe('PyTorch Models', () => {
         expect(lrChanges.length).toBeGreaterThan(0);
     });
     
-    test('pytorch layer weight changes', async () => {
+    test('pytorch layer weight changes', () => {
         const old = {
             layers: {
                 conv1: {
@@ -493,7 +493,7 @@ describe('PyTorch Models', () => {
             }
         };
         
-        const results = await diffai.diff(old, newObj, {
+        const results = diffai.diff(old, newObj, {
             weightThreshold: 0.05,
             epsilon: 0.001
         });
@@ -509,11 +509,11 @@ describe('PyTorch Models', () => {
 // ============================================================================
 
 describe('SafeTensors Models', () => {
-    test('safetensors model comparison', async () => {
+    test('safetensors model comparison', () => {
         const old = TestFixtures.safetensorsModelOld();
         const newObj = TestFixtures.safetensorsModelNew();
         
-        const results = await diffai.diff(old, newObj, {
+        const results = diffai.diff(old, newObj, {
             tensorComparisonMode: "both"
         });
         
@@ -535,11 +535,11 @@ describe('SafeTensors Models', () => {
         expect(addedTensors.length).toBeGreaterThan(0);
     });
     
-    test('safetensors metadata comparison', async () => {
+    test('safetensors metadata comparison', () => {
         const old = TestFixtures.safetensorsModelOld();
         const newObj = TestFixtures.safetensorsModelNew();
         
-        const results = await diffai.diff(old, newObj);
+        const results = diffai.diff(old, newObj);
         
         // Should detect metadata changes
         const metadataChanges = results.filter(r => 
@@ -559,11 +559,11 @@ describe('SafeTensors Models', () => {
 // ============================================================================
 
 describe('Training Metrics', () => {
-    test('training metrics comparison', async () => {
+    test('training metrics comparison', () => {
         const old = TestFixtures.trainingMetricsOld();
         const newObj = TestFixtures.trainingMetricsNew();
         
-        const results = await diffai.diff(old, newObj, {
+        const results = diffai.diff(old, newObj, {
             lossTracking: true,
             accuracyTracking: true,
             optimizerComparison: true,
@@ -584,7 +584,7 @@ describe('Training Metrics', () => {
         expect(lrChanges.length).toBeGreaterThan(0);
     });
     
-    test('training history arrays', async () => {
+    test('training history arrays', () => {
         const old = {
             training: {
                 loss: [2.5, 1.8, 1.2, 0.9, 0.7],
@@ -599,7 +599,7 @@ describe('Training Metrics', () => {
             }
         };
         
-        const results = await diffai.diff(old, newObj);
+        const results = diffai.diff(old, newObj);
         
         // Should detect changes in loss and accuracy arrays
         expect(results.length).toBeGreaterThan(0);
@@ -619,7 +619,7 @@ describe('Training Metrics', () => {
 // ============================================================================
 
 describe('JavaScript Type Handling (AI/ML)', () => {
-    test('tensor-like array data', async () => {
+    test('tensor-like array data', () => {
         const old = {
             tensor: {
                 data: [[1.0, 2.0], [3.0, 4.0]],
@@ -636,7 +636,7 @@ describe('JavaScript Type Handling (AI/ML)', () => {
             }
         };
         
-        const results = await diffai.diff(old, newObj, { epsilon: 0.05 });
+        const results = diffai.diff(old, newObj, { epsilon: 0.05 });
         
         // Should detect dtype change
         const dtypeChanges = results.filter(r => 
@@ -644,7 +644,7 @@ describe('JavaScript Type Handling (AI/ML)', () => {
         expect(dtypeChanges.length).toBeGreaterThan(0);
     });
     
-    test('ml metadata handling', async () => {
+    test('ml metadata handling', () => {
         const old = {
             model_metadata: {
                 framework: "pytorch",
@@ -663,7 +663,7 @@ describe('JavaScript Type Handling (AI/ML)', () => {
             }
         };
         
-        const results = await diffai.diff(old, newObj);
+        const results = diffai.diff(old, newObj);
         
         expect(results).toHaveLength(3); // Three changes
         
@@ -674,7 +674,7 @@ describe('JavaScript Type Handling (AI/ML)', () => {
         expect(versionChange.newValue).toContain('2.0.0');
     });
     
-    test('large numeric arrays', async () => {
+    test('large numeric arrays', () => {
         const old = {
             weights: Array.from({ length: 1000 }, (_, i) => i * 0.001)
         };
@@ -683,7 +683,7 @@ describe('JavaScript Type Handling (AI/ML)', () => {
             weights: Array.from({ length: 1000 }, (_, i) => i * 0.001 + 0.01)
         };
         
-        const results = await diffai.diff(old, newObj, { epsilon: 0.005 });
+        const results = diffai.diff(old, newObj, { epsilon: 0.005 });
         
         // Should detect changes in the array
         expect(results.length).toBeGreaterThan(0);
@@ -700,7 +700,7 @@ describe('JavaScript Type Handling (AI/ML)', () => {
 // ============================================================================
 
 describe('diffai Specific Options', () => {
-    test('tensor comparison mode', async () => {
+    test('tensor comparison mode', () => {
         const old = {
             tensor: {
                 shape: [100, 200],
@@ -716,7 +716,7 @@ describe('diffai Specific Options', () => {
         };
         
         // Test shape-only mode
-        const results = await diffai.diff(old, newObj, {
+        const results = diffai.diff(old, newObj, {
             tensorComparisonMode: "shape"
         });
         
@@ -726,7 +726,7 @@ describe('diffai Specific Options', () => {
         expect(shapeChanges.length).toBeGreaterThan(0);
     });
     
-    test('ml analysis enabled', async () => {
+    test('ml analysis enabled', () => {
         const old = {
             model: {
                 learning_rate: 0.001,
@@ -746,7 +746,7 @@ describe('diffai Specific Options', () => {
         };
         
         // With ML analysis enabled
-        const mlResults = await diffai.diff(old, newObj, {
+        const mlResults = diffai.diff(old, newObj, {
             mlAnalysisEnabled: true,
             learningRateTracking: true,
             lossTracking: true,
@@ -761,14 +761,14 @@ describe('diffai Specific Options', () => {
         expect(mlSpecificResults.length).toBeGreaterThan(0);
         
         // Without ML analysis
-        const regularResults = await diffai.diff(old, newObj);
+        const regularResults = diffai.diff(old, newObj);
         
         // Should use regular diff result types
         const regularResultTypes = regularResults.filter(r => r.type === 'modified');
         expect(regularResultTypes.length).toBeGreaterThan(0);
     });
     
-    test('scientific precision', async () => {
+    test('scientific precision', () => {
         const old = {
             measurements: {
                 precision: 1e-10,
@@ -786,7 +786,7 @@ describe('diffai Specific Options', () => {
         };
         
         // With scientific precision
-        const preciseResults = await diffai.diff(old, newObj, {
+        const preciseResults = diffai.diff(old, newObj, {
             scientificPrecision: true,
             epsilon: 1e-12  // Very small epsilon
         });
@@ -795,7 +795,7 @@ describe('diffai Specific Options', () => {
         expect(preciseResults.length).toBeGreaterThan(0);
         
         // Without scientific precision (larger epsilon)
-        const regularResults = await diffai.diff(old, newObj, {
+        const regularResults = diffai.diff(old, newObj, {
             epsilon: 1e-8  // Larger epsilon
         });
         
@@ -809,11 +809,11 @@ describe('diffai Specific Options', () => {
 // ============================================================================
 
 describe('Model Architecture', () => {
-    test('model architecture comparison', async () => {
+    test('model architecture comparison', () => {
         const old = TestFixtures.modelArchitectureOld();
         const newObj = TestFixtures.modelArchitectureNew();
         
-        const results = await diffai.diff(old, newObj);
+        const results = diffai.diff(old, newObj);
         
         expect(results.length).toBeGreaterThan(0);
         
@@ -842,31 +842,31 @@ describe('Model Architecture', () => {
 // ============================================================================
 
 describe('Error Handling', () => {
-    test('invalid regex pattern', async () => {
+    test('invalid regex pattern', () => {
         const old = { test: "value" };
         const newObj = { test: "value2" };
         
-        await expect(async () => {
-            await diffai.diff(old, newObj, { ignoreKeysRegex: "[invalid_regex" });
-        }).rejects.toThrow();
+        expect(() => {
+            diffai.diff(old, newObj, { ignoreKeysRegex: "[invalid_regex" });
+        }).toThrow();
     });
     
-    test('invalid output format', async () => {
+    test('invalid output format', () => {
         const old = { test: "value" };
         const newObj = { test: "value2" };
         
-        await expect(async () => {
-            await diffai.diff(old, newObj, { outputFormat: "invalid_format" });
-        }).rejects.toThrow();
+        expect(() => {
+            diffai.diff(old, newObj, { outputFormat: "invalid_format" });
+        }).toThrow();
     });
     
-    test('invalid tensor comparison mode', async () => {
+    test('invalid tensor comparison mode', () => {
         const old = { tensor: { shape: [10] } };
         const newObj = { tensor: { shape: [20] } };
         
         // Should handle invalid mode gracefully or raise clear error
         try {
-            const results = await diffai.diff(old, newObj, { 
+            const results = diffai.diff(old, newObj, { 
                 tensorComparisonMode: "invalid_mode" 
             });
             // If it doesn't raise an error, it should still work
@@ -882,11 +882,11 @@ describe('Error Handling', () => {
 // ============================================================================
 
 describe('Integration Tests', () => {
-    test('comprehensive ml workflow', async () => {
+    test('comprehensive ml workflow', () => {
         const oldModel = TestFixtures.pytorchModelOld();
         const newModel = TestFixtures.pytorchModelNew();
         
-        const results = await diffai.diff(oldModel, newModel, {
+        const results = diffai.diff(oldModel, newModel, {
             mlAnalysisEnabled: true,
             tensorComparisonMode: "both",
             learningRateTracking: true,
@@ -908,7 +908,7 @@ describe('Integration Tests', () => {
         expect(changeTypes.size).toBeGreaterThanOrEqual(2);
     });
     
-    test('real world model evolution', async () => {
+    test('real world model evolution', () => {
         // Model v1: Simple architecture
         const modelV1 = {
             architecture: {
@@ -952,7 +952,7 @@ describe('Integration Tests', () => {
             }
         };
         
-        const results = await diffai.diff(modelV1, modelV2, {
+        const results = diffai.diff(modelV1, modelV2, {
             mlAnalysisEnabled: true,
             learningRateTracking: true,
             lossTracking: true,
@@ -978,7 +978,7 @@ describe('Integration Tests', () => {
 // ============================================================================
 
 describe('Performance Tests', () => {
-    test('large tensor comparison', async () => {
+    test('large tensor comparison', () => {
         // Simulate large model weights
         const old = {
             layers: {}
@@ -1002,7 +1002,7 @@ describe('Performance Tests', () => {
         }
         
         const startTime = Date.now();
-        const results = await diffai.diff(old, newObj, { 
+        const results = diffai.diff(old, newObj, { 
             weightThreshold: 0.005, 
             epsilon: 0.001 
         });
@@ -1012,7 +1012,7 @@ describe('Performance Tests', () => {
         expect(endTime - startTime).toBeLessThan(10000); // Should complete within 10 seconds
     }, 15000); // 15 second timeout for this test
     
-    test('deep model structure performance', async () => {
+    test('deep model structure performance', () => {
         function createDeepModel(depth, baseValue) {
             if (depth === 0) {
                 return { value: baseValue, weights: Array(10).fill(baseValue) };
@@ -1028,7 +1028,7 @@ describe('Performance Tests', () => {
         const newObj = createDeepModel(20, 0.11); // Slightly different values
         
         const startTime = Date.now();
-        const results = await diffai.diff(old, newObj, { epsilon: 0.001 });
+        const results = diffai.diff(old, newObj, { epsilon: 0.001 });
         const endTime = Date.now();
         
         expect(results.length).toBeGreaterThan(0); // Should find differences
@@ -1046,7 +1046,7 @@ describe('TypeScript Compatibility', () => {
         expect(typeof diffai.diff).toBe('function');
     });
     
-    test('ml specific type handling', async () => {
+    test('ml specific type handling', () => {
         // Test that ML-specific data structures are properly typed
         const tensorData = {
             shape: [10, 20, 30],
@@ -1054,7 +1054,7 @@ describe('TypeScript Compatibility', () => {
             device: "cuda:0"
         };
         
-        const results = await diffai.diff(tensorData, tensorData);
+        const results = diffai.diff(tensorData, tensorData);
         expect(results).toHaveLength(0);
     });
 });
