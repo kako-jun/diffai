@@ -200,7 +200,7 @@ fn diff_result_to_python(py: Python, result: &DiffResult) -> PyResult<PyObject> 
 /// result = diffai.diff(old, new)
 /// print(result)  # [{"type": "Modified", "path": "model.layers[0].units", "old_value": 128, "new_value": 256}]
 /// ```
-#[pyfunction]
+#[pyfunction(name = "diff")]
 #[pyo3(signature = (old, new, **kwargs))]
 fn diff_py(
     py: Python,

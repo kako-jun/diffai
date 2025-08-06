@@ -89,8 +89,12 @@ warn_no_return = true
 warn_unreachable = true
 
 [tool.maturin]
+# This package includes Python bindings built with PyO3
 bindings = "pyo3"
-python-source = "src"
+# Find Python interpreters automatically
+find-interpreter = true
+# Use manylinux for PyPI compatibility
+compatibility = "manylinux2014"
 
 # [project.scripts]
 # test = "python:test"  # Commented out: conflicts with binary from Rust
