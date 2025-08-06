@@ -4,7 +4,10 @@ use std::process::Command;
 
 // Helper function to get the diffai command
 fn diffai_cmd() -> Command {
-    Command::cargo_bin("diffai").expect("Failed to find diffai binary")
+    // Use the actual binary path instead of cargo_bin which fails in proxychains
+    let mut cmd = Command::new("./target/release/diffai");
+    cmd.current_dir(std::env::current_dir().unwrap());
+    cmd
 }
 
 /// Test automatic tensor statistics analysis (Feature 1)

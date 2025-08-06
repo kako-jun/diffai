@@ -9,6 +9,7 @@ pub mod formats_support;         // All supported formats (PyTorch, Safetensors,
 
 // ML Analysis features tests
 pub mod features_ml_analysis;    // All 11 ML analysis features
+pub mod comprehensive_ml_analysis_tests;  // Comprehensive ML analysis testing
 
 // Output format tests
 pub mod output_formats;          // JSON, YAML, default format output
