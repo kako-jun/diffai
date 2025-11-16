@@ -166,6 +166,10 @@ diffai-npm/bin/*/diffai
 diffai-npm/bin/*/diffai.exe
 
 github-shared
+
+# === Migration directories ===
+to-migrate/
+
 # === Temporary test directories ===
 tmp/
 temp-*/

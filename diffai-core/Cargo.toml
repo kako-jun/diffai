@@ -32,6 +32,7 @@ ndarray = { workspace = true }
 zip = { workspace = true }
 matfile = { workspace = true }
 # Cross-project integration using local workspace
+# NOTE: diffx is currently being rebooted. This dependency may need to be updated to crates.io version.
 diffx-core = { path = "../../diffx/diffx-core" }
 
 [dev-dependencies]
