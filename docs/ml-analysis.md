@@ -1,191 +1,191 @@
-# ML Analysis Functions
+# ML分析機能
 
-diffai automatically runs **11 specialized ML analysis functions** when comparing PyTorch (.pt/.pth) or Safetensors (.safetensors) files. No configuration required - follows Convention over Configuration principle.
+diffaiは、PyTorch（.pt/.pth）またはSafetensors（.safetensors）ファイルを比較する際に、**11種類の専門的なML分析機能**を自動的に実行します。設定は不要で、設定より規約の原則に従います。
 
-## Automatic Execution
+## 自動実行
 
-### When ML Analysis Runs
-- **PyTorch files (.pt/.pth)**: All 11 analyses execute automatically
-- **Safetensors files (.safetensors)**: All 11 analyses execute automatically
-- **NumPy/MATLAB files**: Basic tensor statistics only
-- **Other formats**: Standard structural comparison via diffx-core
+### ML分析が実行される場合
+- **PyTorchファイル（.pt/.pth）**：11の分析すべてが自動的に実行
+- **Safetensorsファイル（.safetensors）**：11の分析すべてが自動的に実行
+- **NumPy/MATLABファイル**：基本的なテンソル統計のみ
+- **その他の形式**：diffx-coreによる標準的な構造比較
 
-### Zero Configuration
+### ゼロ設定
 ```bash
-# All 11 ML analysis functions run automatically
+# 11のML分析機能すべてが自動的に実行される
 diffai baseline.safetensors finetuned.safetensors
 
-# No flags needed - diffai detects AI/ML files and runs comprehensive analysis
+# フラグは不要 - diffaiがAI/MLファイルを検出し、包括的な分析を実行
 ```
 
-## The 11 ML Analysis Functions
+## 11のML分析機能
 
-### 1. Learning Rate Analysis
-**Purpose**: Track learning rate changes and training dynamics
+### 1. 学習率分析
+**目的**：学習率の変化と訓練動態を追跡
 
-**Output Example**:
+**出力例**：
 ```bash
 learning_rate_analysis: old=0.001, new=0.0015, change=+50.0%, trend=increasing
 ```
 
-**What it detects**:
-- Learning rate parameter changes
-- Training schedule adjustments
-- Adaptive learning rate modifications
-- Trend analysis (increasing/decreasing/stable)
+**検出内容**：
+- 学習率パラメータの変化
+- 訓練スケジュールの調整
+- 適応的学習率の変更
+- トレンド分析（増加/減少/安定）
 
-### 2. Optimizer Comparison
-**Purpose**: Compare optimizer states and momentum information
+### 2. オプティマイザ比較
+**目的**：オプティマイザの状態とモメンタム情報を比較
 
-**Output Example**:
+**出力例**：
 ```bash
 optimizer_comparison: type=Adam, momentum_change=+2.1%, state_evolution=stable
 ```
 
-**What it detects**:
-- Optimizer type (Adam, SGD, AdamW, RMSprop)
-- Momentum buffer changes
-- Beta parameter evolution
-- Optimizer state consistency
+**検出内容**：
+- オプティマイザタイプ（Adam、SGD、AdamW、RMSprop）
+- モメンタムバッファの変化
+- ベータパラメータの進化
+- オプティマイザ状態の一貫性
 
-### 3. Loss Tracking
-**Purpose**: Analyze loss function evolution and convergence patterns
+### 3. 損失追跡
+**目的**：損失関数の進化と収束パターンを分析
 
-**Output Example**:
+**出力例**：
 ```bash
 loss_tracking: loss_trend=decreasing, improvement_rate=15.2%, convergence_score=0.89
 ```
 
-**What it detects**:
-- Loss trend direction
-- Rate of improvement
-- Convergence indicators
-- Training stability
+**検出内容**：
+- 損失トレンドの方向
+- 改善率
+- 収束インジケータ
+- 訓練の安定性
 
-### 4. Accuracy Tracking
-**Purpose**: Monitor accuracy changes and performance metrics
+### 4. 精度追跡
+**目的**：精度の変化とパフォーマンス指標を監視
 
-**Output Example**:
+**出力例**：
 ```bash
 accuracy_tracking: accuracy_delta=+3.2%, performance_trend=improving
 ```
 
-**What it detects**:
-- Accuracy/F1/precision/recall changes
-- Performance trend analysis
-- Metric improvement rates
-- Multi-metric support
+**検出内容**：
+- 精度/F1/適合率/再現率の変化
+- パフォーマンストレンド分析
+- 指標改善率
+- 複数指標サポート
 
-### 5. Model Version Analysis
-**Purpose**: Identify model versioning and checkpoint information
+### 5. モデルバージョン分析
+**目的**：モデルのバージョニングとチェックポイント情報を特定
 
-**Output Example**:
+**出力例**：
 ```bash
 model_version_analysis: version_change=1.0->1.1, checkpoint_evolution=incremental
 ```
 
-**What it detects**:
-- Version number changes
-- Checkpoint progression
-- Epoch/iteration tracking
-- Semantic vs numeric versioning
+**検出内容**：
+- バージョン番号の変化
+- チェックポイントの進行
+- エポック/イテレーション追跡
+- セマンティック vs 数値バージョニング
 
-### 6. Gradient Analysis
-**Purpose**: Analyze gradient flow, vanishing/exploding gradients, and stability
+### 6. 勾配分析
+**目的**：勾配フロー、勾配消失/爆発、安定性を分析
 
-**Output Example**:
+**出力例**：
 ```bash
 gradient_analysis: flow_health=healthy, norm=0.021069, variance_change=+15.3%
 ```
 
-**What it detects**:
-- Gradient flow health (healthy/warning/critical)
-- Vanishing gradient detection (< 1e-7)
-- Exploding gradient detection (> 100)
-- Gradient variance and stability
-- Uses lawkit memory-efficient incremental statistics
+**検出内容**：
+- 勾配フローの健全性（healthy/warning/critical）
+- 勾配消失の検出（< 1e-7）
+- 勾配爆発の検出（> 100）
+- 勾配の分散と安定性
+- lawkitのメモリ効率的な増分統計を使用
 
-### 7. Quantization Analysis
-**Purpose**: Detect mixed precision (FP32/FP16/INT8/INT4) and compression effects
+### 7. 量子化分析
+**目的**：混合精度（FP32/FP16/INT8/INT4）と圧縮効果を検出
 
-**Output Example**:
+**出力例**：
 ```bash
 quantization_analysis: mixed_precision=FP16+FP32, compression=12.5%, precision_loss=1.2%
 ```
 
-**What it detects**:
-- Mixed precision usage (FP32, FP16, INT8, INT4)
-- Compression ratios
-- Precision loss estimation
-- Quantization coverage across model
-- Memory efficiency gains
+**検出内容**：
+- 混合精度の使用（FP32、FP16、INT8、INT4）
+- 圧縮率
+- 精度損失の推定
+- モデル全体の量子化カバレッジ
+- メモリ効率の向上
 
-### 8. Convergence Analysis
-**Purpose**: Learning curve analysis, plateau detection, and optimization trajectory
+### 8. 収束分析
+**目的**：学習曲線分析、プラトー検出、最適化軌道
 
-**Output Example**:
+**出力例**：
 ```bash
 convergence_analysis: status=converging, stability=0.92, plateau_detected=false
 ```
 
-**What it detects**:
-- Convergence status (converging/converged/diverging)
-- Learning curve patterns
-- Plateau detection in training
-- Stability scoring (0.0-1.0)
-- Optimization trajectory health
+**検出内容**：
+- 収束ステータス（converging/converged/diverging）
+- 学習曲線パターン
+- 訓練中のプラトー検出
+- 安定性スコア（0.0-1.0）
+- 最適化軌道の健全性
 
-### 9. Activation Analysis
-**Purpose**: Analyze activation function usage and distribution
+### 9. 活性化分析
+**目的**：活性化関数の使用と分布を分析
 
-**Output Example**:
+**出力例**：
 ```bash
 activation_analysis: relu_usage=45%, gelu_usage=55%, distribution=healthy
 ```
 
-**What it detects**:
-- Activation function types (ReLU, GELU, Tanh, Sigmoid, Swish)
-- Usage distribution across layers
-- Saturation risk assessment
-- Dead neuron detection
-- Modern activation support
+**検出内容**：
+- 活性化関数タイプ（ReLU、GELU、Tanh、Sigmoid、Swish）
+- レイヤー間の使用分布
+- 飽和リスク評価
+- 死んだニューロンの検出
+- 現代的な活性化サポート
 
-### 10. Attention Analysis
-**Purpose**: Analyze transformer and attention mechanisms
+### 10. 注意機構分析
+**目的**：トランスフォーマーと注意機構を分析
 
-**Output Example**:
+**出力例**：
 ```bash
 attention_analysis: head_count=12, attention_patterns=stable, efficiency=0.87
 ```
 
-**What it detects**:
-- Multi-head attention structures
-- Attention pattern stability
-- Transformer component identification
-- Attention efficiency scoring
-- BERT/GPT/T5 architecture recognition
+**検出内容**：
+- マルチヘッド注意構造
+- 注意パターンの安定性
+- トランスフォーマーコンポーネントの識別
+- 注意効率スコア
+- BERT/GPT/T5アーキテクチャの認識
 
-### 11. Ensemble Analysis
-**Purpose**: Detect and analyze ensemble model structures
+### 11. アンサンブル分析
+**目的**：アンサンブルモデル構造を検出・分析
 
-**Output Example**:
+**出力例**：
 ```bash
 ensemble_analysis: ensemble_detected=false, model_type=feedforward
 ```
 
-**What it detects**:
-- Ensemble model detection
-- Component model counting
-- Ensemble methods (bagging, boosting, stacking)
-- Model diversity scoring
-- Single vs multi-model classification
+**検出内容**：
+- アンサンブルモデルの検出
+- コンポーネントモデルの計数
+- アンサンブル手法（バギング、ブースティング、スタッキング）
+- モデル多様性スコア
+- 単一 vs 複数モデル分類
 
-## Output Formats
+## 出力形式
 
-### CLI Output (Default)
-Human-readable with color coding and intuitive symbols.
+### CLI出力（デフォルト）
+カラーコーディングと直感的なシンボルを使用した人間が読みやすい形式。
 
-### JSON Output (MLOps Integration)
+### JSON出力（MLOps統合）
 ```bash
 diffai model1.safetensors model2.safetensors --output json
 ```
@@ -203,49 +203,49 @@ diffai model1.safetensors model2.safetensors --output json
     "gradient_norm": 0.021069,
     "variance_change": "+15.3%"
   }
-  // ... all 11 analyses included
+  // ... 11の分析すべてが含まれる
 }
 ```
 
-### YAML Output (Reports)
+### YAML出力（レポート）
 ```bash
 diffai model1.safetensors model2.safetensors --output yaml
 ```
 
-## Technical Implementation
+## 技術実装
 
-### Memory Efficiency
-- **lawkit patterns**: Incremental statistics using Welford's algorithm
-- **Streaming processing**: For large model analysis
-- **diffx-core foundation**: Proven diff engine reliability
+### メモリ効率
+- **lawkitパターン**：Welfordのアルゴリズムを使用した増分統計
+- **ストリーミング処理**：大規模モデル分析用
+- **diffx-core基盤**：実証済みのdiffエンジンの信頼性
 
-### Error Handling
-- **Graceful degradation**: Continues when specific patterns not found
-- **Robust parsing**: Handles various model file structures
-- **Fallback mechanisms**: Default values when analysis cannot complete
+### エラーハンドリング
+- **緩やかな劣化**：特定のパターンが見つからない場合でも継続
+- **堅牢な解析**：様々なモデルファイル構造に対応
+- **フォールバック機構**：分析が完了できない場合のデフォルト値
 
-### Performance Optimization
-- **Early termination**: Skips analysis when data patterns not detected
-- **Batch processing**: Efficient handling of large model parameters
-- **Memory limits**: Automatic optimization for large files
+### パフォーマンス最適化
+- **早期終了**：データパターンが検出されない場合は分析をスキップ
+- **バッチ処理**：大規模モデルパラメータの効率的な処理
+- **メモリ制限**：大きなファイルの自動最適化
 
-## Use Cases
+## ユースケース
 
-### Research & Development
-Monitor training progress, detect convergence issues, analyze architectural changes.
+### 研究開発
+訓練進捗の監視、収束問題の検出、アーキテクチャ変更の分析。
 
 ### MLOps & CI/CD
-Automated model validation, regression detection, performance monitoring.
+自動モデル検証、回帰検出、パフォーマンス監視。
 
-### Model Optimization
-Quantization analysis, memory usage tracking, compression assessment.
+### モデル最適化
+量子化分析、メモリ使用量追跡、圧縮評価。
 
-### Experiment Tracking  
-Compare model variants, track hyperparameter effects, validate improvements.
+### 実験追跡  
+モデル変種の比較、ハイパーパラメータ効果の追跡、改善の検証。
 
-## See Also
+## 関連項目
 
-- **[Quick Start](quick-start.md)** - Get started in 5 minutes
-- **[API Reference](reference/api-reference.md)** - Use in your code
-- **[Examples](examples/)** - Real usage examples and outputs
-- **[Technical Details](reference/ml-analysis-detailed.md)** - Implementation specifics
+- **[クイックスタート](quick-start_ja.md)** - 5分で始める
+- **[APIリファレンス](reference/api-reference_ja.md)** - コードで使用
+- **[使用例](examples/)** - 実際の使用例と出力
+- **[技術詳細](reference/ml-analysis-detailed_ja.md)** - 実装の詳細

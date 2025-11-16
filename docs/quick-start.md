@@ -1,82 +1,82 @@
-# Quick Start - diffai
+# クイックスタート - diffai
 
-Get up and running with diffai in 5 minutes. diffai is a specialized diff tool for AI/ML models that automatically provides 11 comprehensive analysis functions when comparing PyTorch or Safetensors files.
+5分でdiffaiを始めましょう。diffaiはAI/MLモデル専用の差分ツールで、PyTorchやSafetensorsファイルを比較する際に11種類の包括的な分析機能を自動的に提供します。
 
-## Installation
+## インストール
 
 ```bash
-# Install from crates.io (recommended)
+# crates.ioからインストール（推奨）
 cargo install diffai
 
-# Or from source
+# またはソースから
 git clone https://github.com/kako-jun/diffai.git
 cd diffai && cargo build --release
 ```
 
-## Basic Usage
+## 基本的な使い方
 
-### Compare ML Models (Automatic Analysis)
+### MLモデルの比較（自動分析）
 
 ```bash
-# PyTorch models - 11 ML analyses run automatically
+# PyTorchモデル - 11のML分析が自動的に実行
 diffai model_old.pt model_new.pt
 
-# Safetensors - 11 ML analyses run automatically  
+# Safetensors - 11のML分析が自動的に実行  
 diffai checkpoint_v1.safetensors checkpoint_v2.safetensors
 
-# Output example:
+# 出力例：
 learning_rate_analysis: old=0.001, new=0.0015, change=+50.0%, trend=increasing
 optimizer_comparison: type=Adam, momentum_change=+2.1%, state_evolution=stable
 gradient_analysis: flow_health=healthy, norm=0.021069, variance_change=+15.3%
 quantization_analysis: mixed_precision=FP16+FP32, compression=12.5%, precision_loss=1.2%
 convergence_analysis: status=converging, stability=0.92, plateau_detected=false
-# ... + 6 more analyses
+# ... + 他6つの分析
   ~ fc1.weight: mean=-0.0002->-0.0001, std=0.0514->0.0716
   ~ fc2.weight: mean=-0.0008->-0.0018, std=0.0719->0.0883
 ```
 
-### Scientific Data (Basic Analysis)
+### 科学データ（基本分析）
 
 ```bash
-# NumPy arrays - tensor statistics only
+# NumPy配列 - テンソル統計のみ
 diffai experiment_v1.npy experiment_v2.npy
 
-# MATLAB files - tensor statistics only
+# MATLABファイル - テンソル統計のみ
 diffai simulation_v1.mat simulation_v2.mat
 ```
 
-## Output Formats
+## 出力形式
 
-### JSON (MLOps Integration)
+### JSON（MLOps統合）
 ```bash
 diffai model1.safetensors model2.safetensors --output json
 ```
 
-### YAML (Human-Readable Reports)
+### YAML（人間が読みやすいレポート）
 ```bash
 diffai model1.safetensors model2.safetensors --output yaml
 ```
 
-### Verbose Mode (Diagnostics)
+### 詳細モード（診断情報）
 ```bash
 diffai model1.safetensors model2.safetensors --verbose
 ```
 
-## What Makes diffai Different
+## diffaiの特徴
 
-### Automatic ML Analysis
-- **No Configuration Required**: 11 ML analysis functions run automatically for PyTorch/Safetensors
-- **Convention over Configuration**: Following lawkit patterns for zero-setup experience
-- **Built on diffx-core**: Proven reliability for diff operations
+### 自動ML分析
+- **設定不要**：PyTorch/Safetensorsに対して11のML分析機能が自動的に実行
+- **設定より規約**：lawkitパターンに従ったゼロセットアップ体験
+- **diffx-coreベース**：実証済みの信頼性の高い差分処理
 
-### Specialized for AI/ML
-- **Native Tensor Support**: Understands PyTorch, Safetensors, NumPy, MATLAB formats
-- **Statistical Analysis**: Automatic tensor statistics (mean, std, shape, memory)
-- **ML-Specific Insights**: Gradient analysis, quantization detection, convergence patterns
+### AI/ML専門設計
+- **ネイティブテンソルサポート**：PyTorch、Safetensors、NumPy、MATLAB形式を理解
+- **統計分析**：自動テンソル統計（平均、標準偏差、形状、メモリ）
+- **ML固有の洞察**：勾配分析、量子化検出、収束パターン
 
-### Traditional Tools vs diffai
+### 従来のツール vs diffai
 ```bash
-# Traditional diff
+# 従来のdiff
 $ diff model_v1.pt model_v2.pt
 Binary files model_v1.pt and model_v2.pt differ
 
@@ -85,60 +85,60 @@ $ diffai model_v1.pt model_v2.pt
 learning_rate_analysis: old=0.001, new=0.0015, change=+50.0%
 gradient_analysis: flow_health=healthy, norm=0.021069
 quantization_analysis: mixed_precision=FP16+FP32, compression=12.5%
-# ... comprehensive ML analysis automatically
+# ... 包括的なML分析が自動的に実行
 ```
 
-## Common Use Cases
+## 一般的なユースケース
 
-### Research & Development
+### 研究開発
 ```bash
-# Compare before/after fine-tuning (automatic comprehensive analysis)
+# ファインチューニング前後の比較（自動的に包括的分析）
 diffai pretrained_model.safetensors finetuned_model.safetensors
 
-# Outputs: learning progress, convergence analysis, parameter evolution, etc.
+# 出力：学習進捗、収束分析、パラメータ進化など
 ```
 
 ### MLOps & CI/CD
 ```bash
-# Automated model validation in CI/CD pipelines
+# CI/CDパイプラインでの自動モデル検証
 diffai production_model.safetensors candidate_model.safetensors --output json
 
-# Pipe to jq or other tools for automated processing
+# jqや他のツールにパイプして自動処理
 diffai baseline.pt improved.pt --output json | jq '.gradient_analysis'
 ```
 
-### Model Optimization
+### モデル最適化
 ```bash
-# Analyze quantization effects
+# 量子化の影響を分析
 diffai full_precision.pt quantized.pt
-# Auto-detects: mixed precision, compression ratios, precision loss
+# 自動検出：混合精度、圧縮率、精度損失
 
-# Memory usage analysis
+# メモリ使用量分析
 diffai large_model.safetensors optimized_model.safetensors --verbose
 ```
 
-## Next Steps
+## 次のステップ
 
-- **[Examples](examples/)** - See real diffai outputs and use cases
-- **[ML Analysis](ml-analysis.md)** - Understand the 11 automatic analysis functions  
-- **[API Reference](reference/api-reference.md)** - Use diffai in your Rust/Python/JavaScript code
-- **[File Formats](formats.md)** - Supported AI/ML file format details
+- **[使用例](examples/)** - 実際のdiffai出力とユースケースを確認
+- **[ML分析](ml-analysis_ja.md)** - 11の自動分析機能を理解  
+- **[APIリファレンス](reference/api-reference_ja.md)** - Rust/Python/JavaScriptコードでdiffaiを使用
+- **[ファイル形式](formats_ja.md)** - サポートされているAI/MLファイル形式の詳細
 
-## Key Options
+## 主要オプション
 
 ```bash
-# Basic comparison options
---epsilon <FLOAT>           # Tolerance for float comparisons
---output <FORMAT>           # cli (default), json, yaml
---verbose                   # Detailed diagnostic information
---no-color                  # Disable colored output
+# 基本比較オプション
+--epsilon <FLOAT>           # 浮動小数点比較の許容誤差
+--output <FORMAT>           # cli（デフォルト）、json、yaml
+--verbose                   # 詳細な診断情報
+--no-color                  # カラー出力を無効化
 
-# Path filtering
---path <PATH>               # Filter differences by specific path
---ignore-keys-regex <REGEX> # Ignore keys matching regex pattern
+# パスフィルタリング
+--path <PATH>               # 特定のパスで差分をフィルタ
+--ignore-keys-regex <REGEX> # 正規表現に一致するキーを無視
 
-# Memory optimization (for large models)
-# Memory optimization is automatic - no configuration needed
+# メモリ最適化（大規模モデル用）
+# メモリ最適化は自動的に行われます - 設定は不要です
 ```
 
-diffai follows **Convention over Configuration**: ML analysis runs automatically when it detects AI/ML files, giving you comprehensive insights without any setup.
+diffaiは**設定より規約**に従います：AI/MLファイルを検出すると、ML分析が自動的に実行され、セットアップなしで包括的な洞察を提供します。
