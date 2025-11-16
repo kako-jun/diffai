@@ -12,10 +12,11 @@ diffai、diffx、lawkit の3つは兄弟プロジェクトであり、フォル�
 - diffai-js と diffai-python が同じリポジトリに含まれ、管理が複雑化
 - ワークスペースメンバーが多すぎる（4つ: core, cli, js, python）
 
-### 2. diffx-core への依存
+### 2. diffx-core への依存（**設計上正しい依存関係**）
 - diffai-core が diffx-core に依存している（`path = "../../diffx/diffx-core"`）
-- diffx がリブート中のため、このパスが無効になる可能性
-- 使用箇所: value_type_name, estimate_memory_usage, would_exceed_memory_limit, format_diff_output, base_diff, BaseDiffOptions, BaseOutputFormat
+- **目的**: コード重複削減のため、diffxの基本機能を再利用
+- **使用機能**: value_type_name, estimate_memory_usage, would_exceed_memory_limit, format_diff_output, base_diff, BaseDiffOptions, BaseOutputFormat
+- **現状**: diffx がリブート中のため、パスが一時的に解決できない可能性
 
 ### 3. 過剰なドキュメント
 - tasks.md が400行超で、完璧主義による麻痺を引き起こしている
@@ -32,12 +33,14 @@ diffai、diffx、lawkit の3つは兄弟プロジェクトであり、フォル�
 - [x] `Cargo.toml` のワークスペースメンバーを diffai-core と diffai-cli のみに更新
 - [x] `.gitignore` に `to-migrate/` を追加
 
-### Phase 1: diffx-core 依存の解決 🔄
+### Phase 1: diffx-core 依存パスの更新 🔄
 **予定**: diffx リブート完了後
+**目的**: diffx-core への依存を**維持しながら**、正しいパスに更新
 **作業内容**:
-- [ ] diffx-core が crates.io に公開されるのを待つ
-- [ ] または、必要な関数を diffai-core 内に実装する
-- [ ] diffx-core への依存を crates.io バージョンに変更
+- [ ] diffx のリブートが完了し、diffx-core のパスが確定するのを待つ
+- [ ] diffx-core が crates.io に公開された場合: crates.io バージョンに変更
+- [ ] ローカルパスのまま継続する場合: 新しいパスに更新
+- [ ] **重要**: diffx-core への依存は継続（コード重複削減のため）
 
 ### Phase 2: ドキュメントの簡素化 📝
 **予定**: Phase 1 完了後

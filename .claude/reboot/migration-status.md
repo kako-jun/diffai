@@ -60,7 +60,7 @@ to-migrate/
 - **移動先リポジトリ**: https://github.com/kako-jun/diffai-python (準備中)
 - **依存関係**: diffai-core (crates.io 公開後に更新予定)
 
-## 🔄 Phase 1 待機中: diffx-core 依存の解決
+## 🔄 Phase 1 待機中: diffx-core 依存パスの更新
 
 ### 現在の問題
 
@@ -73,25 +73,29 @@ Caused by:
 
 **原因**:
 - diffai-core が diffx-core に依存 (`path = "../../diffx/diffx-core"`)
-- diffx が現在リブート中で、構造が変更される可能性
+- diffx が現在リブート中で、パスが一時的に解決できない
 
-**影響範囲**:
-- diffai-core/Cargo.toml:35
-- diffai-core/src/lib.rs:16-24 (7つの関数/型を再エクスポート)
-  - value_type_name
-  - estimate_memory_usage
-  - would_exceed_memory_limit
-  - format_diff_output
-  - base_diff
-  - BaseDiffOptions
-  - BaseOutputFormat
+**依存の目的（設計上正しい）**:
+- **コード重複削減**: diffxの基本機能を再利用
+- **保守性向上**: diffxの改善が自動的にdiffaiに反映される
+- **統一性**: diffx/diffai/lawkitで共通の基本機能を共有
 
-### 解決待ち
+**使用している機能** (diffai-core/src/lib.rs:16-24):
+- value_type_name - 値の型名取得
+- estimate_memory_usage - メモリ使用量推定
+- would_exceed_memory_limit - メモリ制限チェック
+- format_diff_output - 差分出力フォーマット
+- base_diff - 基本差分計算
+- BaseDiffOptions - 差分オプション型
+- BaseOutputFormat - 出力フォーマット型
+
+### 更新待ち
 
 diffx のリブートが完了し、以下のいずれかが実現するまで待機:
 1. diffx-core が crates.io に公開される → 依存をcrates.ioバージョンに変更
 2. diffx-core の安定版パスが確定する → パスを更新
-3. 必要な関数を diffai-core 内に実装する → diffx-core への依存を削除
+
+**重要**: diffx-core への依存は**継続**します（削除しません）
 
 ## 📊 現在の状態
 
@@ -120,8 +124,8 @@ diffai/
 - ⏸️ テストは実行できない（ビルドが必要）
 
 ### 次のステップ
-1. **即座に実施可能**: 変更をコミット＆プッシュ（Phase 0 完了として記録）
-2. **diffx リブート待ち**: diffx-core 依存の解決（Phase 1）
+1. ✅ **完了**: 変更をコミット＆プッシュ（Phase 0 完了）
+2. **diffx リブート待ち**: diffx-core 依存パスの更新（Phase 1）
 3. **Phase 1 後**: ドキュメント簡素化（Phase 2）
 4. **Phase 2 後**: CI/CD 簡素化（Phase 3）
 
