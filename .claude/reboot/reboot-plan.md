@@ -67,21 +67,25 @@ diffai、diffx、lawkit の3つは兄弟プロジェクトであり、フォル�
   - diff.rs (553行) - 差分実装
   - output.rs (94行) - 出力フォーマット
   - parsers/ (279行, 5ファイル) - フォーマット別パーサー
-  - ml_analysis/ (5021行, 14ファイル) - ML分析機能
+  - ml_analysis/ (多階層モジュール) - ML分析機能
 - [x] diffai-cli/src/main.rs を分割（341行 → 38行、**89%削減**）
   - cli.rs (64行) - CLI引数定義
   - commands.rs (137行) - コマンド実行
   - formatters.rs (82行) - 出力フォーマット
   - input.rs (45行) - 入力処理
-- [x] ml_analysis.rs をさらに分割（4654行 → 14モジュール、最大1166行）
-  - architecture.rs, memory.rs, learning_rate.rs, convergence.rs
-  - gradient.rs, attention.rs, ensemble.rs, quantization.rs
-  - batch_norm.rs, regularization.rs, activation.rs, weight.rs
-  - complexity.rs, mod.rs
+- [x] ml_analysis.rs を14モジュールに分割（4654行 → 14ファイル）
+  - architecture, memory, learning_rate, attention, ensemble
+  - batch_norm, regularization, activation, weight, complexity, mod
+  - convergence/, gradient/, quantization/ (サブディレクトリ化)
+- [x] 大きなモジュールをさらにサブディレクトリ化
+  - convergence.rs (1166行) → convergence/ (8ファイル、最大240行)
+  - quantization.rs (871行) → quantization/ (5ファイル、最大325行)
+  - gradient.rs (695行) → gradient/ (6ファイル、最大299行)
 
 **結果**:
-- モノリシックなファイルから、モジュール化された保守性の高い構造へ
-- diffx と同等レベルの細分化を達成
+- 全ソースファイルが **600行以下**（最大: diff.rs 553行）
+- モノリシックなファイルから、多階層モジュール構造へ
+- diffx を超える細分化を達成（**合計48ファイル**）
 - ビルド成功、全機能維持
 
 ## 🔍 既知の問題

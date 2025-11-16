@@ -133,25 +133,31 @@ diffai/
 | scripts/ | 複雑なシェルスクリプト群 | deprecated へ移動 | シンプル化 |
 
 ### Phase 4: コードリファクタリング ✅
-**目的**: モノリシックファイルからモジュール化へ（**diffx同等レベル**）
+**目的**: モノリシックファイルからモジュール化へ（**diffx超えレベル**）
 
 #### diffai-core リファクタリング
 | ファイル | Before | After | 削減率 | 分割結果 |
 |---------|--------|-------|--------|----------|
 | lib.rs | 5699行 | 52行 | **99.1%** | 10モジュール（types, diff, output, parsers/, ml_analysis/）|
-| ml_analysis.rs | 4654行 | - | **100%** | 14モジュール（最大1166行） |
+| ml_analysis.rs | 4654行 | - | **100%** | 多階層モジュール（**最大553行**） |
 
 #### diffai-cli リファクタリング
 | ファイル | Before | After | 削減率 | 分割結果 |
 |---------|--------|-------|--------|----------|
 | main.rs | 341行 | 38行 | **89%** | 5モジュール（cli, commands, formatters, input, main）|
 
-**詳細**: ml_analysis の14モジュール
-- architecture (84), memory (200), learning_rate (247)
-- convergence (1166), gradient (695), attention (435)
-- ensemble (463), quantization (871), batch_norm (112)
-- regularization (107), activation (108), weight (101)
-- complexity (403), mod (29)
+#### 追加: 大きなモジュールのサブディレクトリ化
+| モジュール | Before | After | 分割結果 |
+|----------|--------|-------|----------|
+| convergence.rs | 1166行 | - | 8ファイル（最大240行）: mod, epoch, loss, patterns, stability, learning_curves, plateau, optimization |
+| quantization.rs | 871行 | - | 5ファイル（最大325行）: mod, types, precision, methods, impact |
+| gradient.rs | 695行 | - | 6ファイル（最大299行）: mod, types, statistics, magnitudes, distributions, flow |
+
+**最終結果**:
+- **全ソースファイル 600行以下**（最大: diff.rs 553行）
+- **合計44ファイル**（diffai-core: 39, diffai-cli: 5）
+- **多階層モジュール構造**（3レベル深）
+- **diffx を超える細分化達成**
 
 ---
 
@@ -159,9 +165,10 @@ diffai/
 
 ### コード品質
 - ✅ モノリシックファイル削減: lib.rs 99.1%、main.rs 89%
-- ✅ モジュール化: 合計29ファイルに分割（保守性向上）
+- ✅ モジュール化: **合計44ファイル**（保守性大幅向上）
+- ✅ **全ファイル600行以下**（最大: diff.rs 553行）
 - ✅ ビルド成功: `cargo build --release` 正常終了
-- ✅ 警告のみ: 50個の警告（既存、エラー0）
+- ✅ 警告のみ: 43個の警告（既存、エラー0）
 
 ### リポジトリ構造
 - ✅ ワークスペースメンバー: 4 → 2 (50%削減)
@@ -322,9 +329,10 @@ diffai-cli
 ### 主要な成果
 1. **99.1%のコード削減** - lib.rs を52行にモジュール化
 2. **完全な独立性** - github-shared依存なし、独自CI/CD
-3. **保守性向上** - 29ファイルの明確なモジュール構造
-4. **ビルド成功** - すべてのフェーズで動作確認済み
-5. **diffx同等** - 4フェーズ完了、同じ哲学を適用
+3. **保守性大幅向上** - **44ファイル**の明確な多階層モジュール構造
+4. **全ファイル600行以下** - 最大ファイルでも553行（diff.rs）
+5. **ビルド成功** - すべてのフェーズで動作確認済み
+6. **diffx超え** - 4フェーズ完了、より細分化されたモジュール構造
 
 ### 次のステップ
 - diffai-js の独立リポジトリ化（to-migrate/ から）
