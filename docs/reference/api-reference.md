@@ -1,54 +1,54 @@
-# API Reference - diffai-core
+# APIリファレンス - diffai-core
 
-Complete API documentation for the `diffai-core` Rust crate, providing AI/ML model diff functionality.
+AI/MLモデルの差分機能を提供する`diffai-core` Rustクレートの完全なAPIドキュメント。
 
-## Overview
+## 概要
 
-The `diffai-core` crate is the heart of the diffai ecosystem, providing specialized diff operations for AI/ML model files and tensors. It can be embedded in other Rust applications to add ML-specific comparison capabilities.
+`diffai-core`クレートは、diffaiエコシステムの心臓部であり、AI/MLモデルファイルとテンソル向けの専門的な差分操作を提供します。他のRustアプリケーションに組み込んでML固有の比較機能を追加できます。
 
-**Unified API Design**: The core API exposes a single main function `diff()` for all comparison operations with automatic comprehensive analysis.
+**統一API設計**：コアAPIは、自動包括分析を備えたすべての比較操作用の単一メイン関数`diff()`を公開します。
 
-## Installation
+## インストール
 
-Add `diffai-core` to your `Cargo.toml`:
+`Cargo.toml`に`diffai-core`を追加：
 
 ```toml
 [dependencies]
 diffai-core = "0.2.0"
 ```
 
-### Feature Flags
+### 機能フラグ
 
 ```toml
 [dependencies]
 diffai-core = { version = "0.2.0", features = ["all-formats"] }
 ```
 
-Available features:
-- `pytorch` (default) - PyTorch model support
-- `safetensors` (default) - Safetensors format support  
-- `numpy` (default) - NumPy array support
-- `matlab` - MATLAB file support
-- `all-formats` - Enable all format parsers
+利用可能な機能：
+- `pytorch`（デフォルト） - PyTorchモデルサポート
+- `safetensors`（デフォルト） - Safetensors形式サポート  
+- `numpy`（デフォルト） - NumPy配列サポート
+- `matlab` - MATLABファイルサポート
+- `all-formats` - すべての形式パーサーを有効化
 
-## Public API
+## パブリックAPI
 
-### Core Types
+### コア型
 
 #### `DiffResult`
 
-Represents a single difference between two AI/ML models or tensors.
+2つのAI/MLモデルまたはテンソル間の単一の差異を表現。
 
 ```rust
 #[derive(Debug, PartialEq, Serialize)]
 pub enum DiffResult {
-    // Standard differences
+    // 標準的な差異
     Added(String, Value),
     Removed(String, Value),
     Modified(String, Value, Value),
     TypeChanged(String, String, String),
     
-    // ML-specific differences
+    // ML固有の差異
     TensorShapeChanged(String, Vec<usize>, Vec<usize>),
     WeightSignificantChange(String, f64, Statistics),
     LayerAdded(String, LayerInfo),
@@ -58,11 +58,11 @@ pub enum DiffResult {
 }
 ```
 
-### Core Functions
+### コア関数
 
 #### `diff()`
 
-Primary function for computing differences between two AI/ML models or tensors. This is the unified API entry point for all comparison operations.
+2つのAI/MLモデルまたはテンソル間の差異を計算するための主要関数。これはすべての比較操作の統一APIエントリポイントです。
 
 ```rust
 pub fn diff(
@@ -72,37 +72,37 @@ pub fn diff(
 ) -> Result<Vec<DiffResult>, Error>
 ```
 
-**Parameters:**
-- `old`: Original/baseline model or tensor data
-- `new`: New/updated model or tensor data
-- `options`: Optional configuration options for the comparison
+**パラメータ：**
+- `old`：元の/ベースラインモデルまたはテンソルデータ
+- `new`：新しい/更新されたモデルまたはテンソルデータ
+- `options`：比較のオプション設定パラメータ
 
-**Returns:** `Result<Vec<DiffResult>, Error>` representing all differences found
+**戻り値：** 見つかったすべての差異を表す`Result<Vec<DiffResult>, Error>`
 
-#### DiffOptions Structure
+#### DiffOptions構造体
 
 ```rust
 pub struct DiffOptions {
-    // Numeric comparison
+    // 数値比較
     pub epsilon: Option<f64>,
     
-    // Array comparison
+    // 配列比較
     pub array_id_key: Option<String>,
     
-    // Filtering
+    // フィルタリング
     pub ignore_keys_regex: Option<String>,
     pub path_filter: Option<String>,
     
-    // Output control
+    // 出力制御
     pub output_format: Option<OutputFormat>,
     pub show_unchanged: Option<bool>,
     pub show_types: Option<bool>,
     
-    // Memory optimization
+    // メモリ最適化
     pub use_memory_optimization: Option<bool>,
     pub batch_size: Option<usize>,
     
-    // diffai-specific options
+    // diffai固有のオプション
     pub ml_analysis_enabled: Option<bool>,
     pub tensor_comparison_mode: Option<String>,
     pub model_format: Option<String>,
@@ -115,7 +115,7 @@ pub struct DiffOptions {
 }
 ```
 
-**Example:**
+**例：**
 ```rust
 use diffai_core::{diff, DiffOptions, DiffResult};
 use serde_json::{json, Value};
@@ -149,8 +149,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for diff_result in differences {
         match diff_result {
             DiffResult::WeightSignificantChange(path, magnitude, stats) => {
-                println!("Significant weight change at {}: magnitude={}", path, magnitude);
-                println!("Stats: mean_change={}, std_dev={}", stats.mean_change, stats.std_dev);
+                println!("{}で重要な重み変化: magnitude={}", path, magnitude);
+                println!("統計: mean_change={}, std_dev={}", stats.mean_change, stats.std_dev);
             }
             _ => {}
         }
@@ -160,13 +160,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-## Advanced Usage
+## 高度な使用法
 
-### Custom Comparison Logic
+### カスタム比較ロジック
 
-#### ML-Specific Analysis
+#### ML固有の分析
 
-Enable machine learning specific analysis features:
+機械学習固有の分析機能を有効化：
 
 ```rust
 use diffai_core::{diff, DiffOptions};
@@ -174,14 +174,14 @@ use serde_json::json;
 
 let old_checkpoint = json!({
     "epoch": 1,
-    "model_state_dict": { /* model weights */ },
-    "optimizer_state_dict": { /* optimizer state */ }
+    "model_state_dict": { /* モデル重み */ },
+    "optimizer_state_dict": { /* オプティマイザ状態 */ }
 });
 
 let new_checkpoint = json!({
     "epoch": 10,
-    "model_state_dict": { /* updated weights */ },
-    "optimizer_state_dict": { /* updated state */ }
+    "model_state_dict": { /* 更新された重み */ },
+    "optimizer_state_dict": { /* 更新された状態 */ }
 });
 
 let options = DiffOptions {
@@ -195,13 +195,13 @@ let options = DiffOptions {
 let differences = diff(&old_checkpoint, &new_checkpoint, Some(&options))?;
 ```
 
-#### Precision-Aware Comparison
+#### 精度認識比較
 
-Handle models with different numerical precisions:
+異なる数値精度のモデルを処理：
 
 ```rust
 let options = DiffOptions {
-    epsilon: Some(1e-3), // Higher tolerance for precision differences
+    epsilon: Some(1e-3), // 精度差異のためのより高い許容値
     scientific_precision: Some(true),
     weight_threshold: Some(1e-4),
     ..Default::default()
@@ -210,25 +210,25 @@ let options = DiffOptions {
 let differences = diff(&float32_model, &float16_model, Some(&options))?;
 ```
 
-### Working with Different Model Formats
+### 異なるモデル形式での作業
 
-#### Loading and Comparing Models
+#### モデルの読み込みと比較
 
 ```rust
 use diffai_core::{diff, DiffOptions, DiffResult};
 use serde_json::Value;
 use std::fs;
 
-// Users should load models using appropriate ML libraries
+// ユーザーは適切なMLライブラリを使用してモデルを読み込む必要があります
 fn compare_pytorch_models(
     model1_path: &str,
     model2_path: &str,
     options: Option<&DiffOptions>
 ) -> Result<Vec<DiffResult>, Box<dyn std::error::Error>> {
-    // Example: Users would use candle, tch, or other PyTorch bindings
-    // to load the actual model data into a serde_json::Value
+    // 例：ユーザーはcandle、tch、または他のPyTorchバインディングを使用
+    // 実際のモデルデータをserde_json::Valueに読み込む
     
-    // This is just a placeholder - actual implementation would use ML libraries
+    // これは単なるプレースホルダー - 実際の実装はMLライブラリを使用
     let old_content = fs::read_to_string(model1_path)?;
     let new_content = fs::read_to_string(model2_path)?;
     
@@ -239,9 +239,9 @@ fn compare_pytorch_models(
 }
 ```
 
-### Integration Patterns
+### 統合パターン
 
-#### Training Progress Analysis
+#### 訓練進捗分析
 
 ```rust
 use diffai_core::{diff, DiffOptions, DiffResult};
@@ -290,7 +290,7 @@ impl TrainingAnalyzer {
 }
 ```
 
-#### Async Model Comparison
+#### 非同期モデル比較
 
 ```rust
 use diffai_core::{diff, DiffOptions, DiffResult};
@@ -307,7 +307,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let results = futures::future::try_join_all(tasks).await?;
     
     for (i, diffs) in results.into_iter().enumerate() {
-        println!("Model pair {}: {} differences", i + 1, diffs.len());
+        println!("モデルペア {}: {} の差異", i + 1, diffs.len());
     }
     
     Ok(())
@@ -321,7 +321,7 @@ async fn compare_models_async(
     let content2 = tokio::fs::read_to_string(file2).await?;
     
     let result = tokio::task::spawn_blocking(move || {
-        // In real usage, use ML libraries to parse model files
+        // 実際の使用では、MLライブラリを使用してモデルファイルを解析
         let old: Value = serde_json::from_str(&content1)?;
         let new: Value = serde_json::from_str(&content2)?;
         
@@ -338,29 +338,29 @@ async fn compare_models_async(
 }
 ```
 
-## Error Handling
+## エラーハンドリング
 
-### Error Types
+### エラー型
 
-The library uses `anyhow::Error` for error handling:
+ライブラリはエラーハンドリングに`anyhow::Error`を使用：
 
 ```rust
 use diffai_core::{diff, DiffOptions};
 use anyhow::Result;
 
 fn handle_model_errors() -> Result<()> {
-    // ... load models ...
+    // ... モデルを読み込み ...
     
     match diff(&old_model, &new_model, None) {
         Ok(differences) => {
-            println!("Found {} differences", differences.len());
+            println!("{}の差異を発見", differences.len());
         }
         Err(e) => {
-            eprintln!("Model comparison error: {}", e);
+            eprintln!("モデル比較エラー: {}", e);
             
-            // Check for specific error types
+            // 特定のエラー型をチェック
             if e.to_string().contains("memory") {
-                eprintln!("Consider enabling memory optimization");
+                eprintln!("メモリ最適化の有効化を検討してください");
             }
         }
     }
@@ -369,11 +369,11 @@ fn handle_model_errors() -> Result<()> {
 }
 ```
 
-## Performance Considerations
+## パフォーマンスの考慮事項
 
-### Memory Usage
+### メモリ使用量
 
-For large models:
+大きなモデルの場合：
 
 ```rust
 use diffai_core::{diff, DiffOptions, DiffResult};
@@ -384,7 +384,7 @@ fn process_large_models(
 ) -> Result<Vec<DiffResult>, Box<dyn std::error::Error>> {
     let options = DiffOptions {
         use_memory_optimization: Some(true),
-        batch_size: Some(500), // Smaller batch for large tensors
+        batch_size: Some(500), // 大きなテンソル用の小さなバッチ
         tensor_comparison_mode: Some("statistical".to_string()),
         ..Default::default()
     };
@@ -393,17 +393,17 @@ fn process_large_models(
 }
 ```
 
-### Optimization Tips
+### 最適化のヒント
 
-1. **Use memory optimization** for models >1GB
-2. **Set appropriate epsilon** for your precision requirements
-3. **Use statistical mode** for faster comparison of large tensors
-4. **Filter paths** to focus on specific layers or components
-5. **Adjust batch size** based on available memory
+1. **メモリ最適化を使用** - 1GB以上のモデルに
+2. **適切なイプシロンを設定** - 精度要件に応じて
+3. **統計モードを使用** - 大きなテンソルのより高速な比較
+4. **パスをフィルタ** - 特定のレイヤーやコンポーネントに焦点
+5. **バッチサイズを調整** - 利用可能なメモリに基づいて
 
-## Testing
+## テスト
 
-### Unit Tests
+### ユニットテスト
 
 ```rust
 #[cfg(test)]
@@ -435,7 +435,7 @@ mod tests {
         
         let diffs = diff(&old, &new, Some(&options)).unwrap();
         
-        // Should detect significant changes in layer1
+        // layer1で重要な変化を検出する必要がある
         assert!(diffs.iter().any(|d| matches!(d, 
             DiffResult::WeightSignificantChange(path, _, _) if path.contains("layer1")
         )));
@@ -443,36 +443,36 @@ mod tests {
 }
 ```
 
-## Automatic ML Analysis
+## 自動ML分析
 
-**Convention over Configuration**: diffai-core automatically runs 11 specialized ML analysis functions when it detects PyTorch (.pt/.pth) or Safetensors (.safetensors) files:
+**設定より規約**：diffai-coreは、PyTorch（.pt/.pth）またはSafetensors（.safetensors）ファイルを検出すると、11の専門的なML分析機能を自動的に実行します：
 
-1. **learning_rate_analysis** - Learning rate tracking and dynamics
-2. **optimizer_comparison** - Optimizer state comparison
-3. **loss_tracking** - Loss function evolution analysis
-4. **accuracy_tracking** - Performance metrics monitoring
-5. **model_version_analysis** - Version and checkpoint detection
-6. **gradient_analysis** - Gradient flow and stability analysis
-7. **quantization_analysis** - Mixed precision detection (FP32/FP16/INT8/INT4)
-8. **convergence_analysis** - Learning curve and convergence patterns
-9. **activation_analysis** - Activation function usage analysis
-10. **attention_analysis** - Transformer and attention mechanisms
-11. **ensemble_analysis** - Ensemble model detection
+1. **learning_rate_analysis** - 学習率追跡と動態
+2. **optimizer_comparison** - オプティマイザ状態比較
+3. **loss_tracking** - 損失関数進化分析
+4. **accuracy_tracking** - パフォーマンス指標監視
+5. **model_version_analysis** - バージョンとチェックポイント検出
+6. **gradient_analysis** - 勾配フローと安定性分析
+7. **quantization_analysis** - 混合精度検出（FP32/FP16/INT8/INT4）
+8. **convergence_analysis** - 学習曲線と収束パターン
+9. **activation_analysis** - 活性化関数使用分析
+10. **attention_analysis** - トランスフォーマーと注意機構
+11. **ensemble_analysis** - アンサンブルモデル検出
 
-**Trigger Conditions:**
-- **PyTorch/Safetensors**: All 11 analyses run automatically
-- **NumPy/MATLAB**: Basic tensor statistics only
-- **Other formats**: Standard structural comparison
+**トリガー条件：**
+- **PyTorch/Safetensors**：11の分析すべてが自動実行
+- **NumPy/MATLAB**：基本的なテンソル統計のみ
+- **その他の形式**：標準的な構造比較
 
-## Version Compatibility
+## バージョン互換性
 
-- **0.3.16**: Current stable version with automatic ML analysis
-- **Built on**: diffx-core v0.6.x for proven diff reliability
-- **Minimum Rust version**: 1.70.0
-- **Dependencies**: See `Cargo.toml` for current versions
+- **0.3.16**：自動ML分析付きの現在の安定版
+- **基盤**：実証済みの差分信頼性のためのdiffx-core v0.6.x
+- **最小Rustバージョン**：1.70.0
+- **依存関係**：現在のバージョンについては`Cargo.toml`を参照
 
-## See Also
+## 関連項目
 
-- [CLI Reference](cli-reference.md) for command-line usage
-- [ML Model Comparison Guide](../user-guide/ml-model-comparison.md) for practical examples
-- [Unified API Reference](../bindings/unified-api.md) for language bindings
+- コマンドライン使用については[CLIリファレンス](cli-reference_ja.md)
+- 実用例については[MLモデル比較ガイド](../user-guide/ml-model-comparison_ja.md)
+- 言語バインディングについては[統一APIリファレンス](../bindings/unified-api_ja.md)

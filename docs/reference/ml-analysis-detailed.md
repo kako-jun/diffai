@@ -1,35 +1,35 @@
-# ML Analysis Functions - Technical Reference
+# ML分析機能 - 技術リファレンス
 
-Complete technical documentation for the 11 specialized ML analysis functions automatically executed by diffai when comparing PyTorch (.pt/.pth) or Safetensors (.safetensors) files.
+PyTorch（.pt/.pth）またはSafetensors（.safetensors）ファイルを比較する際にdiffaiが自動実行する11の専門的なML分析機能の完全な技術ドキュメント。
 
-## Overview
+## 概要
 
-diffai follows the **Convention over Configuration** principle: all 11 ML analysis functions run automatically when AI/ML files are detected, providing comprehensive insights without requiring manual configuration. Built using lawkit memory-efficient patterns and diffx-core optimization techniques.
+diffaiは**設定より規約**の原則に従います：AI/MLファイルが検出されると、手動設定を必要とせずに包括的な洞察を提供する11のML分析機能すべてが自動実行されます。lawkitのメモリ効率パターンとdiffx-core最適化技術を使用して構築されています。
 
-**Automatic Trigger Conditions:**
-- **PyTorch files (.pt/.pth)**: All 11 analyses execute
-- **Safetensors files (.safetensors)**: All 11 analyses execute  
-- **NumPy/MATLAB files**: Basic tensor statistics only
-- **Other formats**: Standard structural comparison via diffx-core
+**自動トリガー条件：**
+- **PyTorchファイル（.pt/.pth）**：11の分析すべてが実行
+- **Safetensorsファイル（.safetensors）**：11の分析すべてが実行  
+- **NumPy/MATLABファイル**：基本的なテンソル統計のみ
+- **その他の形式**：diffx-coreによる標準的な構造比較
 
-## 1. Learning Rate Analysis
+## 1. 学習率分析
 
-**Function**: `analyze_learning_rate_changes()`  
-**Purpose**: Track learning rate changes and training dynamics
+**関数**：`analyze_learning_rate_changes()`  
+**目的**：学習率の変化と訓練動態を追跡
 
-### Detection Logic
+### 検出ロジック
 ```rust
-// Automatically searches for learning rate fields in model data
+// モデルデータ内の学習率フィールドを自動検索
 let lr_fields = ["learning_rate", "lr", "step_size", "base_lr", "current_lr"];
-// Analyzes changes in optimizer learning rate parameters
+// オプティマイザ学習率パラメータの変化を分析
 ```
 
-### Output Format
+### 出力形式
 ```bash
 learning_rate_analysis: old=0.001, new=0.0015, change=+50.0%, trend=increasing
 ```
 
-### JSON Output
+### JSON出力
 ```json
 {
   "learning_rate_analysis": {
@@ -42,30 +42,30 @@ learning_rate_analysis: old=0.001, new=0.0015, change=+50.0%, trend=increasing
 }
 ```
 
-### Technical Implementation
-- **Algorithm**: Direct value comparison with percentage calculation
-- **Memory Efficiency**: lawkit incremental processing patterns
-- **Thresholds**: >5% change considered significant
-- **Error Handling**: Graceful fallback when LR fields not found
+### 技術実装
+- **アルゴリズム**：パーセンテージ計算を伴う直接値比較
+- **メモリ効率**：lawkit増分処理パターン
+- **しきい値**：5%を超える変化を重要と判定
+- **エラーハンドリング**：LRフィールドが見つからない場合の適切なフォールバック
 
-## 2. Optimizer Comparison
+## 2. オプティマイザ比較
 
-**Function**: `analyze_optimizer_comparison()`  
-**Purpose**: Compare optimizer states and momentum information
+**関数**：`analyze_optimizer_comparison()`  
+**目的**：オプティマイザの状態とモメンタム情報を比較
 
-### Detection Logic
+### 検出ロジック
 ```rust
-// Searches for optimizer state dictionaries
+// オプティマイザ状態辞書を検索
 let optimizer_fields = ["optimizer", "optimizer_state_dict", "optim", "momentum", "adam"];
-// Analyzes momentum, beta parameters, and state evolution
+// モメンタム、ベータパラメータ、状態進化を分析
 ```
 
-### Output Format
+### 出力形式
 ```bash
 optimizer_comparison: type=Adam, momentum_change=+2.1%, state_evolution=stable
 ```
 
-### JSON Output
+### JSON出力
 ```json
 {
   "optimizer_comparison": {
@@ -78,135 +78,86 @@ optimizer_comparison: type=Adam, momentum_change=+2.1%, state_evolution=stable
 }
 ```
 
-### Technical Implementation
-- **State Tracking**: Compares momentum buffers and optimizer parameters
-- **Memory Optimization**: Streaming comparison for large optimizer states
-- **Supported Optimizers**: Adam, SGD, AdamW, RMSprop (auto-detected)
+### 技術実装
+- **状態追跡**：モメンタムバッファとオプティマイザパラメータを比較
+- **メモリ最適化**：大きなオプティマイザ状態のストリーミング比較
+- **サポートオプティマイザ**：Adam、SGD、AdamW、RMSprop（自動検出）
 
-## 3. Loss Tracking
+## 3. 損失追跡
 
-**Function**: `analyze_loss_tracking()`  
-**Purpose**: Analyze loss function evolution and convergence patterns
+**関数**：`analyze_loss_tracking()`  
+**目的**：損失関数の進化と収束パターンを分析
 
-### Detection Logic
+### 検出ロジック
 ```rust
-// Automatically detects loss-related fields
+// 損失関連フィールドを自動検出
 let loss_fields = ["loss", "train_loss", "val_loss", "epoch_loss", "step_loss"];
-// Analyzes loss trends and convergence indicators
+// 損失トレンドと収束指標を分析
 ```
 
-### Output Format
+### 出力形式
 ```bash
 loss_tracking: loss_trend=decreasing, improvement_rate=15.2%, convergence_score=0.89
 ```
 
-### JSON Output
+### JSON出力
 ```json
 {
   "loss_tracking": {
     "loss_trend": "decreasing",
     "improvement_rate": "15.2%",
     "convergence_score": 0.89,
-    "volatility": "low"
+    "stability": "high"
   }
 }
 ```
 
-### Technical Implementation
-- **Trend Analysis**: Statistical trend detection using lawkit patterns
-- **Convergence Scoring**: Multi-factor convergence assessment (0.0-1.0)
-- **Volatility Detection**: Loss stability measurement
+### 技術実装
+- **トレンド分析**：損失値の変化方向を計算
+- **収束スコア**：0.0-1.0のスケールで安定性を評価
+- **改善率**：損失減少のパーセンテージ変化
 
-## 4. Accuracy Tracking
+## 4. 精度追跡
 
-**Function**: `analyze_accuracy_tracking()`  
-**Purpose**: Monitor accuracy changes and performance metrics
+**関数**：`analyze_accuracy_tracking()`  
+**目的**：精度の変化とパフォーマンス指標を監視
 
-### Detection Logic
-```rust
-// Searches for accuracy and performance metrics
-let accuracy_fields = ["accuracy", "acc", "top1", "top5", "f1_score", "precision", "recall"];
-// Tracks performance metric evolution
-```
-
-### Output Format
+### 出力形式
 ```bash
 accuracy_tracking: accuracy_delta=+3.2%, performance_trend=improving
 ```
 
-### JSON Output
-```json
-{
-  "accuracy_tracking": {
-    "accuracy_delta": "+3.2%",
-    "performance_trend": "improving",
-    "baseline_accuracy": 0.847,
-    "current_accuracy": 0.874
-  }
-}
-```
+### 技術実装
+- **指標サポート**：精度、F1、適合率、再現率
+- **トレンド分析**：パフォーマンスの方向性評価
+- **多指標処理**：複数のパフォーマンス指標の同時追跡
 
-### Technical Implementation
-- **Multi-Metric Support**: Accuracy, F1, precision, recall auto-detection
-- **Delta Calculation**: Precise percentage change computation
-- **Trend Classification**: Statistical trend analysis (improving/stable/declining)
+## 5. モデルバージョン分析
 
-## 5. Model Version Analysis
+**関数**：`analyze_model_version()`  
+**目的**：モデルのバージョニングとチェックポイント情報を特定
 
-**Function**: `analyze_model_version_detection()`  
-**Purpose**: Identify model versioning and checkpoint information
-
-### Detection Logic
-```rust
-// Detects version and checkpoint fields
-let version_fields = ["version", "model_version", "epoch", "step", "checkpoint", "iteration"];
-// Analyzes version evolution and checkpoint progression
-```
-
-### Output Format
+### 出力形式
 ```bash
 model_version_analysis: version_change=1.0->1.1, checkpoint_evolution=incremental
 ```
 
-### JSON Output
-```json
-{
-  "model_version_analysis": {
-    "version_change": "1.0->1.1",
-    "checkpoint_evolution": "incremental",
-    "epoch_progression": "5->10",
-    "version_type": "semantic"
-  }
-}
-```
+### 技術実装
+- **バージョン検出**：セマンティックバージョニングパターンの認識
+- **チェックポイント分析**：エポック/イテレーション進行の追跡
+- **進化パターン**：増分 vs 主要変更の分類
 
-### Technical Implementation
-- **Version Detection**: Semantic and numeric version parsing
-- **Evolution Analysis**: Incremental vs. major version changes
-- **Checkpoint Tracking**: Training progression analysis
+## 6. 勾配分析
 
-## 6. Gradient Analysis
+**関数**：`analyze_gradient_flow()`  
+**目的**：勾配フロー、勾配消失/爆発、安定性を分析
 
-**Function**: `analyze_gradient_analysis()`  
-**Purpose**: Analyze gradient flow, vanishing/exploding gradients, and stability
-
-### Detection Logic
-```rust
-// Enhanced gradient analysis with lawkit memory efficiency
-struct EnhancedGradientStats {
-    total_norm: Option<f64>,
-    max_gradient: Option<f64>,
-    variance: Option<f64>,
-}
-// Uses Welford's algorithm for incremental statistics
-```
-
-### Output Format
+### 出力形式
 ```bash
 gradient_analysis: flow_health=healthy, norm=0.021069, variance_change=+15.3%
 ```
 
-### JSON Output
+### JSON出力
 ```json
 {
   "gradient_analysis": {
@@ -214,250 +165,148 @@ gradient_analysis: flow_health=healthy, norm=0.021069, variance_change=+15.3%
     "gradient_norm": 0.021069,
     "variance_change": "+15.3%",
     "vanishing_risk": "low",
-    "exploding_risk": "none"
+    "exploding_risk": "low"
   }
 }
 ```
 
-### Technical Implementation
-- **Algorithm**: Welford's incremental statistics for memory efficiency
-- **Health Classification**: healthy/warning/critical based on norm thresholds
-- **Vanishing Detection**: Gradient magnitude < 1e-7 threshold
-- **Exploding Detection**: Gradient magnitude > 100 threshold
-- **Memory Optimization**: Streaming computation for large models
+### 技術実装
+- **勾配ノルム**：L2ノルムによる勾配大きさ計算
+- **健全性評価**：healthy/warning/critical分類
+- **しきい値**：消失（< 1e-7）、爆発（> 100）
+- **lawkit統計**：メモリ効率的な増分計算
 
-## 7. Quantization Analysis
+## 7. 量子化分析
 
-**Function**: `analyze_quantization_analysis()`  
-**Purpose**: Detect mixed precision (FP32/FP16/INT8/INT4) and compression effects
+**関数**：`analyze_quantization()`  
+**目的**：混合精度（FP32/FP16/INT8/INT4）と圧縮効果を検出
 
-### Detection Logic
-```rust
-// Enhanced quantization analysis with mixed precision detection
-struct QuantizationInfo {
-    bit_width: u8,
-    data_type: String,
-    mixed_precision: bool,
-    precision_distribution: PrecisionDistribution,
-}
-// Analyzes data types and compression ratios
-```
-
-### Output Format
+### 出力形式
 ```bash
 quantization_analysis: mixed_precision=FP16+FP32, compression=12.5%, precision_loss=1.2%
 ```
 
-### JSON Output
+### JSON出力
 ```json
 {
   "quantization_analysis": {
     "mixed_precision": "FP16+FP32",
-    "compression_ratio": "12.5%",
+    "compression": "12.5%",
     "precision_loss": "1.2%",
-    "quantization_coverage": 0.67,
-    "efficiency_gain": "1.8x"
+    "quantized_layers": 8,
+    "bit_widths": [16, 32]
   }
 }
 ```
 
-### Technical Implementation
-- **Precision Detection**: FP32, FP16, INT8, INT4 auto-detection
-- **Dynamic Range Analysis**: Value range and precision impact assessment
-- **Compression Calculation**: Memory reduction percentage
-- **Quality Assessment**: Precision loss estimation
+### 技術実装
+- **精度検出**：テンソルデータ型の自動分析
+- **圧縮率**：メモリ使用量の比較
+- **精度損失**：数値精度の変化推定
 
-## 8. Convergence Analysis
+## 8. 収束分析
 
-**Function**: `analyze_convergence_analysis()`  
-**Purpose**: Learning curve analysis, plateau detection, and optimization trajectory
+**関数**：`analyze_convergence()`  
+**目的**：学習曲線分析、プラトー検出、最適化軌道
 
-### Detection Logic
-```rust
-// Comprehensive convergence analysis with lawkit incremental patterns
-fn analyze_learning_curves_comprehensive(old_obj: &Map<String, Value>, new_obj: &Map<String, Value>) -> Value {
-    // Multi-dimensional convergence analysis
-    // Plateau detection algorithm
-    // Optimization trajectory analysis
-}
-```
-
-### Output Format
+### 出力形式
 ```bash
 convergence_analysis: status=converging, stability=0.92, plateau_detected=false
 ```
 
-### JSON Output
-```json
-{
-  "convergence_analysis": {
-    "status": "converging",
-    "stability_score": 0.92,
-    "plateau_detected": false,
-    "convergence_rate": "moderate",
-    "trajectory_health": "stable"
-  }
-}
-```
+### 技術実装
+- **収束状態**：converging/converged/diverging分類
+- **安定性スコア**：0.0-1.0スケール
+- **プラトー検出**：学習停滞の識別
 
-### Technical Implementation
-- **Learning Curve Analysis**: Multi-point trend analysis
-- **Plateau Detection**: Statistical flatness detection over training windows
-- **Stability Scoring**: Variance-based stability measurement (0.0-1.0)
-- **Trajectory Analysis**: Optimization path assessment
-- **Memory Efficiency**: Incremental computation using lawkit patterns
+## 9. 活性化分析
 
-## 9. Activation Analysis
+**関数**：`analyze_activations()`  
+**目的**：活性化関数の使用と分布を分析
 
-**Function**: `analyze_activation_analysis()`  
-**Purpose**: Analyze activation function usage and distribution
-
-### Detection Logic
-```rust
-// Searches for activation function indicators
-let activation_indicators = ["relu", "gelu", "tanh", "sigmoid", "swish", "activation"];
-// Analyzes activation function distribution and health
-```
-
-### Output Format
+### 出力形式
 ```bash
 activation_analysis: relu_usage=45%, gelu_usage=55%, distribution=healthy
 ```
 
-### JSON Output
-```json
-{
-  "activation_analysis": {
-    "relu_usage": "45%",
-    "gelu_usage": "55%",
-    "activation_distribution": "healthy",
-    "saturation_risk": "low",
-    "dead_neurons": 0
-  }
-}
-```
+### 技術実装
+- **関数タイプ**：ReLU、GELU、Tanh、Sigmoid、Swish検出
+- **使用分布**：レイヤー間の活性化関数分析
+- **飽和リスク**：死んだニューロンの検出
 
-### Technical Implementation
-- **Function Detection**: Pattern matching for activation function names
-- **Distribution Analysis**: Percentage usage across model layers
-- **Health Assessment**: Saturation and dead neuron detection
-- **Modern Activations**: Support for GELU, Swish, Mish, etc.
+## 10. 注意機構分析
 
-## 10. Attention Analysis
+**関数**：`analyze_attention()`  
+**目的**：トランスフォーマーと注意機構を分析
 
-**Function**: `analyze_attention_analysis()`  
-**Purpose**: Analyze transformer and attention mechanisms
-
-### Detection Logic
-```rust
-// Detects transformer and attention components
-let attention_indicators = ["attention", "attn", "self_attention", "multi_head", "transformer"];
-// Analyzes attention patterns and efficiency
-```
-
-### Output Format
+### 出力形式
 ```bash
 attention_analysis: head_count=12, attention_patterns=stable, efficiency=0.87
 ```
 
-### JSON Output
-```json
-{
-  "attention_analysis": {
-    "head_count": 12,
-    "attention_patterns": "stable",
-    "efficiency_score": 0.87,
-    "transformer_detected": true,
-    "attention_mechanism": "multi_head"
-  }
-}
-```
+### 技術実装
+- **アーキテクチャ検出**：BERT/GPT/T5パターンの認識
+- **ヘッド分析**：マルチヘッド注意構造
+- **効率スコア**：注意機構のパフォーマンス評価
 
-### Technical Implementation
-- **Component Detection**: Multi-head attention, self-attention identification
-- **Pattern Analysis**: Attention weight stability assessment
-- **Efficiency Scoring**: Computational efficiency measurement
-- **Architecture Recognition**: Transformer, BERT, GPT pattern detection
+## 11. アンサンブル分析
 
-## 11. Ensemble Analysis
+**関数**：`analyze_ensemble()`  
+**目的**：アンサンブルモデル構造を検出・分析
 
-**Function**: `analyze_ensemble_analysis()`  
-**Purpose**: Detect and analyze ensemble model structures
-
-### Detection Logic
-```rust
-// Detects ensemble and multi-model structures
-let ensemble_indicators = ["ensemble", "models", "sub_models", "branches", "heads"];
-// Analyzes ensemble composition and coordination
-```
-
-### Output Format
+### 出力形式
 ```bash
 ensemble_analysis: ensemble_detected=false, model_type=feedforward
 ```
 
-### JSON Output
-```json
-{
-  "ensemble_analysis": {
-    "ensemble_detected": false,
-    "model_type": "feedforward",
-    "component_count": 1,
-    "ensemble_method": "none",
-    "diversity_score": 0.0
-  }
+### 技術実装
+- **アンサンブル検出**：複数モデル構造の識別
+- **手法分析**：バギング、ブースティング、スタッキング
+- **多様性スコア**：モデル間の差異評価
+
+## メモリ最適化と性能
+
+### lawkitパターン統合
+- **増分統計**：Welfordのアルゴリズム
+- **ストリーミング処理**：大規模モデル対応
+- **メモリマッピング**：効率的なファイルアクセス
+
+### 並列処理
+- **マルチスレッド**：独立分析の並列実行
+- **バッチ処理**：設定可能なバッチサイズ
+- **早期終了**：不適用分析のスキップ
+
+## エラーハンドリング
+
+### 堅牢性パターン
+- **適切な劣化**：部分分析継続
+- **フォールバック値**：分析失敗時のデフォルト
+- **検証**：入力データの健全性チェック
+
+### デバッグサポート
+- **詳細ログ**：`--verbose`オプション
+- **エラー分類**：具体的なエラーメッセージ
+- **パフォーマンス追跡**：実行時間とメモリ使用量
+
+## カスタマイゼーション
+
+### 設定オプション
+```rust
+pub struct AnalysisOptions {
+    pub weight_threshold: f64,      // デフォルト: 0.01
+    pub gradient_threshold: f64,    // デフォルト: 1e-7
+    pub convergence_window: usize,  // デフォルト: 10
+    pub enable_all: bool,           // デフォルト: true
 }
 ```
 
-### Technical Implementation
-- **Structure Detection**: Multi-model and ensemble pattern recognition
-- **Composition Analysis**: Component model identification
-- **Diversity Assessment**: Model variation measurement in ensembles
-- **Method Classification**: Bagging, boosting, stacking detection
+### 機能制御
+- 個別機能の有効/無効化
+- カスタムしきい値設定
+- 出力形式のカスタマイゼーション
 
-## Performance and Memory Considerations
+## 関連項目
 
-### Memory Efficiency
-All analyses use **lawkit incremental processing patterns**:
-- **Welford's Algorithm**: For statistical computations
-- **Streaming Processing**: For large tensor analysis
-- **Incremental Updates**: Memory-efficient progressive computation
-
-### Optimization Techniques
-- **diffx-core Integration**: Leverages proven diff engine reliability
-- **Early Termination**: Skip analysis when data patterns not detected
-- **Batch Processing**: Efficient handling of large model parameters
-- **Caching**: Intermediate result caching for repeated computations
-
-### Error Handling
-- **Graceful Degradation**: Continues execution when specific patterns not found
-- **Fallback Mechanisms**: Default values when analysis cannot complete
-- **Robust Parsing**: Handles various model file formats and structures
-- **Memory Limits**: Automatic optimization for large model files
-
-## Usage Examples
-
-### Automatic Execution
-```rust
-use diffai_core::diff;
-use serde_json::json;
-
-let old_model = json!(/* PyTorch model data */);
-let new_model = json!(/* Updated model data */);
-
-// All 11 ML analyses run automatically - no configuration needed
-let results = diff(&old_model, &new_model, None)?;
-```
-
-### Integration with MLOps
-```bash
-# CI/CD pipeline integration
-diffai baseline.safetensors candidate.safetensors --output json > analysis.json
-# All 11 analyses included in JSON output for automated processing
-```
-
-## See Also
-
-- [API Reference](api-reference.md) - Core API documentation
-- [ML Analysis Guide](ml-analysis.md) - High-level analysis overview
-- [User Guide](../user-guide/ml-model-comparison.md) - Practical usage examples
+- **[ML分析概要](../ml-analysis_ja.md)** - ユーザー向け概要
+- **[APIリファレンス](api-reference_ja.md)** - プログラミングインターフェース
+- **[CLIリファレンス](cli-reference_ja.md)** - コマンドライン使用法

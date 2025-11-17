@@ -2,9 +2,7 @@
 resolver = "2"
 members = [
     "diffai-core",
-    "diffai-cli",
-    "diffai-python",
-    "diffai-js"
+    "diffai-cli"
 ]
 
 [workspace.package]
