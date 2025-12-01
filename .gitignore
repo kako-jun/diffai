@@ -174,3 +174,4 @@ to-migrate/
 tmp/
 temp-*/
 tmp-*/
+.serena/
