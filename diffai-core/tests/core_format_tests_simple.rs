@@ -7,7 +7,6 @@ use std::path::Path;
 // ============================================================================
 
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_pytorch_style_data_analysis() {
     let pytorch_data = json!({
         "model_state_dict": {
@@ -61,7 +60,6 @@ fn test_pytorch_style_data_analysis() {
 }
 
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_safetensors_style_data_analysis() {
     let safetensors_data = json!({
         "__metadata__": {
@@ -118,7 +116,6 @@ fn test_safetensors_style_data_analysis() {
 }
 
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_numpy_style_data_analysis() {
     let numpy_data = json!({
         "arrays": {
@@ -185,7 +182,6 @@ fn test_numpy_style_data_analysis() {
 }
 
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_matlab_style_data_analysis() {
     let matlab_data = json!({
         "variables": {
@@ -328,7 +324,6 @@ fn test_format_specific_field_patterns() {
 // ============================================================================
 
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_similar_ml_concepts_across_formats() {
     // Test that similar ML concepts are detected regardless of format structure
 
@@ -362,7 +357,6 @@ fn test_similar_ml_concepts_across_formats() {
 }
 
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_version_detection_across_formats() {
     // Test version detection in different format contexts
     let test_cases = vec![

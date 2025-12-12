@@ -8,16 +8,8 @@ pub fn analyze_activation_pattern_analysis(
     results: &mut Vec<DiffResult>,
 ) {
     if let (Value::Object(old_obj), Value::Object(new_obj)) = (old_model, new_model) {
-        // Activation function distribution
-        if let Some((old_activations, new_activations)) =
-            analyze_activation_functions(old_obj, new_obj)
-        {
-            results.push(DiffResult::ModelArchitectureChanged(
-                "activation_functions".to_string(),
-                old_activations,
-                new_activations,
-            ));
-        }
+        // Detect direct activation function changes
+        detect_activation_function_changes(old_obj, new_obj, results);
 
         // Activation saturation analysis
         if let Some((old_saturation, new_saturation)) =
@@ -38,6 +30,92 @@ pub fn analyze_activation_pattern_analysis(
                 new_dead,
             ));
         }
+    }
+}
+
+/// Detect activation function changes in various formats
+fn detect_activation_function_changes(
+    old_obj: &serde_json::Map<String, Value>,
+    new_obj: &serde_json::Map<String, Value>,
+    results: &mut Vec<DiffResult>,
+) {
+    // Common keys for activation functions
+    let activation_keys = [
+        "activation",
+        "activation_fn",
+        "activation_function",
+        "act_fn",
+        "nonlinearity",
+        "hidden_act",
+        "output_activation",
+    ];
+
+    // Check top-level activation keys
+    for key in &activation_keys {
+        if let (Some(old_val), Some(new_val)) = (old_obj.get(*key), new_obj.get(*key)) {
+            let old_str = value_to_activation_string(old_val);
+            let new_str = value_to_activation_string(new_val);
+            if old_str != new_str {
+                results.push(DiffResult::ActivationFunctionChanged(
+                    key.to_string(),
+                    old_str,
+                    new_str,
+                ));
+            }
+        }
+    }
+
+    // Check nested structures (model_config, network, variables, etc.)
+    let nested_keys = ["model_config", "config", "network", "variables"];
+    for nested_key in &nested_keys {
+        if let (Some(Value::Object(old_nested)), Some(Value::Object(new_nested))) =
+            (old_obj.get(*nested_key), new_obj.get(*nested_key))
+        {
+            for key in &activation_keys {
+                if let (Some(old_val), Some(new_val)) = (old_nested.get(*key), new_nested.get(*key))
+                {
+                    let old_str = value_to_activation_string(old_val);
+                    let new_str = value_to_activation_string(new_val);
+                    if old_str != new_str {
+                        results.push(DiffResult::ActivationFunctionChanged(
+                            format!("{nested_key}.{key}"),
+                            old_str,
+                            new_str,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+
+    // Check variables.network for MATLAB format
+    if let (Some(Value::Object(old_vars)), Some(Value::Object(new_vars))) =
+        (old_obj.get("variables"), new_obj.get("variables"))
+    {
+        if let (Some(Value::Object(old_net)), Some(Value::Object(new_net))) =
+            (old_vars.get("network"), new_vars.get("network"))
+        {
+            for key in &activation_keys {
+                if let (Some(old_val), Some(new_val)) = (old_net.get(*key), new_net.get(*key)) {
+                    let old_str = value_to_activation_string(old_val);
+                    let new_str = value_to_activation_string(new_val);
+                    if old_str != new_str {
+                        results.push(DiffResult::ActivationFunctionChanged(
+                            format!("variables.network.{key}"),
+                            old_str,
+                            new_str,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn value_to_activation_string(val: &Value) -> String {
+    match val {
+        Value::String(s) => s.clone(),
+        _ => val.to_string(),
     }
 }
 

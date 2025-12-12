@@ -138,7 +138,6 @@ fn test_diff_no_changes() {
 // ============================================================================
 
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_tensor_stats_changed_detection() {
     let old = json!({
         "layers": {
@@ -175,7 +174,6 @@ fn test_tensor_stats_changed_detection() {
 }
 
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_model_architecture_changed_detection() {
     let old = json!({
         "model_info": {
@@ -205,7 +203,6 @@ fn test_model_architecture_changed_detection() {
 }
 
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_learning_rate_changed_detection() {
     let old = json!({
         "optimizer": {
@@ -232,7 +229,6 @@ fn test_learning_rate_changed_detection() {
 }
 
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_weight_significant_change_detection() {
     let old = json!({
         "weights": {
@@ -522,7 +518,6 @@ fn test_nested_structure_diff() {
 // ============================================================================
 
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_pytorch_model_fixture_comparison() {
     let old_model = TestFixtures::pytorch_model_old();
     let new_model = TestFixtures::pytorch_model_new();

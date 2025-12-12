@@ -34,18 +34,92 @@ pub fn analyze_learning_rate_changes(
         }
 
         // Look for optimizer state with learning rate information
-        if let (Some(old_opt), Some(new_opt)) = (old_obj.get("optimizer"), new_obj.get("optimizer"))
-        {
-            let optimizer_changes = analyze_optimizer_learning_rates(old_opt, new_opt);
-            lr_changes.extend(optimizer_changes);
+        for opt_key in &["optimizer", "optimizer_state_dict"] {
+            if let (Some(old_opt), Some(new_opt)) = (old_obj.get(*opt_key), new_obj.get(*opt_key)) {
+                let optimizer_changes = analyze_optimizer_learning_rates(old_opt, new_opt);
+                lr_changes.extend(optimizer_changes);
+            }
         }
 
-        // Look for scheduler state
-        if let (Some(old_sched), Some(new_sched)) =
-            (old_obj.get("scheduler"), new_obj.get("scheduler"))
+        // Look for nested model_info.optimizer pattern (PyTorch style)
+        if let (Some(Value::Object(old_model_info)), Some(Value::Object(new_model_info))) =
+            (old_obj.get("model_info"), new_obj.get("model_info"))
         {
-            let scheduler_changes = analyze_scheduler_learning_rates(old_sched, new_sched);
-            lr_changes.extend(scheduler_changes);
+            if let (Some(old_opt), Some(new_opt)) = (
+                old_model_info.get("optimizer"),
+                new_model_info.get("optimizer"),
+            ) {
+                if let (Value::Object(old_opt_obj), Value::Object(new_opt_obj)) = (old_opt, new_opt)
+                {
+                    for lr_key in &["lr", "learning_rate"] {
+                        if let (Some(old_lr), Some(new_lr)) =
+                            (old_opt_obj.get(*lr_key), new_opt_obj.get(*lr_key))
+                        {
+                            if let (Some(old_f), Some(new_f)) = (old_lr.as_f64(), new_lr.as_f64()) {
+                                if (old_f - new_f).abs() > 1e-15 {
+                                    lr_changes.push((
+                                        format!("model_info.optimizer.{lr_key}"),
+                                        old_f,
+                                        new_f,
+                                    ));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Look for scheduler state (both "scheduler" and "lr_scheduler" keys)
+        for sched_key in &["scheduler", "lr_scheduler"] {
+            if let (Some(old_sched), Some(new_sched)) =
+                (old_obj.get(*sched_key), new_obj.get(*sched_key))
+            {
+                let scheduler_changes = analyze_scheduler_learning_rates(old_sched, new_sched);
+                lr_changes.extend(scheduler_changes);
+            }
+        }
+
+        // Look for MATLAB trainParams format
+        if let (Some(Value::Object(old_params)), Some(Value::Object(new_params))) =
+            (old_obj.get("trainParams"), new_obj.get("trainParams"))
+        {
+            for lr_key in &["lr", "learning_rate"] {
+                if let (Some(old_lr), Some(new_lr)) =
+                    (old_params.get(*lr_key), new_params.get(*lr_key))
+                {
+                    if let (Some(old_f), Some(new_f)) = (old_lr.as_f64(), new_lr.as_f64()) {
+                        if (old_f - new_f).abs() > 1e-15 {
+                            lr_changes.push((format!("trainParams.{lr_key}"), old_f, new_f));
+                        }
+                    }
+                }
+            }
+        }
+
+        // Look for variables.trainParams (MATLAB nested format)
+        if let (Some(Value::Object(old_vars)), Some(Value::Object(new_vars))) =
+            (old_obj.get("variables"), new_obj.get("variables"))
+        {
+            if let (Some(Value::Object(old_params)), Some(Value::Object(new_params))) =
+                (old_vars.get("trainParams"), new_vars.get("trainParams"))
+            {
+                for lr_key in &["lr", "learning_rate"] {
+                    if let (Some(old_lr), Some(new_lr)) =
+                        (old_params.get(*lr_key), new_params.get(*lr_key))
+                    {
+                        if let (Some(old_f), Some(new_f)) = (old_lr.as_f64(), new_lr.as_f64()) {
+                            if (old_f - new_f).abs() > 1e-15 {
+                                lr_changes.push((
+                                    format!("variables.trainParams.{lr_key}"),
+                                    old_f,
+                                    new_f,
+                                ));
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         // Check if we found explicit learning rate changes
@@ -134,18 +208,23 @@ pub(crate) fn analyze_optimizer_learning_rates(
             if let (Value::Array(old_arr), Value::Array(new_arr)) = (old_groups, new_groups) {
                 for (i, (old_group, new_group)) in old_arr.iter().zip(new_arr.iter()).enumerate() {
                     if let (Value::Object(old_g), Value::Object(new_g)) = (old_group, new_group) {
-                        if let (Some(old_lr), Some(new_lr)) = (old_g.get("lr"), new_g.get("lr")) {
-                            if let (Value::Number(old_num), Value::Number(new_num)) =
-                                (old_lr, new_lr)
+                        // Check both "lr" and "learning_rate" in param_groups
+                        for lr_key in &["lr", "learning_rate"] {
+                            if let (Some(old_lr), Some(new_lr)) =
+                                (old_g.get(*lr_key), new_g.get(*lr_key))
                             {
-                                let old_f = old_num.as_f64().unwrap_or(0.0);
-                                let new_f = new_num.as_f64().unwrap_or(0.0);
-                                if old_f != new_f {
-                                    changes.push((
-                                        format!("optimizer.param_groups[{i}].lr"),
-                                        old_f,
-                                        new_f,
-                                    ));
+                                if let (Value::Number(old_num), Value::Number(new_num)) =
+                                    (old_lr, new_lr)
+                                {
+                                    let old_f = old_num.as_f64().unwrap_or(0.0);
+                                    let new_f = new_num.as_f64().unwrap_or(0.0);
+                                    if old_f != new_f {
+                                        changes.push((
+                                            format!("optimizer.param_groups[{i}].{lr_key}"),
+                                            old_f,
+                                            new_f,
+                                        ));
+                                    }
                                 }
                             }
                         }
@@ -154,10 +233,16 @@ pub(crate) fn analyze_optimizer_learning_rates(
             }
         }
 
-        // Look for direct lr field in optimizer
-        if let (Some(old_lr), Some(new_lr)) = (old_obj.get("lr"), new_obj.get("lr")) {
-            let lr_changes = analyze_learning_rate_value_change(old_lr, new_lr, "optimizer.lr");
-            changes.extend(lr_changes);
+        // Look for direct lr/learning_rate fields in optimizer
+        for lr_key in &["lr", "learning_rate"] {
+            if let (Some(old_lr), Some(new_lr)) = (old_obj.get(*lr_key), new_obj.get(*lr_key)) {
+                let lr_changes = analyze_learning_rate_value_change(
+                    old_lr,
+                    new_lr,
+                    &format!("optimizer.{lr_key}"),
+                );
+                changes.extend(lr_changes);
+            }
         }
     }
 
@@ -173,7 +258,14 @@ pub(crate) fn analyze_scheduler_learning_rates(
 
     if let (Value::Object(old_obj), Value::Object(new_obj)) = (old_sched, new_sched) {
         // Common scheduler fields
-        let scheduler_lr_keys = ["base_lrs", "last_lr", "_last_lr", "current_lr"];
+        let scheduler_lr_keys = [
+            "base_lr",
+            "base_lrs",
+            "last_lr",
+            "_last_lr",
+            "current_lr",
+            "lr",
+        ];
 
         for key in &scheduler_lr_keys {
             if let (Some(old_val), Some(new_val)) = (old_obj.get(*key), new_obj.get(*key)) {
