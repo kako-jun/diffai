@@ -33,6 +33,6 @@ $ diffai tests/fixtures/model_v1.safetensors tests/fixtures/model_v2.safetensors
 
 ```console
 $ diffai --version
-diffai 0.3.17
+diffai 0.4.0
 
 ```

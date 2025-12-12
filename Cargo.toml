@@ -6,7 +6,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.3.17"
+version = "0.4.0"
 edition = "2021"
 authors = ["kako-jun"]
 license = "MIT"
@@ -31,7 +31,7 @@ all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
 [workspace.dependencies]
-diffai-core = { version = "0.3.17", path = "diffai-core" }
+diffai-core = { version = "0.4.0", path = "diffai-core" }
 diffx-core = "0.6"
 anyhow = "1.0"
 clap = { version = "4.0", features = ["derive", "cargo"] }
