@@ -1,209 +1,419 @@
-# diffai-core API Specification
+# diffai-core API 仕様書
 
-## Overview
+バージョン: 0.3.17
+最終更新: 2025-12-12
+ステータス: **確定**
 
-`diffai-core` is the core library for AI/ML file comparison. It provides parsing, diff computation, and ML-specific analysis for deep learning model files.
+## 概要
 
-## Installation
+`diffai-core` は AI/MLモデルファイルの意味的差分を検出するRustライブラリ。
+CLIツール (`diffai`) および将来の言語バインディングの基盤。
 
-```toml
-[dependencies]
-diffai-core = "0.3"
+## クレート構造
+
+```
+diffai-core/
+├── src/
+│   ├── lib.rs          # 公開API再エクスポート
+│   ├── types.rs        # 型定義
+│   ├── diff.rs         # 差分検出ロジック
+│   ├── output.rs       # 出力フォーマット
+│   ├── parsers/        # ファイルパーサー
+│   │   ├── mod.rs
+│   │   ├── pytorch.rs
+│   │   ├── safetensors.rs
+│   │   ├── numpy.rs
+│   │   └── matlab.rs
+│   └── ml_analysis/    # ML分析モジュール
+│       ├── mod.rs
+│       ├── learning_rate.rs
+│       ├── gradient/
+│       ├── convergence/
+│       ├── quantization/
+│       └── ...
+└── tests/
 ```
 
-## Main Types
+---
 
-### DiffResult
+## 公開API
 
-```rust
-pub struct DiffResult {
-    pub key: String,
-    pub diff_type: DiffType,
-    pub old_value: Option<Value>,
-    pub new_value: Option<Value>,
-    pub old_stats: Option<TensorStats>,
-    pub new_stats: Option<TensorStats>,
-}
+### 主要関数
 
-pub enum DiffType {
-    Added,
-    Removed,
-    Modified,
-    TypeChanged,
-}
-```
+#### `diff_paths`
 
-### TensorStats
-
-```rust
-pub struct TensorStats {
-    pub shape: Vec<usize>,
-    pub dtype: String,
-    pub mean: f64,
-    pub std: f64,
-    pub min: f64,
-    pub max: f64,
-    pub num_elements: usize,
-}
-```
-
-### DiffOptions
-
-```rust
-pub struct DiffOptions {
-    pub epsilon: Option<f64>,
-    pub ignore_keys_regex: Option<String>,
-    pub array_id_key: Option<String>,
-    pub path_filter: Option<String>,
-}
-```
-
-### FileFormat
-
-```rust
-pub enum FileFormat {
-    Pytorch,
-    Safetensors,
-    Numpy,
-    Matlab,
-}
-```
-
-## Main Functions
-
-### diff_paths
-
-Compare two files by path with automatic format detection.
+ファイルパスを指定して差分を検出する。
 
 ```rust
 pub fn diff_paths(
-    path1: &str,
-    path2: &str,
+    old_path: &str,
+    new_path: &str,
     options: Option<&DiffOptions>,
 ) -> Result<Vec<DiffResult>>
 ```
 
-### diff
+**引数**:
+- `old_path`: 比較元のパス
+- `new_path`: 比較先のパス
+- `options`: 比較オプション（省略可）
 
-Compare two parsed values.
+**戻り値**: `Result<Vec<DiffResult>>`
+
+**動作**:
+1. 拡張子からファイルフォーマットを自動検出
+2. 各ファイルをパースして内部表現に変換
+3. 差分を検出（基本差分 + テンソル差分）
+4. PyTorch/Safetensorsの場合、ML分析を実行して結果に追加
+
+**例**:
+```rust
+use diffai_core::{diff_paths, DiffOptions};
+
+let results = diff_paths("model_v1.pt", "model_v2.pt", None)?;
+for result in &results {
+    println!("{:?}", result);
+}
+```
+
+---
+
+#### `diff`
+
+パース済みの `serde_json::Value` を直接比較する。
 
 ```rust
 pub fn diff(
     old: &Value,
     new: &Value,
     options: Option<&DiffOptions>,
-) -> Vec<DiffResult>
+) -> Result<Vec<DiffResult>>
 ```
 
-### detect_format_from_path
+**引数**:
+- `old`: 比較元の値
+- `new`: 比較先の値
+- `options`: 比較オプション（省略可）
 
-Auto-detect file format from extension.
+---
+
+### パーサー関数
+
+#### `detect_format_from_path`
+
+ファイルパスの拡張子からフォーマットを検出する。
 
 ```rust
-pub fn detect_format_from_path(path: &str) -> Option<FileFormat>
+pub fn detect_format_from_path(path: &Path) -> Option<FileFormat>
 ```
 
-### parse_file_by_format
+**マッピング**:
+| 拡張子 | FileFormat |
+|--------|------------|
+| `.pt`, `.pth` | `Pytorch` |
+| `.safetensors` | `Safetensors` |
+| `.npy`, `.npz` | `Numpy` |
+| `.mat` | `Matlab` |
+| その他 | `None` |
 
-Parse file into JSON Value representation.
+---
+
+#### `parse_file_by_format`
+
+指定フォーマットでファイルをパースする。
 
 ```rust
-pub fn parse_file_by_format(
-    path: &str,
-    format: FileFormat,
-) -> Result<Value>
+pub fn parse_file_by_format(path: &Path, format: FileFormat) -> Result<Value>
 ```
 
-## Format-Specific Parsers
+---
 
-### PyTorch
+#### 個別パーサー
 
 ```rust
-pub fn parse_pytorch_model(path: &str) -> Result<Value>
+pub fn parse_pytorch_model(path: &Path) -> Result<Value>
+pub fn parse_safetensors_model(path: &Path) -> Result<Value>
+pub fn parse_numpy_file(path: &Path) -> Result<Value>
+pub fn parse_matlab_file(path: &Path) -> Result<Value>
 ```
 
-Parses `.pt` / `.pth` files. Returns tensor metadata including:
-- Shape, dtype, statistics (mean, std, min, max)
-- Optimizer state (if present)
-- Training metadata (epoch, loss, etc.)
+各パーサーはファイルを読み込み、以下の構造の `serde_json::Value` を返す：
 
-### Safetensors
-
-```rust
-pub fn parse_safetensors_model(path: &str) -> Result<Value>
-```
-
-Parses `.safetensors` files. Efficient memory-mapped loading.
-
-### NumPy
-
-```rust
-pub fn parse_numpy_file(path: &str) -> Result<Value>
-```
-
-Parses `.npy` (single array) and `.npz` (archive) files.
-
-### MATLAB
-
-```rust
-pub fn parse_matlab_file(path: &str) -> Result<Value>
-```
-
-Parses `.mat` files (v5 format).
-
-## Output Formatting
-
-### format_output
-
-Format diff results for display.
-
-```rust
-pub fn format_output(
-    results: &[DiffResult],
-    format: OutputFormat,
-) -> String
-
-pub enum OutputFormat {
-    Text,
-    Json,
-    Yaml,
+**PyTorch/Safetensors**:
+```json
+{
+  "tensors": {
+    "layer1.weight": {
+      "shape": [512, 256],
+      "dtype": "float32",
+      "data_summary": {
+        "mean": 0.0012,
+        "std": 0.0514,
+        "min": -0.15,
+        "max": 0.18
+      }
+    }
+  },
+  "metadata": {
+    "format": "pytorch",
+    "file_size": 12345678
+  }
 }
 ```
 
-## Example Usage
+**NumPy/MATLAB**:
+```json
+{
+  "arrays": {
+    "variable_name": {
+      "shape": [100, 100],
+      "dtype": "float64",
+      "data_summary": {...}
+    }
+  }
+}
+```
+
+---
+
+## 型定義
+
+### `DiffResult`
+
+差分の結果を表すenum。
 
 ```rust
-use diffai_core::{diff_paths, DiffOptions, OutputFormat, format_output};
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub enum DiffResult {
+    // 基本差分（diffx-coreから継承）
+    Added(String, Value),              // パス, 追加された値
+    Removed(String, Value),            // パス, 削除された値
+    Modified(String, Value, Value),    // パス, 旧値, 新値
+    TypeChanged(String, Value, Value), // パス, 旧値, 新値
 
-fn main() -> Result<()> {
-    let options = DiffOptions {
-        epsilon: Some(0.001),
-        ignore_keys_regex: None,
-        array_id_key: None,
-        path_filter: None,
-    };
+    // テンソル専用差分
+    TensorShapeChanged(String, Vec<usize>, Vec<usize>),  // パス, 旧形状, 新形状
+    TensorStatsChanged(String, TensorStats, TensorStats), // パス, 旧統計, 新統計
 
-    let results = diff_paths(
-        "model_v1.pt",
-        "model_v2.pt",
-        Some(&options),
-    )?;
+    // ML分析結果（情報提供用）
+    LearningRateChanged(String, f64, f64),  // パス, 旧LR, 新LR
+    OptimizerChanged(String, String, String), // パス, 旧opt, 新opt
+    ModelArchitectureChanged(String, String, String), // パス, 旧arch, 新arch
+}
+```
 
-    let output = format_output(&results, OutputFormat::Json);
-    println!("{}", output);
+**基本差分**:
+- `Added`: キー/テンソルが追加された
+- `Removed`: キー/テンソルが削除された
+- `Modified`: 値が変更された（同一型）
+- `TypeChanged`: 型が変更された
+
+**テンソル専用差分**:
+- `TensorShapeChanged`: テンソル形状が変更された
+- `TensorStatsChanged`: テンソル統計（mean, std, min, max）が有意に変更された
+
+**ML分析結果**:
+- `LearningRateChanged`: 学習率の変更を検出
+- `OptimizerChanged`: オプティマイザの変更を検出
+- `ModelArchitectureChanged`: モデル構造の変更を検出
+
+---
+
+### `TensorStats`
+
+テンソルの統計情報。
+
+```rust
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct TensorStats {
+    pub mean: f64,      // 平均値
+    pub std: f64,       // 標準偏差
+    pub min: f64,       // 最小値
+    pub max: f64,       // 最大値
+    pub shape: Vec<usize>, // 形状
+    pub dtype: String,  // データ型 ("float32", "float16", "int8" など)
+    pub element_count: usize, // 要素数
+}
+```
+
+**統計の有意な変化の判定**:
+- `|old.mean - new.mean| / max(|old.mean|, 1e-8) > 0.01` (1%以上の相対変化)
+- または `|old.std - new.std| / max(|old.std|, 1e-8) > 0.01`
+
+---
+
+### `DiffOptions`
+
+差分検出のオプション。
+
+```rust
+#[derive(Debug, Clone, Default)]
+pub struct DiffOptions {
+    pub epsilon: Option<f64>,             // 数値許容誤差
+    pub array_id_key: Option<String>,     // 配列要素のIDキー
+    pub ignore_keys_regex: Option<Regex>, // 無視するキーの正規表現
+    pub path_filter: Option<String>,      // パスフィルタ（部分一致）
+    pub output_format: Option<OutputFormat>, // 出力フォーマット
+}
+```
+
+---
+
+### `OutputFormat`
+
+出力フォーマット。
+
+```rust
+#[derive(Debug, Clone, Copy, Default)]
+pub enum OutputFormat {
+    #[default]
+    Text,  // 人間可読形式
+    Json,  // JSON配列
+    Yaml,  // YAML配列
+}
+```
+
+---
+
+### `FileFormat`
+
+入力ファイルフォーマット。
+
+```rust
+#[derive(Debug, Clone, Copy)]
+pub enum FileFormat {
+    Pytorch,     // .pt, .pth
+    Safetensors, // .safetensors
+    Numpy,       // .npy, .npz
+    Matlab,      // .mat
+}
+```
+
+---
+
+## 差分検出アルゴリズム
+
+### 基本差分検出
+
+1. 両オブジェクトのキーを列挙
+2. `ignore_keys_regex` にマッチするキーはスキップ
+3. 片方にのみ存在するキー → Added/Removed
+4. 両方に存在するキー → 値を再帰比較
+
+### テンソル差分検出
+
+テンソル構造（shape, dtype, data_summary を持つオブジェクト）を検出した場合：
+
+1. 形状比較: `old.shape != new.shape` → `TensorShapeChanged`
+2. 統計比較: 統計値が有意に変化 → `TensorStatsChanged`
+3. 両方変化した場合は両方を出力
+
+### 数値比較
+
+**`epsilon` 指定時**:
+```rust
+(old_f - new_f).abs() <= epsilon
+```
+
+**未指定時**: 厳密比較（`old != new`）
+
+### ML分析
+
+PyTorch/Safetensorsファイル比較時に自動実行：
+
+1. **学習率分析**: `learning_rate`, `lr` キーを検索
+2. **オプティマイザ分析**: `optimizer`, `opt_state` キーを検索
+3. **勾配分析**: 重みの統計変化から勾配健全性を推定
+4. **収束分析**: 損失・精度の推移を分析
+
+---
+
+## 出力フォーマット
+
+### Text形式（デフォルト）
+
+```
++ added_key: value
+- removed_key: value
+~ modified_key: old_value -> new_value
+! type_changed_key: old (OldType) -> new (NewType)
+~ tensor.weight [shape]: [512, 256] -> [1024, 256]
+~ tensor.weight [stats]: mean=0.001->0.002, std=0.05->0.06
+learning_rate_analysis: old=0.001, new=0.0001, change=-90%
+```
+
+### JSON形式
+
+```json
+[
+  {"Added": ["key", "value"]},
+  {"TensorShapeChanged": ["layer.weight", [512, 256], [1024, 256]]},
+  {"TensorStatsChanged": ["layer.weight", {"mean": 0.001, "std": 0.05}, {"mean": 0.002, "std": 0.06}]}
+]
+```
+
+---
+
+## エラー処理
+
+全ての公開関数は `anyhow::Result` を返す。
+
+**主なエラー**:
+- ファイルが存在しない: `"File not found: {path}"`
+- 未対応フォーマット: `"Unsupported format for file: {path}"`
+- パースエラー: `"Failed to parse {format} file: {details}"`
+- 破損ファイル: `"Corrupted or invalid {format} file"`
+
+---
+
+## 使用例
+
+### 基本的な使用
+
+```rust
+use diffai_core::{diff_paths, DiffResult};
+
+fn main() -> anyhow::Result<()> {
+    let results = diff_paths("model_v1.pt", "model_v2.pt", None)?;
+
+    for result in &results {
+        match result {
+            DiffResult::TensorStatsChanged(path, old, new) => {
+                println!("Tensor {} changed: mean {:.4} -> {:.4}",
+                    path, old.mean, new.mean);
+            }
+            DiffResult::TensorShapeChanged(path, old, new) => {
+                println!("Tensor {} reshaped: {:?} -> {:?}", path, old, new);
+            }
+            _ => println!("{:?}", result),
+        }
+    }
 
     Ok(())
 }
 ```
 
-## ML Analysis Module
+### オプション付き
 
-The `ml_analysis` module provides automatic analysis for deep learning models:
+```rust
+use diffai_core::{diff_paths, DiffOptions};
+use regex::Regex;
 
-- Learning rate tracking
-- Gradient health analysis
-- Quantization detection
-- Convergence patterns
-- Attention mechanism analysis
+let options = DiffOptions {
+    epsilon: Some(0.001),
+    ignore_keys_regex: Some(Regex::new("^optimizer").unwrap()),
+    path_filter: Some("conv1".to_string()),
+    ..Default::default()
+};
 
-These analyses run automatically when comparing PyTorch/Safetensors files.
+let results = diff_paths("model1.pt", "model2.pt", Some(&options))?;
+```
+
+---
+
+## 変更履歴
+
+- 2025-12-12: v0.3.17 仕様確定
+  - diffx-core 0.6.x 統合
+  - DiffResult enum の整理
+  - テンソル差分検出仕様の明確化
+  - ML分析の自動実行仕様

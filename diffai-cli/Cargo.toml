@@ -4,7 +4,7 @@ version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
-description = "AI/ML specialized diff CLI - PyTorch, Safetensors model comparison, tensor analysis"
+description = "AI/ML model diff CLI - PyTorch, Safetensors, NumPy, MATLAB comparison"
 homepage.workspace = true
 repository.workspace = true
 documentation.workspace = true
@@ -15,8 +15,7 @@ exclude.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-diffai-core = { path = "../diffai-core", version = "0.3.16" }
-# diffx-core removed - using unified API only
+diffai-core = { workspace = true }
 anyhow = { workspace = true }
 clap = { workspace = true }
 colored = { workspace = true }
@@ -32,3 +31,4 @@ regex = { workspace = true }
 assert_cmd = { workspace = true }
 predicates = { workspace = true }
 tempfile = { workspace = true }
+cargo-husky = { workspace = true }

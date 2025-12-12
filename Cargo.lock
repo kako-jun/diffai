@@ -248,6 +248,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "cargo-husky"
+version = "1.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7b02b629252fe8ef6460461409564e2c21d0c8e77e0944f3d189ff06c4e932ad"
+
+[[package]]
 name = "cast"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -533,10 +539,11 @@ dependencies = [
 
 [[package]]
 name = "diffai"
-version = "0.3.16"
+version = "0.3.17"
 dependencies = [
  "anyhow",
  "assert_cmd",
+ "cargo-husky",
  "clap",
  "colored",
  "diffai-core",
@@ -553,12 +560,13 @@ dependencies = [
 
 [[package]]
 name = "diffai-core"
-version = "0.3.16"
+version = "0.3.17"
 dependencies = [
  "anyhow",
  "bytemuck",
  "candle-core",
  "candle-nn",
+ "cargo-husky",
  "criterion",
  "diffx-core",
  "matfile",
@@ -579,9 +587,9 @@ checksum = "6184e33543162437515c2e2b48714794e37845ec9851711914eec9d308f6ebe8"
 
 [[package]]
 name = "diffx-core"
-version = "0.5.21"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "171c985149375434ecb02caa6865fd78fbf3daddc6ff4c29903126145958bc38"
+checksum = "2d019d79ab81be74a6d2dfff742c11df9f5d2dad90c35875248a9f7565b1fdd6"
 dependencies = [
  "anyhow",
  "configparser",
