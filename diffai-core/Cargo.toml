@@ -4,7 +4,7 @@ version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
-description = "Core library for AI/ML diff analysis - PyTorch, Safetensors, tensor statistics, structured data"
+description = "Core library for AI/ML diff analysis - PyTorch, Safetensors, tensor statistics"
 homepage.workspace = true
 repository.workspace = true
 documentation.workspace = true
@@ -15,27 +15,23 @@ exclude.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+diffx-core = { workspace = true }
 anyhow = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_yaml = { workspace = true }
 regex = { workspace = true }
-# AI/ML dependencies
 candle-core = { workspace = true }
 candle-nn = { workspace = true }
 safetensors = { workspace = true }
 bytemuck = { workspace = true }
-# Scientific data dependencies
 ndarray = { workspace = true }
-# numpy = { workspace = true }  # Removed: only needed for Python bindings, not CLI
-# hdf5 = { workspace = true }  # Requires system HDF5 libraries
 zip = { workspace = true }
 matfile = { workspace = true }
-# Cross-project integration using crates.io (diffx is in reboot, using published version)
-diffx-core = "0.5.21"
 
 [dev-dependencies]
 criterion = { workspace = true }
+cargo-husky = { workspace = true }
 
 [[bench]]
 name = "diff_benchmark"

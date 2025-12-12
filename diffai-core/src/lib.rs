@@ -3,14 +3,11 @@
 // This library provides diff functionality specifically designed for AI/ML file formats
 // such as PyTorch, SafeTensors, NumPy, and MATLAB.
 
-// Allow dead_code for ML analysis features that are placeholders for future functionality
 #![allow(dead_code)]
-// Allow these lints for complex ML analysis code patterns
 #![allow(clippy::collapsible_if)]
 #![allow(clippy::collapsible_match)]
 #![allow(clippy::manual_clamp)]
 
-// Module declarations
 mod diff;
 mod ml_analysis;
 mod output;
@@ -18,7 +15,7 @@ mod parsers;
 mod types;
 
 // Re-export diffx-core utilities
-pub use diffx_core::{estimate_memory_usage, value_type_name, would_exceed_memory_limit};
+pub use diffx_core::value_type_name;
 
 // Re-export types
 pub use types::{DiffFormat, DiffOptions, DiffResult, FileFormat, OutputFormat, TensorStats};

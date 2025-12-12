@@ -80,12 +80,8 @@ fn convert_to_base_options(opts: &DiffOptions) -> BaseDiffOptions {
         array_id_key: opts.array_id_key.clone(),
         ignore_keys_regex: opts.ignore_keys_regex.clone(),
         path_filter: opts.path_filter.clone(),
+        recursive: None,
         output_format: opts.output_format.map(|f| f.to_base_format()),
-        // lawkitパターン：最適化は常に有効
-        show_unchanged: Some(false),
-        show_types: Some(false),
-        use_memory_optimization: Some(true),
-        batch_size: None, // 自動調整
         diffx_options: None,
     }
 }
