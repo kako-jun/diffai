@@ -59,16 +59,19 @@ pub fn handle_stdin_input(args: &Args, input1_is_stdin: bool, input2_is_stdin: b
         return handle_both_stdin(args);
     }
 
+    let input1 = args.input1.as_ref().expect("input1 is required");
+    let input2 = args.input2.as_ref().expect("input2 is required");
+
     // Case 1: One stdin, one file
-    let content1 = read_input(&args.input1)?;
-    let content2 = read_input(&args.input2)?;
+    let content1 = read_input(input1)?;
+    let content2 = read_input(input2)?;
 
     // Determine input format
     let input_format = if let Some(fmt) = args.format {
         fmt
     } else {
-        infer_format_from_path(&args.input1)
-            .or_else(|| infer_format_from_path(&args.input2))
+        infer_format_from_path(input1)
+            .or_else(|| infer_format_from_path(input2))
             .context("Could not infer format from file extensions. Please specify --format.")?
     };
 

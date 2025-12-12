@@ -1,4 +1,5 @@
 use clap::{Parser, ValueEnum};
+use clap_complete::Shell;
 use std::path::PathBuf;
 
 #[derive(Parser)]
@@ -7,12 +8,16 @@ use std::path::PathBuf;
 #[command(version)]
 pub struct Args {
     /// The first input file
-    #[arg(value_name = "FILE1")]
-    pub input1: PathBuf,
+    #[arg(value_name = "FILE1", required_unless_present = "completions")]
+    pub input1: Option<PathBuf>,
 
     /// The second input file
-    #[arg(value_name = "FILE2")]
-    pub input2: PathBuf,
+    #[arg(value_name = "FILE2", required_unless_present = "completions")]
+    pub input2: Option<PathBuf>,
+
+    /// Generate shell completions for the specified shell
+    #[arg(long, value_enum, value_name = "SHELL")]
+    pub completions: Option<Shell>,
 
     /// Input file format (auto-detected if not specified)
     #[arg(short, long, value_enum)]
