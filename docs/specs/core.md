@@ -193,28 +193,40 @@ pub enum DiffResult {
     // テンソル専用差分
     TensorShapeChanged(String, Vec<usize>, Vec<usize>),  // パス, 旧形状, 新形状
     TensorStatsChanged(String, TensorStats, TensorStats), // パス, 旧統計, 新統計
+    TensorDataChanged(String, f64, f64),                  // パス, 旧mean, 新mean
 
-    // ML分析結果（情報提供用）
-    LearningRateChanged(String, f64, f64),  // パス, 旧LR, 新LR
-    OptimizerChanged(String, String, String), // パス, 旧opt, 新opt
-    ModelArchitectureChanged(String, String, String), // パス, 旧arch, 新arch
+    // ML分析結果
+    ModelArchitectureChanged(String, String, String),     // パス, 旧arch, 新arch
+    WeightSignificantChange(String, f64),                 // パス, 変化量
+    ActivationFunctionChanged(String, String, String),    // パス, 旧fn, 新fn
+    LearningRateChanged(String, f64, f64),                // パス, 旧LR, 新LR
+    OptimizerChanged(String, String, String),             // パス, 旧opt, 新opt
+    LossChange(String, f64, f64),                         // パス, 旧loss, 新loss
+    AccuracyChange(String, f64, f64),                     // パス, 旧acc, 新acc
+    ModelVersionChanged(String, String, String),          // パス, 旧ver, 新ver
 }
 ```
 
-**基本差分**:
+**基本差分** (4種類):
 - `Added`: キー/テンソルが追加された
 - `Removed`: キー/テンソルが削除された
 - `Modified`: 値が変更された（同一型）
 - `TypeChanged`: 型が変更された
 
-**テンソル専用差分**:
+**テンソル専用差分** (3種類):
 - `TensorShapeChanged`: テンソル形状が変更された
-- `TensorStatsChanged`: テンソル統計（mean, std, min, max）が有意に変更された
+- `TensorStatsChanged`: テンソル統計（mean, std, min, max）が有意に変更された（1%以上の相対変化）
+- `TensorDataChanged`: テンソルデータが変更された（統計変化が有意でない場合）
 
-**ML分析結果**:
+**ML分析結果** (8種類):
+- `ModelArchitectureChanged`: モデル構造の変更を検出
+- `WeightSignificantChange`: 重みの有意な変更を検出（0.05以上の変化、または50%以上の相対変化）
+- `ActivationFunctionChanged`: 活性化関数の変更を検出
 - `LearningRateChanged`: 学習率の変更を検出
 - `OptimizerChanged`: オプティマイザの変更を検出
-- `ModelArchitectureChanged`: モデル構造の変更を検出
+- `LossChange`: 損失値の変更を検出
+- `AccuracyChange`: 精度の変更を検出
+- `ModelVersionChanged`: モデル/フレームワークバージョンの変更を検出
 
 ---
 
@@ -266,11 +278,13 @@ pub struct DiffOptions {
 #[derive(Debug, Clone, Copy, Default)]
 pub enum OutputFormat {
     #[default]
-    Text,  // 人間可読形式
-    Json,  // JSON配列
-    Yaml,  // YAML配列
+    Diffai,  // diffai形式（人間可読）
+    Json,    // JSON配列
+    Yaml,    // YAML配列
 }
 ```
+
+CLI で `--format diffai` (デフォルト), `--format json`, `--format yaml` で指定。
 
 ---
 
@@ -329,16 +343,15 @@ PyTorch/Safetensorsファイル比較時に自動実行：
 
 ## 出力フォーマット
 
-### Text形式（デフォルト）
+### Diffai形式（デフォルト）
 
 ```
 + added_key: value
 - removed_key: value
 ~ modified_key: old_value -> new_value
 ! type_changed_key: old (OldType) -> new (NewType)
-~ tensor.weight [shape]: [512, 256] -> [1024, 256]
-~ tensor.weight [stats]: mean=0.001->0.002, std=0.05->0.06
-learning_rate_analysis: old=0.001, new=0.0001, change=-90%
+~ tensor.weight shape: [512, 256] -> [1024, 256]
+~ tensor.weight stats: mean 0.001 -> 0.002
 ```
 
 ### JSON形式
@@ -347,7 +360,9 @@ learning_rate_analysis: old=0.001, new=0.0001, change=-90%
 [
   {"Added": ["key", "value"]},
   {"TensorShapeChanged": ["layer.weight", [512, 256], [1024, 256]]},
-  {"TensorStatsChanged": ["layer.weight", {"mean": 0.001, "std": 0.05}, {"mean": 0.002, "std": 0.06}]}
+  {"TensorStatsChanged": ["layer.weight", {"mean": 0.001, "std": 0.05, ...}, {"mean": 0.002, "std": 0.06, ...}]},
+  {"LearningRateChanged": ["optimizer.lr", 0.001, 0.0001]},
+  {"WeightSignificantChange": ["layer.weight", 0.15]}
 ]
 ```
 
@@ -411,6 +426,11 @@ let results = diff_paths("model1.pt", "model2.pt", Some(&options))?;
 ---
 
 ## 変更履歴
+
+- 2025-12-12: v0.3.17 仕様更新（実装に合わせて修正）
+  - DiffResult を 15 種類に拡張（TensorDataChanged, WeightSignificantChange, ActivationFunctionChanged, LossChange, AccuracyChange, ModelVersionChanged を追加）
+  - OutputFormat: Text → Diffai にリネーム
+  - 閾値を明記（TensorStatsChanged: 1%相対変化、WeightSignificantChange: 0.05絶対/50%相対）
 
 - 2025-12-12: v0.3.17 仕様確定
   - diffx-core 0.6.x 統合
