@@ -21,15 +21,13 @@ pub fn analyze_memory_usage_changes(
         };
 
         // Use ModelArchitectureChanged variant for memory analysis
-        let _memory_analysis = format!(
-            "memory: {} → {} bytes ({:+.1}%)",
-            old_memory, new_memory, memory_change_percent
-        );
+        let _memory_analysis =
+            format!("memory: {old_memory} → {new_memory} bytes ({memory_change_percent:+.1}%)");
 
         results.push(DiffResult::ModelArchitectureChanged(
             "memory_analysis".to_string(),
-            format!("memory_usage: {} bytes", old_memory),
-            format!("memory_usage: {} bytes", new_memory),
+            format!("memory_usage: {old_memory} bytes"),
+            format!("memory_usage: {new_memory} bytes"),
         ));
 
         // Add detailed breakdown if significant change
@@ -106,8 +104,7 @@ pub(crate) fn create_memory_breakdown(old_model: &Value, new_model: &Value) -> S
         if old_tensor_memory != new_tensor_memory {
             let change = new_tensor_memory as i64 - old_tensor_memory as i64;
             breakdown.push(format!(
-                "tensors: {:+} bytes ({} → {})",
-                change, old_tensor_memory, new_tensor_memory
+                "tensors: {change:+} bytes ({old_tensor_memory} → {new_tensor_memory})"
             ));
         }
 
@@ -118,8 +115,7 @@ pub(crate) fn create_memory_breakdown(old_model: &Value, new_model: &Value) -> S
         if old_meta_memory != new_meta_memory {
             let change = new_meta_memory as i64 - old_meta_memory as i64;
             breakdown.push(format!(
-                "metadata: {:+} bytes ({} → {})",
-                change, old_meta_memory, new_meta_memory
+                "metadata: {change:+} bytes ({old_meta_memory} → {new_meta_memory})"
             ));
         }
     }

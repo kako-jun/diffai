@@ -1,8 +1,6 @@
 use serde_json::Value;
 
-use super::statistics::{
-    estimate_gradient_norm_from_weights, estimate_max_gradient_from_weights,
-};
+use super::statistics::{estimate_gradient_norm_from_weights, estimate_max_gradient_from_weights};
 use super::types::GradientFlowInfo;
 
 // Analyze gradient flow through network layers
@@ -41,8 +39,7 @@ pub(super) fn analyze_gradient_flow(
     }
 
     // Analyze gradient flow balance
-    if let (Some(old_balance), Some(new_balance)) = (old_flow.flow_balance, new_flow.flow_balance)
-    {
+    if let (Some(old_balance), Some(new_balance)) = (old_flow.flow_balance, new_flow.flow_balance) {
         let balance_change = new_balance - old_balance;
         let balance_status = if balance_change.abs() < 0.1 {
             "balanced"
@@ -52,8 +49,7 @@ pub(super) fn analyze_gradient_flow(
             "backward_dominant"
         };
         flow_analysis.push(format!(
-            "flow_balance: {:.3} ({:+.3}, {})",
-            new_balance, balance_change, balance_status
+            "flow_balance: {new_balance:.3} ({balance_change:+.3}, {balance_status})"
         ));
     }
 
@@ -82,6 +78,7 @@ pub(super) fn extract_gradient_flow_info(
     // Use weight-based gradient estimation as fallback
     let _estimated_norm = estimate_gradient_norm_from_weights(obj);
     let _estimated_max = estimate_max_gradient_from_weights(obj);
+    #[allow(unused_assignments)]
     let mut flow_balance = None;
 
     // Enhanced thresholds based on modern deep learning practices
@@ -177,9 +174,7 @@ pub(super) fn extract_gradient_flow_info(
 }
 
 // Enhanced gradient flow balance estimation using lawkit streaming patterns
-pub(super) fn estimate_gradient_flow_balance(
-    obj: &serde_json::Map<String, Value>,
-) -> Option<f64> {
+pub(super) fn estimate_gradient_flow_balance(obj: &serde_json::Map<String, Value>) -> Option<f64> {
     let mut layer_gradients = Vec::new();
     let mut total_forward_flow = 0.0;
     let mut total_backward_flow = 0.0;

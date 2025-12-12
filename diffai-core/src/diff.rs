@@ -5,23 +5,16 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 
-use crate::types::{DiffOptions, DiffResult, TensorStats};
-use crate::parsers::{detect_format_from_path, parse_file_by_format};
 use crate::ml_analysis::{
-    analyze_model_architecture_changes,
-    analyze_learning_rate_changes,
-    analyze_convergence_patterns,
-    analyze_memory_usage_changes,
-    analyze_ensemble_patterns,
-    analyze_quantization_patterns,
-    analyze_attention_patterns,
-    analyze_gradient_patterns,
-    analyze_batch_normalization_analysis,
-    analyze_regularization_impact,
-    analyze_activation_pattern_analysis,
+    analyze_activation_pattern_analysis, analyze_attention_patterns,
+    analyze_batch_normalization_analysis, analyze_convergence_patterns, analyze_ensemble_patterns,
+    analyze_gradient_patterns, analyze_learning_rate_changes, analyze_memory_usage_changes,
+    analyze_model_architecture_changes, analyze_model_complexity_assessment,
+    analyze_quantization_patterns, analyze_regularization_impact,
     analyze_weight_distribution_analysis,
-    analyze_model_complexity_assessment,
 };
+use crate::parsers::{detect_format_from_path, parse_file_by_format};
+use crate::types::{DiffOptions, DiffResult, TensorStats};
 
 // ============================================================================
 // UNIFIED API - Main Function
@@ -62,16 +55,16 @@ pub fn diff_paths(
 /// This function operates on pre-parsed JSON values.
 /// For file/directory operations, use diff_paths() instead.
 pub fn diff(old: &Value, new: &Value, options: Option<&DiffOptions>) -> Result<Vec<DiffResult>> {
-    let default_options = DiffOptions::default();  
+    let default_options = DiffOptions::default();
     let opts = options.unwrap_or(&default_options);
 
     // diffx-coreの基本diff機能を活用してコード重複を削減
     let base_opts = convert_to_base_options(opts);
     let base_results = base_diff(old, new, Some(&base_opts))?;
-    
+
     // diffx-coreの結果をdiffai形式に変換
     let mut results: Vec<DiffResult> = base_results.into_iter().map(|r| r.into()).collect();
-    
+
     // AI/ML分析が有効な場合のみ追加処理を実行
     if should_analyze_ml_features(old, new, opts) {
         analyze_ml_features(old, new, &mut results, opts)?;
@@ -80,7 +73,7 @@ pub fn diff(old: &Value, new: &Value, options: Option<&DiffOptions>) -> Result<V
     Ok(results)
 }
 
-// DiffOptionsをdiffx-coreのDiffOptionsに変換  
+// DiffOptionsをdiffx-coreのDiffOptionsに変換
 fn convert_to_base_options(opts: &DiffOptions) -> BaseDiffOptions {
     BaseDiffOptions {
         epsilon: opts.epsilon,
@@ -102,15 +95,27 @@ fn should_analyze_ml_features(old: &Value, new: &Value, _opts: &DiffOptions) -> 
     // lawkitパターン：MLファイル形式なら常に分析実行
     if let (Value::Object(old_obj), Value::Object(new_obj)) = (old, new) {
         // PyTorchファイル構造のキーが含まれている場合
-        let pytorch_keys = ["binary_size", "file_size", "detected_components", "estimated_layers", 
-                           "structure_fingerprint", "pickle_protocol", "state_dict", "model", 
-                           "optimizer", "scheduler", "epoch", "loss", "accuracy"];
+        let pytorch_keys = [
+            "binary_size",
+            "file_size",
+            "detected_components",
+            "estimated_layers",
+            "structure_fingerprint",
+            "pickle_protocol",
+            "state_dict",
+            "model",
+            "optimizer",
+            "scheduler",
+            "epoch",
+            "loss",
+            "accuracy",
+        ];
         for key in &pytorch_keys {
             if old_obj.contains_key(*key) || new_obj.contains_key(*key) {
                 return true;
             }
         }
-        
+
         // SafeTensorsファイル構造のキーが含まれている場合
         let safetensors_keys = ["tensors"];
         for key in &safetensors_keys {
@@ -118,9 +123,15 @@ fn should_analyze_ml_features(old: &Value, new: &Value, _opts: &DiffOptions) -> 
                 return true;
             }
         }
-        
+
         // テンソル関連のキーが含まれている場合（直接のテンソル名）
-        let tensor_keys = ["weight", "bias", "running_mean", "running_var", "num_batches_tracked"];
+        let tensor_keys = [
+            "weight",
+            "bias",
+            "running_mean",
+            "running_var",
+            "num_batches_tracked",
+        ];
         for (key, _) in old_obj.iter().chain(new_obj.iter()) {
             for tensor_key in &tensor_keys {
                 if key.contains(tensor_key) {
@@ -128,7 +139,7 @@ fn should_analyze_ml_features(old: &Value, new: &Value, _opts: &DiffOptions) -> 
                 }
             }
         }
-        
+
         // テンソル階層構造の検出 (tensors.layer.weight パターン)
         for (key, _) in old_obj.iter().chain(new_obj.iter()) {
             if key.starts_with("tensors.") || key.contains(".weight") || key.contains(".bias") {
@@ -136,7 +147,7 @@ fn should_analyze_ml_features(old: &Value, new: &Value, _opts: &DiffOptions) -> 
             }
         }
     }
-    
+
     // ML関連のファイルは基本的に分析対象とする
     true
 }
@@ -158,7 +169,7 @@ fn analyze_ml_features(
                 }
             }
         }
-        
+
         // すべてのML分析を自動実行（lawkitパターン：ユーザー設定より規約を優先）
         analyze_model_architecture_changes(old, new, results);
         analyze_learning_rate_changes(old, new, results);
@@ -168,7 +179,7 @@ fn analyze_ml_features(
         analyze_quantization_patterns(old, new, results);
         analyze_attention_patterns(old, new, results);
         analyze_gradient_patterns(old, new, results);
-        
+
         // Additional ML analysis features
         analyze_batch_normalization_analysis(old, new, results);
         analyze_regularization_impact(old, new, results);
@@ -346,10 +357,14 @@ fn get_all_files_recursive(dir: &Path) -> Result<Vec<std::path::PathBuf>> {
 fn is_tensor_like(value: &Value) -> bool {
     if let Value::Object(obj) = value {
         // Check for common tensor-like properties
-        let has_shape = obj.contains_key("shape") || obj.contains_key("dims") || obj.contains_key("size");
-        let has_data = obj.contains_key("data") || obj.contains_key("values") || obj.contains_key("tensor");
-        let has_dtype = obj.contains_key("dtype") || obj.contains_key("type") || obj.contains_key("element_type");
-        
+        let has_shape =
+            obj.contains_key("shape") || obj.contains_key("dims") || obj.contains_key("size");
+        let has_data =
+            obj.contains_key("data") || obj.contains_key("values") || obj.contains_key("tensor");
+        let has_dtype = obj.contains_key("dtype")
+            || obj.contains_key("type")
+            || obj.contains_key("element_type");
+
         // Consider it tensor-like if it has at least shape and data, or if it has common ML keys
         has_shape && (has_data || has_dtype) ||
         // Also check for PyTorch/Safetensors/NumPy-specific keys
@@ -369,7 +384,10 @@ fn analyze_tensor_changes(
     results: &mut Vec<DiffResult>,
 ) {
     // Try to extract tensor data and compute statistics
-    if let (Some(old_data), Some(new_data)) = (extract_tensor_data(old_tensor), extract_tensor_data(new_tensor)) {
+    if let (Some(old_data), Some(new_data)) = (
+        extract_tensor_data(old_tensor),
+        extract_tensor_data(new_tensor),
+    ) {
         let old_shape = extract_tensor_shape(old_tensor).unwrap_or_default();
         let new_shape = extract_tensor_shape(new_tensor).unwrap_or_default();
         let dtype = extract_tensor_dtype(old_tensor).unwrap_or_else(|| "f32".to_string());
@@ -412,9 +430,13 @@ pub fn extract_tensor_data(tensor: &Value) -> Option<Vec<f64>> {
         Value::Array(arr) => {
             let mut data = Vec::new();
             extract_numbers_from_nested_array(arr, &mut data);
-            if !data.is_empty() { Some(data) } else { None }
+            if !data.is_empty() {
+                Some(data)
+            } else {
+                None
+            }
         }
-        
+
         // Structured tensor format (PyTorch/Safetensors)
         Value::Object(obj) => {
             // Check for various data field names
@@ -426,21 +448,21 @@ pub fn extract_tensor_data(tensor: &Value) -> Option<Vec<f64>> {
                     }
                 }
             }
-            
+
             // Check for base64 encoded binary data (Safetensors)
             if let Some(data_str) = obj.get("data").and_then(|v| v.as_str()) {
                 if let Ok(decoded) = base64_decode_tensor_data(data_str) {
                     return Some(decoded);
                 }
             }
-            
+
             // Check for hex encoded binary data
             if let Some(data_str) = obj.get("hex_data").and_then(|v| v.as_str()) {
                 if let Ok(decoded) = hex_decode_tensor_data(data_str) {
                     return Some(decoded);
                 }
             }
-            
+
             // For PyTorch state_dict format, extract actual tensor values
             if obj.contains_key("requires_grad") || obj.contains_key("grad_fn") {
                 // This is likely a PyTorch tensor object
@@ -450,10 +472,10 @@ pub fn extract_tensor_data(tensor: &Value) -> Option<Vec<f64>> {
                     }
                 }
             }
-            
+
             None
         }
-        
+
         // Single numerical value
         Value::Number(num) => {
             if let Some(f) = num.as_f64() {
@@ -462,7 +484,7 @@ pub fn extract_tensor_data(tensor: &Value) -> Option<Vec<f64>> {
                 None
             }
         }
-        
+
         _ => None,
     }
 }
@@ -485,30 +507,34 @@ fn extract_numbers_from_nested_array(arr: &[Value], result: &mut Vec<f64>) {
 }
 
 // Decode base64 encoded tensor data (common in Safetensors format)
-fn base64_decode_tensor_data(data_str: &str) -> Result<Vec<f64>, Box<dyn std::error::Error>> {
+fn base64_decode_tensor_data(_data_str: &str) -> Result<Vec<f64>, Box<dyn std::error::Error>> {
     // This would typically use a base64 decoder and binary format parser
     // For now, return error to indicate unsupported format
     Err("Base64 tensor decoding not yet implemented".into())
 }
 
 // Decode hex encoded tensor data
-fn hex_decode_tensor_data(data_str: &str) -> Result<Vec<f64>, Box<dyn std::error::Error>> {
+fn hex_decode_tensor_data(_data_str: &str) -> Result<Vec<f64>, Box<dyn std::error::Error>> {
     // This would typically parse hex string and convert to float values
     Err("Hex tensor decoding not yet implemented".into())
 }
 
 // Extract flattened tensor values from PyTorch tensor object
-fn extract_flattened_tensor_values(obj: &serde_json::Map<String, Value>, shape: &[Value]) -> Option<Vec<f64>> {
+fn extract_flattened_tensor_values(
+    obj: &serde_json::Map<String, Value>,
+    shape: &[Value],
+) -> Option<Vec<f64>> {
     // Calculate total elements from shape
-    let total_elements: usize = shape.iter()
+    let total_elements: usize = shape
+        .iter()
         .filter_map(|v| v.as_u64())
         .map(|n| n as usize)
         .product();
-    
+
     if total_elements == 0 {
         return None;
     }
-    
+
     // Look for various ways tensor data might be stored
     let storage_fields = ["_storage", "storage", "_data"];
     for field in &storage_fields {
@@ -522,24 +548,23 @@ fn extract_flattened_tensor_values(obj: &serde_json::Map<String, Value>, shape: 
             }
         }
     }
-    
+
     None
 }
 
 pub fn extract_tensor_shape(tensor: &Value) -> Option<Vec<usize>> {
     // Extract shape information from tensor metadata
-    tensor.get("shape")
-        .and_then(|s| s.as_array())
-        .map(|arr| {
-            arr.iter()
-                .filter_map(|v| v.as_u64().map(|n| n as usize))
-                .collect()
-        })
+    tensor.get("shape").and_then(|s| s.as_array()).map(|arr| {
+        arr.iter()
+            .filter_map(|v| v.as_u64().map(|n| n as usize))
+            .collect()
+    })
 }
 
 fn extract_tensor_dtype(tensor: &Value) -> Option<String> {
     // Extract data type from tensor metadata
-    tensor.get("dtype")
+    tensor
+        .get("dtype")
         .and_then(|dt| dt.as_str())
         .map(|s| s.to_string())
 }
@@ -547,7 +572,7 @@ fn extract_tensor_dtype(tensor: &Value) -> Option<String> {
 fn stats_changed_significantly(old_stats: &TensorStats, new_stats: &TensorStats) -> bool {
     let mean_change = (old_stats.mean - new_stats.mean).abs() / old_stats.mean.abs().max(1e-8);
     let std_change = (old_stats.std - new_stats.std).abs() / old_stats.std.abs().max(1e-8);
-    
+
     // Consider significant if relative change > 1%
     mean_change > 0.01 || std_change > 0.01
 }

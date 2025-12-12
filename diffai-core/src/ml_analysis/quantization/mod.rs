@@ -3,15 +3,15 @@ use serde_json::Value;
 use crate::types::DiffResult;
 
 // Submodules
-mod types;
-mod precision;
-mod methods;
 mod impact;
+mod methods;
+mod precision;
+mod types;
 
 // Internal use only - no re-exports needed as types are used within submodules
-use precision::analyze_quantization_precision;
-use methods::analyze_quantization_methods;
 use impact::analyze_quantization_impact;
+use methods::analyze_quantization_methods;
+use precision::analyze_quantization_precision;
 
 // A5-3: QUANTIZATION ANALYSIS - Low Priority ML Feature
 // ============================================================================

@@ -1,13 +1,20 @@
 use serde_json::Value;
 
 /// Enhanced loss convergence analysis using helper functions
-pub(crate) fn analyze_loss_convergence(old_obj: &serde_json::Map<String, Value>, new_obj: &serde_json::Map<String, Value>) -> Option<(String, String)> {
+pub(crate) fn analyze_loss_convergence(
+    old_obj: &serde_json::Map<String, Value>,
+    new_obj: &serde_json::Map<String, Value>,
+) -> Option<(String, String)> {
     // Enhanced analysis using loss history from helper functions
     let old_loss_history = extract_loss_history(old_obj).unwrap_or_else(|| {
-        extract_loss_value(old_obj).map(|v| vec![v]).unwrap_or_default()
+        extract_loss_value(old_obj)
+            .map(|v| vec![v])
+            .unwrap_or_default()
     });
     let new_loss_history = extract_loss_history(new_obj).unwrap_or_else(|| {
-        extract_loss_value(new_obj).map(|v| vec![v]).unwrap_or_default()
+        extract_loss_value(new_obj)
+            .map(|v| vec![v])
+            .unwrap_or_default()
     });
 
     if old_loss_history.is_empty() || new_loss_history.is_empty() {
@@ -39,9 +46,8 @@ pub(crate) fn analyze_loss_convergence(old_obj: &serde_json::Map<String, Value>,
     };
 
     // Enhanced analysis information
-    let old_info = format!("loss: {:.6}, slope: {:.6}", old_loss, old_slope);
-    let new_info = format!("loss: {:.6} ({:+.2}%), slope: {:.6}, trend: {}, status: {}",
-        new_loss, loss_change_percent, new_slope, trend_analysis, convergence_status);
+    let old_info = format!("loss: {old_loss:.6}, slope: {old_slope:.6}");
+    let new_info = format!("loss: {new_loss:.6} ({loss_change_percent:+.2}%), slope: {new_slope:.6}, trend: {trend_analysis}, status: {convergence_status}");
 
     Some((old_info, new_info))
 }
@@ -49,8 +55,16 @@ pub(crate) fn analyze_loss_convergence(old_obj: &serde_json::Map<String, Value>,
 /// Extract loss value from model checkpoint
 pub(crate) fn extract_loss_value(obj: &serde_json::Map<String, Value>) -> Option<f64> {
     // Try various common loss field names
-    let loss_keys = ["loss", "train_loss", "training_loss", "val_loss", "validation_loss",
-                     "total_loss", "current_loss", "best_loss"];
+    let loss_keys = [
+        "loss",
+        "train_loss",
+        "training_loss",
+        "val_loss",
+        "validation_loss",
+        "total_loss",
+        "current_loss",
+        "best_loss",
+    ];
 
     for key in &loss_keys {
         if let Some(loss_val) = obj.get(*key) {
@@ -78,7 +92,12 @@ pub(crate) fn extract_loss_value(obj: &serde_json::Map<String, Value>) -> Option
 
 /// Extract loss history for trend analysis
 pub(crate) fn extract_loss_history(obj: &serde_json::Map<String, Value>) -> Option<Vec<f64>> {
-    let history_keys = ["loss_history", "train_losses", "validation_losses", "loss_curve"];
+    let history_keys = [
+        "loss_history",
+        "train_losses",
+        "validation_losses",
+        "loss_curve",
+    ];
 
     for key in &history_keys {
         if let Some(history_val) = obj.get(*key) {

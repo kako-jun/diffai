@@ -24,8 +24,7 @@ pub(super) fn analyze_gradient_magnitudes(
             "decreasing"
         };
         magnitude_analysis.push(format!(
-            "total_norm: {:.6} ({:+.1}%, {})",
-            new_norm, norm_change, norm_trend
+            "total_norm: {new_norm:.6} ({norm_change:+.1}%, {norm_trend})"
         ));
     }
 
@@ -34,19 +33,13 @@ pub(super) fn analyze_gradient_magnitudes(
         (old_grad_stats.max_gradient, new_grad_stats.max_gradient)
     {
         let max_change = (new_max / old_max - 1.0) * 100.0;
-        magnitude_analysis.push(format!(
-            "max_gradient: {:.6} ({:+.1}%)",
-            new_max, max_change
-        ));
+        magnitude_analysis.push(format!("max_gradient: {new_max:.6} ({max_change:+.1}%)"));
     }
 
     // Compare gradient variance
     if let (Some(old_var), Some(new_var)) = (old_grad_stats.variance, new_grad_stats.variance) {
         let var_change = (new_var / old_var - 1.0) * 100.0;
-        magnitude_analysis.push(format!(
-            "variance: {:.6} ({:+.1}%)",
-            new_var, var_change
-        ));
+        magnitude_analysis.push(format!("variance: {new_var:.6} ({var_change:+.1}%)"));
     }
 
     if magnitude_analysis.is_empty() {

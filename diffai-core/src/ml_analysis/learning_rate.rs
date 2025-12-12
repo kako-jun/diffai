@@ -34,8 +34,7 @@ pub fn analyze_learning_rate_changes(
         }
 
         // Look for optimizer state with learning rate information
-        if let (Some(old_opt), Some(new_opt)) =
-            (old_obj.get("optimizer"), new_obj.get("optimizer"))
+        if let (Some(old_opt), Some(new_opt)) = (old_obj.get("optimizer"), new_obj.get("optimizer"))
         {
             let optimizer_changes = analyze_optimizer_learning_rates(old_opt, new_opt);
             lr_changes.extend(optimizer_changes);
@@ -96,7 +95,7 @@ pub(crate) fn analyze_learning_rate_value_change(
                     let old_f = old_num.as_f64().unwrap_or(0.0);
                     let new_f = new_num.as_f64().unwrap_or(0.0);
                     if old_f != new_f {
-                        changes.push((format!("{}[{}]", key, i), old_f, new_f));
+                        changes.push((format!("{key}[{i}]"), old_f, new_f));
                     }
                 }
             }
@@ -108,7 +107,7 @@ pub(crate) fn analyze_learning_rate_value_change(
                     let sub_changes = analyze_learning_rate_value_change(
                         old_sub_val,
                         new_sub_val,
-                        &format!("{}.{}", key, sub_key),
+                        &format!("{key}.{sub_key}"),
                     );
                     changes.extend(sub_changes);
                 }
@@ -143,7 +142,7 @@ pub(crate) fn analyze_optimizer_learning_rates(
                                 let new_f = new_num.as_f64().unwrap_or(0.0);
                                 if old_f != new_f {
                                     changes.push((
-                                        format!("optimizer.param_groups[{}].lr", i),
+                                        format!("optimizer.param_groups[{i}].lr"),
                                         old_f,
                                         new_f,
                                     ));
@@ -181,7 +180,7 @@ pub(crate) fn analyze_scheduler_learning_rates(
                 let lr_changes = analyze_learning_rate_value_change(
                     old_val,
                     new_val,
-                    &format!("scheduler.{}", key),
+                    &format!("scheduler.{key}"),
                 );
                 changes.extend(lr_changes);
             }

@@ -1,9 +1,9 @@
 use serde_json::Value;
 
-use super::loss::extract_loss_trajectory;
-use super::learning_curves::calculate_convergence_rate;
-use super::stability::{extract_gradient_norm, estimate_parameter_magnitude};
 use super::epoch::extract_epoch_info;
+use super::learning_curves::calculate_convergence_rate;
+use super::loss::extract_loss_trajectory;
+use super::stability::{estimate_parameter_magnitude, extract_gradient_norm};
 
 #[derive(Debug, Clone)]
 pub(crate) struct OptimizationTrajectory {
@@ -15,7 +15,10 @@ pub(crate) struct OptimizationTrajectory {
 }
 
 /// Enhanced optimization trajectory analysis using helper functions
-pub(crate) fn analyze_optimization_trajectory(old_obj: &serde_json::Map<String, Value>, new_obj: &serde_json::Map<String, Value>) -> Option<(String, String)> {
+pub(crate) fn analyze_optimization_trajectory(
+    old_obj: &serde_json::Map<String, Value>,
+    new_obj: &serde_json::Map<String, Value>,
+) -> Option<(String, String)> {
     let old_trajectory = extract_optimization_trajectory(old_obj)?;
     let new_trajectory = extract_optimization_trajectory(new_obj)?;
 
@@ -33,7 +36,7 @@ pub(crate) fn analyze_optimization_trajectory(old_obj: &serde_json::Map<String, 
     if let (Some(old_rate), Some(new_rate)) = (old_lr, new_lr) {
         if (old_rate - new_rate).abs() > old_rate * 0.1 {
             let lr_change = ((new_rate - old_rate) / old_rate) * 100.0;
-            trajectory_changes.push(format!("learning_rate: {:+.2}%", lr_change));
+            trajectory_changes.push(format!("learning_rate: {lr_change:+.2}%"));
         }
     }
 
@@ -41,31 +44,34 @@ pub(crate) fn analyze_optimization_trajectory(old_obj: &serde_json::Map<String, 
     if let (Some(old_mag), Some(new_mag)) = (old_param_mag, new_param_mag) {
         if (old_mag - new_mag).abs() > old_mag * 0.05 {
             let mag_change = ((new_mag - old_mag) / old_mag) * 100.0;
-            trajectory_changes.push(format!("parameter_magnitude: {:+.2}%", mag_change));
+            trajectory_changes.push(format!("parameter_magnitude: {mag_change:+.2}%"));
         }
     }
 
     // Epoch progression analysis
     if let (Some(old_ep), Some(new_ep)) = (old_epoch, new_epoch) {
         if new_ep > old_ep {
-            trajectory_changes.push(format!("epoch_progress: {} -> {}", old_ep, new_ep));
+            trajectory_changes.push(format!("epoch_progress: {old_ep} -> {new_ep}"));
         }
     }
 
     let stability_change = new_trajectory.parameter_stability - old_trajectory.parameter_stability;
     if stability_change.abs() > 0.05 {
-        trajectory_changes.push(format!("param_stability: {:+.3}", stability_change));
+        trajectory_changes.push(format!("param_stability: {stability_change:+.3}"));
     }
 
     let efficiency_change = new_trajectory.learning_efficiency - old_trajectory.learning_efficiency;
     if efficiency_change.abs() > 0.05 {
-        trajectory_changes.push(format!("learning_efficiency: {:+.3}", efficiency_change));
+        trajectory_changes.push(format!("learning_efficiency: {efficiency_change:+.3}"));
     }
 
-    if let (Some(old_gap), Some(new_gap)) = (old_trajectory.generalization_gap, new_trajectory.generalization_gap) {
+    if let (Some(old_gap), Some(new_gap)) = (
+        old_trajectory.generalization_gap,
+        new_trajectory.generalization_gap,
+    ) {
         let gap_change = new_gap - old_gap;
         if gap_change.abs() > 0.02 {
-            trajectory_changes.push(format!("generalization_gap: {:+.3}", gap_change));
+            trajectory_changes.push(format!("generalization_gap: {gap_change:+.3}"));
         }
     }
 
@@ -83,7 +89,9 @@ pub(crate) fn analyze_optimization_trajectory(old_obj: &serde_json::Map<String, 
 }
 
 /// Extract optimization trajectory from model checkpoint
-pub(crate) fn extract_optimization_trajectory(obj: &serde_json::Map<String, Value>) -> Option<OptimizationTrajectory> {
+pub(crate) fn extract_optimization_trajectory(
+    obj: &serde_json::Map<String, Value>,
+) -> Option<OptimizationTrajectory> {
     let parameter_stability = calculate_parameter_stability(obj);
     let gradient_flow_health = calculate_gradient_flow_health(obj);
     let learning_efficiency = calculate_learning_efficiency(obj);
@@ -139,7 +147,8 @@ pub(super) fn calculate_smoothness_score(trajectory: &[f64]) -> f64 {
         second_derivatives.push(second_deriv.abs());
     }
 
-    let mean_acceleration = second_derivatives.iter().sum::<f64>() / second_derivatives.len() as f64;
+    let mean_acceleration =
+        second_derivatives.iter().sum::<f64>() / second_derivatives.len() as f64;
 
     // Higher smoothness = lower acceleration
     1.0 / (1.0 + mean_acceleration)
@@ -180,7 +189,8 @@ pub(super) fn calculate_saturation_risk(trajectory: &[f64]) -> f64 {
         return 0.0;
     };
 
-    let recent_rate = (recent.first().unwrap() - recent.last().unwrap()).abs() / recent_window as f64;
+    let recent_rate =
+        (recent.first().unwrap() - recent.last().unwrap()).abs() / recent_window as f64;
 
     if initial_rate > 0.0 {
         1.0 - (recent_rate / initial_rate).min(1.0)

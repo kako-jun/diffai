@@ -16,7 +16,10 @@ pub(crate) struct LearningCurveMetrics {
 }
 
 /// Enhanced learning curve analysis using lawkit incremental statistics
-pub(crate) fn analyze_learning_curves_comprehensive(old_obj: &serde_json::Map<String, Value>, new_obj: &serde_json::Map<String, Value>) -> Option<(String, String)> {
+pub(crate) fn analyze_learning_curves_comprehensive(
+    old_obj: &serde_json::Map<String, Value>,
+    new_obj: &serde_json::Map<String, Value>,
+) -> Option<(String, String)> {
     let old_metrics = extract_learning_curve_metrics(old_obj)?;
     let new_metrics = extract_learning_curve_metrics(new_obj)?;
 
@@ -24,31 +27,40 @@ pub(crate) fn analyze_learning_curves_comprehensive(old_obj: &serde_json::Map<St
 
     // Loss trajectory analysis
     if !old_metrics.loss_trajectory.is_empty() && !new_metrics.loss_trajectory.is_empty() {
-        let loss_improvement = calculate_trajectory_improvement(&old_metrics.loss_trajectory, &new_metrics.loss_trajectory);
-        analysis_points.push(format!("loss_trajectory_improvement: {:.4}", loss_improvement));
+        let loss_improvement = calculate_trajectory_improvement(
+            &old_metrics.loss_trajectory,
+            &new_metrics.loss_trajectory,
+        );
+        analysis_points.push(format!(
+            "loss_trajectory_improvement: {loss_improvement:.4}"
+        ));
     }
 
     // Convergence rate comparison
     if (old_metrics.convergence_rate - new_metrics.convergence_rate).abs() > 0.001 {
         let rate_change = new_metrics.convergence_rate - old_metrics.convergence_rate;
-        analysis_points.push(format!("convergence_rate_change: {:+.4}", rate_change));
+        analysis_points.push(format!("convergence_rate_change: {rate_change:+.4}"));
     }
 
     // Stability score analysis
     if (old_metrics.stability_score - new_metrics.stability_score).abs() > 0.05 {
         let stability_change = new_metrics.stability_score - old_metrics.stability_score;
-        analysis_points.push(format!("stability_change: {:+.3}", stability_change));
+        analysis_points.push(format!("stability_change: {stability_change:+.3}"));
     }
 
     // Plateau detection
     if old_metrics.plateau_detected != new_metrics.plateau_detected {
-        let plateau_status = if new_metrics.plateau_detected { "detected" } else { "resolved" };
-        analysis_points.push(format!("plateau_status: {}", plateau_status));
+        let plateau_status = if new_metrics.plateau_detected {
+            "detected"
+        } else {
+            "resolved"
+        };
+        analysis_points.push(format!("plateau_status: {plateau_status}"));
     }
 
     // Early stopping suggestion
     if let Some(ref suggestion) = new_metrics.early_stopping_suggestion {
-        analysis_points.push(format!("early_stopping: {}", suggestion));
+        analysis_points.push(format!("early_stopping: {suggestion}"));
     }
 
     if analysis_points.is_empty() {
@@ -65,7 +77,9 @@ pub(crate) fn analyze_learning_curves_comprehensive(old_obj: &serde_json::Map<St
 }
 
 /// Extract comprehensive learning curve metrics
-pub(crate) fn extract_learning_curve_metrics(obj: &serde_json::Map<String, Value>) -> Option<LearningCurveMetrics> {
+pub(crate) fn extract_learning_curve_metrics(
+    obj: &serde_json::Map<String, Value>,
+) -> Option<LearningCurveMetrics> {
     let mut loss_trajectory = Vec::new();
     let mut accuracy_trajectory = Vec::new();
     let mut learning_rate_schedule = Vec::new();
@@ -77,25 +91,15 @@ pub(crate) fn extract_learning_curve_metrics(obj: &serde_json::Map<String, Value
         match value {
             Value::Array(arr) => {
                 if key.contains("loss") && key.contains("history") {
-                    loss_trajectory = arr.iter()
-                        .filter_map(|v| v.as_f64())
-                        .collect();
+                    loss_trajectory = arr.iter().filter_map(|v| v.as_f64()).collect();
                 } else if key.contains("accuracy") && key.contains("history") {
-                    accuracy_trajectory = arr.iter()
-                        .filter_map(|v| v.as_f64())
-                        .collect();
+                    accuracy_trajectory = arr.iter().filter_map(|v| v.as_f64()).collect();
                 } else if key.contains("lr") && key.contains("history") {
-                    learning_rate_schedule = arr.iter()
-                        .filter_map(|v| v.as_f64())
-                        .collect();
+                    learning_rate_schedule = arr.iter().filter_map(|v| v.as_f64()).collect();
                 } else if key.contains("grad") && key.contains("history") {
-                    gradient_norms = arr.iter()
-                        .filter_map(|v| v.as_f64())
-                        .collect();
+                    gradient_norms = arr.iter().filter_map(|v| v.as_f64()).collect();
                 } else if key.contains("epoch") && key.contains("history") {
-                    epochs = arr.iter()
-                        .filter_map(|v| v.as_f64())
-                        .collect();
+                    epochs = arr.iter().filter_map(|v| v.as_f64()).collect();
                 }
             }
             Value::Number(num) => {
@@ -126,7 +130,8 @@ pub(crate) fn extract_learning_curve_metrics(obj: &serde_json::Map<String, Value
     let convergence_rate = calculate_convergence_rate(&loss_trajectory);
     let stability_score = calculate_stability_score(&loss_trajectory);
     let plateau_detected = detect_plateau(&loss_trajectory);
-    let early_stopping_suggestion = generate_early_stopping_suggestion(&loss_trajectory, &accuracy_trajectory);
+    let early_stopping_suggestion =
+        generate_early_stopping_suggestion(&loss_trajectory, &accuracy_trajectory);
 
     Some(LearningCurveMetrics {
         loss_trajectory,
@@ -181,9 +186,11 @@ fn calculate_stability_score(loss_trajectory: &[f64]) -> f64 {
 
     // Calculate variance and coefficient of variation
     let mean = loss_trajectory.iter().sum::<f64>() / loss_trajectory.len() as f64;
-    let variance = loss_trajectory.iter()
+    let variance = loss_trajectory
+        .iter()
         .map(|x| (x - mean).powi(2))
-        .sum::<f64>() / loss_trajectory.len() as f64;
+        .sum::<f64>()
+        / loss_trajectory.len() as f64;
     let std_dev = variance.sqrt();
 
     // Stability score: lower coefficient of variation = higher stability
@@ -194,7 +201,10 @@ fn calculate_stability_score(loss_trajectory: &[f64]) -> f64 {
     }
 }
 
-fn generate_early_stopping_suggestion(loss_trajectory: &[f64], accuracy_trajectory: &[f64]) -> Option<String> {
+fn generate_early_stopping_suggestion(
+    loss_trajectory: &[f64],
+    accuracy_trajectory: &[f64],
+) -> Option<String> {
     if loss_trajectory.len() < 10 {
         return None;
     }
