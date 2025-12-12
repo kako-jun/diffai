@@ -74,23 +74,3 @@ jobs:
         with:
           files: artifacts/**/*
           generate_release_notes: true
-
-  publish-crates:
-    needs: release
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Publish diffai-core
-        run: cargo publish -p diffai-core --token ${{ secrets.CARGO_TOKEN }}
-        continue-on-error: true
-
-      - name: Wait for crates.io
-        run: sleep 30
-
-      - name: Publish diffai-cli
-        run: cargo publish -p diffai-cli --token ${{ secrets.CARGO_TOKEN }}
-        continue-on-error: true
