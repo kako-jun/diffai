@@ -35,7 +35,7 @@ cargo install diffai
 
 # As library (Cargo.toml)
 [dependencies]
-diffai-core = "0.3"
+diffai-core = "0.4"
 ```
 
 ## Usage
@@ -109,7 +109,6 @@ See [diffai-cli/tests/cmd/](diffai-cli/tests/cmd/) for executable examples:
 - [Supported formats](diffai-cli/tests/cmd/formats.md)
 - [Output formats](diffai-cli/tests/cmd/output.md)
 - [Options](diffai-cli/tests/cmd/options.md)
-- [ML Analysis](diffai-cli/tests/cmd/ml-analysis.md)
 
 ## Documentation
 
