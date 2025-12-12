@@ -10,37 +10,34 @@ pub(super) fn analyze_gradient_distributions(
     let old_grad_stats = extract_gradient_statistics(old_obj)?;
     let new_grad_stats = extract_gradient_statistics(new_obj)?;
 
-    let mut distribution_analysis = Vec::new();
+    let mut has_significant_change = false;
 
     // Analyze sparsity (percentage of near-zero gradients)
-    if let (Some(old_sparsity), Some(new_sparsity)) =
-        (old_grad_stats.sparsity, new_grad_stats.sparsity)
-    {
-        let sparsity_change = new_sparsity - old_sparsity;
-        let sparsity_trend = if sparsity_change.abs() < 0.01 {
-            "stable"
-        } else if sparsity_change > 0.0 {
-            "more_sparse"
-        } else {
-            "less_sparse"
-        };
-        distribution_analysis.push(format!(
-            "sparsity: {:.1}% ({:+.1}%, {})",
-            new_sparsity * 100.0,
-            sparsity_change * 100.0,
-            sparsity_trend
-        ));
-    }
+    let sparsity_change = match (old_grad_stats.sparsity, new_grad_stats.sparsity) {
+        (Some(old_sparsity), Some(new_sparsity)) => {
+            let change = new_sparsity - old_sparsity;
+            if change.abs() >= 0.01 {
+                has_significant_change = true;
+            }
+            Some(change)
+        }
+        _ => None,
+    };
 
     // Analyze outlier gradients
-    if let (Some(old_outliers), Some(new_outliers)) =
-        (old_grad_stats.outlier_count, new_grad_stats.outlier_count)
-    {
-        let outlier_change = new_outliers as i32 - old_outliers as i32;
-        distribution_analysis.push(format!("outliers: {new_outliers} ({outlier_change:+})"));
-    }
+    let outlier_change = match (old_grad_stats.outlier_count, new_grad_stats.outlier_count) {
+        (Some(old_outliers), Some(new_outliers)) => {
+            let change = new_outliers as i32 - old_outliers as i32;
+            if change != 0 {
+                has_significant_change = true;
+            }
+            Some(change)
+        }
+        _ => None,
+    };
 
-    if distribution_analysis.is_empty() {
+    // Only report if there's actual change
+    if !has_significant_change {
         return None;
     }
 
@@ -49,7 +46,30 @@ pub(super) fn analyze_gradient_distributions(
         old_grad_stats.sparsity.unwrap_or(0.0) * 100.0,
         old_grad_stats.outlier_count.unwrap_or(0)
     );
-    let new_info = distribution_analysis.join(", ");
 
-    Some((old_info, new_info))
+    let mut new_parts = Vec::new();
+    if let (Some(new_sparsity), Some(change)) = (new_grad_stats.sparsity, sparsity_change) {
+        let trend = if change.abs() < 0.01 {
+            "stable"
+        } else if change > 0.0 {
+            "more_sparse"
+        } else {
+            "less_sparse"
+        };
+        new_parts.push(format!(
+            "sparsity: {:.1}% ({:+.1}%, {})",
+            new_sparsity * 100.0,
+            change * 100.0,
+            trend
+        ));
+    }
+    if let (Some(new_outliers), Some(change)) = (new_grad_stats.outlier_count, outlier_change) {
+        new_parts.push(format!("outliers: {new_outliers} ({change:+})"));
+    }
+
+    if new_parts.is_empty() {
+        return None;
+    }
+
+    Some((old_info, new_parts.join(", ")))
 }
