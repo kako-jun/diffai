@@ -1,7 +1,7 @@
 use serde_json::Value;
 
-use crate::types::DiffResult;
 use crate::diff::extract_tensor_shape;
+use crate::types::DiffResult;
 
 pub fn analyze_model_architecture_changes(
     old_model: &Value,
@@ -45,8 +45,8 @@ pub(crate) fn extract_model_architecture(model: &Value) -> String {
             }
         }
 
-        architecture_info.push(format!("layers: {}", layer_count));
-        architecture_info.push(format!("parameters: {}", total_params));
+        architecture_info.push(format!("layers: {layer_count}"));
+        architecture_info.push(format!("parameters: {total_params}"));
         if !layer_types.is_empty() {
             let mut types: Vec<_> = layer_types.into_iter().collect();
             types.sort();

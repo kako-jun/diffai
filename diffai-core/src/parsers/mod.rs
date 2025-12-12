@@ -1,12 +1,12 @@
+mod matlab;
+mod numpy;
 mod pytorch;
 mod safetensors;
-mod numpy;
-mod matlab;
 
+pub use matlab::parse_matlab_file;
+pub use numpy::parse_numpy_file;
 pub use pytorch::parse_pytorch_model;
 pub use safetensors::parse_safetensors_model;
-pub use numpy::parse_numpy_file;
-pub use matlab::parse_matlab_file;
 
 use anyhow::{anyhow, Result};
 use serde_json::Value;

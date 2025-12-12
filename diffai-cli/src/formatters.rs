@@ -1,6 +1,6 @@
 use anyhow::Result;
 use diffai_core::{format_output, DiffResult, OutputFormat};
-use std::path::PathBuf;
+use std::path::Path;
 
 use crate::cli::Args;
 
@@ -43,8 +43,8 @@ pub fn handle_output_and_exit(differences: &[DiffResult], args: &Args) -> Result
 pub fn handle_file_output_and_exit(
     differences: &[DiffResult],
     args: &Args,
-    file1: &PathBuf,
-    file2: &PathBuf,
+    file1: &Path,
+    file2: &Path,
 ) -> Result<()> {
     // Handle quiet mode
     if args.quiet {
@@ -55,7 +55,11 @@ pub fn handle_file_output_and_exit(
     if args.brief {
         if differences.is_empty() {
             if args.verbose {
-                println!("Files {} and {} are identical", file1.display(), file2.display());
+                println!(
+                    "Files {} and {} are identical",
+                    file1.display(),
+                    file2.display()
+                );
             }
         } else {
             println!("Files {} and {} differ", file1.display(), file2.display());

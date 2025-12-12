@@ -21,15 +21,15 @@ pub enum DiffResult {
     // AI/ML専用拡張型
     TensorShapeChanged(String, Vec<usize>, Vec<usize>),
     TensorStatsChanged(String, TensorStats, TensorStats), // path, old_stats, new_stats
-    TensorDataChanged(String, f64, f64), // path, old_mean, new_mean
-    ModelArchitectureChanged(String, String, String), // path, old_arch, new_arch
-    WeightSignificantChange(String, f64), // path, change_magnitude
-    ActivationFunctionChanged(String, String, String), // path, old_fn, new_fn
-    LearningRateChanged(String, f64, f64), // path, old_lr, new_lr
-    OptimizerChanged(String, String, String), // path, old_opt, new_opt
-    LossChange(String, f64, f64),        // path, old_loss, new_loss
-    AccuracyChange(String, f64, f64),    // path, old_acc, new_acc
-    ModelVersionChanged(String, String, String), // path, old_version, new_version
+    TensorDataChanged(String, f64, f64),                  // path, old_mean, new_mean
+    ModelArchitectureChanged(String, String, String),     // path, old_arch, new_arch
+    WeightSignificantChange(String, f64),                 // path, change_magnitude
+    ActivationFunctionChanged(String, String, String),    // path, old_fn, new_fn
+    LearningRateChanged(String, f64, f64),                // path, old_lr, new_lr
+    OptimizerChanged(String, String, String),             // path, old_opt, new_opt
+    LossChange(String, f64, f64),                         // path, old_loss, new_loss
+    AccuracyChange(String, f64, f64),                     // path, old_acc, new_acc
+    ModelVersionChanged(String, String, String),          // path, old_version, new_version
 }
 
 // diffx-coreのDiffResultとの変換関数
@@ -38,8 +38,12 @@ impl From<diffx_core::DiffResult> for DiffResult {
         match result {
             diffx_core::DiffResult::Added(path, value) => DiffResult::Added(path, value),
             diffx_core::DiffResult::Removed(path, value) => DiffResult::Removed(path, value),
-            diffx_core::DiffResult::Modified(path, old, new) => DiffResult::Modified(path, old, new),
-            diffx_core::DiffResult::TypeChanged(path, old, new) => DiffResult::TypeChanged(path, old, new),
+            diffx_core::DiffResult::Modified(path, old, new) => {
+                DiffResult::Modified(path, old, new)
+            }
+            diffx_core::DiffResult::TypeChanged(path, old, new) => {
+                DiffResult::TypeChanged(path, old, new)
+            }
         }
     }
 }
@@ -71,9 +75,7 @@ impl TensorStats {
         }
 
         let mean = data.iter().sum::<f64>() / element_count as f64;
-        let variance = data.iter()
-            .map(|x| (x - mean).powi(2))
-            .sum::<f64>() / element_count as f64;
+        let variance = data.iter().map(|x| (x - mean).powi(2)).sum::<f64>() / element_count as f64;
         let std = variance.sqrt();
         let min = data.iter().fold(f64::INFINITY, |a, &b| a.min(b));
         let max = data.iter().fold(f64::NEG_INFINITY, |a, &b| a.max(b));
@@ -158,7 +160,6 @@ pub struct DiffOptions {
 
     // Output control
     pub output_format: Option<OutputFormat>,
-
     // lawkitパターン：メモリ最適化は常に有効、必要に応じて自動調整
     // show_unchanged, show_types, batch_sizeなどは削除してデフォルト動作
 }

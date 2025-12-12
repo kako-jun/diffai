@@ -1,7 +1,10 @@
 use serde_json::Value;
 
 /// Analyze epoch progression patterns
-pub(crate) fn analyze_epoch_progression(old_obj: &serde_json::Map<String, Value>, new_obj: &serde_json::Map<String, Value>) -> Option<(String, String)> {
+pub(crate) fn analyze_epoch_progression(
+    old_obj: &serde_json::Map<String, Value>,
+    new_obj: &serde_json::Map<String, Value>,
+) -> Option<(String, String)> {
     let old_epoch = extract_epoch_info(old_obj)?;
     let new_epoch = extract_epoch_info(new_obj)?;
 
@@ -18,8 +21,9 @@ pub(crate) fn analyze_epoch_progression(old_obj: &serde_json::Map<String, Value>
         "skipped_epochs"
     };
 
-    let old_info = format!("epoch: {}", old_epoch);
-    let new_info = format!("epoch: {}, progression: {} ({:+.1})", new_epoch, progression_rate, epoch_diff);
+    let old_info = format!("epoch: {old_epoch}");
+    let new_info =
+        format!("epoch: {new_epoch}, progression: {progression_rate} ({epoch_diff:+.1})");
 
     Some((old_info, new_info))
 }

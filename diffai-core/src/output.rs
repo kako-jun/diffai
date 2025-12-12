@@ -27,15 +27,26 @@ pub fn format_diff_results(results: &[DiffResult], format: OutputFormat) -> Resu
         }
         OutputFormat::Diffai => {
             // Diffai形式では基本型をdiffx-coreでフォーマット、ML型は手動フォーマット
-            let base_results: Vec<diffx_core::DiffResult> = results.iter().filter_map(|r| {
-                match r {
-                    DiffResult::Added(path, value) => Some(diffx_core::DiffResult::Added(path.clone(), value.clone())),
-                    DiffResult::Removed(path, value) => Some(diffx_core::DiffResult::Removed(path.clone(), value.clone())),
-                    DiffResult::Modified(path, old, new) => Some(diffx_core::DiffResult::Modified(path.clone(), old.clone(), new.clone())),
-                    DiffResult::TypeChanged(path, old, new) => Some(diffx_core::DiffResult::TypeChanged(path.clone(), old.clone(), new.clone())),
-                    _ => None
-                }
-            }).collect();
+            let base_results: Vec<diffx_core::DiffResult> = results
+                .iter()
+                .filter_map(|r| match r {
+                    DiffResult::Added(path, value) => {
+                        Some(diffx_core::DiffResult::Added(path.clone(), value.clone()))
+                    }
+                    DiffResult::Removed(path, value) => {
+                        Some(diffx_core::DiffResult::Removed(path.clone(), value.clone()))
+                    }
+                    DiffResult::Modified(path, old, new) => Some(diffx_core::DiffResult::Modified(
+                        path.clone(),
+                        old.clone(),
+                        new.clone(),
+                    )),
+                    DiffResult::TypeChanged(path, old, new) => Some(
+                        diffx_core::DiffResult::TypeChanged(path.clone(), old.clone(), new.clone()),
+                    ),
+                    _ => None,
+                })
+                .collect();
 
             let mut output = String::new();
 
@@ -47,21 +58,25 @@ pub fn format_diff_results(results: &[DiffResult], format: OutputFormat) -> Resu
             }
 
             // AI/ML専用型を追加
-            let ml_results: Vec<&DiffResult> = results.iter().filter(|r| {
-                matches!(r,
-                    DiffResult::TensorShapeChanged(_, _, _) |
-                    DiffResult::TensorStatsChanged(_, _, _) |
-                    DiffResult::TensorDataChanged(_, _, _) |
-                    DiffResult::ModelArchitectureChanged(_, _, _) |
-                    DiffResult::WeightSignificantChange(_, _) |
-                    DiffResult::ActivationFunctionChanged(_, _, _) |
-                    DiffResult::LearningRateChanged(_, _, _) |
-                    DiffResult::OptimizerChanged(_, _, _) |
-                    DiffResult::LossChange(_, _, _) |
-                    DiffResult::AccuracyChange(_, _, _) |
-                    DiffResult::ModelVersionChanged(_, _, _)
-                )
-            }).collect();
+            let ml_results: Vec<&DiffResult> = results
+                .iter()
+                .filter(|r| {
+                    matches!(
+                        r,
+                        DiffResult::TensorShapeChanged(_, _, _)
+                            | DiffResult::TensorStatsChanged(_, _, _)
+                            | DiffResult::TensorDataChanged(_, _, _)
+                            | DiffResult::ModelArchitectureChanged(_, _, _)
+                            | DiffResult::WeightSignificantChange(_, _)
+                            | DiffResult::ActivationFunctionChanged(_, _, _)
+                            | DiffResult::LearningRateChanged(_, _, _)
+                            | DiffResult::OptimizerChanged(_, _, _)
+                            | DiffResult::LossChange(_, _, _)
+                            | DiffResult::AccuracyChange(_, _, _)
+                            | DiffResult::ModelVersionChanged(_, _, _)
+                    )
+                })
+                .collect();
 
             if !ml_results.is_empty() {
                 if !output.is_empty() && !output.ends_with('\n') {
@@ -72,17 +87,25 @@ pub fn format_diff_results(results: &[DiffResult], format: OutputFormat) -> Resu
                 for result in &ml_results {
                     match result {
                         DiffResult::ModelArchitectureChanged(path, old, new) => {
-                            output.push_str(&format!("  ~ {}: {} -> {}\n", path, old, new));
+                            output.push_str(&format!("  ~ {path}: {old} -> {new}\n"));
                         }
                         DiffResult::TensorShapeChanged(path, old_shape, new_shape) => {
-                            output.push_str(&format!("  ~ {} shape: {:?} -> {:?}\n", path, old_shape, new_shape));
+                            output.push_str(&format!(
+                                "  ~ {path} shape: {old_shape:?} -> {new_shape:?}\n"
+                            ));
                         }
                         DiffResult::TensorStatsChanged(path, old_stats, new_stats) => {
-                            output.push_str(&format!("  ~ {} stats: mean {:.3} -> {:.3}\n", path, old_stats.mean, new_stats.mean));
+                            output.push_str(&format!(
+                                "  ~ {} stats: mean {:.3} -> {:.3}\n",
+                                path, old_stats.mean, new_stats.mean
+                            ));
                         }
                         _ => {
                             // その他のML型もサポート
-                            output.push_str(&format!("  ~ ML analysis: {}\n", serde_json::to_string(result)?));
+                            output.push_str(&format!(
+                                "  ~ ML analysis: {}\n",
+                                serde_json::to_string(result)?
+                            ));
                         }
                     }
                 }

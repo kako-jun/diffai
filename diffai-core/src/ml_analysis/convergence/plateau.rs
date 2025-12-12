@@ -12,7 +12,10 @@ pub(crate) struct PlateauAnalysis {
 }
 
 /// Plateau detection and early stopping analysis
-pub(crate) fn analyze_plateau_detection(old_obj: &serde_json::Map<String, Value>, new_obj: &serde_json::Map<String, Value>) -> Option<(String, String)> {
+pub(crate) fn analyze_plateau_detection(
+    old_obj: &serde_json::Map<String, Value>,
+    new_obj: &serde_json::Map<String, Value>,
+) -> Option<(String, String)> {
     let old_plateau = extract_plateau_analysis(old_obj)?;
     let new_plateau = extract_plateau_analysis(new_obj)?;
 
@@ -20,12 +23,15 @@ pub(crate) fn analyze_plateau_detection(old_obj: &serde_json::Map<String, Value>
 
     if old_plateau.plateau_length != new_plateau.plateau_length {
         let length_change = new_plateau.plateau_length as i32 - old_plateau.plateau_length as i32;
-        plateau_changes.push(format!("plateau_length: {} ({:+})", new_plateau.plateau_length, length_change));
+        plateau_changes.push(format!(
+            "plateau_length: {} ({:+})",
+            new_plateau.plateau_length, length_change
+        ));
     }
 
     if (old_plateau.recovery_probability - new_plateau.recovery_probability).abs() > 0.1 {
         let recovery_change = new_plateau.recovery_probability - old_plateau.recovery_probability;
-        plateau_changes.push(format!("recovery_probability: {:+.2}", recovery_change));
+        plateau_changes.push(format!("recovery_probability: {recovery_change:+.2}"));
     }
 
     if old_plateau.recommended_action != new_plateau.recommended_action {
@@ -56,7 +62,10 @@ pub(super) fn detect_plateau(loss_trajectory: &[f64]) -> bool {
     let recent_losses = &loss_trajectory[loss_trajectory.len() - window_size..];
 
     let min_loss = recent_losses.iter().copied().fold(f64::INFINITY, f64::min);
-    let max_loss = recent_losses.iter().copied().fold(f64::NEG_INFINITY, f64::max);
+    let max_loss = recent_losses
+        .iter()
+        .copied()
+        .fold(f64::NEG_INFINITY, f64::max);
 
     // Plateau detected if variation is less than 1% of mean
     if min_loss > 0.0 {
@@ -68,7 +77,9 @@ pub(super) fn detect_plateau(loss_trajectory: &[f64]) -> bool {
 }
 
 /// Extract plateau analysis from model checkpoint
-pub(crate) fn extract_plateau_analysis(obj: &serde_json::Map<String, Value>) -> Option<PlateauAnalysis> {
+pub(crate) fn extract_plateau_analysis(
+    obj: &serde_json::Map<String, Value>,
+) -> Option<PlateauAnalysis> {
     let loss_trajectory = extract_loss_trajectory(obj)?;
 
     let plateau_length = calculate_plateau_length(&loss_trajectory);
@@ -96,7 +107,8 @@ pub(crate) fn calculate_plateau_length(trajectory: &[f64]) -> usize {
     let mut plateau_count = 0;
 
     for i in 1..trajectory.len() {
-        let change_ratio = (trajectory[i] - trajectory[i - 1]).abs() / trajectory[i - 1].abs().max(1e-8);
+        let change_ratio =
+            (trajectory[i] - trajectory[i - 1]).abs() / trajectory[i - 1].abs().max(1e-8);
         if change_ratio < threshold {
             plateau_count += 1;
         } else {

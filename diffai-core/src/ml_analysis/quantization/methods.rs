@@ -3,7 +3,10 @@ use serde_json::Value;
 use super::types::QuantizationMethods;
 
 // Analyze quantization method changes
-pub(crate) fn analyze_quantization_methods(old_obj: &serde_json::Map<String, Value>, new_obj: &serde_json::Map<String, Value>) -> Option<(String, String)> {
+pub(crate) fn analyze_quantization_methods(
+    old_obj: &serde_json::Map<String, Value>,
+    new_obj: &serde_json::Map<String, Value>,
+) -> Option<(String, String)> {
     let old_methods = extract_quantization_methods(old_obj)?;
     let new_methods = extract_quantization_methods(new_obj)?;
 
@@ -58,7 +61,9 @@ pub(crate) fn analyze_quantization_methods(old_obj: &serde_json::Map<String, Val
 }
 
 // Enhanced quantization methods extraction with advanced technique detection
-pub(crate) fn extract_quantization_methods(obj: &serde_json::Map<String, Value>) -> Option<QuantizationMethods> {
+pub(crate) fn extract_quantization_methods(
+    obj: &serde_json::Map<String, Value>,
+) -> Option<QuantizationMethods> {
     let mut strategy = "post_training".to_string();
     let mut calibration_method = "minmax".to_string();
     let mut symmetric = true;
@@ -70,8 +75,10 @@ pub(crate) fn extract_quantization_methods(obj: &serde_json::Map<String, Value>)
 
     // Enhanced quantization method detection (lawkit comprehensive analysis)
     for (key, value) in obj {
-        let is_quantization_related = key.contains("quant") || key.contains("precision") ||
-                                     key.contains("optim") || key.contains("compress");
+        let is_quantization_related = key.contains("quant")
+            || key.contains("precision")
+            || key.contains("optim")
+            || key.contains("compress");
 
         if is_quantization_related {
             // Strategy detection

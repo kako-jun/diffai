@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use serde_json::{json, Value};
 
 /// Common test fixtures shared across diffai core/python/js tests

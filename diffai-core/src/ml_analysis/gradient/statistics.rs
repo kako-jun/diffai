@@ -215,7 +215,6 @@ fn estimate_gradient_sparsity_streaming(obj: &serde_json::Map<String, Value>) ->
     }
 }
 
-
 // Robust outlier detection using incremental statistics
 fn count_gradient_outliers_robust(obj: &serde_json::Map<String, Value>) -> Option<usize> {
     let mut values = Vec::new();
@@ -255,11 +254,7 @@ fn count_gradient_outliers_robust(obj: &serde_json::Map<String, Value>) -> Optio
 
     // Use incremental statistics for memory efficiency (lawkit pattern)
     let mean = values.iter().sum::<f64>() / values.len() as f64;
-    let variance = values
-        .iter()
-        .map(|x| (x - mean).powi(2))
-        .sum::<f64>()
-        / values.len() as f64;
+    let variance = values.iter().map(|x| (x - mean).powi(2)).sum::<f64>() / values.len() as f64;
     let std_dev = variance.sqrt();
 
     // Multiple outlier detection methods
@@ -296,4 +291,3 @@ fn count_gradient_outliers_robust(obj: &serde_json::Map<String, Value>) -> Optio
 
     Some(outliers)
 }
-

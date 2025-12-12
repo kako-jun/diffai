@@ -33,15 +33,11 @@ pub(super) fn analyze_gradient_distributions(
     }
 
     // Analyze outlier gradients
-    if let (Some(old_outliers), Some(new_outliers)) = (
-        old_grad_stats.outlier_count,
-        new_grad_stats.outlier_count,
-    ) {
+    if let (Some(old_outliers), Some(new_outliers)) =
+        (old_grad_stats.outlier_count, new_grad_stats.outlier_count)
+    {
         let outlier_change = new_outliers as i32 - old_outliers as i32;
-        distribution_analysis.push(format!(
-            "outliers: {} ({:+})",
-            new_outliers, outlier_change
-        ));
+        distribution_analysis.push(format!("outliers: {new_outliers} ({outlier_change:+})"));
     }
 
     if distribution_analysis.is_empty() {

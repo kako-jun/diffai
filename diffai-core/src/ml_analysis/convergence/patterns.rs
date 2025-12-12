@@ -1,8 +1,11 @@
 use serde_json::Value;
 
-use super::loss::extract_loss_trajectory;
 use super::learning_curves::calculate_convergence_rate;
-use super::optimization::{calculate_momentum_indicator, calculate_saturation_risk, calculate_smoothness_score, detect_oscillation_pattern};
+use super::loss::extract_loss_trajectory;
+use super::optimization::{
+    calculate_momentum_indicator, calculate_saturation_risk, calculate_smoothness_score,
+    detect_oscillation_pattern,
+};
 
 #[derive(Debug, Clone)]
 pub(crate) struct ConvergencePatterns {
@@ -15,23 +18,32 @@ pub(crate) struct ConvergencePatterns {
 }
 
 /// Advanced convergence pattern analysis
-pub(crate) fn analyze_convergence_patterns_advanced(old_obj: &serde_json::Map<String, Value>, new_obj: &serde_json::Map<String, Value>) -> Option<(String, String)> {
+pub(crate) fn analyze_convergence_patterns_advanced(
+    old_obj: &serde_json::Map<String, Value>,
+    new_obj: &serde_json::Map<String, Value>,
+) -> Option<(String, String)> {
     let old_patterns = extract_convergence_patterns(old_obj)?;
     let new_patterns = extract_convergence_patterns(new_obj)?;
 
     let mut pattern_changes = Vec::new();
 
     if old_patterns.trend_direction != new_patterns.trend_direction {
-        pattern_changes.push(format!("trend: {} -> {}", old_patterns.trend_direction, new_patterns.trend_direction));
+        pattern_changes.push(format!(
+            "trend: {} -> {}",
+            old_patterns.trend_direction, new_patterns.trend_direction
+        ));
     }
 
     if old_patterns.convergence_speed != new_patterns.convergence_speed {
-        pattern_changes.push(format!("speed: {} -> {}", old_patterns.convergence_speed, new_patterns.convergence_speed));
+        pattern_changes.push(format!(
+            "speed: {} -> {}",
+            old_patterns.convergence_speed, new_patterns.convergence_speed
+        ));
     }
 
     if (old_patterns.smoothness_score - new_patterns.smoothness_score).abs() > 0.1 {
         let smoothness_change = new_patterns.smoothness_score - old_patterns.smoothness_score;
-        pattern_changes.push(format!("smoothness: {:+.2}", smoothness_change));
+        pattern_changes.push(format!("smoothness: {smoothness_change:+.2}"));
     }
 
     if pattern_changes.is_empty() {
@@ -48,7 +60,9 @@ pub(crate) fn analyze_convergence_patterns_advanced(old_obj: &serde_json::Map<St
 }
 
 /// Extract convergence patterns from model checkpoint
-pub(crate) fn extract_convergence_patterns(obj: &serde_json::Map<String, Value>) -> Option<ConvergencePatterns> {
+pub(crate) fn extract_convergence_patterns(
+    obj: &serde_json::Map<String, Value>,
+) -> Option<ConvergencePatterns> {
     let loss_trajectory = extract_loss_trajectory(obj)?;
 
     if loss_trajectory.len() < 3 {

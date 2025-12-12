@@ -3,25 +3,31 @@ use serde_json::Value;
 use super::types::QuantizationImpact;
 
 // Analyze quantization impact on model
-pub(crate) fn analyze_quantization_impact(old_obj: &serde_json::Map<String, Value>, new_obj: &serde_json::Map<String, Value>) -> Option<(String, String)> {
+pub(crate) fn analyze_quantization_impact(
+    old_obj: &serde_json::Map<String, Value>,
+    new_obj: &serde_json::Map<String, Value>,
+) -> Option<(String, String)> {
     let old_impact = extract_quantization_impact(old_obj)?;
     let new_impact = extract_quantization_impact(new_obj)?;
 
     let mut impact_analysis = Vec::new();
 
     // Compare model size reduction
-    if let (Some(old_size), Some(new_size)) = (old_impact.size_reduction, new_impact.size_reduction) {
+    if let (Some(old_size), Some(new_size)) = (old_impact.size_reduction, new_impact.size_reduction)
+    {
         let size_change = new_size - old_size;
         if size_change.abs() > 0.01 {
             impact_analysis.push(format!(
                 "size_reduction: {:.1}% ({:+.1}%)",
-                new_size * 100.0, size_change * 100.0
+                new_size * 100.0,
+                size_change * 100.0
             ));
         }
     }
 
     // Compare accuracy impact
-    if let (Some(old_acc), Some(new_acc)) = (old_impact.accuracy_impact, new_impact.accuracy_impact) {
+    if let (Some(old_acc), Some(new_acc)) = (old_impact.accuracy_impact, new_impact.accuracy_impact)
+    {
         let acc_change = new_acc - old_acc;
         if acc_change.abs() > 0.001 {
             let impact_trend = if acc_change > 0.0 {
@@ -30,30 +36,33 @@ pub(crate) fn analyze_quantization_impact(old_obj: &serde_json::Map<String, Valu
                 "improved"
             };
             impact_analysis.push(format!(
-                "accuracy_impact: {:.3} ({:+.3}, {})",
-                new_acc, acc_change, impact_trend
+                "accuracy_impact: {new_acc:.3} ({acc_change:+.3}, {impact_trend})"
             ));
         }
     }
 
     // Compare speed improvement
-    if let (Some(old_speed), Some(new_speed)) = (old_impact.speed_improvement, new_impact.speed_improvement) {
+    if let (Some(old_speed), Some(new_speed)) =
+        (old_impact.speed_improvement, new_impact.speed_improvement)
+    {
         let speed_change = new_speed - old_speed;
         if speed_change.abs() > 0.01 {
             impact_analysis.push(format!(
-                "speed_improvement: {:.1}x ({:+.1}x)",
-                new_speed, speed_change
+                "speed_improvement: {new_speed:.1}x ({speed_change:+.1}x)"
             ));
         }
     }
 
     // Compare memory efficiency
-    if let (Some(old_mem), Some(new_mem)) = (old_impact.memory_efficiency, new_impact.memory_efficiency) {
+    if let (Some(old_mem), Some(new_mem)) =
+        (old_impact.memory_efficiency, new_impact.memory_efficiency)
+    {
         let mem_change = new_mem - old_mem;
         if mem_change.abs() > 0.01 {
             impact_analysis.push(format!(
                 "memory_efficiency: {:.1}% ({:+.1}%)",
-                new_mem * 100.0, mem_change * 100.0
+                new_mem * 100.0,
+                mem_change * 100.0
             ));
         }
     }
@@ -75,7 +84,9 @@ pub(crate) fn analyze_quantization_impact(old_obj: &serde_json::Map<String, Valu
 }
 
 // Enhanced quantization impact analysis with lawkit incremental statistics
-pub(crate) fn extract_quantization_impact(obj: &serde_json::Map<String, Value>) -> Option<QuantizationImpact> {
+pub(crate) fn extract_quantization_impact(
+    obj: &serde_json::Map<String, Value>,
+) -> Option<QuantizationImpact> {
     let mut size_reduction = None;
     let mut accuracy_impact = None;
     let mut speed_improvement = None;
@@ -97,7 +108,9 @@ pub(crate) fn extract_quantization_impact(obj: &serde_json::Map<String, Value>) 
             if let Value::Number(reduction) = value {
                 size_reduction = reduction.as_f64();
             }
-        } else if key.contains("accuracy") && (key.contains("drop") || key.contains("impact") || key.contains("loss")) {
+        } else if key.contains("accuracy")
+            && (key.contains("drop") || key.contains("impact") || key.contains("loss"))
+        {
             if let Value::Number(acc_impact) = value {
                 accuracy_impact = acc_impact.as_f64();
             }
@@ -145,9 +158,7 @@ pub(crate) fn extract_quantization_impact(obj: &serde_json::Map<String, Value>) 
 
                     // Tensor size analysis
                     if let Some(Value::Array(shape)) = tensor_obj.get("shape") {
-                        let size = shape.iter()
-                            .filter_map(|v| v.as_u64())
-                            .product::<u64>() as f64;
+                        let size = shape.iter().filter_map(|v| v.as_u64()).product::<u64>() as f64;
                         tensor_sizes.push(size);
                     }
                 }
@@ -171,19 +182,23 @@ pub(crate) fn extract_quantization_impact(obj: &serde_json::Map<String, Value>) 
         let total_tensors = precision_stats.len() as f64;
 
         // Calculate precision distribution
-        let quantized_count = precision_stats.iter()
+        let quantized_count = precision_stats
+            .iter()
             .filter(|dtype| dtype.contains("int") && !dtype.contains("32") && !dtype.contains("64"))
             .count() as f64;
 
-        let fp16_count = precision_stats.iter()
+        let fp16_count = precision_stats
+            .iter()
             .filter(|dtype| dtype.contains("16") || dtype.contains("half"))
             .count() as f64;
 
-        let int8_count = precision_stats.iter()
+        let int8_count = precision_stats
+            .iter()
             .filter(|dtype| dtype.contains("int8"))
             .count() as f64;
 
-        let int4_count = precision_stats.iter()
+        let int4_count = precision_stats
+            .iter()
             .filter(|dtype| dtype.contains("int4"))
             .count() as f64;
 
@@ -192,16 +207,17 @@ pub(crate) fn extract_quantization_impact(obj: &serde_json::Map<String, Value>) 
             let mut total_reduction = 0.0;
 
             // Precision-based reduction estimates
-            total_reduction += (fp16_count / total_tensors) * 0.5;   // FP16: 50% reduction
-            total_reduction += (int8_count / total_tensors) * 0.75;   // INT8: 75% reduction
-            total_reduction += (int4_count / total_tensors) * 0.875;  // INT4: 87.5% reduction
+            total_reduction += (fp16_count / total_tensors) * 0.5; // FP16: 50% reduction
+            total_reduction += (int8_count / total_tensors) * 0.75; // INT8: 75% reduction
+            total_reduction += (int4_count / total_tensors) * 0.875; // INT4: 87.5% reduction
 
             size_reduction = Some(total_reduction);
         }
 
         // Enhanced compression ratio calculation
         let base_size = tensor_sizes.iter().sum::<f64>() * 32.0; // Assume FP32 baseline
-        let compressed_size = bit_width_distribution.iter()
+        let compressed_size = bit_width_distribution
+            .iter()
             .map(|(&bits, &count)| (count as f64) * (bits as f64))
             .sum::<f64>();
 
@@ -212,7 +228,7 @@ pub(crate) fn extract_quantization_impact(obj: &serde_json::Map<String, Value>) 
         // Quality degradation risk assessment
         quality_degradation_risk = (int4_count / total_tensors) * 0.3 +  // High risk for INT4
                                   (int8_count / total_tensors) * 0.1 +   // Moderate risk for INT8
-                                  (fp16_count / total_tensors) * 0.02;   // Low risk for FP16
+                                  (fp16_count / total_tensors) * 0.02; // Low risk for FP16
 
         // Enhanced speed improvement estimation
         if speed_improvement.is_none() {

@@ -3,7 +3,10 @@ use serde_json::Value;
 use super::types::{DynamicRangeInfo, PrecisionDistribution, QuantizationInfo};
 
 // Enhanced quantization precision analysis with mixed precision focus
-pub(crate) fn analyze_quantization_precision(old_obj: &serde_json::Map<String, Value>, new_obj: &serde_json::Map<String, Value>) -> Option<(String, String)> {
+pub(crate) fn analyze_quantization_precision(
+    old_obj: &serde_json::Map<String, Value>,
+    new_obj: &serde_json::Map<String, Value>,
+) -> Option<(String, String)> {
     let old_quant = extract_quantization_info(old_obj)?;
     let new_quant = extract_quantization_info(new_obj)?;
 
@@ -27,10 +30,12 @@ pub(crate) fn analyze_quantization_precision(old_obj: &serde_json::Map<String, V
 
     // Enhanced quantization coverage comparison
     if old_quant.quantization_coverage != new_quant.quantization_coverage {
-        let coverage_change = (new_quant.quantization_coverage - old_quant.quantization_coverage) * 100.0;
+        let coverage_change =
+            (new_quant.quantization_coverage - old_quant.quantization_coverage) * 100.0;
         precision_analysis.push(format!(
             "coverage: {:.1}% ({:+.1}%)",
-            new_quant.quantization_coverage * 100.0, coverage_change
+            new_quant.quantization_coverage * 100.0,
+            coverage_change
         ));
     }
 
@@ -48,27 +53,40 @@ pub(crate) fn analyze_quantization_precision(old_obj: &serde_json::Map<String, V
 
     if old_dist.fp32_layers != new_dist.fp32_layers {
         let change = new_dist.fp32_layers as i32 - old_dist.fp32_layers as i32;
-        precision_analysis.push(format!("fp32_layers: {} ({:+})", new_dist.fp32_layers, change));
+        precision_analysis.push(format!(
+            "fp32_layers: {} ({:+})",
+            new_dist.fp32_layers, change
+        ));
     }
 
     if old_dist.fp16_layers != new_dist.fp16_layers {
         let change = new_dist.fp16_layers as i32 - old_dist.fp16_layers as i32;
-        precision_analysis.push(format!("fp16_layers: {} ({:+})", new_dist.fp16_layers, change));
+        precision_analysis.push(format!(
+            "fp16_layers: {} ({:+})",
+            new_dist.fp16_layers, change
+        ));
     }
 
     if old_dist.int8_layers != new_dist.int8_layers {
         let change = new_dist.int8_layers as i32 - old_dist.int8_layers as i32;
-        precision_analysis.push(format!("int8_layers: {} ({:+})", new_dist.int8_layers, change));
+        precision_analysis.push(format!(
+            "int8_layers: {} ({:+})",
+            new_dist.int8_layers, change
+        ));
     }
 
     if old_dist.int4_layers != new_dist.int4_layers {
         let change = new_dist.int4_layers as i32 - old_dist.int4_layers as i32;
-        precision_analysis.push(format!("int4_layers: {} ({:+})", new_dist.int4_layers, change));
+        precision_analysis.push(format!(
+            "int4_layers: {} ({:+})",
+            new_dist.int4_layers, change
+        ));
     }
 
     // Precision efficiency score comparison
     if (old_dist.precision_efficiency_score - new_dist.precision_efficiency_score).abs() > 0.01 {
-        let score_change = new_dist.precision_efficiency_score - old_dist.precision_efficiency_score;
+        let score_change =
+            new_dist.precision_efficiency_score - old_dist.precision_efficiency_score;
         precision_analysis.push(format!(
             "efficiency_score: {:.3} ({:+.3})",
             new_dist.precision_efficiency_score, score_change
@@ -76,7 +94,10 @@ pub(crate) fn analyze_quantization_precision(old_obj: &serde_json::Map<String, V
     }
 
     // Dynamic range analysis comparison
-    if let (Some(old_range), Some(new_range)) = (&old_quant.dynamic_range_analysis, &new_quant.dynamic_range_analysis) {
+    if let (Some(old_range), Some(new_range)) = (
+        &old_quant.dynamic_range_analysis,
+        &new_quant.dynamic_range_analysis,
+    ) {
         if (old_range.range_utilization - new_range.range_utilization).abs() > 0.05 {
             precision_analysis.push(format!(
                 "range_utilization: {:.2} -> {:.2}",
@@ -111,7 +132,9 @@ pub(crate) fn analyze_quantization_precision(old_obj: &serde_json::Map<String, V
 }
 
 // Enhanced quantization information extraction with lawkit streaming analysis
-pub(crate) fn extract_quantization_info(obj: &serde_json::Map<String, Value>) -> Option<QuantizationInfo> {
+pub(crate) fn extract_quantization_info(
+    obj: &serde_json::Map<String, Value>,
+) -> Option<QuantizationInfo> {
     let mut bit_width = 32u8; // Default FP32
     let mut data_type = "float32".to_string();
     let mut quantized_layers = 0;
@@ -132,9 +155,12 @@ pub(crate) fn extract_quantization_info(obj: &serde_json::Map<String, Value>) ->
 
     // First pass: comprehensive precision analysis (diffx optimization pattern)
     for (key, value) in obj {
-        let is_quantization_related = key.contains("quant") || key.contains("precision") ||
-                                     key.contains("bit") || key.contains("weight") ||
-                                     key.contains("bias") || key.contains("param");
+        let is_quantization_related = key.contains("quant")
+            || key.contains("precision")
+            || key.contains("bit")
+            || key.contains("weight")
+            || key.contains("bias")
+            || key.contains("param");
 
         if is_quantization_related {
             // Extract explicit quantization metadata
@@ -207,7 +233,8 @@ pub(crate) fn extract_quantization_info(obj: &serde_json::Map<String, Value>) ->
 
                     // Dynamic range analysis for quantization quality
                     if let (Some(Value::Number(min_val)), Some(Value::Number(max_val))) =
-                        (tensor_obj.get("min"), tensor_obj.get("max")) {
+                        (tensor_obj.get("min"), tensor_obj.get("max"))
+                    {
                         if let (Some(min_f), Some(max_f)) = (min_val.as_f64(), max_val.as_f64()) {
                             dynamic_range_values.push((min_f, max_f));
                         }
@@ -245,11 +272,11 @@ pub(crate) fn extract_quantization_info(obj: &serde_json::Map<String, Value>) ->
     }
 
     // Enhanced mixed precision detection
-    let has_multiple_precisions = (precision_dist.fp32_layers > 0) as u8 +
-                                 (precision_dist.fp16_layers > 0) as u8 +
-                                 (precision_dist.int8_layers > 0) as u8 +
-                                 (precision_dist.int4_layers > 0) as u8 +
-                                 (precision_dist.custom_precision_layers > 0) as u8;
+    let has_multiple_precisions = (precision_dist.fp32_layers > 0) as u8
+        + (precision_dist.fp16_layers > 0) as u8
+        + (precision_dist.int8_layers > 0) as u8
+        + (precision_dist.int4_layers > 0) as u8
+        + (precision_dist.custom_precision_layers > 0) as u8;
 
     if has_multiple_precisions >= 2 {
         mixed_precision = true;
@@ -271,17 +298,19 @@ pub(crate) fn extract_quantization_info(obj: &serde_json::Map<String, Value>) ->
 
     // Dynamic range analysis
     let dynamic_range_analysis = if !dynamic_range_values.is_empty() {
-        let (global_min, global_max) = dynamic_range_values.iter()
-            .fold((f64::INFINITY, f64::NEG_INFINITY), |(min_acc, max_acc), &(min_val, max_val)| {
-                (min_acc.min(min_val), max_acc.max(max_val))
-            });
+        let (global_min, global_max) = dynamic_range_values.iter().fold(
+            (f64::INFINITY, f64::NEG_INFINITY),
+            |(min_acc, max_acc), &(min_val, max_val)| (min_acc.min(min_val), max_acc.max(max_val)),
+        );
 
         let dynamic_range = global_max - global_min;
         let range_utilization = if dynamic_range > 0.0 {
             // Estimate how well the quantization range is utilized
-            let effective_range = dynamic_range_values.iter()
+            let effective_range = dynamic_range_values
+                .iter()
                 .map(|(min_val, max_val)| max_val - min_val)
-                .sum::<f64>() / dynamic_range_values.len() as f64;
+                .sum::<f64>()
+                / dynamic_range_values.len() as f64;
             effective_range / dynamic_range
         } else {
             1.0
