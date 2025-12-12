@@ -10,7 +10,7 @@ use crate::ml_analysis::{
     analyze_batch_normalization_analysis, analyze_convergence_patterns, analyze_ensemble_patterns,
     analyze_gradient_patterns, analyze_learning_rate_changes, analyze_memory_usage_changes,
     analyze_model_architecture_changes, analyze_model_complexity_assessment,
-    analyze_quantization_patterns, analyze_regularization_impact,
+    analyze_quantization_patterns, analyze_regularization_impact, analyze_training_metrics,
     analyze_weight_distribution_analysis,
 };
 use crate::parsers::{detect_format_from_path, parse_file_by_format};
@@ -166,6 +166,9 @@ fn analyze_ml_features(
             }
         }
 
+        // NumPy/MATLAB形式: arrays/variables内のネストした構造を分析
+        analyze_nested_tensor_containers(old_obj, new_obj, results);
+
         // すべてのML分析を自動実行（lawkitパターン：ユーザー設定より規約を優先）
         analyze_model_architecture_changes(old, new, results);
         analyze_learning_rate_changes(old, new, results);
@@ -182,6 +185,9 @@ fn analyze_ml_features(
         analyze_activation_pattern_analysis(old, new, results);
         analyze_weight_distribution_analysis(old, new, results);
         analyze_model_complexity_assessment(old, new, results);
+
+        // Training metrics (loss, accuracy, version)
+        analyze_training_metrics(old, new, results);
     }
 
     Ok(())
@@ -571,4 +577,176 @@ fn stats_changed_significantly(old_stats: &TensorStats, new_stats: &TensorStats)
 
     // Consider significant if relative change > 1%
     mean_change > 0.01 || std_change > 0.01
+}
+
+// Analyze nested tensor containers (NumPy arrays, MATLAB variables, etc.)
+fn analyze_nested_tensor_containers(
+    old_obj: &serde_json::Map<String, Value>,
+    new_obj: &serde_json::Map<String, Value>,
+    results: &mut Vec<DiffResult>,
+) {
+    // Common container keys for different formats
+    let container_keys = [
+        "arrays",
+        "variables",
+        "tensors",
+        "model_state_dict",
+        "state_dict",
+        "layer_data",
+        "layers",
+        "weights",
+        "parameters",
+    ];
+
+    for container_key in &container_keys {
+        if let (Some(Value::Object(old_container)), Some(Value::Object(new_container))) =
+            (old_obj.get(*container_key), new_obj.get(*container_key))
+        {
+            // Analyze each array/tensor in the container
+            for (name, old_item) in old_container {
+                if let Some(new_item) = new_container.get(name) {
+                    let path = format!("{container_key}.{name}");
+                    analyze_tensor_metadata_changes(&path, old_item, new_item, results);
+                }
+            }
+        }
+    }
+}
+
+// Analyze tensor metadata changes (shape, dtype, statistics)
+fn analyze_tensor_metadata_changes(
+    path: &str,
+    old_item: &Value,
+    new_item: &Value,
+    results: &mut Vec<DiffResult>,
+) {
+    if let (Value::Object(old_obj), Value::Object(new_obj)) = (old_item, new_item) {
+        // Check for shape changes
+        if let (Some(old_shape), Some(new_shape)) = (old_obj.get("shape"), new_obj.get("shape")) {
+            let old_shape_vec = extract_shape_from_value(old_shape);
+            let new_shape_vec = extract_shape_from_value(new_shape);
+
+            if old_shape_vec != new_shape_vec {
+                results.push(DiffResult::TensorShapeChanged(
+                    path.to_string(),
+                    old_shape_vec,
+                    new_shape_vec,
+                ));
+            }
+        }
+
+        // Check for direct mean changes (TensorDataChanged)
+        if let (Some(old_mean), Some(new_mean)) = (
+            old_obj.get("mean").and_then(|v| v.as_f64()),
+            new_obj.get("mean").and_then(|v| v.as_f64()),
+        ) {
+            if (old_mean - new_mean).abs() > 1e-10 {
+                results.push(DiffResult::TensorDataChanged(
+                    path.to_string(),
+                    old_mean,
+                    new_mean,
+                ));
+            }
+        }
+
+        // Check for data array changes (compute stats from raw data)
+        if let (Some(Value::Array(old_data)), Some(Value::Array(new_data))) =
+            (old_obj.get("data"), new_obj.get("data"))
+        {
+            let old_vals: Vec<f64> = old_data.iter().filter_map(|v| v.as_f64()).collect();
+            let new_vals: Vec<f64> = new_data.iter().filter_map(|v| v.as_f64()).collect();
+
+            if !old_vals.is_empty() && !new_vals.is_empty() {
+                let old_shape = old_obj
+                    .get("shape")
+                    .map(extract_shape_from_value)
+                    .unwrap_or_default();
+                let new_shape = new_obj
+                    .get("shape")
+                    .map(extract_shape_from_value)
+                    .unwrap_or_default();
+                let dtype = old_obj
+                    .get("dtype")
+                    .and_then(|d| d.as_str())
+                    .unwrap_or("float32")
+                    .to_string();
+
+                let old_stats = TensorStats::new(&old_vals, old_shape.clone(), dtype.clone());
+                let new_stats = TensorStats::new(&new_vals, new_shape, dtype);
+
+                if stats_changed_significantly(&old_stats, &new_stats) {
+                    results.push(DiffResult::TensorStatsChanged(
+                        path.to_string(),
+                        old_stats,
+                        new_stats,
+                    ));
+                }
+            }
+        }
+
+        // Check for statistics changes
+        if let (Some(Value::Object(old_stats)), Some(Value::Object(new_stats))) =
+            (old_obj.get("statistics"), new_obj.get("statistics"))
+        {
+            let old_tensor_stats = extract_stats_from_object(old_stats, old_obj);
+            let new_tensor_stats = extract_stats_from_object(new_stats, new_obj);
+
+            if stats_changed_significantly(&old_tensor_stats, &new_tensor_stats) {
+                results.push(DiffResult::TensorStatsChanged(
+                    path.to_string(),
+                    old_tensor_stats,
+                    new_tensor_stats,
+                ));
+            }
+        }
+
+        // Note: data_summary changes are already captured by JSON diff as Modified results,
+        // so we don't generate TensorStatsChanged here to avoid duplication.
+    }
+}
+
+fn extract_shape_from_value(shape: &Value) -> Vec<usize> {
+    match shape {
+        Value::Array(arr) => arr
+            .iter()
+            .filter_map(|v| v.as_u64().map(|n| n as usize))
+            .collect(),
+        _ => vec![],
+    }
+}
+
+fn extract_stats_from_object(
+    stats_obj: &serde_json::Map<String, Value>,
+    parent_obj: &serde_json::Map<String, Value>,
+) -> TensorStats {
+    let mean = stats_obj
+        .get("mean")
+        .and_then(|v| v.as_f64())
+        .unwrap_or(0.0);
+    let std = stats_obj.get("std").and_then(|v| v.as_f64()).unwrap_or(0.0);
+    let min = stats_obj.get("min").and_then(|v| v.as_f64()).unwrap_or(0.0);
+    let max = stats_obj.get("max").and_then(|v| v.as_f64()).unwrap_or(0.0);
+
+    let shape = parent_obj
+        .get("shape")
+        .map(extract_shape_from_value)
+        .unwrap_or_default();
+
+    let dtype = parent_obj
+        .get("dtype")
+        .and_then(|d| d.as_str())
+        .unwrap_or("unknown")
+        .to_string();
+
+    let element_count = shape.iter().product();
+
+    TensorStats {
+        mean,
+        std,
+        min,
+        max,
+        shape,
+        dtype,
+        element_count,
+    }
 }

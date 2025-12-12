@@ -11,7 +11,6 @@ use fixtures::ml_generators;
 
 /// Test TensorStatsChanged detection with real tensor data
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_tensor_stats_changed_detailed() {
     let old = json!({
         "model_state_dict": {
@@ -68,7 +67,6 @@ fn test_tensor_stats_changed_detailed() {
 
 /// Test ModelArchitectureChanged detection
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_model_architecture_changed_detailed() {
     let old = json!({
         "net": {
@@ -101,7 +99,6 @@ fn test_model_architecture_changed_detailed() {
 
 /// Test WeightSignificantChange with threshold
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_weight_significant_change_threshold() {
     let old = json!({
         "parameters": {
@@ -134,7 +131,6 @@ fn test_weight_significant_change_threshold() {
 
 /// Test LearningRateChanged detection with various formats
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_learning_rate_changed_formats() {
     let test_cases = vec![
         // Standard optimizer format
@@ -171,7 +167,6 @@ fn test_learning_rate_changed_formats() {
 
 /// Test OptimizerChanged detection
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_optimizer_changed_detection() {
     let old = json!({
         "optimizer_state_dict": {
@@ -216,7 +211,6 @@ fn test_optimizer_changed_detection() {
 
 /// Test LossChange detection in training metrics
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_loss_change_detection() {
     let old = json!({
         "training_metrics": {
@@ -244,7 +238,6 @@ fn test_loss_change_detection() {
 
 /// Test AccuracyChange detection
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_accuracy_change_detection() {
     let old = json!({
         "metrics": {
@@ -274,7 +267,6 @@ fn test_accuracy_change_detection() {
 
 /// Test ModelVersionChanged detection
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_model_version_changed_detection() {
     let old = json!({
         "model_metadata": {
@@ -302,7 +294,6 @@ fn test_model_version_changed_detection() {
 
 /// Test ActivationFunctionChanged detection
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_activation_function_changed_detection() {
     let old = json!({
         "model_config": {
@@ -333,7 +324,6 @@ fn test_activation_function_changed_detection() {
 
 /// Test TensorShapeChanged detection
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_tensor_shape_changed_detection() {
     let old = json!({
         "tensors": {
@@ -365,7 +355,6 @@ fn test_tensor_shape_changed_detection() {
 
 /// Test TensorDataChanged detection
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_tensor_data_changed_detection() {
     let old = json!({
         "layer_data": {
@@ -401,7 +390,6 @@ fn test_tensor_data_changed_detection() {
 
 /// Test comprehensive ML analysis on complex model
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_comprehensive_ml_analysis() {
     let old_model = json!({
         "model_state_dict": {
@@ -469,7 +457,6 @@ fn test_comprehensive_ml_analysis() {
 
 /// Test ML analysis with PyTorch checkpoint format
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_pytorch_checkpoint_analysis() {
     let old_checkpoint = json!({
         "epoch": 10,
@@ -517,7 +504,6 @@ fn test_pytorch_checkpoint_analysis() {
 
 /// Test ML analysis with safetensors metadata
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_safetensors_metadata_analysis() {
     let old_safetensors = json!({
         "__metadata__": {
@@ -556,7 +542,6 @@ fn test_safetensors_metadata_analysis() {
 
 /// Test ML analysis with missing expected fields
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_ml_analysis_missing_fields() {
     let old = json!({
         "some_field": "value"
@@ -575,7 +560,6 @@ fn test_ml_analysis_missing_fields() {
 
 /// Test ML analysis with malformed data
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_ml_analysis_malformed_data() {
     let old = json!({
         "optimizer": {
@@ -603,7 +587,6 @@ fn test_ml_analysis_malformed_data() {
 
 /// Test performance with large ML model data
 #[test]
-#[ignore = "ML analysis integration needs refinement"]
 fn test_large_ml_model_performance() {
     // Generate large model with many layers
     let large_model_old =

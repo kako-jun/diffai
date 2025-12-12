@@ -57,24 +57,27 @@ pub fn format_diff_results(results: &[DiffResult], format: OutputFormat) -> Resu
                 output.push_str(&formatted);
             }
 
-            // AI/ML専用型を追加
+            // AI/ML専用型を追加（data_summaryの変更は既にJSON diffで表示されるため除外）
             let ml_results: Vec<&DiffResult> = results
                 .iter()
                 .filter(|r| {
-                    matches!(
-                        r,
+                    match r {
+                        // TensorStatsChanged: data_summaryパスは除外（重複回避）
+                        DiffResult::TensorStatsChanged(path, _, _) => {
+                            !path.contains("data_summary")
+                        }
                         DiffResult::TensorShapeChanged(_, _, _)
-                            | DiffResult::TensorStatsChanged(_, _, _)
-                            | DiffResult::TensorDataChanged(_, _, _)
-                            | DiffResult::ModelArchitectureChanged(_, _, _)
-                            | DiffResult::WeightSignificantChange(_, _)
-                            | DiffResult::ActivationFunctionChanged(_, _, _)
-                            | DiffResult::LearningRateChanged(_, _, _)
-                            | DiffResult::OptimizerChanged(_, _, _)
-                            | DiffResult::LossChange(_, _, _)
-                            | DiffResult::AccuracyChange(_, _, _)
-                            | DiffResult::ModelVersionChanged(_, _, _)
-                    )
+                        | DiffResult::TensorDataChanged(_, _, _)
+                        | DiffResult::ModelArchitectureChanged(_, _, _)
+                        | DiffResult::WeightSignificantChange(_, _)
+                        | DiffResult::ActivationFunctionChanged(_, _, _)
+                        | DiffResult::LearningRateChanged(_, _, _)
+                        | DiffResult::OptimizerChanged(_, _, _)
+                        | DiffResult::LossChange(_, _, _)
+                        | DiffResult::AccuracyChange(_, _, _)
+                        | DiffResult::ModelVersionChanged(_, _, _) => true,
+                        _ => false,
+                    }
                 })
                 .collect();
 
