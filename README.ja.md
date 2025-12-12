@@ -35,7 +35,7 @@ cargo install diffai
 
 # ライブラリとして（Cargo.toml）
 [dependencies]
-diffai-core = "0.3"
+diffai-core = "0.4"
 ```
 
 ## 使い方
@@ -109,7 +109,6 @@ fi
 - [対応フォーマット](diffai-cli/tests/cmd/formats.md)
 - [出力形式](diffai-cli/tests/cmd/output.md)
 - [オプション](diffai-cli/tests/cmd/options.md)
-- [ML分析](diffai-cli/tests/cmd/ml-analysis.md)
 
 ## ドキュメント
 
