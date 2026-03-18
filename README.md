@@ -35,7 +35,7 @@ cargo install diffai
 
 # As library (Cargo.toml)
 [dependencies]
-diffai-core = "0.4"
+diffai-core = "0.5"
 ```
 
 ## Usage
