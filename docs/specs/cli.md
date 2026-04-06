@@ -128,21 +128,19 @@ diffai -q model1.pt model2.pt && echo "同じ" || echo "異なる"
 
 #### `-v, --verbose`
 
-詳細なML分析情報を表示する。
+差分がない場合に確認メッセージを表示する。
 
-**出力内容**:
+**差分なしの場合**:
 ```
-learning_rate_analysis:
-  old: 0.001
-  new: 0.0015
-  change: +50.0%
-  trend: increasing
-gradient_analysis:
-  flow_health: healthy
-  norm: 0.021
-  variance_change: +15.3%
-...
+No differences found
 ```
+
+**`--brief` と併用（差分なし）**:
+```
+Files model_v1.safetensors and model_v2.safetensors are identical
+```
+
+**差分ありの場合**: 通常出力と同じ（追加情報なし）。
 
 ---
 
