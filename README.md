@@ -66,7 +66,7 @@ diffai weights1.npy weights2.npy --epsilon 0.001
 --epsilon <N>           # Float comparison tolerance
 --ignore-keys-regex RE  # Ignore keys matching regex
 --quiet                 # Return only exit code (0: same, 1: diff found)
---verbose               # Show detailed analysis
+--verbose               # Show confirmation when no differences
 ```
 
 ## Output Symbols

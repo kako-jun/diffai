@@ -66,7 +66,7 @@ diffai weights1.npy weights2.npy --epsilon 0.001
 --epsilon <N>           # 浮動小数点の許容誤差
 --ignore-keys-regex RE  # 正規表現にマッチするキーを無視
 --quiet                 # 終了コードのみ返す（0:同一, 1:差分あり）
---verbose               # 詳細分析を表示
+--verbose               # 差分なし時に確認メッセージを表示
 ```
 
 ## 出力記号
