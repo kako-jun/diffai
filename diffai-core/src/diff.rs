@@ -38,14 +38,10 @@ pub fn diff_paths(
         (true, true) => diff_directories(path1, path2, options),
         (false, false) => diff_files(path1, path2, options),
         (true, false) => Err(anyhow!(
-            "Cannot compare directory '{}' with file '{}'",
-            old_path,
-            new_path
+            "Cannot compare directory '{old_path}' with file '{new_path}'"
         )),
         (false, true) => Err(anyhow!(
-            "Cannot compare file '{}' with directory '{}'",
-            old_path,
-            new_path
+            "Cannot compare file '{old_path}' with directory '{new_path}'"
         )),
     }
 }
@@ -205,9 +201,7 @@ fn diff_files(
     // Ensure both files have the same format
     if std::mem::discriminant(&format1) != std::mem::discriminant(&format2) {
         return Err(anyhow!(
-            "Cannot compare files with different formats: {:?} vs {:?}",
-            format1,
-            format2
+            "Cannot compare files with different formats: {format1:?} vs {format2:?}"
         ));
     }
 

@@ -26,8 +26,7 @@ pub fn detect_format_from_path(path: &Path) -> Result<FileFormat> {
                 .and_then(|ext| ext.to_str())
                 .unwrap_or("unknown");
             Err(anyhow!(
-                "Unsupported file format: '{}'. diffai only supports AI/ML file formats: .pt, .pth, .safetensors, .npy, .npz, .mat. For general structured data formats, please use diffx.",
-                ext
+                "Unsupported file format: '{ext}'. diffai only supports AI/ML file formats: .pt, .pth, .safetensors, .npy, .npz, .mat. For general structured data formats, please use diffx."
             ))
         }
     }

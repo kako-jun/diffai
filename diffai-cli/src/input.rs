@@ -39,7 +39,6 @@ pub fn infer_format_from_path(path: &Path) -> Option<Format> {
 pub fn parse_content(_content: &str, format: Format) -> Result<Value> {
     // AI/ML files are binary formats and cannot be read from stdin
     Err(anyhow::anyhow!(
-        "Format {:?} not supported for stdin input. AI/ML files are binary formats and must be read from files. diffai only supports: .pt, .pth, .safetensors, .npy, .npz, .mat",
-        format
+        "Format {format:?} not supported for stdin input. AI/ML files are binary formats and must be read from files. diffai only supports: .pt, .pth, .safetensors, .npy, .npz, .mat"
     ))
 }
