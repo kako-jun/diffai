@@ -180,9 +180,5 @@ pub(super) fn extract_loss_trajectory(obj: &serde_json::Map<String, Value>) -> O
     }
 
     // Fallback to single loss value
-    if let Some(loss) = extract_loss_value(obj) {
-        Some(vec![loss])
-    } else {
-        None
-    }
+    extract_loss_value(obj).map(|loss| vec![loss])
 }

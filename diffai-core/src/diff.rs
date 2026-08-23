@@ -473,13 +473,7 @@ pub fn extract_tensor_data(tensor: &Value) -> Option<Vec<f64>> {
         }
 
         // Single numerical value
-        Value::Number(num) => {
-            if let Some(f) = num.as_f64() {
-                Some(vec![f])
-            } else {
-                None
-            }
-        }
+        Value::Number(num) => num.as_f64().map(|f| vec![f]),
 
         _ => None,
     }
